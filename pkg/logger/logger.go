@@ -25,8 +25,9 @@ func New(opts Options) log.Logger {
 		opts.At = []string{defaultAt}
 	}
 
-	logger := log.Builder().At(opts.At...).Build()
 	log.SetLevel(lvl)
+
+	logger := log.Builder().At(opts.At...).Build()
 
 	return logger
 }

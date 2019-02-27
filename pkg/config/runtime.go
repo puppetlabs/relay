@@ -10,6 +10,7 @@ import (
 
 const (
 	defaultConfigName       = "config"
+	defaultConfigType       = "yaml"
 	defaultSystemConfigPath = "/etc/puppet/nebula/"
 	defaultUserConfigPath   = "$HOME/.config/nebula/"
 )
@@ -46,8 +47,13 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 	loader := viper.New()
 
 	loader.SetConfigName(defaultConfigName)
+	loader.SetConfigType(defaultConfigType)
 	loader.AddConfigPath(defaultSystemConfigPath)
 	loader.AddConfigPath(defaultUserConfigPath)
+
+	if err := loader.ReadInConfig(); err != nil {
+		return nil, err
+	}
 
 	var cfg Config
 
