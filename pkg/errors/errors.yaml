@@ -1,0 +1,11 @@
+version: 1
+domain:
+  key: neb
+  title: Nebula
+sections:
+  workflow:
+    title: Workflow errors
+    errors:
+      unknown_runtime_error:
+        title: Unknown runtime error
+        description: "an unknown error occurred"
