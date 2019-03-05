@@ -25,6 +25,112 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// CommandSection defines a section of errors with the following scope:
+// Command execution errors
+var CommandSection = &impl.ErrorSection{
+	Key:   "command",
+	Title: "Command execution errors",
+}
+
+// CommandNoCommandToExecuteErrorCode is the code for an instance of "no_command_to_execute_error".
+const CommandNoCommandToExecuteErrorCode = "neb_command_no_command_to_execute_error"
+
+// IsCommandNoCommandToExecuteError tests whether a given error is an instance of "no_command_to_execute_error".
+func IsCommandNoCommandToExecuteError(err errawrgo.Error) bool {
+	return err != nil && err.Is(CommandNoCommandToExecuteErrorCode)
+}
+
+// IsCommandNoCommandToExecuteError tests whether a given error is an instance of "no_command_to_execute_error".
+func (External) IsCommandNoCommandToExecuteError(err errawrgo.Error) bool {
+	return IsCommandNoCommandToExecuteError(err)
+}
+
+// CommandNoCommandToExecuteErrorBuilder is a builder for "no_command_to_execute_error" errors.
+type CommandNoCommandToExecuteErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "no_command_to_execute_error" from this builder.
+func (b *CommandNoCommandToExecuteErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "A valid command was not found to execute",
+		Technical: "A valid command was not found to execute",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "no_command_to_execute_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     CommandSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "No command available to execute",
+		Version:          1,
+	}
+}
+
+// NewCommandNoCommandToExecuteErrorBuilder creates a new error builder for the code "no_command_to_execute_error".
+func NewCommandNoCommandToExecuteErrorBuilder() *CommandNoCommandToExecuteErrorBuilder {
+	return &CommandNoCommandToExecuteErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewCommandNoCommandToExecuteError creates a new error with the code "no_command_to_execute_error".
+func NewCommandNoCommandToExecuteError() Error {
+	return NewCommandNoCommandToExecuteErrorBuilder().Build()
+}
+
+// CommandUnknownCommandExecutionErrorCode is the code for an instance of "unknown_command_execution_error".
+const CommandUnknownCommandExecutionErrorCode = "neb_command_unknown_command_execution_error"
+
+// IsCommandUnknownCommandExecutionError tests whether a given error is an instance of "unknown_command_execution_error".
+func IsCommandUnknownCommandExecutionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(CommandUnknownCommandExecutionErrorCode)
+}
+
+// IsCommandUnknownCommandExecutionError tests whether a given error is an instance of "unknown_command_execution_error".
+func (External) IsCommandUnknownCommandExecutionError(err errawrgo.Error) bool {
+	return IsCommandUnknownCommandExecutionError(err)
+}
+
+// CommandUnknownCommandExecutionErrorBuilder is a builder for "unknown_command_execution_error" errors.
+type CommandUnknownCommandExecutionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unknown_command_execution_error" from this builder.
+func (b *CommandUnknownCommandExecutionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "something unexpected happened with command exection",
+		Technical: "something unexpected happened with command exection",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unknown_command_execution_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     CommandSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Unknown command execution error",
+		Version:          1,
+	}
+}
+
+// NewCommandUnknownCommandExecutionErrorBuilder creates a new error builder for the code "unknown_command_execution_error".
+func NewCommandUnknownCommandExecutionErrorBuilder(errorString string, commandString string) *CommandUnknownCommandExecutionErrorBuilder {
+	return &CommandUnknownCommandExecutionErrorBuilder{arguments: impl.ErrorArguments{
+		"command_string": impl.NewErrorArgument(commandString, "Command being executed"),
+		"error_string":   impl.NewErrorArgument(errorString, "Error being thrown"),
+	}}
+}
+
+// NewCommandUnknownCommandExecutionError creates a new error with the code "unknown_command_execution_error".
+func NewCommandUnknownCommandExecutionError(errorString string, commandString string) Error {
+	return NewCommandUnknownCommandExecutionErrorBuilder(errorString, commandString).Build()
+}
+
 // WorkflowSection defines a section of errors with the following scope:
 // Workflow errors
 var WorkflowSection = &impl.ErrorSection{

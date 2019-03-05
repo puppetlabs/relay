@@ -9,3 +9,20 @@ sections:
       unknown_runtime_error:
         title: Unknown runtime error
         description: "an unknown error occurred"
+
+  command:
+    title: Command execution errors
+    errors:
+      no_command_to_execute_error:
+        title: No command available to execute
+        description: A valid command was not found to execute
+      
+      unknown_command_execution_error:
+        title: Unknown command execution error
+        description: something unexpected happened with command exection
+        arguments:
+          error_string:
+            description: Error being thrown
+          command_string:
+            description: Command being executed
+            
