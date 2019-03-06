@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 type ShellSpec struct {
@@ -16,6 +17,22 @@ type Shell struct {
 	Spec ShellSpec `yaml:"spec"`
 }
 
-func (s Shell) Run(ctx context.Context, variables map[string]string) errors.Error {
+func (s *Shell) Run(ctx context.Context, variables map[string]string) errors.Error {
+	return nil
+}
+
+func (s *Shell) Decoder() Decoder {
+	return &ShellDecoder{s: s}
+}
+
+type ShellDecoder struct {
+	s *Shell
+}
+
+func (d *ShellDecoder) Decode(b []byte) errors.Error {
+	if err := yaml.Unmarshal(b, d.s); err != nil {
+		return errors.NewWorkflowRunnerDecodeError().WithCause(err).Bug()
+	}
+
 	return nil
 }

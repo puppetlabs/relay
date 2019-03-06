@@ -32,6 +32,198 @@ var WorkflowSection = &impl.ErrorSection{
 	Title: "Workflow errors",
 }
 
+// WorkflowFileNotFoundCode is the code for an instance of "file_not_found".
+const WorkflowFileNotFoundCode = "neb_workflow_file_not_found"
+
+// IsWorkflowFileNotFound tests whether a given error is an instance of "file_not_found".
+func IsWorkflowFileNotFound(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowFileNotFoundCode)
+}
+
+// IsWorkflowFileNotFound tests whether a given error is an instance of "file_not_found".
+func (External) IsWorkflowFileNotFound(err errawrgo.Error) bool {
+	return IsWorkflowFileNotFound(err)
+}
+
+// WorkflowFileNotFoundBuilder is a builder for "file_not_found" errors.
+type WorkflowFileNotFoundBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "file_not_found" from this builder.
+func (b *WorkflowFileNotFoundBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "filepath {{path}} does not exist",
+		Technical: "filepath {{path}} does not exist",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "file_not_found",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "File not found",
+		Version:          1,
+	}
+}
+
+// NewWorkflowFileNotFoundBuilder creates a new error builder for the code "file_not_found".
+func NewWorkflowFileNotFoundBuilder(path string) *WorkflowFileNotFoundBuilder {
+	return &WorkflowFileNotFoundBuilder{arguments: impl.ErrorArguments{"path": impl.NewErrorArgument(path, "the path that doesn't exist")}}
+}
+
+// NewWorkflowFileNotFound creates a new error with the code "file_not_found".
+func NewWorkflowFileNotFound(path string) Error {
+	return NewWorkflowFileNotFoundBuilder(path).Build()
+}
+
+// WorkflowLoaderErrorCode is the code for an instance of "loader_error".
+const WorkflowLoaderErrorCode = "neb_workflow_loader_error"
+
+// IsWorkflowLoaderError tests whether a given error is an instance of "loader_error".
+func IsWorkflowLoaderError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowLoaderErrorCode)
+}
+
+// IsWorkflowLoaderError tests whether a given error is an instance of "loader_error".
+func (External) IsWorkflowLoaderError(err errawrgo.Error) bool {
+	return IsWorkflowLoaderError(err)
+}
+
+// WorkflowLoaderErrorBuilder is a builder for "loader_error" errors.
+type WorkflowLoaderErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "loader_error" from this builder.
+func (b *WorkflowLoaderErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while loading the workflow",
+		Technical: "an error occurred while loading the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "loader_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Loader error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowLoaderErrorBuilder creates a new error builder for the code "loader_error".
+func NewWorkflowLoaderErrorBuilder() *WorkflowLoaderErrorBuilder {
+	return &WorkflowLoaderErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowLoaderError creates a new error with the code "loader_error".
+func NewWorkflowLoaderError() Error {
+	return NewWorkflowLoaderErrorBuilder().Build()
+}
+
+// WorkflowRunnerDecodeErrorCode is the code for an instance of "runner_decode_error".
+const WorkflowRunnerDecodeErrorCode = "neb_workflow_runner_decode_error"
+
+// IsWorkflowRunnerDecodeError tests whether a given error is an instance of "runner_decode_error".
+func IsWorkflowRunnerDecodeError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowRunnerDecodeErrorCode)
+}
+
+// IsWorkflowRunnerDecodeError tests whether a given error is an instance of "runner_decode_error".
+func (External) IsWorkflowRunnerDecodeError(err errawrgo.Error) bool {
+	return IsWorkflowRunnerDecodeError(err)
+}
+
+// WorkflowRunnerDecodeErrorBuilder is a builder for "runner_decode_error" errors.
+type WorkflowRunnerDecodeErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "runner_decode_error" from this builder.
+func (b *WorkflowRunnerDecodeErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error decoding the action runner",
+		Technical: "there was an error decoding the action runner",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "runner_decode_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Runner decode error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowRunnerDecodeErrorBuilder creates a new error builder for the code "runner_decode_error".
+func NewWorkflowRunnerDecodeErrorBuilder() *WorkflowRunnerDecodeErrorBuilder {
+	return &WorkflowRunnerDecodeErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowRunnerDecodeError creates a new error with the code "runner_decode_error".
+func NewWorkflowRunnerDecodeError() Error {
+	return NewWorkflowRunnerDecodeErrorBuilder().Build()
+}
+
+// WorkflowRunnerNotFoundCode is the code for an instance of "runner_not_found".
+const WorkflowRunnerNotFoundCode = "neb_workflow_runner_not_found"
+
+// IsWorkflowRunnerNotFound tests whether a given error is an instance of "runner_not_found".
+func IsWorkflowRunnerNotFound(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowRunnerNotFoundCode)
+}
+
+// IsWorkflowRunnerNotFound tests whether a given error is an instance of "runner_not_found".
+func (External) IsWorkflowRunnerNotFound(err errawrgo.Error) bool {
+	return IsWorkflowRunnerNotFound(err)
+}
+
+// WorkflowRunnerNotFoundBuilder is a builder for "runner_not_found" errors.
+type WorkflowRunnerNotFoundBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "runner_not_found" from this builder.
+func (b *WorkflowRunnerNotFoundBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the runner `{{kind}}` was not found",
+		Technical: "the runner `{{kind}}` was not found",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "runner_not_found",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Runner not found",
+		Version:          1,
+	}
+}
+
+// NewWorkflowRunnerNotFoundBuilder creates a new error builder for the code "runner_not_found".
+func NewWorkflowRunnerNotFoundBuilder(kind string) *WorkflowRunnerNotFoundBuilder {
+	return &WorkflowRunnerNotFoundBuilder{arguments: impl.ErrorArguments{"kind": impl.NewErrorArgument(kind, "the kind of runner that was not found")}}
+}
+
+// NewWorkflowRunnerNotFound creates a new error with the code "runner_not_found".
+func NewWorkflowRunnerNotFound(kind string) Error {
+	return NewWorkflowRunnerNotFoundBuilder(kind).Build()
+}
+
 // WorkflowUnknownRuntimeErrorCode is the code for an instance of "unknown_runtime_error".
 const WorkflowUnknownRuntimeErrorCode = "neb_workflow_unknown_runtime_error"
 
