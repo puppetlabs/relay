@@ -5,6 +5,7 @@ import (
 
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/logger"
+	"github.com/puppetlabs/nebula/pkg/workflow/loader"
 	"github.com/spf13/viper"
 )
 
@@ -19,6 +20,11 @@ type CLIRuntime interface {
 	Config() *Config
 	IO() *IO
 	Logger() logging.Logger
+	WorkflowLoader() loader.Loader
+	SetConfig(*Config)
+	SetIO(*IO)
+	SetLogger(logging.Logger)
+	SetWorkflowLoader(loader.Loader)
 }
 
 func NewCLIRuntime() (CLIRuntime, error) {
@@ -26,45 +32,69 @@ func NewCLIRuntime() (CLIRuntime, error) {
 }
 
 type StandardRuntime struct {
-	config *Config
-	io     *IO
-	logger logging.Logger
+	config         *Config
+	io             *IO
+	logger         logging.Logger
+	workflowLoader loader.Loader
 }
 
 func (sr *StandardRuntime) Config() *Config {
 	return sr.config
 }
 
+func (sr *StandardRuntime) SetConfig(cfg *Config) {
+	sr.config = cfg
+}
+
 func (sr *StandardRuntime) IO() *IO {
 	return sr.io
+}
+
+func (sr *StandardRuntime) SetIO(streams *IO) {
+	sr.io = streams
 }
 
 func (sr *StandardRuntime) Logger() logging.Logger {
 	return sr.logger
 }
 
+func (sr *StandardRuntime) SetLogger(l logging.Logger) {
+	sr.logger = l
+}
+
+func (sr *StandardRuntime) WorkflowLoader() loader.Loader {
+	return sr.workflowLoader
+}
+
+func (sr *StandardRuntime) SetWorkflowLoader(l loader.Loader) {
+	sr.workflowLoader = l
+}
+
 func NewStandardRuntime() (*StandardRuntime, error) {
-	loader := viper.New()
+	v := viper.New()
 
-	loader.SetConfigName(defaultConfigName)
-	loader.SetConfigType(defaultConfigType)
-	loader.AddConfigPath(defaultSystemConfigPath)
-	loader.AddConfigPath(defaultUserConfigPath)
+	v.SetConfigName(defaultConfigName)
+	v.SetConfigType(defaultConfigType)
+	v.AddConfigPath(defaultSystemConfigPath)
+	v.AddConfigPath(defaultUserConfigPath)
 
-	if err := loader.ReadInConfig(); err != nil {
-		return nil, err
+	if err := v.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return nil, err
+		}
 	}
 
 	var cfg Config
 
-	if err := loader.Unmarshal(&cfg); err != nil {
+	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
 
 	r := StandardRuntime{
-		config: &cfg,
-		io:     &IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
-		logger: logger.New(logger.Options{Debug: cfg.Debug}),
+		config:         &cfg,
+		io:             &IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
+		logger:         logger.New(logger.Options{Debug: cfg.Debug}),
+		workflowLoader: loader.ImpliedWorkflowFileLoader{},
 	}
 
 	return &r, nil

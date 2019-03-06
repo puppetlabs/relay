@@ -101,8 +101,8 @@ type WorkflowFileNotFoundBuilder struct {
 // Build creates the error for the code "file_not_found" from this builder.
 func (b *WorkflowFileNotFoundBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "filepath {{path}} does not exist",
-		Technical: "filepath {{path}} does not exist",
+		Friendly:  "filepath `{{path}}` does not exist",
+		Technical: "filepath `{{path}}` does not exist",
 	}
 
 	return &impl.Error{

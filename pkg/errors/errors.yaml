@@ -14,7 +14,7 @@ sections:
         description: an error occurred while loading the workflow
       file_not_found:
         title: File not found
-        description: filepath {{path}} does not exist
+        description: filepath `{{path}}` does not exist
         arguments:
           path:
             description: the path that doesn't exist
