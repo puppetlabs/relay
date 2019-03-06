@@ -10,9 +10,6 @@ sections:
         title: Unknown runtime error
         description: "an unknown error occurred"
 
-  command:
-    title: Command execution errors
-    errors:
       no_command_to_execute_error:
         title: No command available to execute
         description: A valid command was not found to execute
@@ -25,4 +22,28 @@ sections:
             description: Error being thrown
           command_string:
             description: Command being executed
-            
+        
+      loader_error:
+        title: Loader error
+        description: an error occurred while loading the workflow
+      file_not_found:
+        title: File not found
+        description: filepath {{path}} does not exist
+        arguments:
+          path:
+            description: the path that doesn't exist
+      runner_not_found:
+        title: Runner not found
+        description: the runner `{{kind}}` was not found
+        arguments:
+          kind:
+            description: the kind of runner that was not found
+      runner_decode_error:
+        title: Runner decode error
+        description: there was an error decoding the action runner
+      action_decode_error:
+        title: Action decode error
+        description: "could not decode action configuration: {{reason}}"
+        arguments:
+          reason:
+            description: the reason there was a decoding error

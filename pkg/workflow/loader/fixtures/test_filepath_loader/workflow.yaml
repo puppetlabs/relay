@@ -1,0 +1,25 @@
+version: 1
+name: nebula-workflow-test
+
+variables:
+- name: TEST_VAR
+  value: nebula-example-1234
+- name: GOOGLE_CLOUD_REGION
+  value: us-west1
+
+actions:
+- name: create-cluster
+  kind: gke-cluster-provisioner
+  spec:
+    name: example-cluster-1
+    projectID: $GOOGLE_PROJECT_ID
+    region: $GOOGLE_CLOUD_REGION
+- name: install-redis
+  kind: workflow
+  spec:
+    import: http://github.com/puppetlabs/nebula-redis-workflow
+- name: echo-command
+  kind: shell
+  spec:
+    commands:
+    - echo "hello, world!"
