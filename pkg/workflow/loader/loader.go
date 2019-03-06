@@ -2,6 +2,8 @@ package loader
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/puppetlabs/nebula/pkg/errors"
 	"github.com/puppetlabs/nebula/pkg/workflow"
@@ -33,4 +35,22 @@ func (f FilepathLoader) Load() (*workflow.Workflow, errors.Error) {
 
 func NewFilepathLoader(path string) *FilepathLoader {
 	return &FilepathLoader{path: path}
+}
+
+type ImpliedWorkflowFileLoader struct{}
+
+func (i ImpliedWorkflowFileLoader) Load() (*workflow.Workflow, errors.Error) {
+	impliedPath := filepath.Join(".", "workflow.yaml")
+
+	if _, err := os.Stat(impliedPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil, errors.NewWorkflowFileNotFound(impliedPath)
+		}
+
+		return nil, errors.NewWorkflowLoaderError().WithCause(err).Bug()
+	}
+
+	delegate := NewFilepathLoader(impliedPath)
+
+	return delegate.Load()
 }

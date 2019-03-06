@@ -3,7 +3,6 @@ package loader
 import (
 	"testing"
 
-	"github.com/kr/pretty"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,5 +16,14 @@ func TestFilepathLoader(t *testing.T) {
 	wf, err := fpl.Load()
 	require.NoError(t, err)
 
-	pretty.Println(wf)
+	require.Equal(t, "nebula-workflow-test", wf.Name)
+	require.Equal(t, "1", wf.Version)
+
+	require.Len(t, wf.Variables, 2)
+	for _, variable := range wf.Variables {
+		require.NotEmpty(t, variable.Name)
+		require.NotEmpty(t, variable.Value)
+	}
+
+	require.Len(t, wf.Actions, 3)
 }
