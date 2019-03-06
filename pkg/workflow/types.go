@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"github.com/puppetlabs/nebula/pkg/errors"
 	"github.com/puppetlabs/nebula/pkg/workflow/runner"
 	"gopkg.in/yaml.v2"
 )

@@ -32,6 +32,54 @@ var WorkflowSection = &impl.ErrorSection{
 	Title: "Workflow errors",
 }
 
+// WorkflowActionDecodeErrorCode is the code for an instance of "action_decode_error".
+const WorkflowActionDecodeErrorCode = "neb_workflow_action_decode_error"
+
+// IsWorkflowActionDecodeError tests whether a given error is an instance of "action_decode_error".
+func IsWorkflowActionDecodeError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowActionDecodeErrorCode)
+}
+
+// IsWorkflowActionDecodeError tests whether a given error is an instance of "action_decode_error".
+func (External) IsWorkflowActionDecodeError(err errawrgo.Error) bool {
+	return IsWorkflowActionDecodeError(err)
+}
+
+// WorkflowActionDecodeErrorBuilder is a builder for "action_decode_error" errors.
+type WorkflowActionDecodeErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "action_decode_error" from this builder.
+func (b *WorkflowActionDecodeErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "could not decode action configuration: {{reason}}",
+		Technical: "could not decode action configuration: {{reason}}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "action_decode_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Action decode error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowActionDecodeErrorBuilder creates a new error builder for the code "action_decode_error".
+func NewWorkflowActionDecodeErrorBuilder(reason string) *WorkflowActionDecodeErrorBuilder {
+	return &WorkflowActionDecodeErrorBuilder{arguments: impl.ErrorArguments{"reason": impl.NewErrorArgument(reason, "the reason there was a decoding error")}}
+}
+
+// NewWorkflowActionDecodeError creates a new error with the code "action_decode_error".
+func NewWorkflowActionDecodeError(reason string) Error {
+	return NewWorkflowActionDecodeErrorBuilder(reason).Build()
+}
+
 // WorkflowFileNotFoundCode is the code for an instance of "file_not_found".
 const WorkflowFileNotFoundCode = "neb_workflow_file_not_found"
 

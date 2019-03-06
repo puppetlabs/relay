@@ -29,7 +29,7 @@ sections:
         description: there was an error decoding the action runner
       action_decode_error:
         title: Action decode error
-        description: could not decode action configuration: {{reason}}
+        description: "could not decode action configuration: {{reason}}"
         arguments:
           reason:
             description: the reason there was a decoding error
