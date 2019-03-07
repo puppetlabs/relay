@@ -18,8 +18,31 @@ actions:
   kind: workflow
   spec:
     import: http://github.com/puppetlabs/nebula-redis-workflow
-- name: echo-command
+
+- name: build
+  kind: shell
+  spec: 
+    commands:
+      - make
+      - docker build -t $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG) .
+      
+- name: test
   kind: shell
   spec:
     commands:
-    - echo "hello, world!"
+      - go test ./...
+
+- name: publish
+  kind: shell
+  spec:
+    commands:
+      - docker push $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG)
+
+stages:
+  start_on:
+    - action: commit
+      branch: master
+  steps:
+    - build
+    - test
+    - publish

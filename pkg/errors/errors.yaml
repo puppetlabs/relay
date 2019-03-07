@@ -47,3 +47,12 @@ sections:
         arguments:
           reason:
             description: the reason there was a decoding error
+      non_existent_action_error:
+        title: The requested action does not exist
+        description: "the request action does not exist: {{action}}"
+        arguments:
+          action:
+            description: the action that was missing
+      stage_error:
+        title: Stage error
+        description: an error occurred while setting up stage of workflow

@@ -8,8 +8,8 @@ import (
 
 func NewCommand(r config.CLIRuntime) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "apply [options] [command]",
-		Short:                 "Apply and run workflow stages",
+		Use:   "apply [options] [command]",
+		Short: "Apply and run workflow stages",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			workflow, err := r.WorkflowLoader().Load()
