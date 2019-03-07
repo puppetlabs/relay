@@ -3,7 +3,7 @@ module github.com/puppetlabs/nebula
 go 1.12
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
+	cloud.google.com/go v0.36.0
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/pretty v0.1.0
@@ -14,6 +14,6 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/sys v0.0.0-20190305064518-30e92a19ae4a // indirect
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
+	google.golang.org/genproto v0.0.0-20190306222511-6e86cb5d2f12
 	gopkg.in/yaml.v2 v2.2.2
 )

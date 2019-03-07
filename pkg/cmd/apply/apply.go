@@ -3,6 +3,7 @@ package apply
 import (
 	"github.com/kr/pretty"
 	"github.com/puppetlabs/nebula/pkg/config"
+	"github.com/puppetlabs/nebula/pkg/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -12,12 +13,12 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 		Short:                 "Apply and run workflow stages",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			workflow, err := r.WorkflowLoader().Load()
-			if err != nil {
+			var wf workflow.Workflow
+			if err := r.WorkflowLoader().Load(&wf); err != nil {
 				return err
 			}
 
-			pretty.Println(workflow)
+			pretty.Println(wf)
 
 			return nil
 		},

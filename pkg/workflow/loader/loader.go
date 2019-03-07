@@ -11,26 +11,24 @@ import (
 )
 
 type Loader interface {
-	Load() (*workflow.Workflow, errors.Error)
+	Load(*workflow.Workflow) errors.Error
 }
 
 type FilepathLoader struct {
 	path string
 }
 
-func (f FilepathLoader) Load() (*workflow.Workflow, errors.Error) {
+func (f FilepathLoader) Load(wf *workflow.Workflow) errors.Error {
 	b, err := ioutil.ReadFile(f.path)
 	if err != nil {
-		return nil, errors.NewWorkflowLoaderError().WithCause(err)
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
-	var wf workflow.Workflow
-
-	if err := yaml.Unmarshal(b, &wf); err != nil {
-		return nil, errors.NewWorkflowLoaderError().WithCause(err)
+	if err := yaml.Unmarshal(b, wf); err != nil {
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
-	return &wf, nil
+	return nil
 }
 
 func NewFilepathLoader(path string) *FilepathLoader {
@@ -39,18 +37,18 @@ func NewFilepathLoader(path string) *FilepathLoader {
 
 type ImpliedWorkflowFileLoader struct{}
 
-func (i ImpliedWorkflowFileLoader) Load() (*workflow.Workflow, errors.Error) {
+func (i ImpliedWorkflowFileLoader) Load(wf *workflow.Workflow) errors.Error {
 	impliedPath := filepath.Join(".", "workflow.yaml")
 
 	if _, err := os.Stat(impliedPath); err != nil {
 		if os.IsNotExist(err) {
-			return nil, errors.NewWorkflowFileNotFound(impliedPath)
+			return errors.NewWorkflowFileNotFound(impliedPath)
 		}
 
-		return nil, errors.NewWorkflowLoaderError().WithCause(err).Bug()
+		return errors.NewWorkflowLoaderError().WithCause(err).Bug()
 	}
 
 	delegate := NewFilepathLoader(impliedPath)
 
-	return delegate.Load()
+	return delegate.Load(wf)
 }
