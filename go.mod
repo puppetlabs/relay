@@ -15,5 +15,6 @@ require (
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/sys v0.0.0-20190305064518-30e92a19ae4a // indirect
 	google.golang.org/genproto v0.0.0-20190306222511-6e86cb5d2f12
+	google.golang.org/grpc v1.19.0
 	gopkg.in/yaml.v2 v2.2.2
 )

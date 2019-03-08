@@ -3,7 +3,6 @@ package runner
 import (
 	"context"
 
-	"github.com/kr/pretty"
 	"github.com/puppetlabs/nebula/pkg/errors"
 	"github.com/puppetlabs/nebula/pkg/infra/provider/gcp"
 	"gopkg.in/yaml.v2"
@@ -38,11 +37,13 @@ func (g *GKEClusterProvisioner) Run(ctx context.Context, r ActionRuntime, variab
 		return err
 	}
 
-	pretty.Println(c)
+	r.Logger().Info("cluster-state-fetched", "name", g.Spec.Name, "status", c.Status)
 
-	// if err := c.Sync(ctx); err != nil {
-	// 	return err
-	// }
+	if err := c.Sync(ctx); err != nil {
+		return err
+	}
+
+	r.Logger().Info("cluster-state-synced", "name", g.Spec.Name, "status", c.Status)
 
 	return nil
 }
