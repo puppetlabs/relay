@@ -7,8 +7,8 @@ import (
 
 func NewCommand(r config.CLIRuntime) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflow [options] [command]",
-		Short: "Manage workflows",
+		Use:                   "workflow [options] [command]",
+		Short:                 "Manage workflows",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 		},
