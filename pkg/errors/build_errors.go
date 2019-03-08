@@ -25,6 +25,61 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// GcpSection defines a section of errors with the following scope:
+// GCP related errors
+var GcpSection = &impl.ErrorSection{
+	Key:   "gcp",
+	Title: "GCP related errors",
+}
+
+// GcpClientCreateErrorCode is the code for an instance of "client_create_error".
+const GcpClientCreateErrorCode = "neb_gcp_client_create_error"
+
+// IsGcpClientCreateError tests whether a given error is an instance of "client_create_error".
+func IsGcpClientCreateError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClientCreateErrorCode)
+}
+
+// IsGcpClientCreateError tests whether a given error is an instance of "client_create_error".
+func (External) IsGcpClientCreateError(err errawrgo.Error) bool {
+	return IsGcpClientCreateError(err)
+}
+
+// GcpClientCreateErrorBuilder is a builder for "client_create_error" errors.
+type GcpClientCreateErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "client_create_error" from this builder.
+func (b *GcpClientCreateErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while creating the GCP client",
+		Technical: "an error occurred while creating the GCP client",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "client_create_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Client create error",
+		Version:          1,
+	}
+}
+
+// NewGcpClientCreateErrorBuilder creates a new error builder for the code "client_create_error".
+func NewGcpClientCreateErrorBuilder() *GcpClientCreateErrorBuilder {
+	return &GcpClientCreateErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClientCreateError creates a new error with the code "client_create_error".
+func NewGcpClientCreateError() Error {
+	return NewGcpClientCreateErrorBuilder().Build()
+}
+
 // WorkflowSection defines a section of errors with the following scope:
 // Workflow errors
 var WorkflowSection = &impl.ErrorSection{

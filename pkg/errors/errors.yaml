@@ -33,3 +33,18 @@ sections:
         arguments:
           reason:
             description: the reason there was a decoding error
+  gcp:
+    title: GCP related errors
+    errors:
+      client_create_error:
+        title: Client create error
+        description: an error occurred while creating the GCP client
+      cluster_does_not_exist:
+        title: Cluster does not exist
+        description: the remote cluster does not exist
+      cluster_read_error:
+        title: Cluster read error
+        description: an error occurred while fetching the remote cluster
+      cluster_sync_error:
+        title: Cluster sync error
+        description: an error occurred while syncing the cluster

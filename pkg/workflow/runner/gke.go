@@ -3,9 +3,9 @@ package runner
 import (
 	"context"
 
-	container "cloud.google.com/go/container/apiv1"
+	"github.com/kr/pretty"
 	"github.com/puppetlabs/nebula/pkg/errors"
-	containerpb "google.golang.org/genproto/googleapis/container/v1"
+	"github.com/puppetlabs/nebula/pkg/infra/provider/gcp"
 	"gopkg.in/yaml.v2"
 )
 
@@ -23,26 +23,26 @@ type GKEClusterProvisioner struct {
 }
 
 func (g *GKEClusterProvisioner) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
-	manager, err := container.NewClusterManagerClient(ctx)
+	c, err := gcp.NewCluster(gcp.ClusterSpec{
+		Name:        g.Spec.Name,
+		Description: g.Spec.Description,
+		Nodes:       int32(g.Spec.Nodes),
+		Region:      g.Spec.Region,
+		ProjectID:   g.Spec.ProjectID,
+	})
 	if err != nil {
-		return errors.NewWorkflowUnknownRuntimeError().WithCause(err).Bug()
+		return err
 	}
 
-	req := &containerpb.CreateClusterRequest{
-		ProjectId: g.Spec.ProjectID,
-		Cluster: &containerpb.Cluster{
-			Name:             g.Spec.Name,
-			InitialNodeCount: int32(g.Spec.Nodes),
-			Description:      g.Spec.Description,
-		},
+	if err := c.LookupRemote(ctx); err != nil {
+		return err
 	}
 
-	resp, err := manager.CreateCluster(ctx, req)
-	if err != nil {
-		return errors.NewWorkflowUnknownRuntimeError().WithCause(err).Bug()
-	}
+	pretty.Println(c)
 
-	r.Logger().Info("created cluster", "status", resp.Status)
+	// if err := c.Sync(ctx); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
