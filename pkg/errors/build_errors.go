@@ -176,6 +176,102 @@ func NewWorkflowLoaderError() Error {
 	return NewWorkflowLoaderErrorBuilder().Build()
 }
 
+// WorkflowNoCommandToExecuteErrorCode is the code for an instance of "no_command_to_execute_error".
+const WorkflowNoCommandToExecuteErrorCode = "neb_workflow_no_command_to_execute_error"
+
+// IsWorkflowNoCommandToExecuteError tests whether a given error is an instance of "no_command_to_execute_error".
+func IsWorkflowNoCommandToExecuteError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowNoCommandToExecuteErrorCode)
+}
+
+// IsWorkflowNoCommandToExecuteError tests whether a given error is an instance of "no_command_to_execute_error".
+func (External) IsWorkflowNoCommandToExecuteError(err errawrgo.Error) bool {
+	return IsWorkflowNoCommandToExecuteError(err)
+}
+
+// WorkflowNoCommandToExecuteErrorBuilder is a builder for "no_command_to_execute_error" errors.
+type WorkflowNoCommandToExecuteErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "no_command_to_execute_error" from this builder.
+func (b *WorkflowNoCommandToExecuteErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "A valid command was not found to execute",
+		Technical: "A valid command was not found to execute",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "no_command_to_execute_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "No command available to execute",
+		Version:          1,
+	}
+}
+
+// NewWorkflowNoCommandToExecuteErrorBuilder creates a new error builder for the code "no_command_to_execute_error".
+func NewWorkflowNoCommandToExecuteErrorBuilder() *WorkflowNoCommandToExecuteErrorBuilder {
+	return &WorkflowNoCommandToExecuteErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowNoCommandToExecuteError creates a new error with the code "no_command_to_execute_error".
+func NewWorkflowNoCommandToExecuteError() Error {
+	return NewWorkflowNoCommandToExecuteErrorBuilder().Build()
+}
+
+// WorkflowNonExistentActionErrorCode is the code for an instance of "non_existent_action_error".
+const WorkflowNonExistentActionErrorCode = "neb_workflow_non_existent_action_error"
+
+// IsWorkflowNonExistentActionError tests whether a given error is an instance of "non_existent_action_error".
+func IsWorkflowNonExistentActionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowNonExistentActionErrorCode)
+}
+
+// IsWorkflowNonExistentActionError tests whether a given error is an instance of "non_existent_action_error".
+func (External) IsWorkflowNonExistentActionError(err errawrgo.Error) bool {
+	return IsWorkflowNonExistentActionError(err)
+}
+
+// WorkflowNonExistentActionErrorBuilder is a builder for "non_existent_action_error" errors.
+type WorkflowNonExistentActionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "non_existent_action_error" from this builder.
+func (b *WorkflowNonExistentActionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the request action does not exist: {{action}}",
+		Technical: "the request action does not exist: {{action}}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "non_existent_action_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "The requested action does not exist",
+		Version:          1,
+	}
+}
+
+// NewWorkflowNonExistentActionErrorBuilder creates a new error builder for the code "non_existent_action_error".
+func NewWorkflowNonExistentActionErrorBuilder(action string) *WorkflowNonExistentActionErrorBuilder {
+	return &WorkflowNonExistentActionErrorBuilder{arguments: impl.ErrorArguments{"action": impl.NewErrorArgument(action, "the action that was missing")}}
+}
+
+// NewWorkflowNonExistentActionError creates a new error with the code "non_existent_action_error".
+func NewWorkflowNonExistentActionError(action string) Error {
+	return NewWorkflowNonExistentActionErrorBuilder(action).Build()
+}
+
 // WorkflowRunnerDecodeErrorCode is the code for an instance of "runner_decode_error".
 const WorkflowRunnerDecodeErrorCode = "neb_workflow_runner_decode_error"
 
@@ -270,6 +366,105 @@ func NewWorkflowRunnerNotFoundBuilder(kind string) *WorkflowRunnerNotFoundBuilde
 // NewWorkflowRunnerNotFound creates a new error with the code "runner_not_found".
 func NewWorkflowRunnerNotFound(kind string) Error {
 	return NewWorkflowRunnerNotFoundBuilder(kind).Build()
+}
+
+// WorkflowStageErrorCode is the code for an instance of "stage_error".
+const WorkflowStageErrorCode = "neb_workflow_stage_error"
+
+// IsWorkflowStageError tests whether a given error is an instance of "stage_error".
+func IsWorkflowStageError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowStageErrorCode)
+}
+
+// IsWorkflowStageError tests whether a given error is an instance of "stage_error".
+func (External) IsWorkflowStageError(err errawrgo.Error) bool {
+	return IsWorkflowStageError(err)
+}
+
+// WorkflowStageErrorBuilder is a builder for "stage_error" errors.
+type WorkflowStageErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "stage_error" from this builder.
+func (b *WorkflowStageErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while setting up stage of workflow",
+		Technical: "an error occurred while setting up stage of workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "stage_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Stage error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowStageErrorBuilder creates a new error builder for the code "stage_error".
+func NewWorkflowStageErrorBuilder() *WorkflowStageErrorBuilder {
+	return &WorkflowStageErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowStageError creates a new error with the code "stage_error".
+func NewWorkflowStageError() Error {
+	return NewWorkflowStageErrorBuilder().Build()
+}
+
+// WorkflowUnknownCommandExecutionErrorCode is the code for an instance of "unknown_command_execution_error".
+const WorkflowUnknownCommandExecutionErrorCode = "neb_workflow_unknown_command_execution_error"
+
+// IsWorkflowUnknownCommandExecutionError tests whether a given error is an instance of "unknown_command_execution_error".
+func IsWorkflowUnknownCommandExecutionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowUnknownCommandExecutionErrorCode)
+}
+
+// IsWorkflowUnknownCommandExecutionError tests whether a given error is an instance of "unknown_command_execution_error".
+func (External) IsWorkflowUnknownCommandExecutionError(err errawrgo.Error) bool {
+	return IsWorkflowUnknownCommandExecutionError(err)
+}
+
+// WorkflowUnknownCommandExecutionErrorBuilder is a builder for "unknown_command_execution_error" errors.
+type WorkflowUnknownCommandExecutionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unknown_command_execution_error" from this builder.
+func (b *WorkflowUnknownCommandExecutionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "something unexpected happened with command exection",
+		Technical: "something unexpected happened with command exection",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unknown_command_execution_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Unknown command execution error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowUnknownCommandExecutionErrorBuilder creates a new error builder for the code "unknown_command_execution_error".
+func NewWorkflowUnknownCommandExecutionErrorBuilder(errorString string, commandString string) *WorkflowUnknownCommandExecutionErrorBuilder {
+	return &WorkflowUnknownCommandExecutionErrorBuilder{arguments: impl.ErrorArguments{
+		"command_string": impl.NewErrorArgument(commandString, "Command being executed"),
+		"error_string":   impl.NewErrorArgument(errorString, "Error being thrown"),
+	}}
+}
+
+// NewWorkflowUnknownCommandExecutionError creates a new error with the code "unknown_command_execution_error".
+func NewWorkflowUnknownCommandExecutionError(errorString string, commandString string) Error {
+	return NewWorkflowUnknownCommandExecutionErrorBuilder(errorString, commandString).Build()
 }
 
 // WorkflowUnknownRuntimeErrorCode is the code for an instance of "unknown_runtime_error".

@@ -11,6 +11,19 @@ type Workflow struct {
 	Name      string     `yaml:"name"`
 	Variables []Variable `yaml:"variables"`
 	Actions   []Action   `yaml:"actions"`
+	Stage     Stage      `yaml:"stages"`
+}
+
+type Trigger struct {
+	Action string `yaml:"action"`
+	Branch string `yaml:"branch"`
+}
+
+type Stage struct {
+	Steps   []string  `yaml:"steps"`
+	StartOn []Trigger `yaml:"start_on"`
+
+	Actions []Action
 }
 
 type Action struct {
