@@ -28,6 +28,34 @@ func (f FilepathLoader) Load(wf *workflow.Workflow) errors.Error {
 		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
+	err = prepareStages(wf)
+
+	if err != nil {
+		return errors.NewWorkflowStageError().WithCause(err)
+	}
+
+	return nil
+}
+
+func prepareStages(w *workflow.Workflow) errors.Error {
+	actionMap := make(map[string]workflow.Action)
+
+	for _, action := range w.Actions {
+		actionMap[action.Name] = action
+	}
+
+	for _, step := range w.Stage.Steps {
+		// 1. Validate the step is the name of a valid action
+		thisAction, ok := actionMap[step]
+
+		if !ok {
+			return errors.NewWorkflowNonExistentActionError(step)
+		}
+
+		// 2. Add this step to the stage
+		w.Stage.Actions = append(w.Stage.Actions, thisAction)
+	}
+
 	return nil
 }
 

@@ -29,8 +29,15 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 				r.Logger().Info("action-finished", "action", action.Name, "kind", action.Kind)
 			}
 
-			r.Logger().Info("workflow-applied")
+			variables := make(map[string]string)
 
+			r.Logger().Info("Running stage.")
+			for _, a := range wf.Stage.Actions {
+				r.Logger().Info("Executing", "action", a.Name)
+				a.Runner().Run(context.Background(), r, variables)
+			}
+
+			r.Logger().Info("workflow-applied")
 			return nil
 		},
 	}

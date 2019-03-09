@@ -27,5 +27,5 @@ func TestFilepathLoader(t *testing.T) {
 		require.NotEmpty(t, variable.Value)
 	}
 
-	require.Len(t, wf.Actions, 3)
+	require.Len(t, wf.Actions, 5)
 }
