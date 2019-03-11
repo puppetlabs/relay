@@ -44,16 +44,18 @@ func prepareStages(w *workflow.Workflow) errors.Error {
 		actionMap[action.Name] = action
 	}
 
-	for _, step := range w.Stage.Steps {
-		// 1. Validate the step is the name of a valid action
-		thisAction, ok := actionMap[step]
+	for i, stage := range w.Stages {
+		for _, step := range stage.Steps {
+			// 1. Validate the step is the name of a valid action
+			thisAction, ok := actionMap[step]
 
-		if !ok {
-			return errors.NewWorkflowNonExistentActionError(step)
+			if !ok {
+				return errors.NewWorkflowNonExistentActionError(step)
+			}
+
+			// 2. Add this step to the stage
+			w.Stages[i].Actions = append(w.Stages[i].Actions, thisAction)
 		}
-
-		// 2. Add this step to the stage
-		w.Stage.Actions = append(w.Stage.Actions, thisAction)
 	}
 
 	return nil

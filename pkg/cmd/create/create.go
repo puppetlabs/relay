@@ -32,7 +32,7 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 			variables := make(map[string]string)
 
 			r.Logger().Info("Running stage.")
-			for _, a := range wf.Stage.Actions {
+			for _, a := range wf.Stages[0].Actions {
 				r.Logger().Info("Executing", "action", a.Name)
 				a.Runner().Run(context.Background(), r, variables)
 			}

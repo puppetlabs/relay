@@ -50,6 +50,12 @@ sections:
         arguments:
           action:
             description: the action that was missing
+      stage_does_not_exist:
+        title: Stage does not exist
+        description: the stage {{name}} was not found in the workflow
+        arguments:
+          name:
+            description: the name of the stage
       stage_error:
         title: Stage error
         description: an error occurred while setting up stage of workflow

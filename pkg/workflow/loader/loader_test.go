@@ -16,7 +16,7 @@ func TestFilepathLoader(t *testing.T) {
 
 	var wf workflow.Workflow
 
-	require.NoError(t, fpl.Load())
+	require.NoError(t, fpl.Load(&wf))
 
 	require.Equal(t, "nebula-workflow-test", wf.Name)
 	require.Equal(t, "1", wf.Version)

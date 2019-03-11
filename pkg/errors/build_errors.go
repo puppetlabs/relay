@@ -567,6 +567,54 @@ func NewWorkflowRunnerNotFound(kind string) Error {
 	return NewWorkflowRunnerNotFoundBuilder(kind).Build()
 }
 
+// WorkflowStageDoesNotExistCode is the code for an instance of "stage_does_not_exist".
+const WorkflowStageDoesNotExistCode = "neb_workflow_stage_does_not_exist"
+
+// IsWorkflowStageDoesNotExist tests whether a given error is an instance of "stage_does_not_exist".
+func IsWorkflowStageDoesNotExist(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowStageDoesNotExistCode)
+}
+
+// IsWorkflowStageDoesNotExist tests whether a given error is an instance of "stage_does_not_exist".
+func (External) IsWorkflowStageDoesNotExist(err errawrgo.Error) bool {
+	return IsWorkflowStageDoesNotExist(err)
+}
+
+// WorkflowStageDoesNotExistBuilder is a builder for "stage_does_not_exist" errors.
+type WorkflowStageDoesNotExistBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "stage_does_not_exist" from this builder.
+func (b *WorkflowStageDoesNotExistBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the stage {{name}} was not found in the workflow",
+		Technical: "the stage {{name}} was not found in the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "stage_does_not_exist",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Stage does not exist",
+		Version:          1,
+	}
+}
+
+// NewWorkflowStageDoesNotExistBuilder creates a new error builder for the code "stage_does_not_exist".
+func NewWorkflowStageDoesNotExistBuilder(name string) *WorkflowStageDoesNotExistBuilder {
+	return &WorkflowStageDoesNotExistBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the stage")}}
+}
+
+// NewWorkflowStageDoesNotExist creates a new error with the code "stage_does_not_exist".
+func NewWorkflowStageDoesNotExist(name string) Error {
+	return NewWorkflowStageDoesNotExistBuilder(name).Build()
+}
+
 // WorkflowStageErrorCode is the code for an instance of "stage_error".
 const WorkflowStageErrorCode = "neb_workflow_stage_error"
 

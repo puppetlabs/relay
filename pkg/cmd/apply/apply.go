@@ -19,11 +19,27 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 			if err := r.WorkflowLoader().Load(&wf); err != nil {
 				return err
 			}
+
 			r.Logger().Debug("workflow-loaded")
 
-			for _, action := range wf.Actions {
+			stageName, err := cmd.Flags().GetString("stage")
+			if err != nil {
+				return err
+			}
+
+			stage, err := wf.GetStage(stageName)
+			if err != nil {
+				return err
+			}
+
+			r.Logger().Info("running stage", "stage", stage.Name)
+
+			// TODO convert variables from workflow.Variables
+			variables := make(map[string]string)
+
+			for _, action := range stage.Actions {
 				r.Logger().Info("action-started", "action", action.Name, "kind", action.Kind)
-				if err := action.Runner().Run(context.Background(), r, nil); err != nil {
+				if err := action.Runner().Run(context.Background(), r, variables); err != nil {
 					return err
 				}
 				r.Logger().Info("action-finished", "action", action.Name, "kind", action.Kind)
@@ -34,6 +50,8 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringP("stage", "s", "", "name of the stage to run actions for")
 
 	return cmd
 }
