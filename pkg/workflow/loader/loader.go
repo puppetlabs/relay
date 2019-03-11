@@ -11,32 +11,30 @@ import (
 )
 
 type Loader interface {
-	Load() (*workflow.Workflow, errors.Error)
+	Load(*workflow.Workflow) errors.Error
 }
 
 type FilepathLoader struct {
 	path string
 }
 
-func (f FilepathLoader) Load() (*workflow.Workflow, errors.Error) {
+func (f FilepathLoader) Load(wf *workflow.Workflow) errors.Error {
 	b, err := ioutil.ReadFile(f.path)
 	if err != nil {
-		return nil, errors.NewWorkflowLoaderError().WithCause(err)
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
-	var wf workflow.Workflow
-
-	if err := yaml.Unmarshal(b, &wf); err != nil {
-		return nil, errors.NewWorkflowLoaderError().WithCause(err)
+	if err := yaml.Unmarshal(b, wf); err != nil {
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
-	err = prepareStages(&wf)
+	err = prepareStages(wf)
 
 	if err != nil {
-		return nil, errors.NewWorkflowStageError().WithCause(err)
+		return errors.NewWorkflowStageError().WithCause(err)
 	}
 
-	return &wf, nil
+	return nil
 }
 
 func prepareStages(w *workflow.Workflow) errors.Error {
@@ -46,16 +44,18 @@ func prepareStages(w *workflow.Workflow) errors.Error {
 		actionMap[action.Name] = action
 	}
 
-	for _, step := range w.Stage.Steps {
-		// 1. Validate the step is the name of a valid action
-		thisAction, ok := actionMap[step]
+	for i, stage := range w.Stages {
+		for _, step := range stage.Steps {
+			// 1. Validate the step is the name of a valid action
+			thisAction, ok := actionMap[step]
 
-		if !ok {
-			return errors.NewWorkflowNonExistentActionError(step)
+			if !ok {
+				return errors.NewWorkflowNonExistentActionError(step)
+			}
+
+			// 2. Add this step to the stage
+			w.Stages[i].Actions = append(w.Stages[i].Actions, thisAction)
 		}
-
-		// 2. Add this step to the stage
-		w.Stage.Actions = append(w.Stage.Actions, thisAction)
 	}
 
 	return nil
@@ -67,18 +67,18 @@ func NewFilepathLoader(path string) *FilepathLoader {
 
 type ImpliedWorkflowFileLoader struct{}
 
-func (i ImpliedWorkflowFileLoader) Load() (*workflow.Workflow, errors.Error) {
+func (i ImpliedWorkflowFileLoader) Load(wf *workflow.Workflow) errors.Error {
 	impliedPath := filepath.Join(".", "workflow.yaml")
 
 	if _, err := os.Stat(impliedPath); err != nil {
 		if os.IsNotExist(err) {
-			return nil, errors.NewWorkflowFileNotFound(impliedPath)
+			return errors.NewWorkflowFileNotFound(impliedPath)
 		}
 
-		return nil, errors.NewWorkflowLoaderError().WithCause(err).Bug()
+		return errors.NewWorkflowLoaderError().WithCause(err).Bug()
 	}
 
 	delegate := NewFilepathLoader(impliedPath)
 
-	return delegate.Load()
+	return delegate.Load(wf)
 }

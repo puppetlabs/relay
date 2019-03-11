@@ -4,6 +4,7 @@ import (
 	"os"
 
 	logging "github.com/puppetlabs/insights-logging"
+	"github.com/puppetlabs/nebula/pkg/io"
 	"github.com/puppetlabs/nebula/pkg/logger"
 	"github.com/puppetlabs/nebula/pkg/workflow/loader"
 	"github.com/spf13/viper"
@@ -18,11 +19,11 @@ const (
 
 type CLIRuntime interface {
 	Config() *Config
-	IO() *IO
+	IO() *io.IO
 	Logger() logging.Logger
 	WorkflowLoader() loader.Loader
 	SetConfig(*Config)
-	SetIO(*IO)
+	SetIO(*io.IO)
 	SetLogger(logging.Logger)
 	SetWorkflowLoader(loader.Loader)
 }
@@ -33,7 +34,7 @@ func NewCLIRuntime() (CLIRuntime, error) {
 
 type StandardRuntime struct {
 	config         *Config
-	io             *IO
+	io             *io.IO
 	logger         logging.Logger
 	workflowLoader loader.Loader
 }
@@ -46,11 +47,11 @@ func (sr *StandardRuntime) SetConfig(cfg *Config) {
 	sr.config = cfg
 }
 
-func (sr *StandardRuntime) IO() *IO {
+func (sr *StandardRuntime) IO() *io.IO {
 	return sr.io
 }
 
-func (sr *StandardRuntime) SetIO(streams *IO) {
+func (sr *StandardRuntime) SetIO(streams *io.IO) {
 	sr.io = streams
 }
 
@@ -92,7 +93,7 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 
 	r := StandardRuntime{
 		config:         &cfg,
-		io:             &IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
+		io:             &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
 		logger:         logger.New(logger.Options{Debug: cfg.Debug}),
 		workflowLoader: loader.ImpliedWorkflowFileLoader{},
 	}

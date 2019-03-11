@@ -16,7 +16,7 @@ type Workflow struct {
 	Spec WorkflowSpec `yaml:"spec"`
 }
 
-func (w *Workflow) Run(ctx context.Context, variables map[string]string) errors.Error {
+func (w *Workflow) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
 	return nil
 }
 

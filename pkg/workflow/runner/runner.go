@@ -3,11 +3,18 @@ package runner
 import (
 	"context"
 
+	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/io"
 )
 
+type ActionRuntime interface {
+	IO() *io.IO
+	Logger() logging.Logger
+}
+
 type ActionRunner interface {
-	Run(ctx context.Context, variables map[string]string) errors.Error
+	Run(ctx context.Context, runtime ActionRuntime, variables map[string]string) errors.Error
 	Decoder() Decoder
 }
 

@@ -25,6 +25,205 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// GcpSection defines a section of errors with the following scope:
+// GCP related errors
+var GcpSection = &impl.ErrorSection{
+	Key:   "gcp",
+	Title: "GCP related errors",
+}
+
+// GcpClientCreateErrorCode is the code for an instance of "client_create_error".
+const GcpClientCreateErrorCode = "neb_gcp_client_create_error"
+
+// IsGcpClientCreateError tests whether a given error is an instance of "client_create_error".
+func IsGcpClientCreateError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClientCreateErrorCode)
+}
+
+// IsGcpClientCreateError tests whether a given error is an instance of "client_create_error".
+func (External) IsGcpClientCreateError(err errawrgo.Error) bool {
+	return IsGcpClientCreateError(err)
+}
+
+// GcpClientCreateErrorBuilder is a builder for "client_create_error" errors.
+type GcpClientCreateErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "client_create_error" from this builder.
+func (b *GcpClientCreateErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while creating the GCP client",
+		Technical: "an error occurred while creating the GCP client",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "client_create_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Client create error",
+		Version:          1,
+	}
+}
+
+// NewGcpClientCreateErrorBuilder creates a new error builder for the code "client_create_error".
+func NewGcpClientCreateErrorBuilder() *GcpClientCreateErrorBuilder {
+	return &GcpClientCreateErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClientCreateError creates a new error with the code "client_create_error".
+func NewGcpClientCreateError() Error {
+	return NewGcpClientCreateErrorBuilder().Build()
+}
+
+// GcpClusterDoesNotExistCode is the code for an instance of "cluster_does_not_exist".
+const GcpClusterDoesNotExistCode = "neb_gcp_cluster_does_not_exist"
+
+// IsGcpClusterDoesNotExist tests whether a given error is an instance of "cluster_does_not_exist".
+func IsGcpClusterDoesNotExist(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterDoesNotExistCode)
+}
+
+// IsGcpClusterDoesNotExist tests whether a given error is an instance of "cluster_does_not_exist".
+func (External) IsGcpClusterDoesNotExist(err errawrgo.Error) bool {
+	return IsGcpClusterDoesNotExist(err)
+}
+
+// GcpClusterDoesNotExistBuilder is a builder for "cluster_does_not_exist" errors.
+type GcpClusterDoesNotExistBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_does_not_exist" from this builder.
+func (b *GcpClusterDoesNotExistBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the remote cluster does not exist",
+		Technical: "the remote cluster does not exist",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_does_not_exist",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster does not exist",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterDoesNotExistBuilder creates a new error builder for the code "cluster_does_not_exist".
+func NewGcpClusterDoesNotExistBuilder() *GcpClusterDoesNotExistBuilder {
+	return &GcpClusterDoesNotExistBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterDoesNotExist creates a new error with the code "cluster_does_not_exist".
+func NewGcpClusterDoesNotExist() Error {
+	return NewGcpClusterDoesNotExistBuilder().Build()
+}
+
+// GcpClusterReadErrorCode is the code for an instance of "cluster_read_error".
+const GcpClusterReadErrorCode = "neb_gcp_cluster_read_error"
+
+// IsGcpClusterReadError tests whether a given error is an instance of "cluster_read_error".
+func IsGcpClusterReadError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterReadErrorCode)
+}
+
+// IsGcpClusterReadError tests whether a given error is an instance of "cluster_read_error".
+func (External) IsGcpClusterReadError(err errawrgo.Error) bool {
+	return IsGcpClusterReadError(err)
+}
+
+// GcpClusterReadErrorBuilder is a builder for "cluster_read_error" errors.
+type GcpClusterReadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_read_error" from this builder.
+func (b *GcpClusterReadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while fetching the remote cluster",
+		Technical: "an error occurred while fetching the remote cluster",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_read_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster read error",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterReadErrorBuilder creates a new error builder for the code "cluster_read_error".
+func NewGcpClusterReadErrorBuilder() *GcpClusterReadErrorBuilder {
+	return &GcpClusterReadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterReadError creates a new error with the code "cluster_read_error".
+func NewGcpClusterReadError() Error {
+	return NewGcpClusterReadErrorBuilder().Build()
+}
+
+// GcpClusterSyncErrorCode is the code for an instance of "cluster_sync_error".
+const GcpClusterSyncErrorCode = "neb_gcp_cluster_sync_error"
+
+// IsGcpClusterSyncError tests whether a given error is an instance of "cluster_sync_error".
+func IsGcpClusterSyncError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterSyncErrorCode)
+}
+
+// IsGcpClusterSyncError tests whether a given error is an instance of "cluster_sync_error".
+func (External) IsGcpClusterSyncError(err errawrgo.Error) bool {
+	return IsGcpClusterSyncError(err)
+}
+
+// GcpClusterSyncErrorBuilder is a builder for "cluster_sync_error" errors.
+type GcpClusterSyncErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_sync_error" from this builder.
+func (b *GcpClusterSyncErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while syncing the cluster",
+		Technical: "an error occurred while syncing the cluster",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_sync_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster sync error",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterSyncErrorBuilder creates a new error builder for the code "cluster_sync_error".
+func NewGcpClusterSyncErrorBuilder() *GcpClusterSyncErrorBuilder {
+	return &GcpClusterSyncErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterSyncError creates a new error with the code "cluster_sync_error".
+func NewGcpClusterSyncError() Error {
+	return NewGcpClusterSyncErrorBuilder().Build()
+}
+
 // WorkflowSection defines a section of errors with the following scope:
 // Workflow errors
 var WorkflowSection = &impl.ErrorSection{
@@ -366,6 +565,54 @@ func NewWorkflowRunnerNotFoundBuilder(kind string) *WorkflowRunnerNotFoundBuilde
 // NewWorkflowRunnerNotFound creates a new error with the code "runner_not_found".
 func NewWorkflowRunnerNotFound(kind string) Error {
 	return NewWorkflowRunnerNotFoundBuilder(kind).Build()
+}
+
+// WorkflowStageDoesNotExistCode is the code for an instance of "stage_does_not_exist".
+const WorkflowStageDoesNotExistCode = "neb_workflow_stage_does_not_exist"
+
+// IsWorkflowStageDoesNotExist tests whether a given error is an instance of "stage_does_not_exist".
+func IsWorkflowStageDoesNotExist(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowStageDoesNotExistCode)
+}
+
+// IsWorkflowStageDoesNotExist tests whether a given error is an instance of "stage_does_not_exist".
+func (External) IsWorkflowStageDoesNotExist(err errawrgo.Error) bool {
+	return IsWorkflowStageDoesNotExist(err)
+}
+
+// WorkflowStageDoesNotExistBuilder is a builder for "stage_does_not_exist" errors.
+type WorkflowStageDoesNotExistBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "stage_does_not_exist" from this builder.
+func (b *WorkflowStageDoesNotExistBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the stage {{name}} was not found in the workflow",
+		Technical: "the stage {{name}} was not found in the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "stage_does_not_exist",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Stage does not exist",
+		Version:          1,
+	}
+}
+
+// NewWorkflowStageDoesNotExistBuilder creates a new error builder for the code "stage_does_not_exist".
+func NewWorkflowStageDoesNotExistBuilder(name string) *WorkflowStageDoesNotExistBuilder {
+	return &WorkflowStageDoesNotExistBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the stage")}}
+}
+
+// NewWorkflowStageDoesNotExist creates a new error with the code "stage_does_not_exist".
+func NewWorkflowStageDoesNotExist(name string) Error {
+	return NewWorkflowStageDoesNotExistBuilder(name).Build()
 }
 
 // WorkflowStageErrorCode is the code for an instance of "stage_error".

@@ -11,7 +11,17 @@ type Workflow struct {
 	Name      string     `yaml:"name"`
 	Variables []Variable `yaml:"variables"`
 	Actions   []Action   `yaml:"actions"`
-	Stage     Stage      `yaml:"stages"`
+	Stages    []Stage    `yaml:"stages"`
+}
+
+func (w Workflow) GetStage(name string) (*Stage, errors.Error) {
+	for _, stage := range w.Stages {
+		if stage.Name == name {
+			return &stage, nil
+		}
+	}
+
+	return nil, errors.NewWorkflowStageDoesNotExist(name)
 }
 
 type Trigger struct {
@@ -20,6 +30,7 @@ type Trigger struct {
 }
 
 type Stage struct {
+	Name    string    `yaml:"name"`
 	Steps   []string  `yaml:"steps"`
 	StartOn []Trigger `yaml:"start_on"`
 

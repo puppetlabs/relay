@@ -3,6 +3,7 @@ package loader
 import (
 	"testing"
 
+	"github.com/puppetlabs/nebula/pkg/workflow"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,8 +14,9 @@ func TestFilepathLoader(t *testing.T) {
 	fpl, ok := l.(Loader)
 	require.True(t, ok, "FilepathLoader does not satisfy Loader")
 
-	wf, err := fpl.Load()
-	require.NoError(t, err)
+	var wf workflow.Workflow
+
+	require.NoError(t, fpl.Load(&wf))
 
 	require.Equal(t, "nebula-workflow-test", wf.Name)
 	require.Equal(t, "1", wf.Version)

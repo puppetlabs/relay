@@ -4,13 +4,16 @@ import (
 	"context"
 
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/infra/provider/gcp"
 	"gopkg.in/yaml.v2"
 )
 
 type GKEClusterProvisionerSpec struct {
-	Name      string `yaml:"name"`
-	ProjectID string `yaml:"projectID"`
-	Region    string `yaml:"region"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	ProjectID   string `yaml:"projectID"`
+	Region      string `yaml:"region"`
+	Nodes       int    `yaml:"nodes"`
 }
 
 type GKEClusterProvisioner struct {
@@ -18,7 +21,30 @@ type GKEClusterProvisioner struct {
 	Spec *GKEClusterProvisionerSpec `yaml:"spec"`
 }
 
-func (g *GKEClusterProvisioner) Run(ctx context.Context, variables map[string]string) errors.Error {
+func (g *GKEClusterProvisioner) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
+	c, err := gcp.NewCluster(gcp.ClusterSpec{
+		Name:        g.Spec.Name,
+		Description: g.Spec.Description,
+		Nodes:       int32(g.Spec.Nodes),
+		Region:      g.Spec.Region,
+		ProjectID:   g.Spec.ProjectID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := c.LookupRemote(ctx); err != nil {
+		return err
+	}
+
+	r.Logger().Info("cluster-state-fetched", "name", g.Spec.Name, "status", c.Status)
+
+	if err := c.Sync(ctx); err != nil {
+		return err
+	}
+
+	r.Logger().Info("cluster-state-synced", "name", g.Spec.Name, "status", c.Status)
+
 	return nil
 }
 

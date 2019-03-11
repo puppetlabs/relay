@@ -9,11 +9,9 @@ sections:
       unknown_runtime_error:
         title: Unknown runtime error
         description: "an unknown error occurred"
-
       no_command_to_execute_error:
         title: No command available to execute
         description: A valid command was not found to execute
-      
       unknown_command_execution_error:
         title: Unknown command execution error
         description: something unexpected happened with command exection
@@ -22,7 +20,6 @@ sections:
             description: Error being thrown
           command_string:
             description: Command being executed
-        
       loader_error:
         title: Loader error
         description: an error occurred while loading the workflow
@@ -53,6 +50,27 @@ sections:
         arguments:
           action:
             description: the action that was missing
+      stage_does_not_exist:
+        title: Stage does not exist
+        description: the stage {{name}} was not found in the workflow
+        arguments:
+          name:
+            description: the name of the stage
       stage_error:
         title: Stage error
         description: an error occurred while setting up stage of workflow
+  gcp:
+    title: GCP related errors
+    errors:
+      client_create_error:
+        title: Client create error
+        description: an error occurred while creating the GCP client
+      cluster_does_not_exist:
+        title: Cluster does not exist
+        description: the remote cluster does not exist
+      cluster_read_error:
+        title: Cluster read error
+        description: an error occurred while fetching the remote cluster
+      cluster_sync_error:
+        title: Cluster sync error
+        description: an error occurred while syncing the cluster

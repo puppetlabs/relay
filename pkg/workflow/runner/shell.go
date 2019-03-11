@@ -17,7 +17,7 @@ type Shell struct {
 	Spec ShellSpec `yaml:"spec"`
 }
 
-func (s *Shell) Run(ctx context.Context, variables map[string]string) errors.Error {
+func (s *Shell) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
 	return nil
 }
 

@@ -39,10 +39,11 @@ actions:
       - docker push $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 stages:
-  start_on:
-    - action: commit
-      branch: master
-  steps:
-    - build
-    - test
-    - publish
+  - name: staging
+    start_on:
+      - action: commit
+        branch: master
+    steps:
+      - build
+      - test
+      - publish
