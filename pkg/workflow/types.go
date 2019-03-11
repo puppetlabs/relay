@@ -32,7 +32,7 @@ type Trigger struct {
 type Stage struct {
 	Name    string    `yaml:"name"`
 	Steps   []string  `yaml:"steps"`
-	StartOn []Trigger `yaml:"start_on"`
+	Trigger []Trigger `yaml:"trigger"`
 
 	Actions []Action
 }

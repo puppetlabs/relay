@@ -25,6 +25,209 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// ExecutionSection defines a section of errors with the following scope:
+// Task execution errors
+var ExecutionSection = &impl.ErrorSection{
+	Key:   "execution",
+	Title: "Task execution errors",
+}
+
+// ExecutionInvalidShellCommandErrorCode is the code for an instance of "invalid_shell_command_error".
+const ExecutionInvalidShellCommandErrorCode = "neb_execution_invalid_shell_command_error"
+
+// IsExecutionInvalidShellCommandError tests whether a given error is an instance of "invalid_shell_command_error".
+func IsExecutionInvalidShellCommandError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ExecutionInvalidShellCommandErrorCode)
+}
+
+// IsExecutionInvalidShellCommandError tests whether a given error is an instance of "invalid_shell_command_error".
+func (External) IsExecutionInvalidShellCommandError(err errawrgo.Error) bool {
+	return IsExecutionInvalidShellCommandError(err)
+}
+
+// ExecutionInvalidShellCommandErrorBuilder is a builder for "invalid_shell_command_error" errors.
+type ExecutionInvalidShellCommandErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_shell_command_error" from this builder.
+func (b *ExecutionInvalidShellCommandErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "An invalid shell command was prepared for execution",
+		Technical: "An invalid shell command was prepared for execution",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_shell_command_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ExecutionSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid shell command error",
+		Version:          1,
+	}
+}
+
+// NewExecutionInvalidShellCommandErrorBuilder creates a new error builder for the code "invalid_shell_command_error".
+func NewExecutionInvalidShellCommandErrorBuilder(command string) *ExecutionInvalidShellCommandErrorBuilder {
+	return &ExecutionInvalidShellCommandErrorBuilder{arguments: impl.ErrorArguments{"command": impl.NewErrorArgument(command, "The command that was attempted to run")}}
+}
+
+// NewExecutionInvalidShellCommandError creates a new error with the code "invalid_shell_command_error".
+func NewExecutionInvalidShellCommandError(command string) Error {
+	return NewExecutionInvalidShellCommandErrorBuilder(command).Build()
+}
+
+// ExecutionInvalidShellTemplateErrorCode is the code for an instance of "invalid_shell_template_error".
+const ExecutionInvalidShellTemplateErrorCode = "neb_execution_invalid_shell_template_error"
+
+// IsExecutionInvalidShellTemplateError tests whether a given error is an instance of "invalid_shell_template_error".
+func IsExecutionInvalidShellTemplateError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ExecutionInvalidShellTemplateErrorCode)
+}
+
+// IsExecutionInvalidShellTemplateError tests whether a given error is an instance of "invalid_shell_template_error".
+func (External) IsExecutionInvalidShellTemplateError(err errawrgo.Error) bool {
+	return IsExecutionInvalidShellTemplateError(err)
+}
+
+// ExecutionInvalidShellTemplateErrorBuilder is a builder for "invalid_shell_template_error" errors.
+type ExecutionInvalidShellTemplateErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_shell_template_error" from this builder.
+func (b *ExecutionInvalidShellTemplateErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The command specified does not conform to the valid template standard",
+		Technical: "The command specified does not conform to the valid template standard",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_shell_template_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ExecutionSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid shell template for command",
+		Version:          1,
+	}
+}
+
+// NewExecutionInvalidShellTemplateErrorBuilder creates a new error builder for the code "invalid_shell_template_error".
+func NewExecutionInvalidShellTemplateErrorBuilder(template string) *ExecutionInvalidShellTemplateErrorBuilder {
+	return &ExecutionInvalidShellTemplateErrorBuilder{arguments: impl.ErrorArguments{"template": impl.NewErrorArgument(template, "The template that was attempted to be evaluated")}}
+}
+
+// NewExecutionInvalidShellTemplateError creates a new error with the code "invalid_shell_template_error".
+func NewExecutionInvalidShellTemplateError(template string) Error {
+	return NewExecutionInvalidShellTemplateErrorBuilder(template).Build()
+}
+
+// ExecutionShellCommandNonZeroExitErrorCode is the code for an instance of "shell_command_non_zero_exit_error".
+const ExecutionShellCommandNonZeroExitErrorCode = "neb_execution_shell_command_non_zero_exit_error"
+
+// IsExecutionShellCommandNonZeroExitError tests whether a given error is an instance of "shell_command_non_zero_exit_error".
+func IsExecutionShellCommandNonZeroExitError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ExecutionShellCommandNonZeroExitErrorCode)
+}
+
+// IsExecutionShellCommandNonZeroExitError tests whether a given error is an instance of "shell_command_non_zero_exit_error".
+func (External) IsExecutionShellCommandNonZeroExitError(err errawrgo.Error) bool {
+	return IsExecutionShellCommandNonZeroExitError(err)
+}
+
+// ExecutionShellCommandNonZeroExitErrorBuilder is a builder for "shell_command_non_zero_exit_error" errors.
+type ExecutionShellCommandNonZeroExitErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "shell_command_non_zero_exit_error" from this builder.
+func (b *ExecutionShellCommandNonZeroExitErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The shell command could not run successfully",
+		Technical: "The shell command could not run successfully",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "shell_command_non_zero_exit_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ExecutionSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Shell command failed to return non zero exit code",
+		Version:          1,
+	}
+}
+
+// NewExecutionShellCommandNonZeroExitErrorBuilder creates a new error builder for the code "shell_command_non_zero_exit_error".
+func NewExecutionShellCommandNonZeroExitErrorBuilder(command string, stdout string, stderr string) *ExecutionShellCommandNonZeroExitErrorBuilder {
+	return &ExecutionShellCommandNonZeroExitErrorBuilder{arguments: impl.ErrorArguments{
+		"command": impl.NewErrorArgument(command, "The command that was attempted to run"),
+		"stderr":  impl.NewErrorArgument(stderr, "The stderr of this command"),
+		"stdout":  impl.NewErrorArgument(stdout, "The stdout of this command"),
+	}}
+}
+
+// NewExecutionShellCommandNonZeroExitError creates a new error with the code "shell_command_non_zero_exit_error".
+func NewExecutionShellCommandNonZeroExitError(command string, stdout string, stderr string) Error {
+	return NewExecutionShellCommandNonZeroExitErrorBuilder(command, stdout, stderr).Build()
+}
+
+// ExecutionShellTemplateExecutionErrorCode is the code for an instance of "shell_template_execution_error".
+const ExecutionShellTemplateExecutionErrorCode = "neb_execution_shell_template_execution_error"
+
+// IsExecutionShellTemplateExecutionError tests whether a given error is an instance of "shell_template_execution_error".
+func IsExecutionShellTemplateExecutionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ExecutionShellTemplateExecutionErrorCode)
+}
+
+// IsExecutionShellTemplateExecutionError tests whether a given error is an instance of "shell_template_execution_error".
+func (External) IsExecutionShellTemplateExecutionError(err errawrgo.Error) bool {
+	return IsExecutionShellTemplateExecutionError(err)
+}
+
+// ExecutionShellTemplateExecutionErrorBuilder is a builder for "shell_template_execution_error" errors.
+type ExecutionShellTemplateExecutionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "shell_template_execution_error" from this builder.
+func (b *ExecutionShellTemplateExecutionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The given shell template could not be executed",
+		Technical: "The given shell template could not be executed",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "shell_template_execution_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ExecutionSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Shell template excecution error",
+		Version:          1,
+	}
+}
+
+// NewExecutionShellTemplateExecutionErrorBuilder creates a new error builder for the code "shell_template_execution_error".
+func NewExecutionShellTemplateExecutionErrorBuilder(template string) *ExecutionShellTemplateExecutionErrorBuilder {
+	return &ExecutionShellTemplateExecutionErrorBuilder{arguments: impl.ErrorArguments{"template": impl.NewErrorArgument(template, "The template that was attempted to be evaluated")}}
+}
+
+// NewExecutionShellTemplateExecutionError creates a new error with the code "shell_template_execution_error".
+func NewExecutionShellTemplateExecutionError(template string) Error {
+	return NewExecutionShellTemplateExecutionErrorBuilder(template).Build()
+}
+
 // GcpSection defines a section of errors with the following scope:
 // GCP related errors
 var GcpSection = &impl.ErrorSection{
