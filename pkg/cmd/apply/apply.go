@@ -34,8 +34,11 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 
 			r.Logger().Info("running stage", "stage", stage.Name)
 
-			// TODO convert variables from workflow.Variables
 			variables := make(map[string]string)
+
+			for _, v := range wf.Variables {
+				variables[v.Name] = v.Value
+			}
 
 			for _, action := range stage.Actions {
 				r.Logger().Info("action-started", "action", action.Name, "kind", action.Kind)

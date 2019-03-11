@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/execution"
 	"gopkg.in/yaml.v2"
 )
 
@@ -18,6 +19,15 @@ type Shell struct {
 }
 
 func (s *Shell) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
+
+	for _, command := range s.Spec.Commands {
+		err := execution.ExecuteCommand(command, variables, r.Logger())
+
+		if err != nil {
+			return errors.NewWorkflowUnknownRuntimeError().WithCause(err)
+		}
+	}
+
 	return nil
 }
 

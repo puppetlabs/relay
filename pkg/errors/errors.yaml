@@ -74,3 +74,38 @@ sections:
       cluster_sync_error:
         title: Cluster sync error
         description: an error occurred while syncing the cluster
+
+  execution:
+    title: Task execution errors
+    errors:
+      invalid_shell_command_error:
+        title: Invalid shell command error
+        description: An invalid shell command was prepared for execution
+        arguments:
+          command:
+            description: The command that was attempted to run
+
+      invalid_shell_template_error:
+        title: Invalid shell template for command
+        description: The command specified does not conform to the valid template standard
+        arguments:
+          template:
+            description: The template that was attempted to be evaluated
+
+      shell_template_execution_error:
+        title: Shell template excecution error
+        description: The given shell template could not be executed
+        arguments:
+          template:
+            description: The template that was attempted to be evaluated
+
+      shell_command_non_zero_exit_error:
+        title: Shell command failed to return non zero exit code
+        description: The shell command could not run successfully
+        arguments:
+          command:
+            description: The command that was attempted to run
+          stdout:
+            description: The stdout of this command
+          stderr:
+            description: The stderr of this command
