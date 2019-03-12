@@ -74,6 +74,9 @@ sections:
       cluster_sync_error:
         title: Cluster sync error
         description: an error occurred while syncing the cluster
+      cluster_encoding_error:
+        title: Cluster encoding error
+        description: an error occruured while encoding the cluster
 
   execution:
     title: Task execution errors
@@ -109,3 +112,18 @@ sections:
             description: The stdout of this command
           stderr:
             description: The stderr of this command
+
+  state:
+    title: State errors
+    errors:
+      unknown_error:
+        description: an unknown error occurred
+      load_error:
+        description: there was an error loading the state
+      save_error:
+        description: there was an error saving the state
+      resource_not_exists:
+        description: the resource {{ name }} does not exist
+        arguments:
+          name:
+            description: the name of the resource

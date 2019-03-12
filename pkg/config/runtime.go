@@ -6,6 +6,7 @@ import (
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/io"
 	"github.com/puppetlabs/nebula/pkg/logger"
+	"github.com/puppetlabs/nebula/pkg/state"
 	"github.com/puppetlabs/nebula/pkg/workflow/loader"
 	"github.com/spf13/viper"
 )
@@ -22,10 +23,12 @@ type CLIRuntime interface {
 	IO() *io.IO
 	Logger() logging.Logger
 	WorkflowLoader() loader.Loader
+	StateManager() state.Manager
 	SetConfig(*Config)
 	SetIO(*io.IO)
 	SetLogger(logging.Logger)
 	SetWorkflowLoader(loader.Loader)
+	SetStateManager(state.Manager)
 }
 
 func NewCLIRuntime() (CLIRuntime, error) {
@@ -37,6 +40,7 @@ type StandardRuntime struct {
 	io             *io.IO
 	logger         logging.Logger
 	workflowLoader loader.Loader
+	stateManager   state.Manager
 }
 
 func (sr *StandardRuntime) Config() *Config {
@@ -71,6 +75,14 @@ func (sr *StandardRuntime) SetWorkflowLoader(l loader.Loader) {
 	sr.workflowLoader = l
 }
 
+func (sr *StandardRuntime) StateManager() state.Manager {
+	return sr.stateManager
+}
+
+func (sr *StandardRuntime) SetStateManager(sm state.Manager) {
+	sr.stateManager = sm
+}
+
 func NewStandardRuntime() (*StandardRuntime, error) {
 	v := viper.New()
 
@@ -91,11 +103,17 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 		return nil, err
 	}
 
+	sm, err := state.NewFilesystemStateManager("")
+	if err != nil {
+		return nil, err
+	}
+
 	r := StandardRuntime{
 		config:         &cfg,
 		io:             &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
 		logger:         logger.New(logger.Options{Debug: cfg.Debug}),
 		workflowLoader: loader.ImpliedWorkflowFileLoader{},
+		stateManager:   sm,
 	}
 
 	return &r, nil

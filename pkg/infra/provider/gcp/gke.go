@@ -2,11 +2,13 @@ package gcp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 
 	container "cloud.google.com/go/container/apiv1"
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/state"
 	containerpb "google.golang.org/genproto/googleapis/container/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,12 +30,12 @@ const (
 )
 
 type ClusterSpec struct {
-	Name        string
-	Description string
-	Nodes       int32
-	MachineType string
-	Region      string
-	ProjectID   string
+	Name        string `json:"name"`
+	Description string `json:"Description"`
+	Nodes       int32  `json:"nodes"`
+	MachineType string `json:"machine_type"`
+	Region      string `json:"region"`
+	ProjectID   string `json:"project_id"`
 }
 
 // Cluster manages the desired state of a wanted cluster in GKE
@@ -55,7 +57,9 @@ type Cluster struct {
 	URL    *url.URL
 	Spec   ClusterSpec
 
-	client *container.ClusterManagerClient
+	client       *container.ClusterManagerClient
+	resourceID   string
+	stateManager state.Manager
 }
 
 func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
@@ -81,6 +85,19 @@ func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
 
 	if resp.Status == containerpb.Cluster_RUNNING {
 		c.Status = ClusterStatusReady
+	}
+
+	return nil
+}
+
+func (c *Cluster) SaveState(ctx context.Context) errors.Error {
+	value, err := c.encode()
+	if err != nil {
+		return err
+	}
+
+	if err := c.stateManager.Save(&state.Resource{Name: c.resourceID, Value: json.RawMessage(value)}); err != nil {
+		return err
 	}
 
 	return nil
@@ -117,7 +134,16 @@ func (c *Cluster) create(ctx context.Context) errors.Error {
 	return c.LookupRemote(ctx)
 }
 
-func NewCluster(spec ClusterSpec) (*Cluster, errors.Error) {
+func (c *Cluster) encode() ([]byte, errors.Error) {
+	b, err := json.Marshal(c.Spec)
+	if err != nil {
+		return nil, errors.NewGcpClusterEncodingError().WithCause(err)
+	}
+
+	return b, nil
+}
+
+func NewCluster(rid string, sm state.Manager, spec ClusterSpec) (*Cluster, errors.Error) {
 	manager, err := container.NewClusterManagerClient(context.Background())
 	if err != nil {
 		return nil, errors.NewGcpClientCreateError().WithCause(err)
@@ -128,8 +154,10 @@ func NewCluster(spec ClusterSpec) (*Cluster, errors.Error) {
 	}
 
 	return &Cluster{
-		Status: ClusterStatusUnknown,
-		Spec:   spec,
-		client: manager,
+		Status:       ClusterStatusUnknown,
+		Spec:         spec,
+		client:       manager,
+		resourceID:   rid,
+		stateManager: sm,
 	}, nil
 }

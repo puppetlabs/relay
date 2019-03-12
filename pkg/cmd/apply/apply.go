@@ -27,7 +27,7 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 				return err
 			}
 
-			stage, err := wf.GetStage(stageName)
+			stage, err := wf.Stage(stageName)
 			if err != nil {
 				return err
 			}
@@ -41,7 +41,9 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 			}
 
 			for _, action := range stage.Actions() {
-				if err := action.Runner().Run(context.Background(), r, variables); err != nil {
+				r.Logger().Info("action-started", "action", action.Name, "kind", action.Kind)
+
+				if err := action.Runner().Run(context.Background(), action.ResourceID, r, variables); err != nil {
 					return err
 				}
 			}

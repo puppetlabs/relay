@@ -331,6 +331,54 @@ func NewGcpClusterDoesNotExist() Error {
 	return NewGcpClusterDoesNotExistBuilder().Build()
 }
 
+// GcpClusterEncodingErrorCode is the code for an instance of "cluster_encoding_error".
+const GcpClusterEncodingErrorCode = "neb_gcp_cluster_encoding_error"
+
+// IsGcpClusterEncodingError tests whether a given error is an instance of "cluster_encoding_error".
+func IsGcpClusterEncodingError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterEncodingErrorCode)
+}
+
+// IsGcpClusterEncodingError tests whether a given error is an instance of "cluster_encoding_error".
+func (External) IsGcpClusterEncodingError(err errawrgo.Error) bool {
+	return IsGcpClusterEncodingError(err)
+}
+
+// GcpClusterEncodingErrorBuilder is a builder for "cluster_encoding_error" errors.
+type GcpClusterEncodingErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_encoding_error" from this builder.
+func (b *GcpClusterEncodingErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occruured while encoding the cluster",
+		Technical: "an error occruured while encoding the cluster",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_encoding_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster encoding error",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterEncodingErrorBuilder creates a new error builder for the code "cluster_encoding_error".
+func NewGcpClusterEncodingErrorBuilder() *GcpClusterEncodingErrorBuilder {
+	return &GcpClusterEncodingErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterEncodingError creates a new error with the code "cluster_encoding_error".
+func NewGcpClusterEncodingError() Error {
+	return NewGcpClusterEncodingErrorBuilder().Build()
+}
+
 // GcpClusterReadErrorCode is the code for an instance of "cluster_read_error".
 const GcpClusterReadErrorCode = "neb_gcp_cluster_read_error"
 
@@ -425,6 +473,205 @@ func NewGcpClusterSyncErrorBuilder() *GcpClusterSyncErrorBuilder {
 // NewGcpClusterSyncError creates a new error with the code "cluster_sync_error".
 func NewGcpClusterSyncError() Error {
 	return NewGcpClusterSyncErrorBuilder().Build()
+}
+
+// StateSection defines a section of errors with the following scope:
+// State errors
+var StateSection = &impl.ErrorSection{
+	Key:   "state",
+	Title: "State errors",
+}
+
+// StateLoadErrorCode is the code for an instance of "load_error".
+const StateLoadErrorCode = "neb_state_load_error"
+
+// IsStateLoadError tests whether a given error is an instance of "load_error".
+func IsStateLoadError(err errawrgo.Error) bool {
+	return err != nil && err.Is(StateLoadErrorCode)
+}
+
+// IsStateLoadError tests whether a given error is an instance of "load_error".
+func (External) IsStateLoadError(err errawrgo.Error) bool {
+	return IsStateLoadError(err)
+}
+
+// StateLoadErrorBuilder is a builder for "load_error" errors.
+type StateLoadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "load_error" from this builder.
+func (b *StateLoadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error loading the state",
+		Technical: "there was an error loading the state",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "load_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     StateSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "",
+		Version:          1,
+	}
+}
+
+// NewStateLoadErrorBuilder creates a new error builder for the code "load_error".
+func NewStateLoadErrorBuilder() *StateLoadErrorBuilder {
+	return &StateLoadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewStateLoadError creates a new error with the code "load_error".
+func NewStateLoadError() Error {
+	return NewStateLoadErrorBuilder().Build()
+}
+
+// StateResourceNotExistsCode is the code for an instance of "resource_not_exists".
+const StateResourceNotExistsCode = "neb_state_resource_not_exists"
+
+// IsStateResourceNotExists tests whether a given error is an instance of "resource_not_exists".
+func IsStateResourceNotExists(err errawrgo.Error) bool {
+	return err != nil && err.Is(StateResourceNotExistsCode)
+}
+
+// IsStateResourceNotExists tests whether a given error is an instance of "resource_not_exists".
+func (External) IsStateResourceNotExists(err errawrgo.Error) bool {
+	return IsStateResourceNotExists(err)
+}
+
+// StateResourceNotExistsBuilder is a builder for "resource_not_exists" errors.
+type StateResourceNotExistsBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "resource_not_exists" from this builder.
+func (b *StateResourceNotExistsBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the resource {{ name }} does not exist",
+		Technical: "the resource {{ name }} does not exist",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "resource_not_exists",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     StateSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "",
+		Version:          1,
+	}
+}
+
+// NewStateResourceNotExistsBuilder creates a new error builder for the code "resource_not_exists".
+func NewStateResourceNotExistsBuilder(name string) *StateResourceNotExistsBuilder {
+	return &StateResourceNotExistsBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the resource")}}
+}
+
+// NewStateResourceNotExists creates a new error with the code "resource_not_exists".
+func NewStateResourceNotExists(name string) Error {
+	return NewStateResourceNotExistsBuilder(name).Build()
+}
+
+// StateSaveErrorCode is the code for an instance of "save_error".
+const StateSaveErrorCode = "neb_state_save_error"
+
+// IsStateSaveError tests whether a given error is an instance of "save_error".
+func IsStateSaveError(err errawrgo.Error) bool {
+	return err != nil && err.Is(StateSaveErrorCode)
+}
+
+// IsStateSaveError tests whether a given error is an instance of "save_error".
+func (External) IsStateSaveError(err errawrgo.Error) bool {
+	return IsStateSaveError(err)
+}
+
+// StateSaveErrorBuilder is a builder for "save_error" errors.
+type StateSaveErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "save_error" from this builder.
+func (b *StateSaveErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error saving the state",
+		Technical: "there was an error saving the state",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "save_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     StateSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "",
+		Version:          1,
+	}
+}
+
+// NewStateSaveErrorBuilder creates a new error builder for the code "save_error".
+func NewStateSaveErrorBuilder() *StateSaveErrorBuilder {
+	return &StateSaveErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewStateSaveError creates a new error with the code "save_error".
+func NewStateSaveError() Error {
+	return NewStateSaveErrorBuilder().Build()
+}
+
+// StateUnknownErrorCode is the code for an instance of "unknown_error".
+const StateUnknownErrorCode = "neb_state_unknown_error"
+
+// IsStateUnknownError tests whether a given error is an instance of "unknown_error".
+func IsStateUnknownError(err errawrgo.Error) bool {
+	return err != nil && err.Is(StateUnknownErrorCode)
+}
+
+// IsStateUnknownError tests whether a given error is an instance of "unknown_error".
+func (External) IsStateUnknownError(err errawrgo.Error) bool {
+	return IsStateUnknownError(err)
+}
+
+// StateUnknownErrorBuilder is a builder for "unknown_error" errors.
+type StateUnknownErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unknown_error" from this builder.
+func (b *StateUnknownErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an unknown error occurred",
+		Technical: "an unknown error occurred",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unknown_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     StateSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "",
+		Version:          1,
+	}
+}
+
+// NewStateUnknownErrorBuilder creates a new error builder for the code "unknown_error".
+func NewStateUnknownErrorBuilder() *StateUnknownErrorBuilder {
+	return &StateUnknownErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewStateUnknownError creates a new error with the code "unknown_error".
+func NewStateUnknownError() Error {
+	return NewStateUnknownErrorBuilder().Build()
 }
 
 // WorkflowSection defines a section of errors with the following scope:
