@@ -21,8 +21,8 @@ type GKEClusterProvisioner struct {
 	Spec *GKEClusterProvisionerSpec `yaml:"spec"`
 }
 
-func (g *GKEClusterProvisioner) Run(ctx context.Context, r ActionRuntime, variables map[string]string) errors.Error {
-	c, err := gcp.NewCluster(gcp.ClusterSpec{
+func (g *GKEClusterProvisioner) Run(ctx context.Context, rid string, r ActionRuntime, variables map[string]string) errors.Error {
+	c, err := gcp.NewCluster(rid, r.StateManager(), gcp.ClusterSpec{
 		Name:        g.Spec.Name,
 		Description: g.Spec.Description,
 		Nodes:       int32(g.Spec.Nodes),
@@ -36,14 +36,17 @@ func (g *GKEClusterProvisioner) Run(ctx context.Context, r ActionRuntime, variab
 	if err := c.LookupRemote(ctx); err != nil {
 		return err
 	}
-
 	r.Logger().Info("cluster-state-fetched", "name", g.Spec.Name, "status", c.Status)
 
 	if err := c.Sync(ctx); err != nil {
 		return err
 	}
-
 	r.Logger().Info("cluster-state-synced", "name", g.Spec.Name, "status", c.Status)
+
+	if err := c.SaveState(ctx); err != nil {
+		return err
+	}
+	r.Logger().Info("cluster-resource-saved", "name", g.Spec.Name, "resource-id", rid)
 
 	return nil
 }

@@ -10,10 +10,12 @@ variables:
 actions:
 - name: create-cluster
   kind: gke-cluster-provisioner
+  resourceID: nebula-staging-cluster
   spec:
     name: example-cluster-1
     projectID: $GOOGLE_PROJECT_ID
     region: $GOOGLE_CLOUD_REGION
+
 - name: install-redis
   kind: workflow
   spec:
@@ -38,6 +40,16 @@ actions:
     commands:
       - docker push $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG)
 
+- name: deploy
+  kind: helm-chart-deployment
+  spec:
+    chartPath: helm-chart
+    valuesPath: helm-chart/values.yaml
+    resourceID: nebula-staging-cluster
+    overrides:
+      image.repository: $(IMAGE_NAME)
+      image.tag: $(IMAGE_TAG)
+
 stages:
   - name: staging
     start_on:
@@ -47,3 +59,4 @@ stages:
       - build
       - test
       - publish
+      - deploy

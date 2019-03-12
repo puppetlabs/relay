@@ -14,7 +14,7 @@ type Workflow struct {
 	Stages    []Stage    `yaml:"stages"`
 }
 
-func (w Workflow) GetStage(name string) (*Stage, errors.Error) {
+func (w Workflow) Stage(name string) (*Stage, errors.Error) {
 	for _, stage := range w.Stages {
 		if stage.Name == name {
 			return &stage, nil
@@ -38,9 +38,10 @@ type Stage struct {
 }
 
 type Action struct {
-	Name string                      `yaml:"name"`
-	Kind string                      `yaml:"kind"`
-	Spec map[interface{}]interface{} `yaml:"spec"`
+	Name       string                      `yaml:"name"`
+	Kind       string                      `yaml:"kind"`
+	ResourceID string                      `yaml:"resourceID"`
+	Spec       map[interface{}]interface{} `yaml:"spec"`
 
 	loadedRunner runner.ActionRunner
 }
@@ -67,6 +68,14 @@ func (a *Action) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return errors.NewWorkflowActionDecodeError("`kind` was not a string")
 	}
 	a.Kind = kind
+
+	if rawResourceID, ok := raw["resourceID"]; ok {
+		resourceID, ok := rawResourceID.(string)
+		if !ok {
+			return errors.NewWorkflowActionDecodeError("`resourceID` was not a string")
+		}
+		a.ResourceID = resourceID
+	}
 
 	if _, ok := raw["spec"]; ok {
 		a.Spec = raw["spec"].(map[interface{}]interface{})
