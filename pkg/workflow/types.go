@@ -30,9 +30,9 @@ type Trigger struct {
 }
 
 type Stage struct {
-	Name    string    `yaml:"name"`
-	Steps   []string  `yaml:"steps"`
-	Trigger []Trigger `yaml:"trigger"`
+	Name        string    `yaml:"name"`
+	ActionNames []string  `yaml:"actions"`
+	Trigger     []Trigger `yaml:"trigger"`
 
 	Actions []Action
 }
