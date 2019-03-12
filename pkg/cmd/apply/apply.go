@@ -40,7 +40,7 @@ func NewCommand(r config.CLIRuntime) *cobra.Command {
 				variables[v.Name] = v.Value
 			}
 
-			for _, action := range stage.Actions {
+			for _, action := range stage.Actions() {
 				if err := action.Runner().Run(context.Background(), r, variables); err != nil {
 					return err
 				}

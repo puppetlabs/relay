@@ -34,7 +34,15 @@ type Stage struct {
 	ActionNames []string  `yaml:"actions"`
 	Trigger     []Trigger `yaml:"trigger"`
 
-	Actions []Action
+	actions []Action
+}
+
+func (s *Stage) Actions() []Action {
+	return s.actions
+}
+
+func (s *Stage) AddAction(a Action) {
+	s.actions = append(s.actions, a)
 }
 
 type Action struct {
