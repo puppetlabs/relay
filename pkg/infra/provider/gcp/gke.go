@@ -2,16 +2,23 @@ package gcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/url"
+	"path/filepath"
 
 	container "cloud.google.com/go/container/apiv1"
+	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/infra/provider/kubernetes/helm"
 	"github.com/puppetlabs/nebula/pkg/state"
 	containerpb "google.golang.org/genproto/googleapis/container/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 const (
@@ -57,9 +64,13 @@ type Cluster struct {
 	URL    *url.URL
 	Spec   ClusterSpec
 
-	client       *container.ClusterManagerClient
-	resourceID   string
-	stateManager state.Manager
+	client         *container.ClusterManagerClient
+	resourceID     string
+	stateManager   state.Manager
+	gkeCluster     *containerpb.Cluster
+	kubeconfig     *clientcmdapi.Config
+	kubeconfigPath string
+	logger         logging.Logger
 }
 
 func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
@@ -87,7 +98,76 @@ func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
 		c.Status = ClusterStatusReady
 	}
 
+	c.gkeCluster = resp
+
+	config, err := c.config(resp.Name, resp.Endpoint, resp.MasterAuth)
+	if err != nil {
+		return errors.NewGcpClusterReadError().WithCause(err)
+	}
+
+	c.kubeconfig = config
+
+	tmpdir, err := ioutil.TempDir("", "nebula-gke-")
+	if err != nil {
+		return errors.NewGcpClusterReadError().WithCause(err)
+	}
+
+	c.kubeconfigPath = filepath.Join(tmpdir, "kubeconfig")
+
+	if err := clientcmd.WriteToFile(*config, c.kubeconfigPath); err != nil {
+		return errors.NewGcpClusterReadError().WithCause(err)
+	}
+
 	return nil
+}
+
+func (c *Cluster) KubeconfigPath() string {
+	return c.kubeconfigPath
+}
+
+func (c *Cluster) config(name string, endpoint string, auth *containerpb.MasterAuth) (*clientcmdapi.Config, error) {
+	config := clientcmdapi.NewConfig()
+
+	cluster := clientcmdapi.NewCluster()
+
+	ca, err := base64.StdEncoding.DecodeString(auth.ClusterCaCertificate)
+	if err != nil {
+		return nil, err
+	}
+
+	cluster.CertificateAuthorityData = ca
+
+	cluster.Server = fmt.Sprintf("https://%s", endpoint)
+
+	authInfo := clientcmdapi.NewAuthInfo()
+	authInfo.Username = auth.Username
+	authInfo.Password = auth.Password
+
+	clientCert, err := base64.StdEncoding.DecodeString(auth.ClientCertificate)
+	if err != nil {
+		return nil, err
+	}
+
+	authInfo.ClientCertificateData = clientCert
+
+	clientKey, err := base64.StdEncoding.DecodeString(auth.ClientKey)
+	if err != nil {
+		return nil, err
+	}
+
+	authInfo.ClientKeyData = clientKey
+
+	context := clientcmdapi.NewContext()
+	context.AuthInfo = name
+	context.Cluster = name
+	context.Namespace = "default"
+
+	config.Clusters[name] = cluster
+	config.AuthInfos[name] = authInfo
+	config.Contexts[name] = context
+	config.CurrentContext = name
+
+	return config, nil
 }
 
 func (c *Cluster) SaveState(ctx context.Context) errors.Error {
@@ -131,7 +211,13 @@ func (c *Cluster) create(ctx context.Context) errors.Error {
 		return errors.NewWorkflowUnknownRuntimeError().WithCause(err).Bug()
 	}
 
-	return c.LookupRemote(ctx)
+	if err := c.LookupRemote(ctx); err != nil {
+		return err
+	}
+
+	hm := helm.NewHelmManager(c.KubeconfigPath(), c.logger)
+
+	return hm.InitTiller(ctx)
 }
 
 func (c *Cluster) encode() ([]byte, errors.Error) {
@@ -143,7 +229,7 @@ func (c *Cluster) encode() ([]byte, errors.Error) {
 	return b, nil
 }
 
-func NewCluster(rid string, sm state.Manager, spec ClusterSpec) (*Cluster, errors.Error) {
+func NewCluster(rid string, sm state.Manager, spec ClusterSpec, logger logging.Logger) (*Cluster, errors.Error) {
 	manager, err := container.NewClusterManagerClient(context.Background())
 	if err != nil {
 		return nil, errors.NewGcpClientCreateError().WithCause(err)
@@ -159,5 +245,31 @@ func NewCluster(rid string, sm state.Manager, spec ClusterSpec) (*Cluster, error
 		client:       manager,
 		resourceID:   rid,
 		stateManager: sm,
+		logger:       logger,
 	}, nil
+}
+
+func NewClusterFromResourceID(rid string, sm state.Manager, logger logging.Logger) (*Cluster, errors.Error) {
+	manager, merr := container.NewClusterManagerClient(context.Background())
+	if merr != nil {
+		return nil, errors.NewGcpClientCreateError().WithCause(merr)
+	}
+
+	cluster := Cluster{
+		client:       manager,
+		resourceID:   rid,
+		stateManager: sm,
+		logger:       logger,
+	}
+
+	r, err := sm.Load(rid)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(r.Value, &cluster.Spec); err != nil {
+		return nil, errors.NewGcpClientCreateError().WithCause(err)
+	}
+
+	return &cluster, nil
 }

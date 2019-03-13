@@ -32,6 +32,8 @@ func NewRunner(kind RunnerKind) (ActionRunner, error) {
 		return &Shell{}, nil
 	case RunnerKindWorkflow:
 		return &Workflow{}, nil
+	case RunnerKindHelmDeploy:
+		return &HelmDeploy{}, nil
 	}
 
 	return nil, errors.NewWorkflowRunnerNotFound(string(kind))

@@ -28,7 +28,7 @@ func (g *GKEClusterProvisioner) Run(ctx context.Context, rid string, r ActionRun
 		Nodes:       int32(g.Spec.Nodes),
 		Region:      g.Spec.Region,
 		ProjectID:   g.Spec.ProjectID,
-	})
+	}, r.Logger())
 	if err != nil {
 		return err
 	}

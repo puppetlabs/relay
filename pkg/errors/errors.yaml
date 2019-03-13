@@ -78,6 +78,13 @@ sections:
         title: Cluster encoding error
         description: an error occruured while encoding the cluster
 
+  helm:
+    title: Helm errors
+    errors:
+      command_exec_error:
+        title: Command exec error
+        description: an error occurred while running the helm command
+
   execution:
     title: Task execution errors
     errors:

@@ -475,6 +475,61 @@ func NewGcpClusterSyncError() Error {
 	return NewGcpClusterSyncErrorBuilder().Build()
 }
 
+// HelmSection defines a section of errors with the following scope:
+// Helm errors
+var HelmSection = &impl.ErrorSection{
+	Key:   "helm",
+	Title: "Helm errors",
+}
+
+// HelmCommandExecErrorCode is the code for an instance of "command_exec_error".
+const HelmCommandExecErrorCode = "neb_helm_command_exec_error"
+
+// IsHelmCommandExecError tests whether a given error is an instance of "command_exec_error".
+func IsHelmCommandExecError(err errawrgo.Error) bool {
+	return err != nil && err.Is(HelmCommandExecErrorCode)
+}
+
+// IsHelmCommandExecError tests whether a given error is an instance of "command_exec_error".
+func (External) IsHelmCommandExecError(err errawrgo.Error) bool {
+	return IsHelmCommandExecError(err)
+}
+
+// HelmCommandExecErrorBuilder is a builder for "command_exec_error" errors.
+type HelmCommandExecErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "command_exec_error" from this builder.
+func (b *HelmCommandExecErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while running the helm command",
+		Technical: "an error occurred while running the helm command",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "command_exec_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     HelmSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Command exec error",
+		Version:          1,
+	}
+}
+
+// NewHelmCommandExecErrorBuilder creates a new error builder for the code "command_exec_error".
+func NewHelmCommandExecErrorBuilder() *HelmCommandExecErrorBuilder {
+	return &HelmCommandExecErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewHelmCommandExecError creates a new error with the code "command_exec_error".
+func NewHelmCommandExecError() Error {
+	return NewHelmCommandExecErrorBuilder().Build()
+}
+
 // StateSection defines a section of errors with the following scope:
 // State errors
 var StateSection = &impl.ErrorSection{
