@@ -14,6 +14,7 @@ type GKEClusterProvisionerSpec struct {
 	ProjectID   string `yaml:"projectID"`
 	Region      string `yaml:"region"`
 	Nodes       int    `yaml:"nodes"`
+	Resources   string `yaml:"resources"`
 }
 
 type GKEClusterProvisioner struct {
@@ -23,17 +24,18 @@ type GKEClusterProvisioner struct {
 
 func (g *GKEClusterProvisioner) Run(ctx context.Context, rid string, r ActionRuntime, variables map[string]string) errors.Error {
 	c, err := gcp.NewCluster(rid, r.StateManager(), gcp.ClusterSpec{
-		Name:        g.Spec.Name,
-		Description: g.Spec.Description,
-		Nodes:       int32(g.Spec.Nodes),
-		Region:      g.Spec.Region,
-		ProjectID:   g.Spec.ProjectID,
+		Name:         g.Spec.Name,
+		Description:  g.Spec.Description,
+		Nodes:        int32(g.Spec.Nodes),
+		Region:       g.Spec.Region,
+		ProjectID:    g.Spec.ProjectID,
+		ResourcesDir: g.Spec.Resources,
 	}, r.Logger())
 	if err != nil {
 		return err
 	}
 
-	if err := c.LookupRemote(ctx); err != nil {
+	if _, err := c.LookupRemote(ctx); err != nil {
 		return err
 	}
 	r.Logger().Info("cluster-state-fetched", "name", g.Spec.Name, "status", c.Status)

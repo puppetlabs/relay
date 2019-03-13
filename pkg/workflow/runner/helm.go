@@ -43,8 +43,14 @@ func (h *HelmChartDeployment) Run(ctx context.Context, rid string, r ActionRunti
 		return err
 	}
 
-	if err := cluster.LookupRemote(ctx); err != nil {
+	ready, err := cluster.LookupRemote(ctx)
+	if err != nil {
 		return err
+	}
+
+	if !ready {
+		r.Logger().Warn("cluster-not-ready", "resource-id", h.Spec.ResourceID)
+		return nil
 	}
 
 	hm := helm.NewHelmManager(cluster.KubeconfigPath(), r.Logger())

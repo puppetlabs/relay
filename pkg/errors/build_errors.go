@@ -283,6 +283,54 @@ func NewGcpClientCreateError() Error {
 	return NewGcpClientCreateErrorBuilder().Build()
 }
 
+// GcpClusterCreateTimeoutCode is the code for an instance of "cluster_create_timeout".
+const GcpClusterCreateTimeoutCode = "neb_gcp_cluster_create_timeout"
+
+// IsGcpClusterCreateTimeout tests whether a given error is an instance of "cluster_create_timeout".
+func IsGcpClusterCreateTimeout(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterCreateTimeoutCode)
+}
+
+// IsGcpClusterCreateTimeout tests whether a given error is an instance of "cluster_create_timeout".
+func (External) IsGcpClusterCreateTimeout(err errawrgo.Error) bool {
+	return IsGcpClusterCreateTimeout(err)
+}
+
+// GcpClusterCreateTimeoutBuilder is a builder for "cluster_create_timeout" errors.
+type GcpClusterCreateTimeoutBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_create_timeout" from this builder.
+func (b *GcpClusterCreateTimeoutBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "the timeout was reached while waiting for the cluster to become ready",
+		Technical: "the timeout was reached while waiting for the cluster to become ready",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_create_timeout",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster create timeout",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterCreateTimeoutBuilder creates a new error builder for the code "cluster_create_timeout".
+func NewGcpClusterCreateTimeoutBuilder() *GcpClusterCreateTimeoutBuilder {
+	return &GcpClusterCreateTimeoutBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterCreateTimeout creates a new error with the code "cluster_create_timeout".
+func NewGcpClusterCreateTimeout() Error {
+	return NewGcpClusterCreateTimeoutBuilder().Build()
+}
+
 // GcpClusterDoesNotExistCode is the code for an instance of "cluster_does_not_exist".
 const GcpClusterDoesNotExistCode = "neb_gcp_cluster_does_not_exist"
 
@@ -352,8 +400,8 @@ type GcpClusterEncodingErrorBuilder struct {
 // Build creates the error for the code "cluster_encoding_error" from this builder.
 func (b *GcpClusterEncodingErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "an error occruured while encoding the cluster",
-		Technical: "an error occruured while encoding the cluster",
+		Friendly:  "an error occurred while encoding the cluster",
+		Technical: "an error occurred while encoding the cluster",
 	}
 
 	return &impl.Error{
@@ -425,6 +473,54 @@ func NewGcpClusterReadErrorBuilder() *GcpClusterReadErrorBuilder {
 // NewGcpClusterReadError creates a new error with the code "cluster_read_error".
 func NewGcpClusterReadError() Error {
 	return NewGcpClusterReadErrorBuilder().Build()
+}
+
+// GcpClusterResourceErrorCode is the code for an instance of "cluster_resource_error".
+const GcpClusterResourceErrorCode = "neb_gcp_cluster_resource_error"
+
+// IsGcpClusterResourceError tests whether a given error is an instance of "cluster_resource_error".
+func IsGcpClusterResourceError(err errawrgo.Error) bool {
+	return err != nil && err.Is(GcpClusterResourceErrorCode)
+}
+
+// IsGcpClusterResourceError tests whether a given error is an instance of "cluster_resource_error".
+func (External) IsGcpClusterResourceError(err errawrgo.Error) bool {
+	return IsGcpClusterResourceError(err)
+}
+
+// GcpClusterResourceErrorBuilder is a builder for "cluster_resource_error" errors.
+type GcpClusterResourceErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cluster_resource_error" from this builder.
+func (b *GcpClusterResourceErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while applying resources",
+		Technical: "an error occurred while applying resources",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cluster_resource_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GcpSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Cluster resource error",
+		Version:          1,
+	}
+}
+
+// NewGcpClusterResourceErrorBuilder creates a new error builder for the code "cluster_resource_error".
+func NewGcpClusterResourceErrorBuilder() *GcpClusterResourceErrorBuilder {
+	return &GcpClusterResourceErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGcpClusterResourceError creates a new error with the code "cluster_resource_error".
+func NewGcpClusterResourceError() Error {
+	return NewGcpClusterResourceErrorBuilder().Build()
 }
 
 // GcpClusterSyncErrorCode is the code for an instance of "cluster_sync_error".

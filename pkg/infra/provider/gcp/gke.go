@@ -8,10 +8,13 @@ import (
 	"io/ioutil"
 	"net/url"
 	"path/filepath"
+	"strings"
+	"time"
 
 	container "cloud.google.com/go/container/apiv1"
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/execution"
 	"github.com/puppetlabs/nebula/pkg/infra/provider/kubernetes/helm"
 	"github.com/puppetlabs/nebula/pkg/state"
 	containerpb "google.golang.org/genproto/googleapis/container/v1"
@@ -37,12 +40,13 @@ const (
 )
 
 type ClusterSpec struct {
-	Name        string `json:"name"`
-	Description string `json:"Description"`
-	Nodes       int32  `json:"nodes"`
-	MachineType string `json:"machine_type"`
-	Region      string `json:"region"`
-	ProjectID   string `json:"project_id"`
+	Name         string `json:"name"`
+	Description  string `json:"Description"`
+	Nodes        int32  `json:"nodes"`
+	MachineType  string `json:"machine_type"`
+	Region       string `json:"region"`
+	ProjectID    string `json:"project_id"`
+	ResourcesDir string `json:"resources_dir"`
 }
 
 // Cluster manages the desired state of a wanted cluster in GKE
@@ -73,23 +77,63 @@ type Cluster struct {
 	logger         logging.Logger
 }
 
-func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
+func (c *Cluster) LookupRemote(ctx context.Context) (bool, errors.Error) {
+	_, err := c.syncClusterState(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if c.Status == ClusterStatusReady {
+		c.logger.Info("cluster-is-ready", "resource-id", c.resourceID)
+
+		tmpdir, err := ioutil.TempDir("", "nebula-gke-")
+		if err != nil {
+			return c.isReady(), errors.NewGcpClusterReadError().WithCause(err)
+		}
+
+		c.kubeconfigPath = filepath.Join(tmpdir, "kubeconfig")
+
+		config, err := c.config(c.gkeCluster.Name, c.gkeCluster.Endpoint, c.gkeCluster.MasterAuth)
+		if err != nil {
+			return c.isReady(), errors.NewGcpClusterReadError().WithCause(err)
+		}
+
+		c.kubeconfig = config
+
+		if err := clientcmd.WriteToFile(*config, c.kubeconfigPath); err != nil {
+			return c.isReady(), errors.NewGcpClusterReadError().WithCause(err)
+		}
+
+		c.logger.Info("kubeconfig-created", "kubeconfig-path", c.kubeconfigPath)
+	}
+
+	return c.isReady(), nil
+}
+
+func (c *Cluster) isReady() bool {
+	return c.Status == ClusterStatusReady
+}
+
+func (c *Cluster) syncClusterState(ctx context.Context) (*containerpb.Cluster, errors.Error) {
 	req := &containerpb.GetClusterRequest{
 		Name: fmt.Sprintf("projects/%s/locations/%s/clusters/%s",
 			c.Spec.ProjectID, c.Spec.Region, c.Spec.Name),
 	}
 
 	resp, err := c.client.GetCluster(ctx, req)
+
+	c.gkeCluster = resp
+
 	if err != nil {
 		if status, ok := status.FromError(err); ok {
 			if status.Code() == codes.NotFound {
 				c.Status = ClusterStatusUncreated
 
-				return nil
+				return resp, nil
 			}
 		}
 
-		return errors.NewGcpClusterReadError().WithCause(err)
+		return resp, errors.NewGcpClusterReadError().WithCause(err)
 	}
 
 	c.Status = ClusterStatusUnknown
@@ -98,27 +142,7 @@ func (c *Cluster) LookupRemote(ctx context.Context) errors.Error {
 		c.Status = ClusterStatusReady
 	}
 
-	c.gkeCluster = resp
-
-	config, err := c.config(resp.Name, resp.Endpoint, resp.MasterAuth)
-	if err != nil {
-		return errors.NewGcpClusterReadError().WithCause(err)
-	}
-
-	c.kubeconfig = config
-
-	tmpdir, err := ioutil.TempDir("", "nebula-gke-")
-	if err != nil {
-		return errors.NewGcpClusterReadError().WithCause(err)
-	}
-
-	c.kubeconfigPath = filepath.Join(tmpdir, "kubeconfig")
-
-	if err := clientcmd.WriteToFile(*config, c.kubeconfigPath); err != nil {
-		return errors.NewGcpClusterReadError().WithCause(err)
-	}
-
-	return nil
+	return resp, nil
 }
 
 func (c *Cluster) KubeconfigPath() string {
@@ -211,13 +235,54 @@ func (c *Cluster) create(ctx context.Context) errors.Error {
 		return errors.NewWorkflowUnknownRuntimeError().WithCause(err).Bug()
 	}
 
-	if err := c.LookupRemote(ctx); err != nil {
+	c.logger.Debug("waiting-for-ready-status", "current-status", c.Status)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute*10)
+	defer cancel()
+
+	for {
+		ready, err := c.LookupRemote(ctx)
+		if err != nil {
+			return err
+		}
+
+		if ready {
+			break
+		}
+
+		c.logger.Debug("cluster-not-ready", "current-status", c.Status, "gcp-status", c.gkeCluster.Status)
+
+		select {
+		case <-time.After(time.Second * 30):
+			continue
+		case <-ctx.Done():
+			return errors.NewGcpClusterCreateTimeout()
+		}
+	}
+
+	if err := c.applyResources(ctx); err != nil {
 		return err
 	}
 
 	hm := helm.NewHelmManager(c.KubeconfigPath(), c.logger)
 
+	c.logger.Info("initializing-tiller")
 	return hm.InitTiller(ctx)
+}
+
+func (c *Cluster) applyResources(ctx context.Context) errors.Error {
+	files, err := filepath.Glob(filepath.Join(c.Spec.ResourcesDir, "*.yaml"))
+	if err != nil {
+		return errors.NewGcpClusterResourceError().WithCause(err)
+	}
+
+	for _, file := range files {
+		args := []string{"kubectl", "--kubeconfig", c.kubeconfigPath, "apply", "-f", file}
+		if _, err := execution.ExecuteCommand(strings.Join(args, " "), nil, c.logger); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *Cluster) encode() ([]byte, errors.Error) {

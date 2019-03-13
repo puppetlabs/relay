@@ -71,7 +71,7 @@ func (m HelmManager) releaseExists(ctx context.Context, release string) (bool, e
 }
 
 func (m HelmManager) run(ctx context.Context, variables map[string]string, subcmd string, params ...string) (io.Reader, errors.Error) {
-	args := append([]string{m.helmcmd, "--kubeconfig", m.kubeconfig, subcmd}, params...)
+	args := append([]string{m.helmcmd, "--kubeconfig", m.kubeconfig, "--tiller-namespace", "tiller-world", subcmd}, params...)
 	raw := strings.Join(args, " ")
 
 	out, err := execution.ExecuteCommand(raw, variables, m.logger)

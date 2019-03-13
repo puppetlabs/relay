@@ -74,9 +74,15 @@ sections:
       cluster_sync_error:
         title: Cluster sync error
         description: an error occurred while syncing the cluster
+      cluster_create_timeout:
+        title: Cluster create timeout
+        description: the timeout was reached while waiting for the cluster to become ready
       cluster_encoding_error:
         title: Cluster encoding error
-        description: an error occruured while encoding the cluster
+        description: an error occurred while encoding the cluster
+      cluster_resource_error:
+        title: Cluster resource error
+        description: an error occurred while applying resources
 
   helm:
     title: Helm errors
