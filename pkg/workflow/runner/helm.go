@@ -9,19 +9,35 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type HelmDeploySpec struct {
-	ResourceID string `yaml:"resourceID"`
-	ChartPath  string `yaml:"chartPath"`
-	ValuesPath string `yaml:"valuesPath"`
-	Release    string `yaml:"release"`
+type HelmValueOverride struct {
+	Key   string `yaml:"key"`
+	Value string `yaml:"value"`
 }
 
-type HelmDeploy struct {
-	Name string         `yaml:"name"`
-	Spec HelmDeploySpec `yaml:"spec"`
+func overridesMap(overrides []HelmValueOverride) map[string]string {
+	m := make(map[string]string)
+
+	for _, o := range overrides {
+		m[o.Key] = o.Value
+	}
+
+	return m
 }
 
-func (h *HelmDeploy) Run(ctx context.Context, rid string, r ActionRuntime, variables map[string]string) errors.Error {
+type HelmChartDeploymentSpec struct {
+	ResourceID string              `yaml:"resourceID"`
+	ChartPath  string              `yaml:"chartPath"`
+	ValuesPath string              `yaml:"valuesPath"`
+	Release    string              `yaml:"release"`
+	Overrides  []HelmValueOverride `yaml:"overrides"`
+}
+
+type HelmChartDeployment struct {
+	Name string                  `yaml:"name"`
+	Spec HelmChartDeploymentSpec `yaml:"spec"`
+}
+
+func (h *HelmChartDeployment) Run(ctx context.Context, rid string, r ActionRuntime, variables map[string]string) errors.Error {
 	cluster, err := gcp.NewClusterFromResourceID(h.Spec.ResourceID, r.StateManager(), r.Logger())
 	if err != nil {
 		return err
@@ -33,27 +49,34 @@ func (h *HelmDeploy) Run(ctx context.Context, rid string, r ActionRuntime, varia
 
 	hm := helm.NewHelmManager(cluster.KubeconfigPath(), r.Logger())
 
-	chart := &helm.Chart{
-		Path:        h.Spec.ChartPath,
-		ValuesPaths: []string{h.Spec.ValuesPath},
+	var valuesPaths []string
+
+	if h.Spec.ValuesPath != "" {
+		valuesPaths = append(valuesPaths, h.Spec.ValuesPath)
 	}
 
-	if err := hm.DeployChart(ctx, h.Spec.Release, chart); err != nil {
+	chart := &helm.Chart{
+		Path:           h.Spec.ChartPath,
+		ValuesPaths:    valuesPaths,
+		ValueOverrides: overridesMap(h.Spec.Overrides),
+	}
+
+	if err := hm.DeployChart(ctx, h.Spec.Release, chart, variables); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (h *HelmDeploy) Decoder() Decoder {
-	return &HelmDeployDecoder{h: h}
+func (h *HelmChartDeployment) Decoder() Decoder {
+	return &HelmChartDeploymentDecoder{h: h}
 }
 
-type HelmDeployDecoder struct {
-	h *HelmDeploy
+type HelmChartDeploymentDecoder struct {
+	h *HelmChartDeployment
 }
 
-func (d *HelmDeployDecoder) Decode(b []byte) errors.Error {
+func (d *HelmChartDeploymentDecoder) Decode(b []byte) errors.Error {
 	if err := yaml.Unmarshal(b, d.h); err != nil {
 		return errors.NewWorkflowRunnerDecodeError().WithCause(err).Bug()
 	}
