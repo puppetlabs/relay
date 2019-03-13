@@ -9,6 +9,15 @@ import (
 	"github.com/puppetlabs/nebula/pkg/state"
 )
 
+type RunnerKind string
+
+const (
+	RunnerKindGKEClusterProvisioner RunnerKind = "gke-cluster-provisioner"
+	RunnerKindShell                 RunnerKind = "shell"
+	RunnerKindWorkflow              RunnerKind = "workflow"
+	RunnerKindHelmChartDeployment   RunnerKind = "helm-chart-deployment"
+)
+
 type ActionRuntime interface {
 	IO() *io.IO
 	Logger() logging.Logger
@@ -32,6 +41,8 @@ func NewRunner(kind RunnerKind) (ActionRunner, error) {
 		return &Shell{}, nil
 	case RunnerKindWorkflow:
 		return &Workflow{}, nil
+	case RunnerKindHelmChartDeployment:
+		return &HelmChartDeployment{}, nil
 	}
 
 	return nil, errors.NewWorkflowRunnerNotFound(string(kind))

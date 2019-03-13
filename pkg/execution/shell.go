@@ -19,14 +19,17 @@ func interfaceSlice(strSlice []string) []interface{} {
 	return interfaceSlice
 }
 
-func ExecuteCommand(rawCommand string, variables map[string]string, l logging.Logger) errors.Error {
+// ExecuteCommand runs rawCommand on the shell after applying variables with a templating engine
+// This function is temporary and will eventually need to use environment variables and take the
+// io streams mechanism for output and error buffering. Currently just returns output as a string.
+func ExecuteCommand(rawCommand string, variables map[string]string, l logging.Logger) (string, errors.Error) {
 	var deferr error
 	var err errors.Error
 
 	tmpl, deferr := template.New("shell-command").Parse(rawCommand)
 
 	if err != nil {
-		return errors.NewExecutionInvalidShellTemplateError(rawCommand).WithCause(deferr)
+		return "", errors.NewExecutionInvalidShellTemplateError(rawCommand).WithCause(deferr)
 	}
 
 	var templateOutput bytes.Buffer
@@ -34,7 +37,7 @@ func ExecuteCommand(rawCommand string, variables map[string]string, l logging.Lo
 	deferr = tmpl.Execute(&templateOutput, variables)
 
 	if err != nil {
-		return errors.NewExecutionShellTemplateExecutionError(rawCommand).WithCause(deferr)
+		return "", errors.NewExecutionShellTemplateExecutionError(rawCommand).WithCause(deferr)
 	}
 
 	processedRawCommand := templateOutput.String()
@@ -44,7 +47,7 @@ func ExecuteCommand(rawCommand string, variables map[string]string, l logging.Lo
 	commands, err := parseCommandArguments(processedRawCommand)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	command := commands[0]
@@ -71,10 +74,10 @@ func ExecuteCommand(rawCommand string, variables map[string]string, l logging.Lo
 	}
 
 	if deferr != nil {
-		return errors.NewExecutionShellCommandNonZeroExitError(processedRawCommand, stdOutStr, stdErrStr).WithCause(deferr)
+		return "", errors.NewExecutionShellCommandNonZeroExitError(processedRawCommand, stdOutStr, stdErrStr).WithCause(deferr)
 	}
 
-	return err
+	return stdOutStr, err
 }
 
 func parseCommandArguments(command string) ([]string, errors.Error) {
