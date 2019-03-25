@@ -9,8 +9,8 @@ import (
 )
 
 type ShellSpec struct {
-	Kind     string   `yaml:"kind"`
-	Commands []string `yaml:"commands"`
+	Kind   string   `yaml:"kind"`
+	Script []string `yaml:"script"`
 }
 
 type Shell struct {
@@ -19,7 +19,7 @@ type Shell struct {
 }
 
 func (s *Shell) Run(ctx context.Context, rid string, r ActionRuntime, variables map[string]string) errors.Error {
-	for _, command := range s.Spec.Commands {
+	for _, command := range s.Spec.Script {
 		_, err := execution.ExecuteCommand(command, variables, r.Logger())
 
 		if err != nil {

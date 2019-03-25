@@ -2,14 +2,13 @@ package cmd
 
 import (
 	"github.com/puppetlabs/nebula/pkg/cmd/apply"
-	"github.com/puppetlabs/nebula/pkg/cmd/create"
-	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/workflow/loader"
+	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
+	"github.com/puppetlabs/nebula/pkg/loader"
 	"github.com/spf13/cobra"
 )
 
 func NewRootCommand() (*cobra.Command, error) {
-	r, err := config.NewCLIRuntime()
+	r, err := runtimefactory.NewRuntimeFactory()
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +23,7 @@ func NewRootCommand() (*cobra.Command, error) {
 			}
 
 			if fp != "" {
-				r.SetWorkflowLoader(loader.NewFilepathLoader(fp))
+				r.SetPlanLoader(loader.NewFilepathLoader(fp))
 			}
 
 			return nil
@@ -33,7 +32,6 @@ func NewRootCommand() (*cobra.Command, error) {
 
 	c.PersistentFlags().StringP("filepath", "f", "", "optional path to a workflow.yaml")
 
-	c.AddCommand(create.NewCommand(r))
 	c.AddCommand(apply.NewCommand(r))
 
 	return c, nil

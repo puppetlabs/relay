@@ -304,6 +304,10 @@ func NewCluster(rid string, sm state.Manager, spec ClusterSpec, logger logging.L
 		spec.MachineType = defaultMachineType
 	}
 
+	if spec.Nodes == 0 {
+		spec.Nodes = int32(defaultInitialNodeCount)
+	}
+
 	return &Cluster{
 		Status:       ClusterStatusUnknown,
 		Spec:         spec,

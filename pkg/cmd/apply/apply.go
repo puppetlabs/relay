@@ -2,59 +2,63 @@ package apply
 
 import (
 	"context"
+	"strings"
 
-	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/workflow"
+	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
+	"github.com/puppetlabs/nebula/pkg/plan"
+	"github.com/puppetlabs/nebula/pkg/plan/types"
 	"github.com/spf13/cobra"
 )
 
-func NewCommand(r config.CLIRuntime) *cobra.Command {
+func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "apply [options] [command]",
-		Short:                 "Apply and run workflow stages",
+		Short:                 "Apply and actions from Nebula workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var wf workflow.Workflow
+			var p types.Plan
 
-			if err := r.WorkflowLoader().Load(&wf); err != nil {
+			if err := rt.PlanLoader().Load(&p); err != nil {
 				return err
 			}
 
-			r.Logger().Debug("workflow-loaded")
+			rt.Logger().Debug("nebula-plan-loaded")
 
-			stageName, err := cmd.Flags().GetString("stage")
+			workflowName, err := cmd.Flags().GetString("workflow")
 			if err != nil {
 				return err
 			}
 
-			stage, err := wf.Stage(stageName)
+			env, err := cmd.Flags().GetStringSlice("env")
 			if err != nil {
 				return err
 			}
 
-			r.Logger().Info("running stage", "stage", stage.Name)
+			for _, v := range env {
+				parts := strings.Split(v, "=")
 
-			variables := make(map[string]string)
-
-			for _, v := range wf.Variables {
-				variables[v.Name] = v.Value
+				p.Variables = append(p.Variables, &types.Variable{Name: parts[0], Value: parts[1]})
 			}
 
-			for _, action := range stage.Actions() {
-				r.Logger().Info("action-started", "action", action.Name, "kind", action.Kind)
-
-				if err := action.Runner().Run(context.Background(), action.ResourceID, r, variables); err != nil {
-					return err
-				}
+			runner, err := plan.NewWorkflowRunnerFromName(workflowName, &p, rt.ActionExecutor())
+			if err != nil {
+				return err
 			}
 
-			r.Logger().Info("workflow-applied")
+			rt.Logger().Info("running-workflow", "workflow", runner.Name())
+
+			if err := runner.Run(context.Background(), rt); err != nil {
+				return err
+			}
+
+			rt.Logger().Info("nebula-plan-applied")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringP("stage", "s", "", "name of the stage to run actions for")
+	cmd.Flags().StringP("workflow", "w", "", "name of the workflow to run actions for")
+	cmd.Flags().StringSliceP("env", "e", []string{}, "sets environment variables for actions (e.g. --env=KEY=value,KEY2=value2)")
 
 	return cmd
 }

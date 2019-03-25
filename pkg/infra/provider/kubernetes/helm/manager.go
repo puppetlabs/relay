@@ -49,7 +49,9 @@ func (m HelmManager) releaseExists(ctx context.Context, release string) (bool, e
 
 	buf := &bytes.Buffer{}
 
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		return false, errors.NewHelmCommandExecError().WithCause(err)
+	}
 
 	if buf.Len() == 0 {
 		return false, nil

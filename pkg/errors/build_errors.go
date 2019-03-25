@@ -25,6 +25,445 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// DockerSection defines a section of errors with the following scope:
+// Docker executor errors
+var DockerSection = &impl.ErrorSection{
+	Key:   "docker",
+	Title: "Docker executor errors",
+}
+
+// DockerClientCreateErrorCode is the code for an instance of "client_create_error".
+const DockerClientCreateErrorCode = "neb_docker_client_create_error"
+
+// IsDockerClientCreateError tests whether a given error is an instance of "client_create_error".
+func IsDockerClientCreateError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerClientCreateErrorCode)
+}
+
+// IsDockerClientCreateError tests whether a given error is an instance of "client_create_error".
+func (External) IsDockerClientCreateError(err errawrgo.Error) bool {
+	return IsDockerClientCreateError(err)
+}
+
+// DockerClientCreateErrorBuilder is a builder for "client_create_error" errors.
+type DockerClientCreateErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "client_create_error" from this builder.
+func (b *DockerClientCreateErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error creating the docker client",
+		Technical: "there was an error creating the docker client",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "client_create_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Client create error",
+		Version:          1,
+	}
+}
+
+// NewDockerClientCreateErrorBuilder creates a new error builder for the code "client_create_error".
+func NewDockerClientCreateErrorBuilder() *DockerClientCreateErrorBuilder {
+	return &DockerClientCreateErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerClientCreateError creates a new error with the code "client_create_error".
+func NewDockerClientCreateError() Error {
+	return NewDockerClientCreateErrorBuilder().Build()
+}
+
+// DockerContainerCreateErrorCode is the code for an instance of "container_create_error".
+const DockerContainerCreateErrorCode = "neb_docker_container_create_error"
+
+// IsDockerContainerCreateError tests whether a given error is an instance of "container_create_error".
+func IsDockerContainerCreateError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerContainerCreateErrorCode)
+}
+
+// IsDockerContainerCreateError tests whether a given error is an instance of "container_create_error".
+func (External) IsDockerContainerCreateError(err errawrgo.Error) bool {
+	return IsDockerContainerCreateError(err)
+}
+
+// DockerContainerCreateErrorBuilder is a builder for "container_create_error" errors.
+type DockerContainerCreateErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "container_create_error" from this builder.
+func (b *DockerContainerCreateErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "failed to create container from {{ image }}",
+		Technical: "failed to create container from {{ image }}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "container_create_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Container create error",
+		Version:          1,
+	}
+}
+
+// NewDockerContainerCreateErrorBuilder creates a new error builder for the code "container_create_error".
+func NewDockerContainerCreateErrorBuilder(image string) *DockerContainerCreateErrorBuilder {
+	return &DockerContainerCreateErrorBuilder{arguments: impl.ErrorArguments{"image": impl.NewErrorArgument(image, "the name of the image")}}
+}
+
+// NewDockerContainerCreateError creates a new error with the code "container_create_error".
+func NewDockerContainerCreateError(image string) Error {
+	return NewDockerContainerCreateErrorBuilder(image).Build()
+}
+
+// DockerContainerExecutionErrorCode is the code for an instance of "container_execution_error".
+const DockerContainerExecutionErrorCode = "neb_docker_container_execution_error"
+
+// IsDockerContainerExecutionError tests whether a given error is an instance of "container_execution_error".
+func IsDockerContainerExecutionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerContainerExecutionErrorCode)
+}
+
+// IsDockerContainerExecutionError tests whether a given error is an instance of "container_execution_error".
+func (External) IsDockerContainerExecutionError(err errawrgo.Error) bool {
+	return IsDockerContainerExecutionError(err)
+}
+
+// DockerContainerExecutionErrorBuilder is a builder for "container_execution_error" errors.
+type DockerContainerExecutionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "container_execution_error" from this builder.
+func (b *DockerContainerExecutionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while executing container",
+		Technical: "an error occurred while executing container",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "container_execution_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Container exection error",
+		Version:          1,
+	}
+}
+
+// NewDockerContainerExecutionErrorBuilder creates a new error builder for the code "container_execution_error".
+func NewDockerContainerExecutionErrorBuilder() *DockerContainerExecutionErrorBuilder {
+	return &DockerContainerExecutionErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerContainerExecutionError creates a new error with the code "container_execution_error".
+func NewDockerContainerExecutionError() Error {
+	return NewDockerContainerExecutionErrorBuilder().Build()
+}
+
+// DockerContainerLogsErrorCode is the code for an instance of "container_logs_error".
+const DockerContainerLogsErrorCode = "neb_docker_container_logs_error"
+
+// IsDockerContainerLogsError tests whether a given error is an instance of "container_logs_error".
+func IsDockerContainerLogsError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerContainerLogsErrorCode)
+}
+
+// IsDockerContainerLogsError tests whether a given error is an instance of "container_logs_error".
+func (External) IsDockerContainerLogsError(err errawrgo.Error) bool {
+	return IsDockerContainerLogsError(err)
+}
+
+// DockerContainerLogsErrorBuilder is a builder for "container_logs_error" errors.
+type DockerContainerLogsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "container_logs_error" from this builder.
+func (b *DockerContainerLogsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "failed to get logging io for container",
+		Technical: "failed to get logging io for container",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "container_logs_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Container logs error",
+		Version:          1,
+	}
+}
+
+// NewDockerContainerLogsErrorBuilder creates a new error builder for the code "container_logs_error".
+func NewDockerContainerLogsErrorBuilder() *DockerContainerLogsErrorBuilder {
+	return &DockerContainerLogsErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerContainerLogsError creates a new error with the code "container_logs_error".
+func NewDockerContainerLogsError() Error {
+	return NewDockerContainerLogsErrorBuilder().Build()
+}
+
+// DockerContainerStartErrorCode is the code for an instance of "container_start_error".
+const DockerContainerStartErrorCode = "neb_docker_container_start_error"
+
+// IsDockerContainerStartError tests whether a given error is an instance of "container_start_error".
+func IsDockerContainerStartError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerContainerStartErrorCode)
+}
+
+// IsDockerContainerStartError tests whether a given error is an instance of "container_start_error".
+func (External) IsDockerContainerStartError(err errawrgo.Error) bool {
+	return IsDockerContainerStartError(err)
+}
+
+// DockerContainerStartErrorBuilder is a builder for "container_start_error" errors.
+type DockerContainerStartErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "container_start_error" from this builder.
+func (b *DockerContainerStartErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "failed to start container",
+		Technical: "failed to start container",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "container_start_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Container start error",
+		Version:          1,
+	}
+}
+
+// NewDockerContainerStartErrorBuilder creates a new error builder for the code "container_start_error".
+func NewDockerContainerStartErrorBuilder() *DockerContainerStartErrorBuilder {
+	return &DockerContainerStartErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerContainerStartError creates a new error with the code "container_start_error".
+func NewDockerContainerStartError() Error {
+	return NewDockerContainerStartErrorBuilder().Build()
+}
+
+// DockerCredentialEncodingErrorCode is the code for an instance of "credential_encoding_error".
+const DockerCredentialEncodingErrorCode = "neb_docker_credential_encoding_error"
+
+// IsDockerCredentialEncodingError tests whether a given error is an instance of "credential_encoding_error".
+func IsDockerCredentialEncodingError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerCredentialEncodingErrorCode)
+}
+
+// IsDockerCredentialEncodingError tests whether a given error is an instance of "credential_encoding_error".
+func (External) IsDockerCredentialEncodingError(err errawrgo.Error) bool {
+	return IsDockerCredentialEncodingError(err)
+}
+
+// DockerCredentialEncodingErrorBuilder is a builder for "credential_encoding_error" errors.
+type DockerCredentialEncodingErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "credential_encoding_error" from this builder.
+func (b *DockerCredentialEncodingErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "failed to encode the registry credentials",
+		Technical: "failed to encode the registry credentials",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "credential_encoding_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Credential encoding error",
+		Version:          1,
+	}
+}
+
+// NewDockerCredentialEncodingErrorBuilder creates a new error builder for the code "credential_encoding_error".
+func NewDockerCredentialEncodingErrorBuilder() *DockerCredentialEncodingErrorBuilder {
+	return &DockerCredentialEncodingErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerCredentialEncodingError creates a new error with the code "credential_encoding_error".
+func NewDockerCredentialEncodingError() Error {
+	return NewDockerCredentialEncodingErrorBuilder().Build()
+}
+
+// DockerHostInfoErrorCode is the code for an instance of "host_info_error".
+const DockerHostInfoErrorCode = "neb_docker_host_info_error"
+
+// IsDockerHostInfoError tests whether a given error is an instance of "host_info_error".
+func IsDockerHostInfoError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerHostInfoErrorCode)
+}
+
+// IsDockerHostInfoError tests whether a given error is an instance of "host_info_error".
+func (External) IsDockerHostInfoError(err errawrgo.Error) bool {
+	return IsDockerHostInfoError(err)
+}
+
+// DockerHostInfoErrorBuilder is a builder for "host_info_error" errors.
+type DockerHostInfoErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "host_info_error" from this builder.
+func (b *DockerHostInfoErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error getting the docker host information",
+		Technical: "there was an error getting the docker host information",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "host_info_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Host info error",
+		Version:          1,
+	}
+}
+
+// NewDockerHostInfoErrorBuilder creates a new error builder for the code "host_info_error".
+func NewDockerHostInfoErrorBuilder() *DockerHostInfoErrorBuilder {
+	return &DockerHostInfoErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerHostInfoError creates a new error with the code "host_info_error".
+func NewDockerHostInfoError() Error {
+	return NewDockerHostInfoErrorBuilder().Build()
+}
+
+// DockerImagePullErrorCode is the code for an instance of "image_pull_error".
+const DockerImagePullErrorCode = "neb_docker_image_pull_error"
+
+// IsDockerImagePullError tests whether a given error is an instance of "image_pull_error".
+func IsDockerImagePullError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerImagePullErrorCode)
+}
+
+// IsDockerImagePullError tests whether a given error is an instance of "image_pull_error".
+func (External) IsDockerImagePullError(err errawrgo.Error) bool {
+	return IsDockerImagePullError(err)
+}
+
+// DockerImagePullErrorBuilder is a builder for "image_pull_error" errors.
+type DockerImagePullErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "image_pull_error" from this builder.
+func (b *DockerImagePullErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "failed to pull image {{ image }}",
+		Technical: "failed to pull image {{ image }}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "image_pull_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Image pull error",
+		Version:          1,
+	}
+}
+
+// NewDockerImagePullErrorBuilder creates a new error builder for the code "image_pull_error".
+func NewDockerImagePullErrorBuilder(image string) *DockerImagePullErrorBuilder {
+	return &DockerImagePullErrorBuilder{arguments: impl.ErrorArguments{"image": impl.NewErrorArgument(image, "the name of the image")}}
+}
+
+// NewDockerImagePullError creates a new error with the code "image_pull_error".
+func NewDockerImagePullError(image string) Error {
+	return NewDockerImagePullErrorBuilder(image).Build()
+}
+
+// DockerUnknownErrorCode is the code for an instance of "unknown_error".
+const DockerUnknownErrorCode = "neb_docker_unknown_error"
+
+// IsDockerUnknownError tests whether a given error is an instance of "unknown_error".
+func IsDockerUnknownError(err errawrgo.Error) bool {
+	return err != nil && err.Is(DockerUnknownErrorCode)
+}
+
+// IsDockerUnknownError tests whether a given error is an instance of "unknown_error".
+func (External) IsDockerUnknownError(err errawrgo.Error) bool {
+	return IsDockerUnknownError(err)
+}
+
+// DockerUnknownErrorBuilder is a builder for "unknown_error" errors.
+type DockerUnknownErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unknown_error" from this builder.
+func (b *DockerUnknownErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an unknown error occurred",
+		Technical: "an unknown error occurred",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unknown_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     DockerSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Unknown error",
+		Version:          1,
+	}
+}
+
+// NewDockerUnknownErrorBuilder creates a new error builder for the code "unknown_error".
+func NewDockerUnknownErrorBuilder() *DockerUnknownErrorBuilder {
+	return &DockerUnknownErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewDockerUnknownError creates a new error with the code "unknown_error".
+func NewDockerUnknownError() Error {
+	return NewDockerUnknownErrorBuilder().Build()
+}
+
 // ExecutionSection defines a section of errors with the following scope:
 // Task execution errors
 var ExecutionSection = &impl.ErrorSection{
@@ -626,6 +1065,205 @@ func NewHelmCommandExecError() Error {
 	return NewHelmCommandExecErrorBuilder().Build()
 }
 
+// PlanSection defines a section of errors with the following scope:
+// Plan errors
+var PlanSection = &impl.ErrorSection{
+	Key:   "plan",
+	Title: "Plan errors",
+}
+
+// PlanActionSpecEncodeErrorCode is the code for an instance of "action_spec_encode_error".
+const PlanActionSpecEncodeErrorCode = "neb_plan_action_spec_encode_error"
+
+// IsPlanActionSpecEncodeError tests whether a given error is an instance of "action_spec_encode_error".
+func IsPlanActionSpecEncodeError(err errawrgo.Error) bool {
+	return err != nil && err.Is(PlanActionSpecEncodeErrorCode)
+}
+
+// IsPlanActionSpecEncodeError tests whether a given error is an instance of "action_spec_encode_error".
+func (External) IsPlanActionSpecEncodeError(err errawrgo.Error) bool {
+	return IsPlanActionSpecEncodeError(err)
+}
+
+// PlanActionSpecEncodeErrorBuilder is a builder for "action_spec_encode_error" errors.
+type PlanActionSpecEncodeErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "action_spec_encode_error" from this builder.
+func (b *PlanActionSpecEncodeErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "could not encode action spec",
+		Technical: "could not encode action spec",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "action_spec_encode_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     PlanSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Action spec encode error",
+		Version:          1,
+	}
+}
+
+// NewPlanActionSpecEncodeErrorBuilder creates a new error builder for the code "action_spec_encode_error".
+func NewPlanActionSpecEncodeErrorBuilder() *PlanActionSpecEncodeErrorBuilder {
+	return &PlanActionSpecEncodeErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewPlanActionSpecEncodeError creates a new error with the code "action_spec_encode_error".
+func NewPlanActionSpecEncodeError() Error {
+	return NewPlanActionSpecEncodeErrorBuilder().Build()
+}
+
+// PlanFileNotFoundCode is the code for an instance of "file_not_found".
+const PlanFileNotFoundCode = "neb_plan_file_not_found"
+
+// IsPlanFileNotFound tests whether a given error is an instance of "file_not_found".
+func IsPlanFileNotFound(err errawrgo.Error) bool {
+	return err != nil && err.Is(PlanFileNotFoundCode)
+}
+
+// IsPlanFileNotFound tests whether a given error is an instance of "file_not_found".
+func (External) IsPlanFileNotFound(err errawrgo.Error) bool {
+	return IsPlanFileNotFound(err)
+}
+
+// PlanFileNotFoundBuilder is a builder for "file_not_found" errors.
+type PlanFileNotFoundBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "file_not_found" from this builder.
+func (b *PlanFileNotFoundBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "filepath `{{path}}` does not exist",
+		Technical: "filepath `{{path}}` does not exist",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "file_not_found",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     PlanSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "File not found",
+		Version:          1,
+	}
+}
+
+// NewPlanFileNotFoundBuilder creates a new error builder for the code "file_not_found".
+func NewPlanFileNotFoundBuilder(path string) *PlanFileNotFoundBuilder {
+	return &PlanFileNotFoundBuilder{arguments: impl.ErrorArguments{"path": impl.NewErrorArgument(path, "the path that doesn't exist")}}
+}
+
+// NewPlanFileNotFound creates a new error with the code "file_not_found".
+func NewPlanFileNotFound(path string) Error {
+	return NewPlanFileNotFoundBuilder(path).Build()
+}
+
+// PlanLoaderErrorCode is the code for an instance of "loader_error".
+const PlanLoaderErrorCode = "neb_plan_loader_error"
+
+// IsPlanLoaderError tests whether a given error is an instance of "loader_error".
+func IsPlanLoaderError(err errawrgo.Error) bool {
+	return err != nil && err.Is(PlanLoaderErrorCode)
+}
+
+// IsPlanLoaderError tests whether a given error is an instance of "loader_error".
+func (External) IsPlanLoaderError(err errawrgo.Error) bool {
+	return IsPlanLoaderError(err)
+}
+
+// PlanLoaderErrorBuilder is a builder for "loader_error" errors.
+type PlanLoaderErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "loader_error" from this builder.
+func (b *PlanLoaderErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "an error occurred while loading the plan",
+		Technical: "an error occurred while loading the plan",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "loader_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     PlanSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Loader error",
+		Version:          1,
+	}
+}
+
+// NewPlanLoaderErrorBuilder creates a new error builder for the code "loader_error".
+func NewPlanLoaderErrorBuilder() *PlanLoaderErrorBuilder {
+	return &PlanLoaderErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewPlanLoaderError creates a new error with the code "loader_error".
+func NewPlanLoaderError() Error {
+	return NewPlanLoaderErrorBuilder().Build()
+}
+
+// PlanWorkflowNotFoundCode is the code for an instance of "workflow_not_found".
+const PlanWorkflowNotFoundCode = "neb_plan_workflow_not_found"
+
+// IsPlanWorkflowNotFound tests whether a given error is an instance of "workflow_not_found".
+func IsPlanWorkflowNotFound(err errawrgo.Error) bool {
+	return err != nil && err.Is(PlanWorkflowNotFoundCode)
+}
+
+// IsPlanWorkflowNotFound tests whether a given error is an instance of "workflow_not_found".
+func (External) IsPlanWorkflowNotFound(err errawrgo.Error) bool {
+	return IsPlanWorkflowNotFound(err)
+}
+
+// PlanWorkflowNotFoundBuilder is a builder for "workflow_not_found" errors.
+type PlanWorkflowNotFoundBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "workflow_not_found" from this builder.
+func (b *PlanWorkflowNotFoundBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "workflow {{ name }} was not found and there is no default",
+		Technical: "workflow {{ name }} was not found and there is no default",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "workflow_not_found",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     PlanSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Workflow not found",
+		Version:          1,
+	}
+}
+
+// NewPlanWorkflowNotFoundBuilder creates a new error builder for the code "workflow_not_found".
+func NewPlanWorkflowNotFoundBuilder(name string) *PlanWorkflowNotFoundBuilder {
+	return &PlanWorkflowNotFoundBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the workflow")}}
+}
+
+// NewPlanWorkflowNotFound creates a new error with the code "workflow_not_found".
+func NewPlanWorkflowNotFound(name string) Error {
+	return NewPlanWorkflowNotFoundBuilder(name).Build()
+}
+
 // StateSection defines a section of errors with the following scope:
 // State errors
 var StateSection = &impl.ErrorSection{
@@ -878,6 +1516,54 @@ func NewWorkflowActionDecodeErrorBuilder(reason string) *WorkflowActionDecodeErr
 // NewWorkflowActionDecodeError creates a new error with the code "action_decode_error".
 func NewWorkflowActionDecodeError(reason string) Error {
 	return NewWorkflowActionDecodeErrorBuilder(reason).Build()
+}
+
+// WorkflowActionSpecEncodeErrorCode is the code for an instance of "action_spec_encode_error".
+const WorkflowActionSpecEncodeErrorCode = "neb_workflow_action_spec_encode_error"
+
+// IsWorkflowActionSpecEncodeError tests whether a given error is an instance of "action_spec_encode_error".
+func IsWorkflowActionSpecEncodeError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowActionSpecEncodeErrorCode)
+}
+
+// IsWorkflowActionSpecEncodeError tests whether a given error is an instance of "action_spec_encode_error".
+func (External) IsWorkflowActionSpecEncodeError(err errawrgo.Error) bool {
+	return IsWorkflowActionSpecEncodeError(err)
+}
+
+// WorkflowActionSpecEncodeErrorBuilder is a builder for "action_spec_encode_error" errors.
+type WorkflowActionSpecEncodeErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "action_spec_encode_error" from this builder.
+func (b *WorkflowActionSpecEncodeErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "could not encode action spec",
+		Technical: "could not encode action spec",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "action_spec_encode_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Action encode error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowActionSpecEncodeErrorBuilder creates a new error builder for the code "action_spec_encode_error".
+func NewWorkflowActionSpecEncodeErrorBuilder() *WorkflowActionSpecEncodeErrorBuilder {
+	return &WorkflowActionSpecEncodeErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowActionSpecEncodeError creates a new error with the code "action_spec_encode_error".
+func NewWorkflowActionSpecEncodeError() Error {
+	return NewWorkflowActionSpecEncodeErrorBuilder().Build()
 }
 
 // WorkflowFileNotFoundCode is the code for an instance of "file_not_found".

@@ -3,6 +3,28 @@ domain:
   key: neb
   title: Nebula
 sections:
+  plan:
+    title: Plan errors
+    errors:
+      workflow_not_found:
+        title: Workflow not found
+        description: workflow {{ name }} was not found and there is no default
+        arguments:
+          name:
+            description: the name of the workflow
+      action_spec_encode_error:
+        title: Action spec encode error
+        description: "could not encode action spec"
+      loader_error:
+        title: Loader error
+        description: an error occurred while loading the plan
+      file_not_found:
+        title: File not found
+        description: filepath `{{path}}` does not exist
+        arguments:
+          path:
+            description: the path that doesn't exist
+
   workflow:
     title: Workflow errors
     errors:
@@ -44,6 +66,9 @@ sections:
         arguments:
           reason:
             description: the reason there was a decoding error
+      action_spec_encode_error:
+        title: Action encode error
+        description: "could not encode action spec"
       non_existent_action_error:
         title: The requested action does not exist
         description: "the request action does not exist: {{action}}"
@@ -140,3 +165,40 @@ sections:
         arguments:
           name:
             description: the name of the resource
+
+  docker:
+    title: Docker executor errors
+    errors:
+      unknown_error:
+        title: Unknown error
+        description: an unknown error occurred
+      client_create_error:
+        title: Client create error
+        description: there was an error creating the docker client
+      host_info_error:
+        title: Host info error
+        description: there was an error getting the docker host information
+      image_pull_error:
+        title: Image pull error
+        description: failed to pull image {{ image }}
+        arguments:
+          image:
+            description: the name of the image
+      credential_encoding_error:
+        title: Credential encoding error
+        description: failed to encode the registry credentials
+      container_create_error:
+        title: Container create error
+        description: failed to create container from {{ image }}
+        arguments:
+          image:
+            description: the name of the image
+      container_start_error:
+        title: Container start error
+        description: failed to start container
+      container_logs_error:
+        title: Container logs error
+        description: failed to get logging io for container
+      container_execution_error:
+        title: Container exection error
+        description: an error occurred while executing container
