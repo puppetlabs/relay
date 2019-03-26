@@ -9,16 +9,6 @@ import (
 	"github.com/puppetlabs/nebula/pkg/errors"
 )
 
-func interfaceSlice(strSlice []string) []interface{} {
-	interfaceSlice := make([]interface{}, 0)
-
-	for _, s := range strSlice {
-		interfaceSlice = append(interfaceSlice, s)
-	}
-
-	return interfaceSlice
-}
-
 // ExecuteCommand runs rawCommand on the shell after applying variables with a templating engine
 // This function is temporary and will eventually need to use environment variables and take the
 // io streams mechanism for output and error buffering. Currently just returns output as a string.
