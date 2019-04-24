@@ -25,6 +25,356 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
+// APISection defines a section of errors with the following scope:
+// API errors
+var APISection = &impl.ErrorSection{
+	Key:   "api",
+	Title: "API errors",
+}
+
+// APIInvalidHostCode is the code for an instance of "invalid_host".
+const APIInvalidHostCode = "neb_api_invalid_host"
+
+// IsAPIInvalidHost tests whether a given error is an instance of "invalid_host".
+func IsAPIInvalidHost(err errawrgo.Error) bool {
+	return err != nil && err.Is(APIInvalidHostCode)
+}
+
+// IsAPIInvalidHost tests whether a given error is an instance of "invalid_host".
+func (External) IsAPIInvalidHost(err errawrgo.Error) bool {
+	return IsAPIInvalidHost(err)
+}
+
+// APIInvalidHostBuilder is a builder for "invalid_host" errors.
+type APIInvalidHostBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_host" from this builder.
+func (b *APIInvalidHostBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{ host }} is not a valid api url",
+		Technical: "{{ host }} is not a valid api url",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_host",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     APISection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid host",
+		Version:          1,
+	}
+}
+
+// NewAPIInvalidHostBuilder creates a new error builder for the code "invalid_host".
+func NewAPIInvalidHostBuilder(host string) *APIInvalidHostBuilder {
+	return &APIInvalidHostBuilder{arguments: impl.ErrorArguments{"host": impl.NewErrorArgument(host, "the host url given that was not valid")}}
+}
+
+// NewAPIInvalidHost creates a new error with the code "invalid_host".
+func NewAPIInvalidHost(host string) Error {
+	return NewAPIInvalidHostBuilder(host).Build()
+}
+
+// ClientSection defines a section of errors with the following scope:
+// Login errors
+var ClientSection = &impl.ErrorSection{
+	Key:   "client",
+	Title: "Login errors",
+}
+
+// ClientCreateSessionErrorCode is the code for an instance of "create_session_error".
+const ClientCreateSessionErrorCode = "neb_client_create_session_error"
+
+// IsClientCreateSessionError tests whether a given error is an instance of "create_session_error".
+func IsClientCreateSessionError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientCreateSessionErrorCode)
+}
+
+// IsClientCreateSessionError tests whether a given error is an instance of "create_session_error".
+func (External) IsClientCreateSessionError(err errawrgo.Error) bool {
+	return IsClientCreateSessionError(err)
+}
+
+// ClientCreateSessionErrorBuilder is a builder for "create_session_error" errors.
+type ClientCreateSessionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "create_session_error" from this builder.
+func (b *ClientCreateSessionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching your API token",
+		Technical: "there was an error fetching your API token",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "create_session_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Create session error",
+		Version:          1,
+	}
+}
+
+// NewClientCreateSessionErrorBuilder creates a new error builder for the code "create_session_error".
+func NewClientCreateSessionErrorBuilder() *ClientCreateSessionErrorBuilder {
+	return &ClientCreateSessionErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientCreateSessionError creates a new error with the code "create_session_error".
+func NewClientCreateSessionError() Error {
+	return NewClientCreateSessionErrorBuilder().Build()
+}
+
+// ClientListWorkflowsErrorCode is the code for an instance of "list_workflows_error".
+const ClientListWorkflowsErrorCode = "neb_client_list_workflows_error"
+
+// IsClientListWorkflowsError tests whether a given error is an instance of "list_workflows_error".
+func IsClientListWorkflowsError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientListWorkflowsErrorCode)
+}
+
+// IsClientListWorkflowsError tests whether a given error is an instance of "list_workflows_error".
+func (External) IsClientListWorkflowsError(err errawrgo.Error) bool {
+	return IsClientListWorkflowsError(err)
+}
+
+// ClientListWorkflowsErrorBuilder is a builder for "list_workflows_error" errors.
+type ClientListWorkflowsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "list_workflows_error" from this builder.
+func (b *ClientListWorkflowsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching workflows",
+		Technical: "there was an error fetching workflows",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "list_workflows_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "List workflows error",
+		Version:          1,
+	}
+}
+
+// NewClientListWorkflowsErrorBuilder creates a new error builder for the code "list_workflows_error".
+func NewClientListWorkflowsErrorBuilder() *ClientListWorkflowsErrorBuilder {
+	return &ClientListWorkflowsErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientListWorkflowsError creates a new error with the code "list_workflows_error".
+func NewClientListWorkflowsError() Error {
+	return NewClientListWorkflowsErrorBuilder().Build()
+}
+
+// ClientMissingEmailErrorCode is the code for an instance of "missing_email_error".
+const ClientMissingEmailErrorCode = "neb_client_missing_email_error"
+
+// IsClientMissingEmailError tests whether a given error is an instance of "missing_email_error".
+func IsClientMissingEmailError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientMissingEmailErrorCode)
+}
+
+// IsClientMissingEmailError tests whether a given error is an instance of "missing_email_error".
+func (External) IsClientMissingEmailError(err errawrgo.Error) bool {
+	return IsClientMissingEmailError(err)
+}
+
+// ClientMissingEmailErrorBuilder is a builder for "missing_email_error" errors.
+type ClientMissingEmailErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_email_error" from this builder.
+func (b *ClientMissingEmailErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{ msg }}",
+		Technical: "{{ msg }}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_email_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Missing email error",
+		Version:          1,
+	}
+}
+
+// NewClientMissingEmailErrorBuilder creates a new error builder for the code "missing_email_error".
+func NewClientMissingEmailErrorBuilder(msg string) *ClientMissingEmailErrorBuilder {
+	return &ClientMissingEmailErrorBuilder{arguments: impl.ErrorArguments{"msg": impl.NewErrorArgument(msg, "a message about what the issue was")}}
+}
+
+// NewClientMissingEmailError creates a new error with the code "missing_email_error".
+func NewClientMissingEmailError(msg string) Error {
+	return NewClientMissingEmailErrorBuilder(msg).Build()
+}
+
+// ClientPasswordErrorCode is the code for an instance of "password_error".
+const ClientPasswordErrorCode = "neb_client_password_error"
+
+// IsClientPasswordError tests whether a given error is an instance of "password_error".
+func IsClientPasswordError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientPasswordErrorCode)
+}
+
+// IsClientPasswordError tests whether a given error is an instance of "password_error".
+func (External) IsClientPasswordError(err errawrgo.Error) bool {
+	return IsClientPasswordError(err)
+}
+
+// ClientPasswordErrorBuilder is a builder for "password_error" errors.
+type ClientPasswordErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "password_error" from this builder.
+func (b *ClientPasswordErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{ msg }}",
+		Technical: "{{ msg }}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "password_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Password error",
+		Version:          1,
+	}
+}
+
+// NewClientPasswordErrorBuilder creates a new error builder for the code "password_error".
+func NewClientPasswordErrorBuilder(msg string) *ClientPasswordErrorBuilder {
+	return &ClientPasswordErrorBuilder{arguments: impl.ErrorArguments{"msg": impl.NewErrorArgument(msg, "a message about what the issue was")}}
+}
+
+// NewClientPasswordError creates a new error with the code "password_error".
+func NewClientPasswordError(msg string) Error {
+	return NewClientPasswordErrorBuilder(msg).Build()
+}
+
+// ClientTokenLoadErrorCode is the code for an instance of "token_load_error".
+const ClientTokenLoadErrorCode = "neb_client_token_load_error"
+
+// IsClientTokenLoadError tests whether a given error is an instance of "token_load_error".
+func IsClientTokenLoadError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientTokenLoadErrorCode)
+}
+
+// IsClientTokenLoadError tests whether a given error is an instance of "token_load_error".
+func (External) IsClientTokenLoadError(err errawrgo.Error) bool {
+	return IsClientTokenLoadError(err)
+}
+
+// ClientTokenLoadErrorBuilder is a builder for "token_load_error" errors.
+type ClientTokenLoadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "token_load_error" from this builder.
+func (b *ClientTokenLoadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error loading the auth token",
+		Technical: "there was an error loading the auth token",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "token_load_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Token load error",
+		Version:          1,
+	}
+}
+
+// NewClientTokenLoadErrorBuilder creates a new error builder for the code "token_load_error".
+func NewClientTokenLoadErrorBuilder() *ClientTokenLoadErrorBuilder {
+	return &ClientTokenLoadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientTokenLoadError creates a new error with the code "token_load_error".
+func NewClientTokenLoadError() Error {
+	return NewClientTokenLoadErrorBuilder().Build()
+}
+
+// ClientTokenStorageErrorCode is the code for an instance of "token_storage_error".
+const ClientTokenStorageErrorCode = "neb_client_token_storage_error"
+
+// IsClientTokenStorageError tests whether a given error is an instance of "token_storage_error".
+func IsClientTokenStorageError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientTokenStorageErrorCode)
+}
+
+// IsClientTokenStorageError tests whether a given error is an instance of "token_storage_error".
+func (External) IsClientTokenStorageError(err errawrgo.Error) bool {
+	return IsClientTokenStorageError(err)
+}
+
+// ClientTokenStorageErrorBuilder is a builder for "token_storage_error" errors.
+type ClientTokenStorageErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "token_storage_error" from this builder.
+func (b *ClientTokenStorageErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error storing the auth token",
+		Technical: "there was an error storing the auth token",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "token_storage_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Token storage error",
+		Version:          1,
+	}
+}
+
+// NewClientTokenStorageErrorBuilder creates a new error builder for the code "token_storage_error".
+func NewClientTokenStorageErrorBuilder() *ClientTokenStorageErrorBuilder {
+	return &ClientTokenStorageErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientTokenStorageError creates a new error with the code "token_storage_error".
+func NewClientTokenStorageError() Error {
+	return NewClientTokenStorageErrorBuilder().Build()
+}
+
 // DockerSection defines a section of errors with the following scope:
 // Docker executor errors
 var DockerSection = &impl.ErrorSection{
