@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/puppetlabs/nebula/pkg/cmd/apply"
 	"github.com/puppetlabs/nebula/pkg/cmd/login"
+	"github.com/puppetlabs/nebula/pkg/cmd/version"
 	"github.com/puppetlabs/nebula/pkg/cmd/workflow"
 	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
 	"github.com/puppetlabs/nebula/pkg/loader"
@@ -37,6 +38,7 @@ func NewRootCommand() (*cobra.Command, error) {
 	c.AddCommand(apply.NewCommand(r))
 	c.AddCommand(login.NewCommand(r))
 	c.AddCommand(workflow.NewCommand(r))
+	c.AddCommand(version.NewCommand(r))
 
 	return c, nil
 }
