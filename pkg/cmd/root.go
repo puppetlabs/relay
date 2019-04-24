@@ -17,8 +17,9 @@ func NewRootCommand() (*cobra.Command, error) {
 	}
 
 	c := &cobra.Command{
-		Use:   "nebula",
-		Short: "Nebula workflow management cli",
+		Use:          "nebula",
+		Short:        "Nebula workflow management cli",
+		SilenceUsage: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			fp, err := cmd.Flags().GetString("filepath")
 			if err != nil {

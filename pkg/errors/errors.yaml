@@ -14,7 +14,7 @@ sections:
             description: the host url given that was not valid
 
   client:
-    title: Login errors
+    title: Client errors
     errors:
       password_error:
         title: Password error
@@ -40,6 +40,9 @@ sections:
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows
+      not_logged_in:
+        title: Not logged in
+        description: not logged in
 
   plan:
     title: Plan errors

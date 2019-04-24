@@ -81,10 +81,10 @@ func NewAPIInvalidHost(host string) Error {
 }
 
 // ClientSection defines a section of errors with the following scope:
-// Login errors
+// Client errors
 var ClientSection = &impl.ErrorSection{
 	Key:   "client",
-	Title: "Login errors",
+	Title: "Client errors",
 }
 
 // ClientCreateSessionErrorCode is the code for an instance of "create_session_error".
@@ -229,6 +229,54 @@ func NewClientMissingEmailErrorBuilder(msg string) *ClientMissingEmailErrorBuild
 // NewClientMissingEmailError creates a new error with the code "missing_email_error".
 func NewClientMissingEmailError(msg string) Error {
 	return NewClientMissingEmailErrorBuilder(msg).Build()
+}
+
+// ClientNotLoggedInCode is the code for an instance of "not_logged_in".
+const ClientNotLoggedInCode = "neb_client_not_logged_in"
+
+// IsClientNotLoggedIn tests whether a given error is an instance of "not_logged_in".
+func IsClientNotLoggedIn(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientNotLoggedInCode)
+}
+
+// IsClientNotLoggedIn tests whether a given error is an instance of "not_logged_in".
+func (External) IsClientNotLoggedIn(err errawrgo.Error) bool {
+	return IsClientNotLoggedIn(err)
+}
+
+// ClientNotLoggedInBuilder is a builder for "not_logged_in" errors.
+type ClientNotLoggedInBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "not_logged_in" from this builder.
+func (b *ClientNotLoggedInBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "not logged in",
+		Technical: "not logged in",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "not_logged_in",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Not logged in",
+		Version:          1,
+	}
+}
+
+// NewClientNotLoggedInBuilder creates a new error builder for the code "not_logged_in".
+func NewClientNotLoggedInBuilder() *ClientNotLoggedInBuilder {
+	return &ClientNotLoggedInBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientNotLoggedIn creates a new error with the code "not_logged_in".
+func NewClientNotLoggedIn() Error {
+	return NewClientNotLoggedInBuilder().Build()
 }
 
 // ClientPasswordErrorCode is the code for an instance of "password_error".

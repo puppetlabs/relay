@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/puppetlabs/nebula/pkg/cmd"
 )
@@ -13,6 +14,6 @@ func main() {
 	}
 
 	if err := command.Execute(); err != nil {
-		log.Fatal(err)
+		os.Exit(1)
 	}
 }

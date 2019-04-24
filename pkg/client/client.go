@@ -113,6 +113,10 @@ func (c *APIClient) getToken(ctx context.Context) (*Token, errors.Error) {
 
 		f, err := os.Open(dest)
 		if err != nil {
+			if os.IsNotExist(err) {
+				return nil, errors.NewClientNotLoggedIn()
+			}
+
 			return nil, errors.NewClientTokenLoadError().WithCause(err).Bug()
 		}
 
