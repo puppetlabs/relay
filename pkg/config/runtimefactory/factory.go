@@ -2,6 +2,7 @@ package runtimefactory
 
 import (
 	"os"
+	"path/filepath"
 
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/config"
@@ -17,7 +18,6 @@ const (
 	defaultConfigName           = "config"
 	defaultConfigType           = "yaml"
 	defaultSystemConfigPath     = "/etc/puppet/nebula/"
-	defaultUserConfigPath       = "$HOME/.config/nebula/"
 	defaultDockerHostSocketPath = "/var/run/docker.sock"
 )
 
@@ -103,7 +103,7 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 	v.SetConfigName(defaultConfigName)
 	v.SetConfigType(defaultConfigType)
 	v.AddConfigPath(defaultSystemConfigPath)
-	v.AddConfigPath(defaultUserConfigPath)
+	v.AddConfigPath(userConfigPath())
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
@@ -120,6 +120,14 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 	if cfg.DockerExecutor.HostSocketPath == "" {
 		cfg.DockerExecutor.HostSocketPath = defaultDockerHostSocketPath
 	}
+
+	cfg.CachePath = userCachePath()
+
+	if err := os.MkdirAll(cfg.CachePath, 0750); err != nil {
+		return nil, err
+	}
+
+	cfg.TokenPath = filepath.Join(cfg.CachePath, "auth-token")
 
 	sm, err := state.NewFilesystemStateManager("")
 	if err != nil {
@@ -145,4 +153,20 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 	}
 
 	return &r, nil
+}
+
+func userConfigPath() string {
+	if os.Getenv("XDG_CONFIG_HOME") != "" {
+		return filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "nebula")
+	}
+
+	return filepath.Join(os.Getenv("HOME"), ".config", "nebula")
+}
+
+func userCachePath() string {
+	if os.Getenv("XDG_CACHE_HOME") != "" {
+		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "nebula")
+	}
+
+	return filepath.Join(os.Getenv("HOME"), ".cache", "nebula")
 }
