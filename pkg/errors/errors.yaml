@@ -3,6 +3,44 @@ domain:
   key: neb
   title: Nebula
 sections:
+  api:
+    title: API errors
+    errors:
+      invalid_host:
+        title: Invalid host
+        description: "{{ host }} is not a valid api url"
+        arguments:
+          host:
+            description: the host url given that was not valid
+
+  client:
+    title: Login errors
+    errors:
+      password_error:
+        title: Password error
+        description: "{{ msg }}"
+        arguments:
+          msg:
+            description: a message about what the issue was
+      missing_email_error:
+        title: Missing email error
+        description: "{{ msg }}"
+        arguments:
+          msg:
+            description: a message about what the issue was
+      create_session_error:
+        title: Create session error
+        description: "there was an error fetching your API token"
+      token_storage_error:
+        title: Token storage error
+        description: there was an error storing the auth token
+      token_load_error:
+        title: Token load error
+        description: there was an error loading the auth token
+      list_workflows_error:
+        title: List workflows error
+        description: there was an error fetching workflows
+
   plan:
     title: Plan errors
     errors:
