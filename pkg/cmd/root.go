@@ -17,9 +17,13 @@ func NewRootCommand() (*cobra.Command, error) {
 	}
 
 	c := &cobra.Command{
-		Use:          "nebula",
-		Short:        "Nebula workflow management cli",
+		Use:   "nebula",
+		Short: "Nebula workflow management cli",
+		// don't show usage text for every error
 		SilenceUsage: true,
+		// we want to be able to handle our own errors for display; this allows us to use
+		// the CLI display mechanism for errawr.
+		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			fp, err := cmd.Flags().GetString("filepath")
 			if err != nil {
