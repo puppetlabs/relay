@@ -6,7 +6,6 @@ import (
 
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/execution/executor"
 	"github.com/puppetlabs/nebula/pkg/io"
 	"github.com/puppetlabs/nebula/pkg/loader"
 	"github.com/puppetlabs/nebula/pkg/logger"
@@ -27,13 +26,11 @@ type RuntimeFactory interface {
 	Logger() logging.Logger
 	PlanLoader() loader.Loader
 	StateManager() state.Manager
-	ActionExecutor() executor.ActionExecutor
 	SetConfig(*config.Config)
 	SetIO(*io.IO)
 	SetLogger(logging.Logger)
 	SetPlanLoader(loader.Loader)
 	SetStateManager(state.Manager)
-	SetActionExecutor(executor.ActionExecutor)
 }
 
 func NewRuntimeFactory() (RuntimeFactory, error) {
@@ -46,7 +43,6 @@ type StandardRuntime struct {
 	logger       logging.Logger
 	planLoader   loader.Loader
 	stateManager state.Manager
-	executor     executor.ActionExecutor
 }
 
 func (sr *StandardRuntime) Config() *config.Config {
@@ -89,14 +85,6 @@ func (sr *StandardRuntime) SetStateManager(sm state.Manager) {
 	sr.stateManager = sm
 }
 
-func (sr *StandardRuntime) ActionExecutor() executor.ActionExecutor {
-	return sr.executor
-}
-
-func (sr *StandardRuntime) SetActionExecutor(e executor.ActionExecutor) {
-	sr.executor = e
-}
-
 func NewStandardRuntime() (*StandardRuntime, error) {
 	v := viper.New()
 
@@ -117,10 +105,6 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 		return nil, err
 	}
 
-	if cfg.DockerExecutor.HostSocketPath == "" {
-		cfg.DockerExecutor.HostSocketPath = defaultDockerHostSocketPath
-	}
-
 	cfg.CachePath = userCachePath()
 
 	if err := os.MkdirAll(cfg.CachePath, 0750); err != nil {
@@ -134,22 +118,12 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 		return nil, err
 	}
 
-	exec, eerr := executor.NewExecutor(executor.RegistryCredentials{
-		Registry: cfg.DockerExecutor.Registry,
-		User:     cfg.DockerExecutor.RegistryUser,
-		Pass:     cfg.DockerExecutor.RegistryPass,
-	})
-	if err != nil {
-		return nil, eerr
-	}
-
 	r := StandardRuntime{
 		config:       &cfg,
 		io:           &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
 		logger:       logger.New(logger.Options{Debug: cfg.Debug}),
 		planLoader:   loader.ImpliedPlanFileLoader{},
 		stateManager: sm,
-		executor:     exec,
 	}
 
 	return &r, nil

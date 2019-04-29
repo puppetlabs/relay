@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/puppetlabs/nebula/pkg/cmd/apply"
 	"github.com/puppetlabs/nebula/pkg/cmd/login"
 	"github.com/puppetlabs/nebula/pkg/cmd/version"
 	"github.com/puppetlabs/nebula/pkg/cmd/workflow"
@@ -40,7 +39,6 @@ func NewRootCommand() (*cobra.Command, error) {
 
 	c.PersistentFlags().StringP("filepath", "f", "", "optional path to a workflow.yaml")
 
-	c.AddCommand(apply.NewCommand(r))
 	c.AddCommand(login.NewCommand(r))
 	c.AddCommand(workflow.NewCommand(r))
 	c.AddCommand(version.NewCommand(r))

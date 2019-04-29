@@ -45,3 +45,13 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 	return cmd
 }
+
+func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "create",
+		Short:                 "Create workflows",
+		DisableFlagsInUseLine: true,
+	}
+
+	return cmd
+}
