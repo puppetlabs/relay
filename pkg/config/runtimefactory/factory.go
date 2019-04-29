@@ -9,7 +9,6 @@ import (
 	"github.com/puppetlabs/nebula/pkg/io"
 	"github.com/puppetlabs/nebula/pkg/loader"
 	"github.com/puppetlabs/nebula/pkg/logger"
-	"github.com/puppetlabs/nebula/pkg/state"
 	"github.com/spf13/viper"
 )
 
@@ -25,12 +24,10 @@ type RuntimeFactory interface {
 	IO() *io.IO
 	Logger() logging.Logger
 	PlanLoader() loader.Loader
-	StateManager() state.Manager
 	SetConfig(*config.Config)
 	SetIO(*io.IO)
 	SetLogger(logging.Logger)
 	SetPlanLoader(loader.Loader)
-	SetStateManager(state.Manager)
 }
 
 func NewRuntimeFactory() (RuntimeFactory, error) {
@@ -38,11 +35,10 @@ func NewRuntimeFactory() (RuntimeFactory, error) {
 }
 
 type StandardRuntime struct {
-	config       *config.Config
-	io           *io.IO
-	logger       logging.Logger
-	planLoader   loader.Loader
-	stateManager state.Manager
+	config     *config.Config
+	io         *io.IO
+	logger     logging.Logger
+	planLoader loader.Loader
 }
 
 func (sr *StandardRuntime) Config() *config.Config {
@@ -77,14 +73,6 @@ func (sr *StandardRuntime) SetPlanLoader(l loader.Loader) {
 	sr.planLoader = l
 }
 
-func (sr *StandardRuntime) StateManager() state.Manager {
-	return sr.stateManager
-}
-
-func (sr *StandardRuntime) SetStateManager(sm state.Manager) {
-	sr.stateManager = sm
-}
-
 func NewStandardRuntime() (*StandardRuntime, error) {
 	v := viper.New()
 
@@ -113,17 +101,11 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 
 	cfg.TokenPath = filepath.Join(cfg.CachePath, "auth-token")
 
-	sm, err := state.NewFilesystemStateManager("")
-	if err != nil {
-		return nil, err
-	}
-
 	r := StandardRuntime{
-		config:       &cfg,
-		io:           &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
-		logger:       logger.New(logger.Options{Debug: cfg.Debug}),
-		planLoader:   loader.ImpliedPlanFileLoader{},
-		stateManager: sm,
+		config:     &cfg,
+		io:         &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
+		logger:     logger.New(logger.Options{Debug: cfg.Debug}),
+		planLoader: loader.ImpliedPlanFileLoader{},
 	}
 
 	return &r, nil
