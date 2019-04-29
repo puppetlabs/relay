@@ -37,7 +37,7 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 
 	host, err := url.Parse(addr)
 	if err != nil {
-		return nil, errors.NewAPIInvalidHost(addr).WithCause(err)
+		return nil, errors.NewClientInvalidAPIHost(addr).WithCause(err)
 	}
 
 	transport := api.DefaultTransportConfig()

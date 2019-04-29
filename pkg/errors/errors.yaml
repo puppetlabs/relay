@@ -3,19 +3,15 @@ domain:
   key: neb
   title: Nebula
 sections:
-  api:
-    title: API errors
+  client:
+    title: Client errors
     errors:
-      invalid_host:
-        title: Invalid host
+      invalid_api_host:
+        title: Invalid API host
         description: "{{ host }} is not a valid api url"
         arguments:
           host:
             description: the host url given that was not valid
-
-  client:
-    title: Client errors
-    errors:
       password_error:
         title: Password error
         description: "{{ msg }}"

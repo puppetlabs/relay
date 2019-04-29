@@ -135,6 +135,54 @@ func NewClientCreateSessionError() Error {
 	return NewClientCreateSessionErrorBuilder().Build()
 }
 
+// ClientInvalidAPIHostCode is the code for an instance of "invalid_api_host".
+const ClientInvalidAPIHostCode = "neb_client_invalid_api_host"
+
+// IsClientInvalidAPIHost tests whether a given error is an instance of "invalid_api_host".
+func IsClientInvalidAPIHost(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientInvalidAPIHostCode)
+}
+
+// IsClientInvalidAPIHost tests whether a given error is an instance of "invalid_api_host".
+func (External) IsClientInvalidAPIHost(err errawrgo.Error) bool {
+	return IsClientInvalidAPIHost(err)
+}
+
+// ClientInvalidAPIHostBuilder is a builder for "invalid_api_host" errors.
+type ClientInvalidAPIHostBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_api_host" from this builder.
+func (b *ClientInvalidAPIHostBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{ host }} is not a valid api url",
+		Technical: "{{ host }} is not a valid api url",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_api_host",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid API host",
+		Version:          1,
+	}
+}
+
+// NewClientInvalidAPIHostBuilder creates a new error builder for the code "invalid_api_host".
+func NewClientInvalidAPIHostBuilder(host string) *ClientInvalidAPIHostBuilder {
+	return &ClientInvalidAPIHostBuilder{arguments: impl.ErrorArguments{"host": impl.NewErrorArgument(host, "the host url given that was not valid")}}
+}
+
+// NewClientInvalidAPIHost creates a new error with the code "invalid_api_host".
+func NewClientInvalidAPIHost(host string) Error {
+	return NewClientInvalidAPIHostBuilder(host).Build()
+}
+
 // ClientListWorkflowsErrorCode is the code for an instance of "list_workflows_error".
 const ClientListWorkflowsErrorCode = "neb_client_list_workflows_error"
 

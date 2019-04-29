@@ -17,6 +17,8 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.AddCommand(NewListCommand(rt))
+	cmd.AddCommand(NewCreateCommand(rt))
+	cmd.AddCommand(NewRunCommand(rt))
 
 	return cmd
 }
@@ -54,4 +56,12 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	return cmd
+}
+
+func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "run",
+		Short:                 "Run workflows",
+		DisableFlagsInUseLine: true,
+	}
 }
