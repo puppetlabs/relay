@@ -77,7 +77,7 @@ type UpdateIntegrationParams struct {
 	  Integration info to update
 
 	*/
-	Body *models.UpdateIntegration
+	Body *models.UpdateIntegrationSubmission
 	/*ID
 	  ID of the integration to update
 
@@ -145,13 +145,13 @@ func (o *UpdateIntegrationParams) SetAuthorization(authorization string) {
 }
 
 // WithBody adds the body to the update integration params
-func (o *UpdateIntegrationParams) WithBody(body *models.UpdateIntegration) *UpdateIntegrationParams {
+func (o *UpdateIntegrationParams) WithBody(body *models.UpdateIntegrationSubmission) *UpdateIntegrationParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update integration params
-func (o *UpdateIntegrationParams) SetBody(body *models.UpdateIntegration) {
+func (o *UpdateIntegrationParams) SetBody(body *models.UpdateIntegrationSubmission) {
 	o.Body = body
 }
 

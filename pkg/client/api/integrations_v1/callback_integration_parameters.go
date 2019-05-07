@@ -62,12 +62,12 @@ for the callback integration operation typically these are written to a http.Req
 type CallbackIntegrationParams struct {
 
 	/*Code
-	  the access token which github gives us to exchange for a permanent access token
+	  The access token which github gives us to exchange for a permanent access token
 
 	*/
 	Code string
 	/*State
-	  a session uuid which is used to validate the authenticity of the request
+	  A session uuid which is used to validate the authenticity of the request
 
 	*/
 	State string

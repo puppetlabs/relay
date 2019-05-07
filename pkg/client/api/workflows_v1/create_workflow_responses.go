@@ -54,7 +54,7 @@ func NewCreateWorkflowCreated() *CreateWorkflowCreated {
 Newly created workflow
 */
 type CreateWorkflowCreated struct {
-	Payload *models.ShowWorkflow
+	Payload *models.Workflow
 }
 
 func (o *CreateWorkflowCreated) Error() string {
@@ -63,7 +63,7 @@ func (o *CreateWorkflowCreated) Error() string {
 
 func (o *CreateWorkflowCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowWorkflow)
+	o.Payload = new(models.Workflow)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -80,7 +80,7 @@ func NewCreateWorkflowConflict() *CreateWorkflowConflict {
 
 /*CreateWorkflowConflict handles this case with default header values.
 
-Workflow already exists error
+Workflow already exists
 */
 type CreateWorkflowConflict struct {
 }

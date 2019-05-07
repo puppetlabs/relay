@@ -77,7 +77,7 @@ type CreateWorkflowRunParams struct {
 	  Workflow to create
 
 	*/
-	Body *models.NewWorkflowRun
+	Body *models.CreateWorkflowRunSubmission
 	/*ID
 	  ID of the workflow whose runs we want to view
 
@@ -145,13 +145,13 @@ func (o *CreateWorkflowRunParams) SetAuthorization(authorization string) {
 }
 
 // WithBody adds the body to the create workflow run params
-func (o *CreateWorkflowRunParams) WithBody(body *models.NewWorkflowRun) *CreateWorkflowRunParams {
+func (o *CreateWorkflowRunParams) WithBody(body *models.CreateWorkflowRunSubmission) *CreateWorkflowRunParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create workflow run params
-func (o *CreateWorkflowRunParams) SetBody(body *models.NewWorkflowRun) {
+func (o *CreateWorkflowRunParams) SetBody(body *models.CreateWorkflowRunSubmission) {
 	o.Body = body
 }
 

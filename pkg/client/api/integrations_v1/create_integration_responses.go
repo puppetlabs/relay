@@ -47,7 +47,7 @@ func NewCreateIntegrationCreated() *CreateIntegrationCreated {
 The newly created integration
 */
 type CreateIntegrationCreated struct {
-	Payload *models.ShowIntegration
+	Payload *models.Integration
 }
 
 func (o *CreateIntegrationCreated) Error() string {
@@ -56,7 +56,7 @@ func (o *CreateIntegrationCreated) Error() string {
 
 func (o *CreateIntegrationCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowIntegration)
+	o.Payload = new(models.Integration)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

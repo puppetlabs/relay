@@ -25,8 +25,8 @@ type DeleteIntegrationReader struct {
 func (o *DeleteIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
-	case 204:
-		result := NewDeleteIntegrationNoContent()
+	case 200:
+		result := NewDeleteIntegrationOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *DeleteIntegrationReader) ReadResponse(response runtime.ClientResponse, 
 	}
 }
 
-// NewDeleteIntegrationNoContent creates a DeleteIntegrationNoContent with default headers values
-func NewDeleteIntegrationNoContent() *DeleteIntegrationNoContent {
-	return &DeleteIntegrationNoContent{}
+// NewDeleteIntegrationOK creates a DeleteIntegrationOK with default headers values
+func NewDeleteIntegrationOK() *DeleteIntegrationOK {
+	return &DeleteIntegrationOK{}
 }
 
-/*DeleteIntegrationNoContent handles this case with default header values.
+/*DeleteIntegrationOK handles this case with default header values.
 
 Deletion successful
 */
-type DeleteIntegrationNoContent struct {
+type DeleteIntegrationOK struct {
 	Payload *models.DeleteResponse
 }
 
-func (o *DeleteIntegrationNoContent) Error() string {
-	return fmt.Sprintf("[DELETE /api/integrations/{id}][%d] deleteIntegrationNoContent  %+v", 204, o.Payload)
+func (o *DeleteIntegrationOK) Error() string {
+	return fmt.Sprintf("[DELETE /api/integrations/{id}][%d] deleteIntegrationOK  %+v", 200, o.Payload)
 }
 
-func (o *DeleteIntegrationNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.DeleteResponse)
 

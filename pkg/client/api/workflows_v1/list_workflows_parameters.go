@@ -71,6 +71,21 @@ type ListWorkflowsParams struct {
 
 	*/
 	Authorization string
+	/*Branch
+	  the branch to filter the results by
+
+	*/
+	Branch *string
+	/*Path
+	  the path of workflow yaml to filter the results by
+
+	*/
+	Path *string
+	/*Repo
+	  the repo to filter the results by
+
+	*/
+	Repo *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -132,6 +147,39 @@ func (o *ListWorkflowsParams) SetAuthorization(authorization string) {
 	o.Authorization = authorization
 }
 
+// WithBranch adds the branch to the list workflows params
+func (o *ListWorkflowsParams) WithBranch(branch *string) *ListWorkflowsParams {
+	o.SetBranch(branch)
+	return o
+}
+
+// SetBranch adds the branch to the list workflows params
+func (o *ListWorkflowsParams) SetBranch(branch *string) {
+	o.Branch = branch
+}
+
+// WithPath adds the path to the list workflows params
+func (o *ListWorkflowsParams) WithPath(path *string) *ListWorkflowsParams {
+	o.SetPath(path)
+	return o
+}
+
+// SetPath adds the path to the list workflows params
+func (o *ListWorkflowsParams) SetPath(path *string) {
+	o.Path = path
+}
+
+// WithRepo adds the repo to the list workflows params
+func (o *ListWorkflowsParams) WithRepo(repo *string) *ListWorkflowsParams {
+	o.SetRepo(repo)
+	return o
+}
+
+// SetRepo adds the repo to the list workflows params
+func (o *ListWorkflowsParams) SetRepo(repo *string) {
+	o.Repo = repo
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *ListWorkflowsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -148,6 +196,54 @@ func (o *ListWorkflowsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	// header param Authorization
 	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
+	}
+
+	if o.Branch != nil {
+
+		// query param branch
+		var qrBranch string
+		if o.Branch != nil {
+			qrBranch = *o.Branch
+		}
+		qBranch := qrBranch
+		if qBranch != "" {
+			if err := r.SetQueryParam("branch", qBranch); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Path != nil {
+
+		// query param path
+		var qrPath string
+		if o.Path != nil {
+			qrPath = *o.Path
+		}
+		qPath := qrPath
+		if qPath != "" {
+			if err := r.SetQueryParam("path", qPath); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if o.Repo != nil {
+
+		// query param repo
+		var qrRepo string
+		if o.Repo != nil {
+			qrRepo = *o.Repo
+		}
+		qRepo := qrRepo
+		if qRepo != "" {
+			if err := r.SetQueryParam("repo", qRepo); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	if len(res) > 0 {

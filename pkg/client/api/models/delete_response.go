@@ -8,22 +8,57 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
-// DeleteResponse delete response
+// DeleteResponse Generic DELETE method response object
 // swagger:model DeleteResponse
 type DeleteResponse struct {
 
-	// resource id
-	ResourceID string `json:"resource_id,omitempty"`
+	// Deleted resource id
+	// Required: true
+	ResourceID *string `json:"resource_id"`
 
-	// success
-	Success bool `json:"success,omitempty"`
+	// Was the resource successfully deleted?
+	// Required: true
+	Success *bool `json:"success"`
 }
 
 // Validate validates this delete response
 func (m *DeleteResponse) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateResourceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSuccess(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *DeleteResponse) validateResourceID(formats strfmt.Registry) error {
+
+	if err := validate.Required("resource_id", "body", m.ResourceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DeleteResponse) validateSuccess(formats strfmt.Registry) error {
+
+	if err := validate.Required("success", "body", m.Success); err != nil {
+		return err
+	}
+
 	return nil
 }
 

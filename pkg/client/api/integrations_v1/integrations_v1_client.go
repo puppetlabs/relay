@@ -83,7 +83,7 @@ func (a *Client) CreateIntegration(params *CreateIntegrationParams) (*CreateInte
 /*
 DeleteIntegration deletes an integration by id
 */
-func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteIntegrationNoContent, error) {
+func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteIntegrationParams()
@@ -104,7 +104,7 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteInte
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteIntegrationNoContent), nil
+	return result.(*DeleteIntegrationOK), nil
 
 }
 

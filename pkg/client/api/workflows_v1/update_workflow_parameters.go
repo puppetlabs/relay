@@ -77,7 +77,7 @@ type UpdateWorkflowParams struct {
 	  Workflow attrs to update
 
 	*/
-	Body *models.NewWorkflow
+	Body *models.CreateWorkflowSubmission
 	/*ID
 	  ID of the workflow to update
 
@@ -145,13 +145,13 @@ func (o *UpdateWorkflowParams) SetAuthorization(authorization string) {
 }
 
 // WithBody adds the body to the update workflow params
-func (o *UpdateWorkflowParams) WithBody(body *models.NewWorkflow) *UpdateWorkflowParams {
+func (o *UpdateWorkflowParams) WithBody(body *models.CreateWorkflowSubmission) *UpdateWorkflowParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update workflow params
-func (o *UpdateWorkflowParams) SetBody(body *models.NewWorkflow) {
+func (o *UpdateWorkflowParams) SetBody(body *models.CreateWorkflowSubmission) {
 	o.Body = body
 }
 

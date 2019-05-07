@@ -14,12 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// IndexIntegrations index integrations
-// swagger:model IndexIntegrations
-type IndexIntegrations []*IndexIntegration
+// Workflows An array of nebula workflows
+// swagger:model Workflows
+type Workflows []*Workflow
 
-// Validate validates this index integrations
-func (m IndexIntegrations) Validate(formats strfmt.Registry) error {
+// Validate validates this workflows
+func (m Workflows) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

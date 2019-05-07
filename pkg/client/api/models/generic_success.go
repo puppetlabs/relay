@@ -11,27 +11,21 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewWorkflow new workflow
-// swagger:model NewWorkflow
-type NewWorkflow struct {
+// GenericSuccess Generic HTTP success response
+// swagger:model GenericSuccess
+type GenericSuccess struct {
 
-	// branch
-	Branch string `json:"branch,omitempty"`
-
-	// path
-	Path string `json:"path,omitempty"`
-
-	// repository
-	Repository string `json:"repository,omitempty"`
+	// Did this succeed?
+	Success bool `json:"success,omitempty"`
 }
 
-// Validate validates this new workflow
-func (m *NewWorkflow) Validate(formats strfmt.Registry) error {
+// Validate validates this generic success
+func (m *GenericSuccess) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *NewWorkflow) MarshalBinary() ([]byte, error) {
+func (m *GenericSuccess) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -39,8 +33,8 @@ func (m *NewWorkflow) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *NewWorkflow) UnmarshalBinary(b []byte) error {
-	var res NewWorkflow
+func (m *GenericSuccess) UnmarshalBinary(b []byte) error {
+	var res GenericSuccess
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

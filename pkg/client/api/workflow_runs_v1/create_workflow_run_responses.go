@@ -47,7 +47,7 @@ func NewCreateWorkflowRunCreated() *CreateWorkflowRunCreated {
 Newly created workflow run
 */
 type CreateWorkflowRunCreated struct {
-	Payload *models.ShowNewWorkflowRun
+	Payload *models.WorkflowRun
 }
 
 func (o *CreateWorkflowRunCreated) Error() string {
@@ -56,7 +56,7 @@ func (o *CreateWorkflowRunCreated) Error() string {
 
 func (o *CreateWorkflowRunCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowNewWorkflowRun)
+	o.Payload = new(models.WorkflowRun)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

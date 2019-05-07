@@ -47,7 +47,7 @@ func NewListWorkflowRunsOK() *ListWorkflowRunsOK {
 An array of workflow runs
 */
 type ListWorkflowRunsOK struct {
-	Payload models.IndexWorkflowRuns
+	Payload models.WorkflowRunSummaries
 }
 
 func (o *ListWorkflowRunsOK) Error() string {

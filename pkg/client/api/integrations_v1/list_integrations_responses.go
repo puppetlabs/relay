@@ -47,7 +47,7 @@ func NewListIntegrationsOK() *ListIntegrationsOK {
 An array of integrations
 */
 type ListIntegrationsOK struct {
-	Payload models.IndexIntegrations
+	Payload models.Integrations
 }
 
 func (o *ListIntegrationsOK) Error() string {

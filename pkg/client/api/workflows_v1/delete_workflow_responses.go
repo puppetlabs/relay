@@ -25,8 +25,8 @@ type DeleteWorkflowReader struct {
 func (o *DeleteWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
-	case 204:
-		result := NewDeleteWorkflowNoContent()
+	case 200:
+		result := NewDeleteWorkflowOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *DeleteWorkflowReader) ReadResponse(response runtime.ClientResponse, con
 	}
 }
 
-// NewDeleteWorkflowNoContent creates a DeleteWorkflowNoContent with default headers values
-func NewDeleteWorkflowNoContent() *DeleteWorkflowNoContent {
-	return &DeleteWorkflowNoContent{}
+// NewDeleteWorkflowOK creates a DeleteWorkflowOK with default headers values
+func NewDeleteWorkflowOK() *DeleteWorkflowOK {
+	return &DeleteWorkflowOK{}
 }
 
-/*DeleteWorkflowNoContent handles this case with default header values.
+/*DeleteWorkflowOK handles this case with default header values.
 
 Deletion successful
 */
-type DeleteWorkflowNoContent struct {
+type DeleteWorkflowOK struct {
 	Payload *models.DeleteResponse
 }
 
-func (o *DeleteWorkflowNoContent) Error() string {
-	return fmt.Sprintf("[DELETE /api/workflows/{id}][%d] deleteWorkflowNoContent  %+v", 204, o.Payload)
+func (o *DeleteWorkflowOK) Error() string {
+	return fmt.Sprintf("[DELETE /api/workflows/{id}][%d] deleteWorkflowOK  %+v", 200, o.Payload)
 }
 
-func (o *DeleteWorkflowNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.DeleteResponse)
 
