@@ -25,61 +25,6 @@ var Domain = &impl.ErrorDomain{
 	Title: "Nebula",
 }
 
-// APISection defines a section of errors with the following scope:
-// API errors
-var APISection = &impl.ErrorSection{
-	Key:   "api",
-	Title: "API errors",
-}
-
-// APIInvalidHostCode is the code for an instance of "invalid_host".
-const APIInvalidHostCode = "neb_api_invalid_host"
-
-// IsAPIInvalidHost tests whether a given error is an instance of "invalid_host".
-func IsAPIInvalidHost(err errawrgo.Error) bool {
-	return err != nil && err.Is(APIInvalidHostCode)
-}
-
-// IsAPIInvalidHost tests whether a given error is an instance of "invalid_host".
-func (External) IsAPIInvalidHost(err errawrgo.Error) bool {
-	return IsAPIInvalidHost(err)
-}
-
-// APIInvalidHostBuilder is a builder for "invalid_host" errors.
-type APIInvalidHostBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "invalid_host" from this builder.
-func (b *APIInvalidHostBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "{{ host }} is not a valid api url",
-		Technical: "{{ host }} is not a valid api url",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "invalid_host",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     APISection,
-		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
-		ErrorTitle:       "Invalid host",
-		Version:          1,
-	}
-}
-
-// NewAPIInvalidHostBuilder creates a new error builder for the code "invalid_host".
-func NewAPIInvalidHostBuilder(host string) *APIInvalidHostBuilder {
-	return &APIInvalidHostBuilder{arguments: impl.ErrorArguments{"host": impl.NewErrorArgument(host, "the host url given that was not valid")}}
-}
-
-// NewAPIInvalidHost creates a new error with the code "invalid_host".
-func NewAPIInvalidHost(host string) Error {
-	return NewAPIInvalidHostBuilder(host).Build()
-}
-
 // ClientSection defines a section of errors with the following scope:
 // Client errors
 var ClientSection = &impl.ErrorSection{
@@ -133,6 +78,54 @@ func NewClientCreateSessionErrorBuilder() *ClientCreateSessionErrorBuilder {
 // NewClientCreateSessionError creates a new error with the code "create_session_error".
 func NewClientCreateSessionError() Error {
 	return NewClientCreateSessionErrorBuilder().Build()
+}
+
+// ClientCreateWorkflowErrorCode is the code for an instance of "create_workflow_error".
+const ClientCreateWorkflowErrorCode = "neb_client_create_workflow_error"
+
+// IsClientCreateWorkflowError tests whether a given error is an instance of "create_workflow_error".
+func IsClientCreateWorkflowError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientCreateWorkflowErrorCode)
+}
+
+// IsClientCreateWorkflowError tests whether a given error is an instance of "create_workflow_error".
+func (External) IsClientCreateWorkflowError(err errawrgo.Error) bool {
+	return IsClientCreateWorkflowError(err)
+}
+
+// ClientCreateWorkflowErrorBuilder is a builder for "create_workflow_error" errors.
+type ClientCreateWorkflowErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "create_workflow_error" from this builder.
+func (b *ClientCreateWorkflowErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error creating the workflow",
+		Technical: "there was an error creating the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "create_workflow_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Create workflow error",
+		Version:          1,
+	}
+}
+
+// NewClientCreateWorkflowErrorBuilder creates a new error builder for the code "create_workflow_error".
+func NewClientCreateWorkflowErrorBuilder() *ClientCreateWorkflowErrorBuilder {
+	return &ClientCreateWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientCreateWorkflowError creates a new error with the code "create_workflow_error".
+func NewClientCreateWorkflowError() Error {
+	return NewClientCreateWorkflowErrorBuilder().Build()
 }
 
 // ClientInvalidAPIHostCode is the code for an instance of "invalid_api_host".
@@ -375,6 +368,54 @@ func NewClientPasswordError(msg string) Error {
 	return NewClientPasswordErrorBuilder(msg).Build()
 }
 
+// ClientRunWorkflowErrorCode is the code for an instance of "run_workflow_error".
+const ClientRunWorkflowErrorCode = "neb_client_run_workflow_error"
+
+// IsClientRunWorkflowError tests whether a given error is an instance of "run_workflow_error".
+func IsClientRunWorkflowError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientRunWorkflowErrorCode)
+}
+
+// IsClientRunWorkflowError tests whether a given error is an instance of "run_workflow_error".
+func (External) IsClientRunWorkflowError(err errawrgo.Error) bool {
+	return IsClientRunWorkflowError(err)
+}
+
+// ClientRunWorkflowErrorBuilder is a builder for "run_workflow_error" errors.
+type ClientRunWorkflowErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "run_workflow_error" from this builder.
+func (b *ClientRunWorkflowErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error running the workflow",
+		Technical: "there was an error running the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "run_workflow_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Run workflow error",
+		Version:          1,
+	}
+}
+
+// NewClientRunWorkflowErrorBuilder creates a new error builder for the code "run_workflow_error".
+func NewClientRunWorkflowErrorBuilder() *ClientRunWorkflowErrorBuilder {
+	return &ClientRunWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientRunWorkflowError creates a new error with the code "run_workflow_error".
+func NewClientRunWorkflowError() Error {
+	return NewClientRunWorkflowErrorBuilder().Build()
+}
+
 // ClientTokenLoadErrorCode is the code for an instance of "token_load_error".
 const ClientTokenLoadErrorCode = "neb_client_token_load_error"
 
@@ -469,6 +510,54 @@ func NewClientTokenStorageErrorBuilder() *ClientTokenStorageErrorBuilder {
 // NewClientTokenStorageError creates a new error with the code "token_storage_error".
 func NewClientTokenStorageError() Error {
 	return NewClientTokenStorageErrorBuilder().Build()
+}
+
+// ClientValidateWorkflowErrorCode is the code for an instance of "validate_workflow_error".
+const ClientValidateWorkflowErrorCode = "neb_client_validate_workflow_error"
+
+// IsClientValidateWorkflowError tests whether a given error is an instance of "validate_workflow_error".
+func IsClientValidateWorkflowError(err errawrgo.Error) bool {
+	return err != nil && err.Is(ClientValidateWorkflowErrorCode)
+}
+
+// IsClientValidateWorkflowError tests whether a given error is an instance of "validate_workflow_error".
+func (External) IsClientValidateWorkflowError(err errawrgo.Error) bool {
+	return IsClientValidateWorkflowError(err)
+}
+
+// ClientValidateWorkflowErrorBuilder is a builder for "validate_workflow_error" errors.
+type ClientValidateWorkflowErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "validate_workflow_error" from this builder.
+func (b *ClientValidateWorkflowErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error validating the workflow",
+		Technical: "there was an error validating the workflow",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "validate_workflow_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Validate workflow error",
+		Version:          1,
+	}
+}
+
+// NewClientValidateWorkflowErrorBuilder creates a new error builder for the code "validate_workflow_error".
+func NewClientValidateWorkflowErrorBuilder() *ClientValidateWorkflowErrorBuilder {
+	return &ClientValidateWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientValidateWorkflowError creates a new error with the code "validate_workflow_error".
+func NewClientValidateWorkflowError() Error {
+	return NewClientValidateWorkflowErrorBuilder().Build()
 }
 
 // PlanSection defines a section of errors with the following scope:
@@ -629,6 +718,57 @@ var WorkflowSection = &impl.ErrorSection{
 	Title: "Workflow errors",
 }
 
+// WorkflowCliFlagErrorCode is the code for an instance of "cli_flag_error".
+const WorkflowCliFlagErrorCode = "neb_workflow_cli_flag_error"
+
+// IsWorkflowCliFlagError tests whether a given error is an instance of "cli_flag_error".
+func IsWorkflowCliFlagError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowCliFlagErrorCode)
+}
+
+// IsWorkflowCliFlagError tests whether a given error is an instance of "cli_flag_error".
+func (External) IsWorkflowCliFlagError(err errawrgo.Error) bool {
+	return IsWorkflowCliFlagError(err)
+}
+
+// WorkflowCliFlagErrorBuilder is a builder for "cli_flag_error" errors.
+type WorkflowCliFlagErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "cli_flag_error" from this builder.
+func (b *WorkflowCliFlagErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "could not validate flag {{ flag }}: {{ msg }}",
+		Technical: "could not validate flag {{ flag }}: {{ msg }}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "cli_flag_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "CLI flag error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowCliFlagErrorBuilder creates a new error builder for the code "cli_flag_error".
+func NewWorkflowCliFlagErrorBuilder(flag string, msg string) *WorkflowCliFlagErrorBuilder {
+	return &WorkflowCliFlagErrorBuilder{arguments: impl.ErrorArguments{
+		"flag": impl.NewErrorArgument(flag, "the name of the flag"),
+		"msg":  impl.NewErrorArgument(msg, "a message about what went wrong"),
+	}}
+}
+
+// NewWorkflowCliFlagError creates a new error with the code "cli_flag_error".
+func NewWorkflowCliFlagError(flag string, msg string) Error {
+	return NewWorkflowCliFlagErrorBuilder(flag, msg).Build()
+}
+
 // WorkflowFileNotFoundCode is the code for an instance of "file_not_found".
 const WorkflowFileNotFoundCode = "neb_workflow_file_not_found"
 
@@ -723,6 +863,54 @@ func NewWorkflowLoaderErrorBuilder() *WorkflowLoaderErrorBuilder {
 // NewWorkflowLoaderError creates a new error with the code "loader_error".
 func NewWorkflowLoaderError() Error {
 	return NewWorkflowLoaderErrorBuilder().Build()
+}
+
+// WorkflowMissingFilepathErrorCode is the code for an instance of "missing_filepath_error".
+const WorkflowMissingFilepathErrorCode = "neb_workflow_missing_filepath_error"
+
+// IsWorkflowMissingFilepathError tests whether a given error is an instance of "missing_filepath_error".
+func IsWorkflowMissingFilepathError(err errawrgo.Error) bool {
+	return err != nil && err.Is(WorkflowMissingFilepathErrorCode)
+}
+
+// IsWorkflowMissingFilepathError tests whether a given error is an instance of "missing_filepath_error".
+func (External) IsWorkflowMissingFilepathError(err errawrgo.Error) bool {
+	return IsWorkflowMissingFilepathError(err)
+}
+
+// WorkflowMissingFilepathErrorBuilder is a builder for "missing_filepath_error" errors.
+type WorkflowMissingFilepathErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_filepath_error" from this builder.
+func (b *WorkflowMissingFilepathErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "filepath is required",
+		Technical: "filepath is required",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_filepath_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawrgo.ErrorSensitivityNone,
+		ErrorTitle:       "Missing filepath error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowMissingFilepathErrorBuilder creates a new error builder for the code "missing_filepath_error".
+func NewWorkflowMissingFilepathErrorBuilder() *WorkflowMissingFilepathErrorBuilder {
+	return &WorkflowMissingFilepathErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowMissingFilepathError creates a new error with the code "missing_filepath_error".
+func NewWorkflowMissingFilepathError() Error {
+	return NewWorkflowMissingFilepathErrorBuilder().Build()
 }
 
 // WorkflowNoCommandToExecuteErrorCode is the code for an instance of "no_command_to_execute_error".

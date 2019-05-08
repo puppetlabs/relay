@@ -33,7 +33,7 @@ type WorkflowRun struct {
 
 	// Ordered index of this run of the corresponding workflow instance
 	// Required: true
-	RunNumber *float64 `json:"run_number"`
+	RunNumber *int64 `json:"run_number"`
 
 	// The raw json representation of the workflow at the time of execution
 	// Required: true

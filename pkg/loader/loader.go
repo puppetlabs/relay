@@ -6,26 +6,26 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/nebula/pkg/errors"
-	"github.com/puppetlabs/nebula/pkg/plan/types"
+	"github.com/puppetlabs/nebula/pkg/workflow"
 	"gopkg.in/yaml.v2"
 )
 
 type Loader interface {
-	Load(*types.Plan) errors.Error
+	Load(*workflow.Workflow) errors.Error
 }
 
 type FilepathLoader struct {
 	path string
 }
 
-func (f FilepathLoader) Load(p *types.Plan) errors.Error {
+func (f FilepathLoader) Load(p *workflow.Workflow) errors.Error {
 	b, err := ioutil.ReadFile(f.path)
 	if err != nil {
-		return errors.NewPlanLoaderError().WithCause(err)
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
 	if err := yaml.Unmarshal(b, p); err != nil {
-		return errors.NewPlanLoaderError().WithCause(err)
+		return errors.NewWorkflowLoaderError().WithCause(err)
 	}
 
 	return nil
@@ -35,17 +35,20 @@ func NewFilepathLoader(path string) *FilepathLoader {
 	return &FilepathLoader{path: path}
 }
 
+// ImpliedPlanFileLoader is the old plan loader
+// this will become useful when we flesh out multi-workflow support
+// and a better way of structuring the plans.
 type ImpliedPlanFileLoader struct{}
 
-func (i ImpliedPlanFileLoader) Load(p *types.Plan) errors.Error {
+func (i ImpliedPlanFileLoader) Load(p *workflow.Workflow) errors.Error {
 	impliedPath := filepath.Join(".", "plan.yaml")
 
 	if _, err := os.Stat(impliedPath); err != nil {
 		if os.IsNotExist(err) {
-			return errors.NewPlanFileNotFound(impliedPath)
+			return errors.NewWorkflowFileNotFound(impliedPath)
 		}
 
-		return errors.NewPlanLoaderError().WithCause(err).Bug()
+		return errors.NewWorkflowLoaderError().WithCause(err).Bug()
 	}
 
 	delegate := NewFilepathLoader(impliedPath)

@@ -12,10 +12,9 @@ type Variable struct {
 }
 
 type Action struct {
-	Name       string     `yaml:"name" json:"name"`
-	Image      string     `yaml:"image" json:"image"`
-	ResourceID string     `yaml:"resourceID" json:"resource_id"`
-	Spec       ActionSpec `yaml:"spec" json:"spec"`
+	Name  string     `yaml:"name" json:"name"`
+	Image string     `yaml:"image" json:"image"`
+	Spec  ActionSpec `yaml:"spec" json:"spec"`
 }
 
 type ActionSpec []byte
@@ -37,10 +36,10 @@ func (a *ActionSpec) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 type Workflow struct {
-	APIVersion string      `yaml:"version" json:"api_version"`
-	Variables  []*Variable `yaml:"variables" json:"variables"`
-	Actions    []*Action   `yaml:"actions" json:"actions"`
-	Steps      []string    `yaml:"steps" json:"steps"`
+	Version   string      `yaml:"version" json:"version"`
+	Variables []*Variable `yaml:"variables" json:"variables"`
+	Actions   []*Action   `yaml:"actions" json:"actions"`
+	Steps     []string    `yaml:"steps" json:"steps"`
 }
 
 func (w *Workflow) Encode() ([]byte, error) {

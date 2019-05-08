@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/puppetlabs/nebula/pkg/client/api"
 	authv1 "github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
 	"github.com/puppetlabs/nebula/pkg/client/api/models"
+	workflowrunsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
 	workflowsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflows_v1"
 	"github.com/puppetlabs/nebula/pkg/config"
 	"github.com/puppetlabs/nebula/pkg/errors"
@@ -54,9 +56,9 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 
 func (c *APIClient) Login(ctx context.Context, email string, password string) errors.Error {
 	params := authv1.NewCreateSessionParams()
-	params.SetBody(&models.NewSession{
-		Email:    email,
-		Password: password,
+	params.SetBody(&models.CreateSessionSubmission{
+		Email:    &email,
+		Password: &password,
 	})
 
 	response, err := c.delegate.AuthV1.CreateSession(params)
@@ -73,7 +75,7 @@ func (c *APIClient) Login(ctx context.Context, email string, password string) er
 	return nil
 }
 
-func (c *APIClient) ListWorkflows(ctx context.Context) (*models.IndexWorkflows, errors.Error) {
+func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, errors.Error) {
 	auth, err := c.getAuthorization(ctx)
 	if err != nil {
 		return nil, err
@@ -87,7 +89,55 @@ func (c *APIClient) ListWorkflows(ctx context.Context) (*models.IndexWorkflows, 
 		return nil, errors.NewClientListWorkflowsError().WithCause(derr)
 	}
 
-	return &response.Payload, nil
+	return response.Payload, nil
+}
+
+func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path string) (*models.Workflow, errors.Error) {
+	auth, err := c.getAuthorization(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	params := workflowsv1.NewCreateWorkflowParams()
+	params.Body = &models.CreateWorkflowSubmission{
+		Repository: &repo,
+		Branch:     &branch,
+		Path:       &path,
+	}
+	params.Authorization = auth
+
+	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params)
+	if werr != nil {
+		return nil, errors.NewClientCreateWorkflowError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
+}
+
+func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) (*models.WorkflowRun, errors.Error) {
+	auth, err := c.getAuthorization(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	wfm := models.CreateWorkflowRunSubmissionWorkflowData{}
+	if err := json.Unmarshal(content, &wfm); err != nil {
+		// this is an error we will use long-term, but it's being used in a terrible way at the moment.
+		// TODO: work with the API team to make this hand-off a lot less clunky.
+		return nil, errors.NewClientValidateWorkflowError().WithCause(err)
+	}
+
+	params := workflowrunsv1.NewCreateWorkflowRunParams()
+	params.ID = id
+	params.Body = &models.CreateWorkflowRunSubmission{WorkflowData: &wfm}
+	params.Authorization = auth
+
+	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params)
+	if werr != nil {
+		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
 }
 
 func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {

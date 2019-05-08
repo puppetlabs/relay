@@ -36,6 +36,15 @@ sections:
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows
+      create_workflow_error:
+        title: Create workflow error
+        description: there was an error creating the workflow
+      run_workflow_error:
+        title: Run workflow error
+        description: there was an error running the workflow
+      validate_workflow_error:
+        title: Validate workflow error
+        description: there was an error validating the workflow
       not_logged_in:
         title: Not logged in
         description: not logged in
@@ -85,9 +94,20 @@ sections:
         arguments:
           path:
             description: the path that doesn't exist
+      missing_filepath_error:
+        title: Missing filepath error
+        description: filepath is required
       runner_not_found:
         title: Runner not found
         description: the runner `{{kind}}` was not found
         arguments:
           kind:
             description: the kind of runner that was not found
+      cli_flag_error:
+        title: CLI flag error
+        description: "could not validate flag {{ flag }}: {{ msg }}"
+        arguments:
+          flag:
+            description: the name of the flag
+          msg:
+            description: a message about what went wrong

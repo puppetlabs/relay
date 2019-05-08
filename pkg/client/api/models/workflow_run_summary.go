@@ -28,7 +28,7 @@ type WorkflowRunSummary struct {
 
 	// Ordered index of this run of the corresponding workflow instance
 	// Required: true
-	RunNumber *float64 `json:"run_number"`
+	RunNumber *int64 `json:"run_number"`
 
 	// Time at which workflow execution started
 	StartedAt string `json:"started_at,omitempty"`

@@ -14,23 +14,43 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Workflows An array of nebula workflows
+// Workflows An object containing an array of workflows
 // swagger:model Workflows
-type Workflows []*Workflow
+type Workflows struct {
+
+	// An array of nebula workflows
+	Items []*Workflow `json:"items"`
+}
 
 // Validate validates this workflows
-func (m Workflows) Validate(formats strfmt.Registry) error {
+func (m *Workflows) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	for i := 0; i < len(m); i++ {
-		if swag.IsZero(m[i]) { // not required
+	if err := m.validateItems(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *Workflows) validateItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Items) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Items); i++ {
+		if swag.IsZero(m.Items[i]) { // not required
 			continue
 		}
 
-		if m[i] != nil {
-			if err := m[i].Validate(formats); err != nil {
+		if m.Items[i] != nil {
+			if err := m.Items[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName(strconv.Itoa(i))
+					return ve.ValidateName("items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -38,8 +58,23 @@ func (m Workflows) Validate(formats strfmt.Registry) error {
 
 	}
 
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *Workflows) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
 	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *Workflows) UnmarshalBinary(b []byte) error {
+	var res Workflows
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
 	return nil
 }
