@@ -1,0 +1,71 @@
+apiVersion: v1
+description: workflow to build and release Nebula CLI
+
+actions:
+- name: test
+  image: "pcr-internal.puppet.net/insights/nebula-golang-runner:latest"
+  spec:
+    script:
+    - go test -v -mod=vendor ./...
+
+- name: build
+  image: "pcr-internal.puppet.net/insights/nebula-golang-runner:latest"
+  spec:
+    script:
+    - go build -mod=vendor ./cmd/nebula
+
+- name: create-docker-image
+  image: "pcr-internal.puppet.net/insights/nebula-docker-runner:latest"
+  spec:
+    script:
+    - >
+      test "${NEBULA_WORKFLOW}" = "production" || TAG="staging"
+
+      _docker_build() {
+        local tag=${1}
+        docker build -t "${NEBULA_IMAGE}:${tag}" -t "${NEBULA_IMAGE}:${NEBULA_RUN_ID}" .
+      }
+
+      _docker_build ${TAG:-latest}
+
+- name: push-docker-image
+  image: "pcr-internal.puppet.net/insights/nebula-docker-runner:latest"
+  spec:
+    # if credentials is set, then they will be stored in ${HOME}/.docker/config.json
+    credentials:
+      server: "DOCKER_SERVER"
+      username: "DOCKER_USERNAME"
+      password: "DOCKER_PASSWORD"
+    script:
+    - >
+      test "${NEBULA_WORKFLOW}" = "production" || TAG="staging"
+
+      _docker_push() {
+        local tag=${1}
+        docker push "${NEBULA_IMAGE}:${tag}"
+        docker push "${NEBULA_IMAGE}:${NEBULA_RUN_ID}"
+      }
+
+      if [ "${NEBULA_WORKFLOW}" = "production" ] || [ "${NEBULA_WORKFLOW}" = "staging" ]; then
+        _docker_push ${TAG:-latest}
+      fi
+
+- name: create-tarball
+  image: "alpine:latest"
+  spec:
+    script:
+    - apk add --no-cache tar gzip bash
+
+- name: release-tarball
+  image: "alpine:latest"
+  spec:
+    script:
+    - apk add --no-cache curl
+
+steps:
+  - test
+  - build
+  - create-docker-image
+  - push-docker-image
+  - create-tarball
+  - release-tarball
