@@ -3,28 +3,29 @@ package loader
 import (
 	"testing"
 
-	"github.com/puppetlabs/nebula/pkg/plan/types"
+	"github.com/puppetlabs/nebula/pkg/workflow"
 	"github.com/stretchr/testify/require"
 )
 
 func TestFilepathLoader(t *testing.T) {
-	var l interface{} = NewFilepathLoader("./fixtures/test_filepath_loader/plan.yaml")
+	var l interface{} = NewFilepathLoader("./fixtures/test_filepath_loader/workflow.yaml")
 
 	fpl, ok := l.(Loader)
 	require.True(t, ok, "FilepathLoader does not satisfy Loader")
 
-	var p types.Plan
+	var w workflow.Workflow
 
-	require.NoError(t, fpl.Load(&p))
+	require.NoError(t, fpl.Load(&w))
 
-	require.Equal(t, "nebula-plan-test", p.Name)
-	require.Equal(t, "1", p.Version)
+	require.Equal(t, "1", w.Version)
 
-	require.Len(t, p.Variables, 2)
-	for _, variable := range p.Variables {
+	require.Len(t, w.Variables, 2)
+	for _, variable := range w.Variables {
 		require.NotEmpty(t, variable.Name)
 		require.NotEmpty(t, variable.Value)
 	}
 
-	require.Len(t, p.Actions, 5)
+	require.Len(t, w.Steps, 2)
+	require.Empty(t, w.Steps[0].DependsOn)
+	require.NotEmpty(t, w.Steps[1].DependsOn)
 }

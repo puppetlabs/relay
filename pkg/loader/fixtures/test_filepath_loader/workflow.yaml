@@ -15,25 +15,6 @@ steps:
     projectID: $GOOGLE_PROJECT_ID
     region: $GOOGLE_CLOUD_REGION
 
-- name: build
-  source: nebula.io/nebula-shell-runner:latest
-  spec:
-    script:
-    - make
-    - docker build -t $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG) .
-
-- name: test
-  source: nebula.io/nebula-shell-runner:latest
-  spec:
-    script:
-    - go test ./...
-
-- name: publish
-  source: nebula.io/nebula-shell-runner:latest
-  spec:
-    script:
-    - docker push $(REGISTRY_HOST):$(REGISTRY_PORT)/$(IMAGE_NAME):$(IMAGE_TAG)
-
 - name: deploy
   source: nebula.io/nebula-helm-runner:latest
   spec:
@@ -42,3 +23,4 @@ steps:
     set:
       image.repository: $(IMAGE_NAME)
       image.tag: $(IMAGE_TAG)
+  depends_on: create-cluster
