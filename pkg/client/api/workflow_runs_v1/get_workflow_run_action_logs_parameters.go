@@ -66,11 +66,6 @@ type GetWorkflowRunActionLogsParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*ActionName
 	  Unique workflow action name
 
@@ -131,17 +126,6 @@ func (o *GetWorkflowRunActionLogsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the get workflow run action logs params
-func (o *GetWorkflowRunActionLogsParams) WithAuthorization(authorization string) *GetWorkflowRunActionLogsParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the get workflow run action logs params
-func (o *GetWorkflowRunActionLogsParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithActionName adds the actionName to the get workflow run action logs params
 func (o *GetWorkflowRunActionLogsParams) WithActionName(actionName string) *GetWorkflowRunActionLogsParams {
 	o.SetActionName(actionName)
@@ -174,11 +158,6 @@ func (o *GetWorkflowRunActionLogsParams) WriteToRequest(r runtime.ClientRequest,
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

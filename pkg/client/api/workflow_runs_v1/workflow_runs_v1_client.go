@@ -27,7 +27,7 @@ type Client struct {
 /*
 CreateWorkflowRun creates new workflow run associated with given workflow
 */
-func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams) (*CreateWorkflowRunCreated, error) {
+func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowRunCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateWorkflowRunParams()
@@ -42,6 +42,7 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams) (*CreateWork
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CreateWorkflowRunReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -55,7 +56,7 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams) (*CreateWork
 /*
 GetWorkflowRunActionLogs returns the logs from a single workflow run action if the action is complete if the action is incomplete it returns null and an incomplete flag
 */
-func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams) (*GetWorkflowRunActionLogsOK, error) {
+func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunActionLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetWorkflowRunActionLogsParams()
@@ -70,6 +71,7 @@ func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetWorkflowRunActionLogsReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -83,7 +85,7 @@ func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams
 /*
 GetWorkflowRunLogs returns the logs from an entire workflow execution
 */
-func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams) (*GetWorkflowRunLogsOK, error) {
+func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetWorkflowRunLogsParams()
@@ -98,6 +100,7 @@ func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams) (*GetWorkf
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetWorkflowRunLogsReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -111,7 +114,7 @@ func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams) (*GetWorkf
 /*
 ListWorkflowRuns gets all workflow runs associated with given workflow id
 */
-func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams) (*ListWorkflowRunsOK, error) {
+func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams, authInfo runtime.ClientAuthInfoWriter) (*ListWorkflowRunsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListWorkflowRunsParams()
@@ -126,6 +129,7 @@ func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams) (*ListWorkflow
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListWorkflowRunsReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -139,7 +143,7 @@ func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams) (*ListWorkflow
 /*
 ShowWorkflowRun shows workflow run associated with given run id
 */
-func (a *Client) ShowWorkflowRun(params *ShowWorkflowRunParams) (*ShowWorkflowRunOK, error) {
+func (a *Client) ShowWorkflowRun(params *ShowWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*ShowWorkflowRunOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewShowWorkflowRunParams()
@@ -154,6 +158,7 @@ func (a *Client) ShowWorkflowRun(params *ShowWorkflowRunParams) (*ShowWorkflowRu
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ShowWorkflowRunReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
