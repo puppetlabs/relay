@@ -47,7 +47,7 @@ func NewUpdateWorkflowOK() *UpdateWorkflowOK {
 Update successful
 */
 type UpdateWorkflowOK struct {
-	Payload *models.ShowWorkflow
+	Payload *models.Workflow
 }
 
 func (o *UpdateWorkflowOK) Error() string {
@@ -56,7 +56,7 @@ func (o *UpdateWorkflowOK) Error() string {
 
 func (o *UpdateWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowWorkflow)
+	o.Payload = new(models.Workflow)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

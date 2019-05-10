@@ -7,10 +7,13 @@ package auth_v1
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
 // DeleteSessionReader is a Reader for the DeleteSession structure.
@@ -22,8 +25,8 @@ type DeleteSessionReader struct {
 func (o *DeleteSessionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
-	case 204:
-		result := NewDeleteSessionNoContent()
+	case 200:
+		result := NewDeleteSessionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -34,23 +37,31 @@ func (o *DeleteSessionReader) ReadResponse(response runtime.ClientResponse, cons
 	}
 }
 
-// NewDeleteSessionNoContent creates a DeleteSessionNoContent with default headers values
-func NewDeleteSessionNoContent() *DeleteSessionNoContent {
-	return &DeleteSessionNoContent{}
+// NewDeleteSessionOK creates a DeleteSessionOK with default headers values
+func NewDeleteSessionOK() *DeleteSessionOK {
+	return &DeleteSessionOK{}
 }
 
-/*DeleteSessionNoContent handles this case with default header values.
+/*DeleteSessionOK handles this case with default header values.
 
 The token was successfully invalidated
 */
-type DeleteSessionNoContent struct {
+type DeleteSessionOK struct {
+	Payload *models.GenericSuccess
 }
 
-func (o *DeleteSessionNoContent) Error() string {
-	return fmt.Sprintf("[DELETE /auth/sessions][%d] deleteSessionNoContent ", 204)
+func (o *DeleteSessionOK) Error() string {
+	return fmt.Sprintf("[DELETE /auth/sessions][%d] deleteSessionOK  %+v", 200, o.Payload)
 }
 
-func (o *DeleteSessionNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.GenericSuccess)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

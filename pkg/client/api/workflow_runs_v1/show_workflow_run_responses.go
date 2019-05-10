@@ -47,16 +47,16 @@ func NewShowWorkflowRunOK() *ShowWorkflowRunOK {
 An array of workflow runs
 */
 type ShowWorkflowRunOK struct {
-	Payload *models.ShowWorkflowRun
+	Payload *models.WorkflowRun
 }
 
 func (o *ShowWorkflowRunOK) Error() string {
-	return fmt.Sprintf("[GET /api/workflows/{wid}/runs/{rid}][%d] showWorkflowRunOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/runs/{id}][%d] showWorkflowRunOK  %+v", 200, o.Payload)
 }
 
 func (o *ShowWorkflowRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowWorkflowRun)
+	o.Payload = new(models.WorkflowRun)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

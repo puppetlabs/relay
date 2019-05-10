@@ -14,12 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// IndexWorkflowRuns index workflow runs
-// swagger:model IndexWorkflowRuns
-type IndexWorkflowRuns []*IndexWorkflowRun
+// WorkflowRunSummaries workflow run summaries
+// swagger:model WorkflowRunSummaries
+type WorkflowRunSummaries []*WorkflowRunSummary
 
-// Validate validates this index workflow runs
-func (m IndexWorkflowRuns) Validate(formats strfmt.Registry) error {
+// Validate validates this workflow run summaries
+func (m WorkflowRunSummaries) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

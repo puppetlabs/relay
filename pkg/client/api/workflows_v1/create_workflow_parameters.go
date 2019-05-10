@@ -77,7 +77,7 @@ type CreateWorkflowParams struct {
 	  Workflow to create
 
 	*/
-	Body *models.NewWorkflow
+	Body *models.CreateWorkflowSubmission
 
 	timeout    time.Duration
 	Context    context.Context
@@ -140,13 +140,13 @@ func (o *CreateWorkflowParams) SetAuthorization(authorization string) {
 }
 
 // WithBody adds the body to the create workflow params
-func (o *CreateWorkflowParams) WithBody(body *models.NewWorkflow) *CreateWorkflowParams {
+func (o *CreateWorkflowParams) WithBody(body *models.CreateWorkflowSubmission) *CreateWorkflowParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create workflow params
-func (o *CreateWorkflowParams) SetBody(body *models.NewWorkflow) {
+func (o *CreateWorkflowParams) SetBody(body *models.CreateWorkflowSubmission) {
 	o.Body = body
 }
 

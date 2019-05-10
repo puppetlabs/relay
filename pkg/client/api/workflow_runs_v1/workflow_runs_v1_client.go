@@ -53,6 +53,62 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams) (*CreateWork
 }
 
 /*
+GetWorkflowRunActionLogs returns the logs from a single workflow run action if the action is complete if the action is incomplete it returns null and an incomplete flag
+*/
+func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams) (*GetWorkflowRunActionLogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetWorkflowRunActionLogsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getWorkflowRunActionLogs",
+		Method:             "GET",
+		PathPattern:        "/api/runs/{rid}/actions/{action_name}/logs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetWorkflowRunActionLogsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetWorkflowRunActionLogsOK), nil
+
+}
+
+/*
+GetWorkflowRunLogs returns the logs from an entire workflow execution
+*/
+func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams) (*GetWorkflowRunLogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetWorkflowRunLogsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getWorkflowRunLogs",
+		Method:             "GET",
+		PathPattern:        "/api/runs/{rid}/logs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetWorkflowRunLogsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetWorkflowRunLogsOK), nil
+
+}
+
+/*
 ListWorkflowRuns gets all workflow runs associated with given workflow id
 */
 func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams) (*ListWorkflowRunsOK, error) {
@@ -81,7 +137,7 @@ func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams) (*ListWorkflow
 }
 
 /*
-ShowWorkflowRun shows workflow run associated with given workflow id and run id
+ShowWorkflowRun shows workflow run associated with given run id
 */
 func (a *Client) ShowWorkflowRun(params *ShowWorkflowRunParams) (*ShowWorkflowRunOK, error) {
 	// TODO: Validate the params before sending
@@ -92,7 +148,7 @@ func (a *Client) ShowWorkflowRun(params *ShowWorkflowRunParams) (*ShowWorkflowRu
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "showWorkflowRun",
 		Method:             "GET",
-		PathPattern:        "/api/workflows/{wid}/runs/{rid}",
+		PathPattern:        "/api/runs/{id}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},

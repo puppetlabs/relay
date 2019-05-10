@@ -72,7 +72,7 @@ type CreateSessionParams struct {
 	  Credentials for new session
 
 	*/
-	Body *models.NewSession
+	Body *models.CreateSessionSubmission
 
 	timeout    time.Duration
 	Context    context.Context
@@ -124,13 +124,13 @@ func (o *CreateSessionParams) SetAccept(accept string) {
 }
 
 // WithBody adds the body to the create session params
-func (o *CreateSessionParams) WithBody(body *models.NewSession) *CreateSessionParams {
+func (o *CreateSessionParams) WithBody(body *models.CreateSessionSubmission) *CreateSessionParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create session params
-func (o *CreateSessionParams) SetBody(body *models.NewSession) {
+func (o *CreateSessionParams) SetBody(body *models.CreateSessionSubmission) {
 	o.Body = body
 }
 

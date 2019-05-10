@@ -47,7 +47,7 @@ func NewCreateUserCreated() *CreateUserCreated {
 Newly created user
 */
 type CreateUserCreated struct {
-	Payload *models.ShowUser
+	Payload *models.User
 }
 
 func (o *CreateUserCreated) Error() string {
@@ -56,7 +56,7 @@ func (o *CreateUserCreated) Error() string {
 
 func (o *CreateUserCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowUser)
+	o.Payload = new(models.User)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -47,7 +47,7 @@ func NewRedirectIntegrationOK() *RedirectIntegrationOK {
 Redirect info fetch success
 */
 type RedirectIntegrationOK struct {
-	Payload *models.RedirectIntegration
+	Payload *models.IntegrationRedirect
 }
 
 func (o *RedirectIntegrationOK) Error() string {
@@ -56,7 +56,7 @@ func (o *RedirectIntegrationOK) Error() string {
 
 func (o *RedirectIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.RedirectIntegration)
+	o.Payload = new(models.IntegrationRedirect)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

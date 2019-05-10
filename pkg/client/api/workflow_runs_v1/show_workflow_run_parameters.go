@@ -71,16 +71,11 @@ type ShowWorkflowRunParams struct {
 
 	*/
 	Authorization string
-	/*Rid
+	/*ID
 	  ID of the workflow run we want to know about
 
 	*/
-	Rid string
-	/*Wid
-	  ID of the workflow whose runs we want to view
-
-	*/
-	Wid string
+	ID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -142,26 +137,15 @@ func (o *ShowWorkflowRunParams) SetAuthorization(authorization string) {
 	o.Authorization = authorization
 }
 
-// WithRid adds the rid to the show workflow run params
-func (o *ShowWorkflowRunParams) WithRid(rid string) *ShowWorkflowRunParams {
-	o.SetRid(rid)
+// WithID adds the id to the show workflow run params
+func (o *ShowWorkflowRunParams) WithID(id string) *ShowWorkflowRunParams {
+	o.SetID(id)
 	return o
 }
 
-// SetRid adds the rid to the show workflow run params
-func (o *ShowWorkflowRunParams) SetRid(rid string) {
-	o.Rid = rid
-}
-
-// WithWid adds the wid to the show workflow run params
-func (o *ShowWorkflowRunParams) WithWid(wid string) *ShowWorkflowRunParams {
-	o.SetWid(wid)
-	return o
-}
-
-// SetWid adds the wid to the show workflow run params
-func (o *ShowWorkflowRunParams) SetWid(wid string) {
-	o.Wid = wid
+// SetID adds the id to the show workflow run params
+func (o *ShowWorkflowRunParams) SetID(id string) {
+	o.ID = id
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -182,13 +166,8 @@ func (o *ShowWorkflowRunParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 
-	// path param rid
-	if err := r.SetPathParam("rid", o.Rid); err != nil {
-		return err
-	}
-
-	// path param wid
-	if err := r.SetPathParam("wid", o.Wid); err != nil {
+	// path param id
+	if err := r.SetPathParam("id", o.ID); err != nil {
 		return err
 	}
 

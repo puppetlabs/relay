@@ -37,7 +37,7 @@ func (a *Client) CreateSession(params *CreateSessionParams) (*CreateSessionOK, e
 		ID:                 "createSession",
 		Method:             "POST",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
@@ -83,7 +83,7 @@ func (a *Client) CreateUser(params *CreateUserParams) (*CreateUserCreated, error
 /*
 DeleteSession invalidates attached j w t token used likely for logout
 */
-func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionNoContent, error) {
+func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteSessionParams()
@@ -93,7 +93,7 @@ func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionNoCon
 		ID:                 "deleteSession",
 		Method:             "DELETE",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
@@ -104,7 +104,7 @@ func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionNoCon
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteSessionNoContent), nil
+	return result.(*DeleteSessionOK), nil
 
 }
 
@@ -121,7 +121,7 @@ func (a *Client) ValidateSession(params *ValidateSessionParams) (*ValidateSessio
 		ID:                 "validateSession",
 		Method:             "GET",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,

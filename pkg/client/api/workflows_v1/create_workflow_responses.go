@@ -32,6 +32,13 @@ func (o *CreateWorkflowReader) ReadResponse(response runtime.ClientResponse, con
 		}
 		return result, nil
 
+	case 409:
+		result := NewCreateWorkflowConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+
 	default:
 		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
@@ -47,7 +54,7 @@ func NewCreateWorkflowCreated() *CreateWorkflowCreated {
 Newly created workflow
 */
 type CreateWorkflowCreated struct {
-	Payload *models.ShowWorkflow
+	Payload *models.Workflow
 }
 
 func (o *CreateWorkflowCreated) Error() string {
@@ -56,12 +63,33 @@ func (o *CreateWorkflowCreated) Error() string {
 
 func (o *CreateWorkflowCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowWorkflow)
+	o.Payload = new(models.Workflow)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
+
+	return nil
+}
+
+// NewCreateWorkflowConflict creates a CreateWorkflowConflict with default headers values
+func NewCreateWorkflowConflict() *CreateWorkflowConflict {
+	return &CreateWorkflowConflict{}
+}
+
+/*CreateWorkflowConflict handles this case with default header values.
+
+Workflow already exists
+*/
+type CreateWorkflowConflict struct {
+}
+
+func (o *CreateWorkflowConflict) Error() string {
+	return fmt.Sprintf("[POST /api/workflows][%d] createWorkflowConflict ", 409)
+}
+
+func (o *CreateWorkflowConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }

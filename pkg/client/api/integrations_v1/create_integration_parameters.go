@@ -77,7 +77,7 @@ type CreateIntegrationParams struct {
 	  Integration to create
 
 	*/
-	Body *models.NewIntegration
+	Body *models.CreateIntegrationSubmission
 
 	timeout    time.Duration
 	Context    context.Context
@@ -140,13 +140,13 @@ func (o *CreateIntegrationParams) SetAuthorization(authorization string) {
 }
 
 // WithBody adds the body to the create integration params
-func (o *CreateIntegrationParams) WithBody(body *models.NewIntegration) *CreateIntegrationParams {
+func (o *CreateIntegrationParams) WithBody(body *models.CreateIntegrationSubmission) *CreateIntegrationParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create integration params
-func (o *CreateIntegrationParams) SetBody(body *models.NewIntegration) {
+func (o *CreateIntegrationParams) SetBody(body *models.CreateIntegrationSubmission) {
 	o.Body = body
 }
 

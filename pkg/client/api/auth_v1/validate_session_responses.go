@@ -7,10 +7,13 @@ package auth_v1
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
 // ValidateSessionReader is a Reader for the ValidateSession structure.
@@ -51,13 +54,21 @@ func NewValidateSessionOK() *ValidateSessionOK {
 The token is valid
 */
 type ValidateSessionOK struct {
+	Payload *models.GenericSuccess
 }
 
 func (o *ValidateSessionOK) Error() string {
-	return fmt.Sprintf("[GET /auth/sessions][%d] validateSessionOK ", 200)
+	return fmt.Sprintf("[GET /auth/sessions][%d] validateSessionOK  %+v", 200, o.Payload)
 }
 
 func (o *ValidateSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.GenericSuccess)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

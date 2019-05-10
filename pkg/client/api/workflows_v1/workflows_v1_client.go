@@ -55,7 +55,7 @@ func (a *Client) CreateWorkflow(params *CreateWorkflowParams) (*CreateWorkflowCr
 /*
 DeleteWorkflow deletes a workflow by ID
 */
-func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowNoContent, error) {
+func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteWorkflowParams()
@@ -76,12 +76,12 @@ func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowNo
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteWorkflowNoContent), nil
+	return result.(*DeleteWorkflowOK), nil
 
 }
 
 /*
-ListWorkflows lists all workflows that belong to user
+ListWorkflows lists all workflows associated with the authenticated user
 */
 func (a *Client) ListWorkflows(params *ListWorkflowsParams) (*ListWorkflowsOK, error) {
 	// TODO: Validate the params before sending

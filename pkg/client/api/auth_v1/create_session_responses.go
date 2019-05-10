@@ -7,10 +7,13 @@ package auth_v1
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
 // CreateSessionReader is a Reader for the CreateSession structure.
@@ -54,16 +57,25 @@ type CreateSessionOK struct {
 	/*The authorization bearer token
 	 */
 	Authorization string
+
+	Payload *models.GenericSuccess
 }
 
 func (o *CreateSessionOK) Error() string {
-	return fmt.Sprintf("[POST /auth/sessions][%d] createSessionOK ", 200)
+	return fmt.Sprintf("[POST /auth/sessions][%d] createSessionOK  %+v", 200, o.Payload)
 }
 
 func (o *CreateSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response header Authorization
 	o.Authorization = response.GetHeader("Authorization")
+
+	o.Payload = new(models.GenericSuccess)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
 
 	return nil
 }

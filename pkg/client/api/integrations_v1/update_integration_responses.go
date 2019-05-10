@@ -47,7 +47,7 @@ func NewUpdateIntegrationOK() *UpdateIntegrationOK {
 Update successful
 */
 type UpdateIntegrationOK struct {
-	Payload *models.ShowUpdatedIntegration
+	Payload *models.Integration
 }
 
 func (o *UpdateIntegrationOK) Error() string {
@@ -56,7 +56,7 @@ func (o *UpdateIntegrationOK) Error() string {
 
 func (o *UpdateIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ShowUpdatedIntegration)
+	o.Payload = new(models.Integration)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -72,7 +72,7 @@ type CreateUserParams struct {
 	  User to create
 
 	*/
-	Body *models.NewUser
+	Body *models.CreateUserSubmission
 
 	timeout    time.Duration
 	Context    context.Context
@@ -124,13 +124,13 @@ func (o *CreateUserParams) SetAccept(accept string) {
 }
 
 // WithBody adds the body to the create user params
-func (o *CreateUserParams) WithBody(body *models.NewUser) *CreateUserParams {
+func (o *CreateUserParams) WithBody(body *models.CreateUserSubmission) *CreateUserParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create user params
-func (o *CreateUserParams) SetBody(body *models.NewUser) {
+func (o *CreateUserParams) SetBody(body *models.CreateUserSubmission) {
 	o.Body = body
 }
 

@@ -11,27 +11,21 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewUser new user
-// swagger:model NewUser
-type NewUser struct {
+// UpdateIntegrationSubmission The editable fields of a nebula external integration entry
+// swagger:model UpdateIntegrationSubmission
+type UpdateIntegrationSubmission struct {
 
-	// email
-	Email string `json:"email,omitempty"`
-
-	// name
+	// A descriptive integration name
 	Name string `json:"name,omitempty"`
-
-	// password
-	Password string `json:"password,omitempty"`
 }
 
-// Validate validates this new user
-func (m *NewUser) Validate(formats strfmt.Registry) error {
+// Validate validates this update integration submission
+func (m *UpdateIntegrationSubmission) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *NewUser) MarshalBinary() ([]byte, error) {
+func (m *UpdateIntegrationSubmission) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -39,8 +33,8 @@ func (m *NewUser) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *NewUser) UnmarshalBinary(b []byte) error {
-	var res NewUser
+func (m *UpdateIntegrationSubmission) UnmarshalBinary(b []byte) error {
+	var res UpdateIntegrationSubmission
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
