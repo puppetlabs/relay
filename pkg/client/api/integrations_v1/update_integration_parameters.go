@@ -68,11 +68,6 @@ type UpdateIntegrationParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*Body
 	  Integration info to update
 
@@ -133,17 +128,6 @@ func (o *UpdateIntegrationParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the update integration params
-func (o *UpdateIntegrationParams) WithAuthorization(authorization string) *UpdateIntegrationParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the update integration params
-func (o *UpdateIntegrationParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithBody adds the body to the update integration params
 func (o *UpdateIntegrationParams) WithBody(body *models.UpdateIntegrationSubmission) *UpdateIntegrationParams {
 	o.SetBody(body)
@@ -176,11 +160,6 @@ func (o *UpdateIntegrationParams) WriteToRequest(r runtime.ClientRequest, reg st
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

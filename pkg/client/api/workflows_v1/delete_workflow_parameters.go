@@ -66,11 +66,6 @@ type DeleteWorkflowParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*ID
 	  ID of the workflow to delete
 
@@ -126,17 +121,6 @@ func (o *DeleteWorkflowParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the delete workflow params
-func (o *DeleteWorkflowParams) WithAuthorization(authorization string) *DeleteWorkflowParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the delete workflow params
-func (o *DeleteWorkflowParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithID adds the id to the delete workflow params
 func (o *DeleteWorkflowParams) WithID(id string) *DeleteWorkflowParams {
 	o.SetID(id)
@@ -158,11 +142,6 @@ func (o *DeleteWorkflowParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

@@ -66,11 +66,6 @@ type ValidateSessionParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,17 +116,6 @@ func (o *ValidateSessionParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the validate session params
-func (o *ValidateSessionParams) WithAuthorization(authorization string) *ValidateSessionParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the validate session params
-func (o *ValidateSessionParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *ValidateSessionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -142,11 +126,6 @@ func (o *ValidateSessionParams) WriteToRequest(r runtime.ClientRequest, reg strf
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

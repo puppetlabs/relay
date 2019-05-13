@@ -68,11 +68,6 @@ type CreateWorkflowRunParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*Body
 	  Workflow to create
 
@@ -133,17 +128,6 @@ func (o *CreateWorkflowRunParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the create workflow run params
-func (o *CreateWorkflowRunParams) WithAuthorization(authorization string) *CreateWorkflowRunParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the create workflow run params
-func (o *CreateWorkflowRunParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithBody adds the body to the create workflow run params
 func (o *CreateWorkflowRunParams) WithBody(body *models.CreateWorkflowRunSubmission) *CreateWorkflowRunParams {
 	o.SetBody(body)
@@ -176,11 +160,6 @@ func (o *CreateWorkflowRunParams) WriteToRequest(r runtime.ClientRequest, reg st
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

@@ -27,7 +27,7 @@ type Client struct {
 /*
 CallbackIntegration thes o auth provider will redirect back through us to verify access credentials
 */
-func (a *Client) CallbackIntegration(params *CallbackIntegrationParams) error {
+func (a *Client) CallbackIntegration(params *CallbackIntegrationParams, authInfo runtime.ClientAuthInfoWriter) error {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCallbackIntegrationParams()
@@ -42,6 +42,7 @@ func (a *Client) CallbackIntegration(params *CallbackIntegrationParams) error {
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CallbackIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -55,7 +56,7 @@ func (a *Client) CallbackIntegration(params *CallbackIntegrationParams) error {
 /*
 CreateIntegration creates an integration belonging to your user
 */
-func (a *Client) CreateIntegration(params *CreateIntegrationParams) (*CreateIntegrationCreated, error) {
+func (a *Client) CreateIntegration(params *CreateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*CreateIntegrationCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateIntegrationParams()
@@ -70,6 +71,7 @@ func (a *Client) CreateIntegration(params *CreateIntegrationParams) (*CreateInte
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CreateIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -83,7 +85,7 @@ func (a *Client) CreateIntegration(params *CreateIntegrationParams) (*CreateInte
 /*
 DeleteIntegration deletes an integration by id
 */
-func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteIntegrationOK, error) {
+func (a *Client) DeleteIntegration(params *DeleteIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteIntegrationParams()
@@ -98,6 +100,7 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteInte
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DeleteIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -111,7 +114,7 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams) (*DeleteInte
 /*
 GetIntegration gets an integration by id
 */
-func (a *Client) GetIntegration(params *GetIntegrationParams) (*GetIntegrationOK, error) {
+func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetIntegrationParams()
@@ -126,6 +129,7 @@ func (a *Client) GetIntegration(params *GetIntegrationParams) (*GetIntegrationOK
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -139,7 +143,7 @@ func (a *Client) GetIntegration(params *GetIntegrationParams) (*GetIntegrationOK
 /*
 ListIntegrations lists all integrations that belong to user
 */
-func (a *Client) ListIntegrations(params *ListIntegrationsParams) (*ListIntegrationsOK, error) {
+func (a *Client) ListIntegrations(params *ListIntegrationsParams, authInfo runtime.ClientAuthInfoWriter) (*ListIntegrationsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListIntegrationsParams()
@@ -154,6 +158,7 @@ func (a *Client) ListIntegrations(params *ListIntegrationsParams) (*ListIntegrat
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListIntegrationsReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -167,7 +172,7 @@ func (a *Client) ListIntegrations(params *ListIntegrationsParams) (*ListIntegrat
 /*
 RedirectIntegration gets the oauth redirect information for integration with ID
 */
-func (a *Client) RedirectIntegration(params *RedirectIntegrationParams) (*RedirectIntegrationOK, error) {
+func (a *Client) RedirectIntegration(params *RedirectIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*RedirectIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRedirectIntegrationParams()
@@ -182,6 +187,7 @@ func (a *Client) RedirectIntegration(params *RedirectIntegrationParams) (*Redire
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &RedirectIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -195,7 +201,7 @@ func (a *Client) RedirectIntegration(params *RedirectIntegrationParams) (*Redire
 /*
 UpdateIntegration updates integration by id
 */
-func (a *Client) UpdateIntegration(params *UpdateIntegrationParams) (*UpdateIntegrationOK, error) {
+func (a *Client) UpdateIntegration(params *UpdateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateIntegrationParams()
@@ -210,6 +216,7 @@ func (a *Client) UpdateIntegration(params *UpdateIntegrationParams) (*UpdateInte
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &UpdateIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/puppetlabs/nebula/pkg/client/api"
 	authv1 "github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
@@ -76,15 +77,11 @@ func (c *APIClient) Login(ctx context.Context, email string, password string) er
 }
 
 func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, errors.Error) {
-	auth, err := c.getAuthorization(ctx)
-	if err != nil {
-		return nil, err
-	}
+	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowsv1.NewListWorkflowsParams()
-	params.Authorization = auth
 
-	response, derr := c.delegate.WorkflowsV1.ListWorkflows(params)
+	response, derr := c.delegate.WorkflowsV1.ListWorkflows(params, auth)
 	if derr != nil {
 		return nil, errors.NewClientListWorkflowsError().WithCause(derr)
 	}
@@ -93,10 +90,7 @@ func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, error
 }
 
 func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path string) (*models.Workflow, errors.Error) {
-	auth, err := c.getAuthorization(ctx)
-	if err != nil {
-		return nil, err
-	}
+	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowsv1.NewCreateWorkflowParams()
 	params.Body = &models.CreateWorkflowSubmission{
@@ -104,9 +98,8 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path strin
 		Branch:     &branch,
 		Path:       &path,
 	}
-	params.Authorization = auth
 
-	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params)
+	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params, auth)
 	if werr != nil {
 		return nil, errors.NewClientCreateWorkflowError().WithCause(werr)
 	}
@@ -115,10 +108,7 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path strin
 }
 
 func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) (*models.WorkflowRun, errors.Error) {
-	auth, err := c.getAuthorization(ctx)
-	if err != nil {
-		return nil, err
-	}
+	auth := c.getAuthorizationFunc(ctx)
 
 	wfm := models.CreateWorkflowRunSubmissionWorkflowData{}
 	if err := json.Unmarshal(content, &wfm); err != nil {
@@ -130,9 +120,8 @@ func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) 
 	params := workflowrunsv1.NewCreateWorkflowRunParams()
 	params.ID = id
 	params.Body = &models.CreateWorkflowRunSubmission{WorkflowData: &wfm}
-	params.Authorization = auth
 
-	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params)
+	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params, auth)
 	if werr != nil {
 		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
 	}
@@ -187,11 +176,13 @@ func (c *APIClient) getToken(ctx context.Context) (*Token, errors.Error) {
 	return c.loadedToken, nil
 }
 
-func (c *APIClient) getAuthorization(ctx context.Context) (string, errors.Error) {
-	token, err := c.getToken(ctx)
-	if err != nil {
-		return "", err
-	}
+func (c *APIClient) getAuthorizationFunc(ctx context.Context) runtime.ClientAuthInfoWriterFunc {
+	return func(req runtime.ClientRequest, reg strfmt.Registry) error {
+		token, err := c.getToken(ctx)
+		if err != nil {
+			return err
+		}
 
-	return token.Bearer(), nil
+		return req.SetHeaderParam("Authorization", token.Bearer())
+	}
 }

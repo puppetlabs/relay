@@ -27,7 +27,7 @@ type Client struct {
 /*
 CreateWorkflow creates a new workflow associated with your user
 */
-func (a *Client) CreateWorkflow(params *CreateWorkflowParams) (*CreateWorkflowCreated, error) {
+func (a *Client) CreateWorkflow(params *CreateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateWorkflowParams()
@@ -42,6 +42,7 @@ func (a *Client) CreateWorkflow(params *CreateWorkflowParams) (*CreateWorkflowCr
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CreateWorkflowReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -55,7 +56,7 @@ func (a *Client) CreateWorkflow(params *CreateWorkflowParams) (*CreateWorkflowCr
 /*
 DeleteWorkflow deletes a workflow by ID
 */
-func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowOK, error) {
+func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteWorkflowParams()
@@ -70,6 +71,7 @@ func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowOK
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DeleteWorkflowReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -83,7 +85,7 @@ func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams) (*DeleteWorkflowOK
 /*
 ListWorkflows lists all workflows associated with the authenticated user
 */
-func (a *Client) ListWorkflows(params *ListWorkflowsParams) (*ListWorkflowsOK, error) {
+func (a *Client) ListWorkflows(params *ListWorkflowsParams, authInfo runtime.ClientAuthInfoWriter) (*ListWorkflowsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListWorkflowsParams()
@@ -98,6 +100,7 @@ func (a *Client) ListWorkflows(params *ListWorkflowsParams) (*ListWorkflowsOK, e
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListWorkflowsReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -111,7 +114,7 @@ func (a *Client) ListWorkflows(params *ListWorkflowsParams) (*ListWorkflowsOK, e
 /*
 UpdateWorkflow updates a workflow by ID
 */
-func (a *Client) UpdateWorkflow(params *UpdateWorkflowParams) (*UpdateWorkflowOK, error) {
+func (a *Client) UpdateWorkflow(params *UpdateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateWorkflowParams()
@@ -126,6 +129,7 @@ func (a *Client) UpdateWorkflow(params *UpdateWorkflowParams) (*UpdateWorkflowOK
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &UpdateWorkflowReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})

@@ -66,11 +66,6 @@ type ListIntegrationsParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,17 +116,6 @@ func (o *ListIntegrationsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the list integrations params
-func (o *ListIntegrationsParams) WithAuthorization(authorization string) *ListIntegrationsParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the list integrations params
-func (o *ListIntegrationsParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *ListIntegrationsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -142,11 +126,6 @@ func (o *ListIntegrationsParams) WriteToRequest(r runtime.ClientRequest, reg str
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

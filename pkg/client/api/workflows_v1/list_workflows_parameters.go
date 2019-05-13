@@ -66,11 +66,6 @@ type ListWorkflowsParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*Branch
 	  the branch to filter the results by
 
@@ -136,17 +131,6 @@ func (o *ListWorkflowsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the list workflows params
-func (o *ListWorkflowsParams) WithAuthorization(authorization string) *ListWorkflowsParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the list workflows params
-func (o *ListWorkflowsParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithBranch adds the branch to the list workflows params
 func (o *ListWorkflowsParams) WithBranch(branch *string) *ListWorkflowsParams {
 	o.SetBranch(branch)
@@ -190,11 +174,6 @@ func (o *ListWorkflowsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

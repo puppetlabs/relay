@@ -66,11 +66,6 @@ type ListWorkflowRunsParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*ID
 	  ID of the workflow whose runs we want to view
 
@@ -126,17 +121,6 @@ func (o *ListWorkflowRunsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the list workflow runs params
-func (o *ListWorkflowRunsParams) WithAuthorization(authorization string) *ListWorkflowRunsParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the list workflow runs params
-func (o *ListWorkflowRunsParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithID adds the id to the list workflow runs params
 func (o *ListWorkflowRunsParams) WithID(id string) *ListWorkflowRunsParams {
 	o.SetID(id)
@@ -158,11 +142,6 @@ func (o *ListWorkflowRunsParams) WriteToRequest(r runtime.ClientRequest, reg str
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 
