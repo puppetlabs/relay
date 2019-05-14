@@ -38,7 +38,6 @@ func (mr *MockRoutes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf := bytes.NewReader(b)
 
-	w.WriteHeader(route.statusCode)
 	w.Header().Set("content-type", "application/json")
 
 	if route.header != nil {
@@ -46,6 +45,8 @@ func (mr *MockRoutes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(k, v)
 		}
 	}
+
+	w.WriteHeader(route.statusCode)
 
 	io.Copy(w, buf)
 }
