@@ -66,11 +66,6 @@ type GetIntegrationParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*ID
 	  ID of the integration to fetch
 
@@ -126,17 +121,6 @@ func (o *GetIntegrationParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the get integration params
-func (o *GetIntegrationParams) WithAuthorization(authorization string) *GetIntegrationParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the get integration params
-func (o *GetIntegrationParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithID adds the id to the get integration params
 func (o *GetIntegrationParams) WithID(id string) *GetIntegrationParams {
 	o.SetID(id)
@@ -158,11 +142,6 @@ func (o *GetIntegrationParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

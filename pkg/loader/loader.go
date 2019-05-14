@@ -41,7 +41,7 @@ func NewFilepathLoader(path string) *FilepathLoader {
 type ImpliedPlanFileLoader struct{}
 
 func (i ImpliedPlanFileLoader) Load(p *workflow.Workflow) errors.Error {
-	impliedPath := filepath.Join(".", "plan.yaml")
+	impliedPath := filepath.Join(".", "workflow.yaml")
 
 	if _, err := os.Stat(impliedPath); err != nil {
 		if os.IsNotExist(err) {

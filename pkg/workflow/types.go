@@ -11,15 +11,16 @@ type Variable struct {
 	Value string `yaml:"value" json:"value"`
 }
 
-type Action struct {
-	Name  string     `yaml:"name" json:"name"`
-	Image string     `yaml:"image" json:"image"`
-	Spec  ActionSpec `yaml:"spec" json:"spec"`
+type Step struct {
+	Name      string   `yaml:"name" json:"name"`
+	Image     string   `yaml:"image" json:"image"`
+	Spec      StepSpec `yaml:"spec" json:"spec"`
+	DependsOn string   `yaml:"depends_on" json:"depends_on"`
 }
 
-type ActionSpec []byte
+type StepSpec []byte
 
-func (a *ActionSpec) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *StepSpec) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var raw map[string]interface{}
 	if err := unmarshal(&raw); err != nil {
 		return err
@@ -30,16 +31,16 @@ func (a *ActionSpec) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	*a = b
+	*s = b
 
 	return nil
 }
 
 type Workflow struct {
-	Version   string      `yaml:"version" json:"version"`
-	Variables []*Variable `yaml:"variables" json:"variables"`
-	Actions   []*Action   `yaml:"actions" json:"actions"`
-	Steps     []string    `yaml:"steps" json:"steps"`
+	Version     string      `yaml:"version" json:"version"`
+	Description string      `yaml:"description" json:"description"`
+	Variables   []*Variable `yaml:"variables" json:"variables"`
+	Steps       []*Step     `yaml:"steps" json:"steps"`
 }
 
 func (w *Workflow) Encode() ([]byte, error) {

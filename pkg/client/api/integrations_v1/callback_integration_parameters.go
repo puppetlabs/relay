@@ -61,16 +61,11 @@ for the callback integration operation typically these are written to a http.Req
 */
 type CallbackIntegrationParams struct {
 
-	/*Code
-	  The access token which github gives us to exchange for a permanent access token
+	/*Accept
+	  The version of the API, in this case should be "application/nebula-api.v1+json"
 
 	*/
-	Code string
-	/*State
-	  A session uuid which is used to validate the authenticity of the request
-
-	*/
-	State string
+	Accept string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -110,26 +105,15 @@ func (o *CallbackIntegrationParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithCode adds the code to the callback integration params
-func (o *CallbackIntegrationParams) WithCode(code string) *CallbackIntegrationParams {
-	o.SetCode(code)
+// WithAccept adds the accept to the callback integration params
+func (o *CallbackIntegrationParams) WithAccept(accept string) *CallbackIntegrationParams {
+	o.SetAccept(accept)
 	return o
 }
 
-// SetCode adds the code to the callback integration params
-func (o *CallbackIntegrationParams) SetCode(code string) {
-	o.Code = code
-}
-
-// WithState adds the state to the callback integration params
-func (o *CallbackIntegrationParams) WithState(state string) *CallbackIntegrationParams {
-	o.SetState(state)
-	return o
-}
-
-// SetState adds the state to the callback integration params
-func (o *CallbackIntegrationParams) SetState(state string) {
-	o.State = state
+// SetAccept adds the accept to the callback integration params
+func (o *CallbackIntegrationParams) SetAccept(accept string) {
+	o.Accept = accept
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -140,22 +124,9 @@ func (o *CallbackIntegrationParams) WriteToRequest(r runtime.ClientRequest, reg 
 	}
 	var res []error
 
-	// query param code
-	qrCode := o.Code
-	qCode := qrCode
-	if qCode != "" {
-		if err := r.SetQueryParam("code", qCode); err != nil {
-			return err
-		}
-	}
-
-	// query param state
-	qrState := o.State
-	qState := qrState
-	if qState != "" {
-		if err := r.SetQueryParam("state", qState); err != nil {
-			return err
-		}
+	// header param Accept
+	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

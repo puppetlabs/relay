@@ -7,7 +7,6 @@ import (
 	logging "github.com/puppetlabs/insights-logging"
 	"github.com/puppetlabs/nebula/pkg/config"
 	"github.com/puppetlabs/nebula/pkg/io"
-	"github.com/puppetlabs/nebula/pkg/loader"
 	"github.com/puppetlabs/nebula/pkg/logger"
 	"github.com/spf13/viper"
 )
@@ -23,11 +22,9 @@ type RuntimeFactory interface {
 	Config() *config.Config
 	IO() *io.IO
 	Logger() logging.Logger
-	PlanLoader() loader.Loader
 	SetConfig(*config.Config)
 	SetIO(*io.IO)
 	SetLogger(logging.Logger)
-	SetPlanLoader(loader.Loader)
 }
 
 func NewRuntimeFactory() (RuntimeFactory, error) {
@@ -35,10 +32,9 @@ func NewRuntimeFactory() (RuntimeFactory, error) {
 }
 
 type StandardRuntime struct {
-	config     *config.Config
-	io         *io.IO
-	logger     logging.Logger
-	planLoader loader.Loader
+	config *config.Config
+	io     *io.IO
+	logger logging.Logger
 }
 
 func (sr *StandardRuntime) Config() *config.Config {
@@ -63,14 +59,6 @@ func (sr *StandardRuntime) Logger() logging.Logger {
 
 func (sr *StandardRuntime) SetLogger(l logging.Logger) {
 	sr.logger = l
-}
-
-func (sr *StandardRuntime) PlanLoader() loader.Loader {
-	return sr.planLoader
-}
-
-func (sr *StandardRuntime) SetPlanLoader(l loader.Loader) {
-	sr.planLoader = l
 }
 
 func NewStandardRuntime() (*StandardRuntime, error) {
@@ -102,10 +90,9 @@ func NewStandardRuntime() (*StandardRuntime, error) {
 	cfg.TokenPath = filepath.Join(cfg.CachePath, "auth-token")
 
 	r := StandardRuntime{
-		config:     &cfg,
-		io:         &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
-		logger:     logger.New(logger.Options{Debug: cfg.Debug}),
-		planLoader: loader.ImpliedPlanFileLoader{},
+		config: &cfg,
+		io:     &io.IO{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
+		logger: logger.New(logger.Options{Debug: cfg.Debug}),
 	}
 
 	return &r, nil

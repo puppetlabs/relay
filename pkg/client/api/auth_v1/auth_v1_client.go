@@ -83,7 +83,7 @@ func (a *Client) CreateUser(params *CreateUserParams) (*CreateUserCreated, error
 /*
 DeleteSession invalidates attached j w t token used likely for logout
 */
-func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionOK, error) {
+func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteSessionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteSessionParams()
@@ -98,6 +98,7 @@ func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionOK, e
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &DeleteSessionReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
@@ -111,7 +112,7 @@ func (a *Client) DeleteSession(params *DeleteSessionParams) (*DeleteSessionOK, e
 /*
 ValidateSession checks if attached j w t token is valid
 */
-func (a *Client) ValidateSession(params *ValidateSessionParams) (*ValidateSessionOK, error) {
+func (a *Client) ValidateSession(params *ValidateSessionParams, authInfo runtime.ClientAuthInfoWriter) (*ValidateSessionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewValidateSessionParams()
@@ -126,6 +127,7 @@ func (a *Client) ValidateSession(params *ValidateSessionParams) (*ValidateSessio
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ValidateSessionReader{formats: a.formats},
+		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
