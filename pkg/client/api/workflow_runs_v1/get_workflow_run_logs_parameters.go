@@ -66,11 +66,6 @@ type GetWorkflowRunLogsParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 	/*Rid
 	  ID of the workflow run we want to know about
 
@@ -126,17 +121,6 @@ func (o *GetWorkflowRunLogsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the get workflow run logs params
-func (o *GetWorkflowRunLogsParams) WithAuthorization(authorization string) *GetWorkflowRunLogsParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the get workflow run logs params
-func (o *GetWorkflowRunLogsParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WithRid adds the rid to the get workflow run logs params
 func (o *GetWorkflowRunLogsParams) WithRid(rid string) *GetWorkflowRunLogsParams {
 	o.SetRid(rid)
@@ -158,11 +142,6 @@ func (o *GetWorkflowRunLogsParams) WriteToRequest(r runtime.ClientRequest, reg s
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

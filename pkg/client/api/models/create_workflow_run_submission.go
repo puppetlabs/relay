@@ -76,11 +76,8 @@ func (m *CreateWorkflowRunSubmission) UnmarshalBinary(b []byte) error {
 // swagger:model CreateWorkflowRunSubmissionWorkflowData
 type CreateWorkflowRunSubmissionWorkflowData struct {
 
-	// actions
-	Actions []interface{} `json:"actions"`
-
 	// steps
-	Steps []string `json:"steps"`
+	Steps []interface{} `json:"steps"`
 
 	// version
 	Version string `json:"version,omitempty"`

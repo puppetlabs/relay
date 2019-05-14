@@ -1,0 +1,26 @@
+version: 1
+description: A fixture for workflow loading test cases
+
+variables:
+- name: TEST_VAR
+  value: nebula-example-1234
+- name: GOOGLE_CLOUD_REGION
+  value: us-west1
+
+steps:
+- name: create-cluster
+  source: nebula.io/nebula-k8s-runner:latest
+  spec:
+    name: example-cluster-1
+    projectID: $GOOGLE_PROJECT_ID
+    region: $GOOGLE_CLOUD_REGION
+
+- name: deploy
+  source: nebula.io/nebula-helm-runner:latest
+  spec:
+    chartPath: helm-chart
+    valuesPath: helm-chart/values.yaml
+    set:
+      image.repository: $(IMAGE_NAME)
+      image.tag: $(IMAGE_TAG)
+  depends_on: create-cluster

@@ -66,11 +66,6 @@ type DeleteSessionParams struct {
 
 	*/
 	Accept string
-	/*Authorization
-	  The JWT bearer token
-
-	*/
-	Authorization string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,17 +116,6 @@ func (o *DeleteSessionParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithAuthorization adds the authorization to the delete session params
-func (o *DeleteSessionParams) WithAuthorization(authorization string) *DeleteSessionParams {
-	o.SetAuthorization(authorization)
-	return o
-}
-
-// SetAuthorization adds the authorization to the delete session params
-func (o *DeleteSessionParams) SetAuthorization(authorization string) {
-	o.Authorization = authorization
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteSessionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -142,11 +126,6 @@ func (o *DeleteSessionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
-		return err
-	}
-
-	// header param Authorization
-	if err := r.SetHeaderParam("Authorization", o.Authorization); err != nil {
 		return err
 	}
 

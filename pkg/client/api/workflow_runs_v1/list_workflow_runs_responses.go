@@ -47,7 +47,7 @@ func NewListWorkflowRunsOK() *ListWorkflowRunsOK {
 An array of workflow runs
 */
 type ListWorkflowRunsOK struct {
-	Payload models.WorkflowRunSummaries
+	Payload *models.WorkflowRunSummaries
 }
 
 func (o *ListWorkflowRunsOK) Error() string {
@@ -56,8 +56,10 @@ func (o *ListWorkflowRunsOK) Error() string {
 
 func (o *ListWorkflowRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.WorkflowRunSummaries)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
