@@ -18,6 +18,7 @@ func TestFilepathLoader(t *testing.T) {
 	require.NoError(t, fpl.Load(&w))
 
 	require.Equal(t, "1", w.Version)
+	require.Equal(t, "A fixture for workflow loading test cases", w.Description)
 
 	require.Len(t, w.Variables, 2)
 	for _, variable := range w.Variables {

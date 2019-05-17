@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/go-openapi/runtime"
@@ -130,9 +129,7 @@ func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) 
 }
 
 func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {
-	dest := filepath.Join(c.cfg.CachePath, defaultTokenFile)
-
-	f, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
+	f, err := os.OpenFile(c.cfg.TokenPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
 	if err != nil {
 		return errors.NewClientTokenStorageError().WithCause(err).Bug()
 	}
@@ -148,9 +145,7 @@ func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {
 
 func (c *APIClient) getToken(ctx context.Context) (*Token, errors.Error) {
 	if c.loadedToken == nil {
-		dest := filepath.Join(c.cfg.CachePath, defaultTokenFile)
-
-		f, err := os.Open(dest)
+		f, err := os.Open(c.cfg.TokenPath)
 		if err != nil {
 			if os.IsNotExist(err) {
 				return nil, errors.NewClientNotLoggedIn()
