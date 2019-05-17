@@ -63,9 +63,7 @@ func withAPIClient(t *testing.T, routes http.Handler, fn func(c *APIClient)) {
 	tmpdir, err := ioutil.TempDir("", "nebula-cli-test")
 	require.NoError(t, err)
 
-	defer func() {
-		os.RemoveAll(tmpdir)
-	}()
+	defer os.RemoveAll(tmpdir)
 
 	testutil.WithTestServer(routes, func(ts *httptest.Server) {
 		c, err := NewAPIClient(&config.Config{
