@@ -1,1 +1,6 @@
 language: go
+go:
+- 1.12.x
+script:
+- go test -mod=vendor ./...
+- go build -mod=vendor ./...
