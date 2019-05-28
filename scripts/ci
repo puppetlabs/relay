@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -uie pipefail
+
+cd "$(dirname "$0")"
+
+./test
+./build

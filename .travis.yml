@@ -1,6 +1,7 @@
 language: go
 go:
 - 1.12.x
+env:
+- GO111MODULE=on
 script:
-- go test -mod=vendor ./...
-- go build -mod=vendor ./...
+- ./scripts/ci
