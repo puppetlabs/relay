@@ -19,9 +19,6 @@ import (
 // swagger:model WorkflowRunStep
 type WorkflowRunStep struct {
 
-	// A user-provided description of the step in question
-	Description string `json:"description,omitempty"`
-
 	// Time at which the step execution ended
 	EndedAt string `json:"ended_at,omitempty"`
 
@@ -35,7 +32,7 @@ type WorkflowRunStep struct {
 
 	// JSON representation of the step specification
 	// Required: true
-	Spec *string `json:"spec"`
+	Spec interface{} `json:"spec"`
 
 	// Time at which step execution started
 	StartedAt string `json:"started_at,omitempty"`

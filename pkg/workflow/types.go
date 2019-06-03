@@ -12,10 +12,10 @@ type Variable struct {
 }
 
 type Step struct {
-	Name      string   `yaml:"name" json:"name"`
-	Image     string   `yaml:"image" json:"image"`
-	Spec      StepSpec `yaml:"spec" json:"spec"`
-	DependsOn string   `yaml:"depends_on" json:"depends_on"`
+	Name      string                 `yaml:"name" json:"name"`
+	Image     string                 `yaml:"image" json:"image"`
+	Spec      map[string]interface{} `yaml:"spec" json:"spec"`
+	DependsOn string                 `yaml:"depends_on" json:"depends_on"`
 }
 
 type StepSpec []byte

@@ -35,10 +35,6 @@ type WorkflowRun struct {
 	// Required: true
 	RunNumber *int64 `json:"run_number"`
 
-	// The raw json representation of the workflow at the time of execution
-	// Required: true
-	Spec *string `json:"spec"`
-
 	// Time at which workflow execution started
 	StartedAt string `json:"started_at,omitempty"`
 
@@ -54,6 +50,12 @@ type WorkflowRun struct {
 	// workflow
 	// Required: true
 	Workflow *Workflow `json:"workflow"`
+
+	// The raw json representation of the workflow at the time of execution
+	WorkflowData interface{} `json:"workflow_data,omitempty"`
+
+	// base 64 encoded yaml representation of the workflow run
+	WorkflowYaml string `json:"workflow_yaml,omitempty"`
 }
 
 // Validate validates this workflow run
@@ -69,10 +71,6 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRunNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSpec(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -115,15 +113,6 @@ func (m *WorkflowRun) validateID(formats strfmt.Registry) error {
 func (m *WorkflowRun) validateRunNumber(formats strfmt.Registry) error {
 
 	if err := validate.Required("run_number", "body", m.RunNumber); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *WorkflowRun) validateSpec(formats strfmt.Registry) error {
-
-	if err := validate.Required("spec", "body", m.Spec); err != nil {
 		return err
 	}
 
