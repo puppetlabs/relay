@@ -54,35 +54,6 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams, authInfo run
 }
 
 /*
-GetWorkflowRunActionLogs returns the logs from a single workflow run action if the action is complete if the action is incomplete it returns null and an incomplete flag
-*/
-func (a *Client) GetWorkflowRunActionLogs(params *GetWorkflowRunActionLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunActionLogsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetWorkflowRunActionLogsParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getWorkflowRunActionLogs",
-		Method:             "GET",
-		PathPattern:        "/api/runs/{rid}/actions/{action_name}/logs",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetWorkflowRunActionLogsReader{formats: a.formats},
-		AuthInfo:           authInfo,
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetWorkflowRunActionLogsOK), nil
-
-}
-
-/*
 GetWorkflowRunLogs returns the logs from an entire workflow execution
 */
 func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunLogsOK, error) {
@@ -108,6 +79,35 @@ func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams, authInfo r
 		return nil, err
 	}
 	return result.(*GetWorkflowRunLogsOK), nil
+
+}
+
+/*
+GetWorkflowRunStepLogs returns the logs from a single workflow run step if the step is complete if the step is incomplete it returns null and an incomplete flag
+*/
+func (a *Client) GetWorkflowRunStepLogs(params *GetWorkflowRunStepLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunStepLogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetWorkflowRunStepLogsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getWorkflowRunStepLogs",
+		Method:             "GET",
+		PathPattern:        "/api/runs/{rid}/steps/{step_name}/logs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetWorkflowRunStepLogsReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetWorkflowRunStepLogsOK), nil
 
 }
 
