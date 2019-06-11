@@ -4,4 +4,13 @@ go:
 env:
 - GO111MODULE=on
 script:
-- ./scripts/ci
+- "./scripts/ci"
+notifications:
+  email: false
+  slack:
+    template:
+    - "<%{compare_url}|%{commit_subject}> | %{author}"
+    - "%{repository_slug} %{branch} | <%{build_url}|#%{build_number}> %{result} in
+      %{elapsed_time}"
+    rooms:
+      secure: zu/MZURvDivl7qapoRAcOtF6yH9zUwr1YqpDObAlF9mAO0z5VllKVVdDZJZ6QwGNzfl5m4MBXLh7PzXex3VXwbXlGYvUbsvUj9cLo2cLqJqtgBQ4DuVVCJXF4Rj/8sNRx4JfquKGE/Yae07MUXdcIJ1FuOoVHpUTNW1eA0SE5LIWRB8WJiBC53jl5itkUOUqh5l43W+8djpDbcds+vyjE9omwuHW2Zxh7TGqXBSCf2LPmjAzL4eZD2yTE8VUNNbKwx6dBGqpS0Y3Ke4R4bvj9PAZUAqG3dxMKUKU0OyJHg/Jkg5ZqVEoghCSZNGpD2aEfB7C5+hWF1A6Ftvs09qd3cGyioSD88Hj7F7hCzgz2Z+rBMmhvXb9cEeX3iDBDMQ+xd7bDL8bmYMSTVFnnqqz+4SewRCo3efbEF9xaBkUfIpal1Ax0XL9PnBHCniKqVkL99v9ERE5maUoD8W/7JwamqG+ija7P2kblNNLB6G+mh75KHmKU5GNB2+QcLtk3WUtxKLP9KqCUc7CZ9pk02nQlkXClG2nbAWo0QyYq1opbjDMmCpLK1FZiPJpL82QleXfw2JuKIVuUfq9bihOwc1AJvJhJDtNTDQMp+j+2kHBwQOy/EXd1HkK4JTt84+JXzurK3UhcH39g03TCvTpDq/dHy69a706OK4CW2kxIyIfO08=
