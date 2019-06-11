@@ -24,6 +24,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd.AddCommand(NewListCommand(rt))
 	cmd.AddCommand(NewCreateCommand(rt))
 	cmd.AddCommand(NewRunCommand(rt))
+	cmd.AddCommand(NewListRunsCommand(rt))
 
 	return cmd
 }
@@ -177,7 +178,62 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			tw := table.NewWriter()
 
 			tw.AppendHeader(table.Row{"#", "ID", "STATUS"})
-			tw.AppendRow(table.Row{string(*run.RunNumber), *run.ID, *run.Status})
+			tw.AppendRow(table.Row{fmt.Sprintf("%d", *run.RunNumber), *run.ID, *run.Status})
+
+			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("filepath", "f", "", "path to a workflow.yaml")
+	cmd.Flags().StringP("workflow-id", "w", "", "the workflow ID to run against")
+
+	return cmd
+}
+
+func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "list-runs",
+		Short:                 "List workflow runs",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			wid, err := cmd.Flags().GetString("workflow-id")
+			if err != nil {
+				return errors.NewWorkflowLoaderError().WithCause(err)
+			}
+
+			if wid == "" {
+				return errors.NewWorkflowCliFlagError("--workflow-id", "required")
+			}
+
+			client, err := client.NewAPIClient(rt.Config())
+			if err != nil {
+				return err
+			}
+
+			wrs, err := client.ListWorkflowRuns(context.Background(), wid)
+			if err != nil {
+				return err
+			}
+
+			tw := table.NewWriter()
+			tw.AppendHeader(table.Row{"#", "ID", "STATUS"})
+
+			for _, run := range wrs.Items {
+				// TODO: temporary defaults until the API fills out the values
+				if run.RunNumber == nil {
+					num := int64(1)
+					run.RunNumber = &num
+				}
+
+				if run.Status == nil {
+					status := "pending"
+					run.Status = &status
+				}
+
+				tw.AppendRow(table.Row{fmt.Sprintf("%d", *run.RunNumber), *run.ID, *run.Status})
+			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
 

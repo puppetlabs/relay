@@ -128,6 +128,20 @@ func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) 
 	return resp.Payload, nil
 }
 
+func (c *APIClient) ListWorkflowRuns(ctx context.Context, id string) (*models.WorkflowRunSummaries, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflowrunsv1.NewListWorkflowRunsParams()
+	params.ID = id
+
+	resp, werr := c.delegate.WorkflowRunsV1.ListWorkflowRuns(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
+}
+
 func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {
 	f, err := os.OpenFile(c.cfg.TokenPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
 	if err != nil {
