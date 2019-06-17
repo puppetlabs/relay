@@ -14,7 +14,8 @@ require (
 	github.com/jedib0t/go-pretty v4.0.3+incompatible
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/puppetlabs/errawr-go v0.0.0-20190227221019-9d988f861cce
+	github.com/puppetlabs/errawr-gen v1.0.0
+	github.com/puppetlabs/errawr-go/v2 v2.0.1
 	github.com/puppetlabs/insights-logging v0.0.0-20180912211921-3b7d3d14cd5b
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1

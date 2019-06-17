@@ -1,11 +1,11 @@
-// +build ignore
+// +build tools
 
 package main
 
 import (
 	"log"
 
-	"github.com/puppetlabs/errawr-gen/generator"
+	"github.com/puppetlabs/errawr-gen/pkg/generator"
 )
 
 func main() {
