@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	logging "github.com/puppetlabs/insights-logging"
+	"github.com/puppetlabs/horsehead/logging"
 	"github.com/puppetlabs/nebula/pkg/config"
 	"github.com/puppetlabs/nebula/pkg/io"
 	"github.com/puppetlabs/nebula/pkg/logger"

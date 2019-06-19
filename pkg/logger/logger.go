@@ -2,7 +2,7 @@ package logger
 
 import (
 	"github.com/inconshreveable/log15"
-	log "github.com/puppetlabs/insights-logging"
+	"github.com/puppetlabs/horsehead/logging"
 )
 
 const (
@@ -14,7 +14,7 @@ type Options struct {
 	Debug bool
 }
 
-func New(opts Options) log.Logger {
+func New(opts Options) logging.Logger {
 	lvl := log15.LvlInfo
 
 	if opts.Debug {
@@ -25,9 +25,9 @@ func New(opts Options) log.Logger {
 		opts.At = []string{defaultAt}
 	}
 
-	log.SetLevel(lvl)
+	logging.SetLevel(lvl)
 
-	logger := log.Builder().At(opts.At...).Build()
+	logger := logging.Builder().At(opts.At...).Build()
 
 	return logger
 }
