@@ -67,9 +67,9 @@ github.com/magiconair/properties
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
 github.com/mailru/easyjson/buffer
-# github.com/mattn/go-colorable v0.1.1
+# github.com/mattn/go-colorable v0.1.2
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.7
+# github.com/mattn/go-isatty v0.0.8
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.4
 github.com/mattn/go-runewidth
@@ -85,12 +85,13 @@ github.com/puppetlabs/errawr-gen/pkg/doc
 github.com/puppetlabs/errawr-gen/pkg/lang/golang
 github.com/puppetlabs/errawr-gen/pkg/errors
 github.com/puppetlabs/errawr-gen/pkg/util/fs
-# github.com/puppetlabs/errawr-go/v2 v2.0.1
+# github.com/puppetlabs/errawr-go/v2 v2.1.0
 github.com/puppetlabs/errawr-go/v2/pkg/errawr
 github.com/puppetlabs/errawr-go/v2/pkg/impl
 github.com/puppetlabs/errawr-go/v2/pkg/golang
-# github.com/puppetlabs/insights-logging v0.0.0-20180912211921-3b7d3d14cd5b
-github.com/puppetlabs/insights-logging
+# github.com/puppetlabs/horsehead v1.4.0
+github.com/puppetlabs/horsehead/logging
+github.com/puppetlabs/horsehead/logging/handler
 # github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50
 github.com/reflect/raymond
 github.com/reflect/raymond/ast

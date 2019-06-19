@@ -23,7 +23,6 @@ var (
 func formatWithArguments(template string, arguments map[string]interface{}) string {
 	parsed, err := raymond.ParseWithOptions(template, raymond.TemplateOptions{NoEscape: true})
 	if err != nil {
-		log().Error("Failed to parse error template.", "template", template, "error", err)
 		return template
 	}
 
@@ -31,7 +30,6 @@ func formatWithArguments(template string, arguments map[string]interface{}) stri
 
 	result, err := parsed.Exec(arguments)
 	if err != nil {
-		log().Error("Failed to render error template.", "template", template, "error", err)
 		return template
 	}
 
