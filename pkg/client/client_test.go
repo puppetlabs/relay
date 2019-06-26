@@ -140,20 +140,16 @@ func TestWorkflowList(t *testing.T) {
 }
 
 func TestWorkflowRun(t *testing.T) {
-	wf := makeWorkflowFileFixture()
 	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
 	wfrm := makeWorkflowRunFixture(wfm)
 
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows/name/runs", http.StatusCreated, wfrm, nil)
 
-	wfb, err := wf.Encode()
-	require.NoError(t, err)
-
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wfr, err := c.RunWorkflow(context.Background(), "name", wfb)
+		wfr, err := c.RunWorkflow(context.Background(), "name")
 		require.NoError(t, err, "could not run workflow")
 		require.Equal(t, *wfr.Status, "pending")
 		require.Equal(t, *wfr.ID, "wfr-1")

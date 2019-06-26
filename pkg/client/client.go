@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"net/url"
 	"os"
 	"strings"
@@ -108,19 +107,11 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, name string, repo string
 	return resp.Payload, nil
 }
 
-func (c *APIClient) RunWorkflow(ctx context.Context, name string, content []byte) (*models.WorkflowRun, errors.Error) {
+func (c *APIClient) RunWorkflow(ctx context.Context, name string) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
-
-	wfm := models.CreateWorkflowRunSubmissionWorkflowData{}
-	if err := json.Unmarshal(content, &wfm); err != nil {
-		// this is an error we will use long-term, but it's being used in a terrible way at the moment.
-		// TODO: work with the API team to make this hand-off a lot less clunky.
-		return nil, errors.NewClientValidateWorkflowError().WithCause(err)
-	}
 
 	params := workflowrunsv1.NewCreateWorkflowRunParams()
 	params.WorkflowName = name
-	params.Body = &models.CreateWorkflowRunSubmission{WorkflowData: &wfm}
 
 	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params, auth)
 	if werr != nil {
