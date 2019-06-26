@@ -110,6 +110,93 @@ func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.Cli
 }
 
 /*
+GetUser gets a user
+*/
+func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoWriter) (*GetUserOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetUserParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getUser",
+		Method:             "GET",
+		PathPattern:        "/auth/users/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetUserReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetUserOK), nil
+
+}
+
+/*
+UpdateUser updates a user
+*/
+func (a *Client) UpdateUser(params *UpdateUserParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateUserParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateUser",
+		Method:             "PUT",
+		PathPattern:        "/auth/users/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateUserReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateUserOK), nil
+
+}
+
+/*
+UpdateUserPassword updates a user s password
+*/
+func (a *Client) UpdateUserPassword(params *UpdateUserPasswordParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserPasswordOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateUserPasswordParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateUserPassword",
+		Method:             "POST",
+		PathPattern:        "/auth/users/{id}/change-password",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateUserPasswordReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateUserPasswordOK), nil
+
+}
+
+/*
 ValidateSession checks if attached j w t token is valid
 */
 func (a *Client) ValidateSession(params *ValidateSessionParams, authInfo runtime.ClientAuthInfoWriter) (*ValidateSessionOK, error) {

@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -66,16 +67,21 @@ type GetWorkflowRunStepLogsParams struct {
 
 	*/
 	Accept string
-	/*Rid
-	  ID of the workflow run we want to know about
+	/*RunNumber
+	  Inrecrmented run number of the associated workflow
 
 	*/
-	Rid string
+	RunNumber int64
 	/*StepName
 	  Unique workflow step name
 
 	*/
 	StepName string
+	/*WorkflowName
+	  Workflow name. Must be unique within a user account
+
+	*/
+	WorkflowName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -126,15 +132,15 @@ func (o *GetWorkflowRunStepLogsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithRid adds the rid to the get workflow run step logs params
-func (o *GetWorkflowRunStepLogsParams) WithRid(rid string) *GetWorkflowRunStepLogsParams {
-	o.SetRid(rid)
+// WithRunNumber adds the runNumber to the get workflow run step logs params
+func (o *GetWorkflowRunStepLogsParams) WithRunNumber(runNumber int64) *GetWorkflowRunStepLogsParams {
+	o.SetRunNumber(runNumber)
 	return o
 }
 
-// SetRid adds the rid to the get workflow run step logs params
-func (o *GetWorkflowRunStepLogsParams) SetRid(rid string) {
-	o.Rid = rid
+// SetRunNumber adds the runNumber to the get workflow run step logs params
+func (o *GetWorkflowRunStepLogsParams) SetRunNumber(runNumber int64) {
+	o.RunNumber = runNumber
 }
 
 // WithStepName adds the stepName to the get workflow run step logs params
@@ -146,6 +152,17 @@ func (o *GetWorkflowRunStepLogsParams) WithStepName(stepName string) *GetWorkflo
 // SetStepName adds the stepName to the get workflow run step logs params
 func (o *GetWorkflowRunStepLogsParams) SetStepName(stepName string) {
 	o.StepName = stepName
+}
+
+// WithWorkflowName adds the workflowName to the get workflow run step logs params
+func (o *GetWorkflowRunStepLogsParams) WithWorkflowName(workflowName string) *GetWorkflowRunStepLogsParams {
+	o.SetWorkflowName(workflowName)
+	return o
+}
+
+// SetWorkflowName adds the workflowName to the get workflow run step logs params
+func (o *GetWorkflowRunStepLogsParams) SetWorkflowName(workflowName string) {
+	o.WorkflowName = workflowName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -161,13 +178,18 @@ func (o *GetWorkflowRunStepLogsParams) WriteToRequest(r runtime.ClientRequest, r
 		return err
 	}
 
-	// path param rid
-	if err := r.SetPathParam("rid", o.Rid); err != nil {
+	// path param run_number
+	if err := r.SetPathParam("run_number", swag.FormatInt64(o.RunNumber)); err != nil {
 		return err
 	}
 
 	// path param step_name
 	if err := r.SetPathParam("step_name", o.StepName); err != nil {
+		return err
+	}
+
+	// path param workflow_name
+	if err := r.SetPathParam("workflow_name", o.WorkflowName); err != nil {
 		return err
 	}
 

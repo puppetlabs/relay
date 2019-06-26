@@ -13,28 +13,34 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreateWorkflowSubmission Required fields to create a new workflow entry
-// swagger:model CreateWorkflowSubmission
-type CreateWorkflowSubmission struct {
+// WorkflowSubmission Required fields to create or update a workflow entry
+// swagger:model WorkflowSubmission
+type WorkflowSubmission struct {
 
-	// Git branch on which the workflow definition file lives
+	// The branch on which we should look for the workflow yaml
+	Branch string `json:"branch,omitempty"`
+
+	// User provided friendly workflow description
+	Description string `json:"description,omitempty"`
+
+	// name
 	// Required: true
-	Branch *string `json:"branch"`
+	Name WorkflowName `json:"name"`
 
 	// Relative path from the repository root to the workflow file
 	// Required: true
 	Path *string `json:"path"`
 
-	// A git repository url
+	// A git repository url.
 	// Required: true
 	Repository *string `json:"repository"`
 }
 
-// Validate validates this create workflow submission
-func (m *CreateWorkflowSubmission) Validate(formats strfmt.Registry) error {
+// Validate validates this workflow submission
+func (m *WorkflowSubmission) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateBranch(formats); err != nil {
+	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -52,16 +58,19 @@ func (m *CreateWorkflowSubmission) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateWorkflowSubmission) validateBranch(formats strfmt.Registry) error {
+func (m *WorkflowSubmission) validateName(formats strfmt.Registry) error {
 
-	if err := validate.Required("branch", "body", m.Branch); err != nil {
+	if err := m.Name.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("name")
+		}
 		return err
 	}
 
 	return nil
 }
 
-func (m *CreateWorkflowSubmission) validatePath(formats strfmt.Registry) error {
+func (m *WorkflowSubmission) validatePath(formats strfmt.Registry) error {
 
 	if err := validate.Required("path", "body", m.Path); err != nil {
 		return err
@@ -70,7 +79,7 @@ func (m *CreateWorkflowSubmission) validatePath(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateWorkflowSubmission) validateRepository(formats strfmt.Registry) error {
+func (m *WorkflowSubmission) validateRepository(formats strfmt.Registry) error {
 
 	if err := validate.Required("repository", "body", m.Repository); err != nil {
 		return err
@@ -80,7 +89,7 @@ func (m *CreateWorkflowSubmission) validateRepository(formats strfmt.Registry) e
 }
 
 // MarshalBinary interface implementation
-func (m *CreateWorkflowSubmission) MarshalBinary() ([]byte, error) {
+func (m *WorkflowSubmission) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -88,8 +97,8 @@ func (m *CreateWorkflowSubmission) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *CreateWorkflowSubmission) UnmarshalBinary(b []byte) error {
-	var res CreateWorkflowSubmission
+func (m *WorkflowSubmission) UnmarshalBinary(b []byte) error {
+	var res WorkflowSubmission
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

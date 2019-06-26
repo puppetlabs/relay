@@ -17,6 +17,11 @@ import (
 // swagger:model CreateUserSubmission
 type CreateUserSubmission struct {
 
+	// New timestamp of when T&C accepted
+	// Required: true
+	// Format: date-time
+	AcceptedTermsAt *strfmt.DateTime `json:"accepted_terms_at"`
+
 	// New user email
 	// Required: true
 	Email *string `json:"email"`
@@ -34,6 +39,10 @@ type CreateUserSubmission struct {
 func (m *CreateUserSubmission) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAcceptedTermsAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmail(formats); err != nil {
 		res = append(res, err)
 	}
@@ -49,6 +58,19 @@ func (m *CreateUserSubmission) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreateUserSubmission) validateAcceptedTermsAt(formats strfmt.Registry) error {
+
+	if err := validate.Required("accepted_terms_at", "body", m.AcceptedTermsAt); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("accepted_terms_at", "body", "date-time", m.AcceptedTermsAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

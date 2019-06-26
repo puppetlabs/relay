@@ -47,11 +47,11 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 			tw := table.NewWriter()
 
-			tw.AppendHeader(table.Row{"ID", "WORKFLOW"})
+			tw.AppendHeader(table.Row{"NAME", "WORKFLOW"})
 			for _, wf := range index.Items {
 				p := []string{*wf.Repository, *wf.Branch, *wf.Path}
 
-				tw.AppendRow(table.Row{*wf.ID, strings.Join(p, "/")})
+				tw.AppendRow(table.Row{wf.Name, strings.Join(p, "/")})
 			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
@@ -69,6 +69,15 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Create workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+
 			repo, err := cmd.Flags().GetString("repository")
 			if err != nil {
 				return err
@@ -101,7 +110,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if _, err = client.CreateWorkflow(context.Background(), repo, branch, path); err != nil {
+			if _, err = client.CreateWorkflow(context.Background(), name, repo, branch, path); err != nil {
 				return err
 			}
 
@@ -111,6 +120,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringP("name", "n", "", "workflow name")
 	cmd.Flags().StringP("repository", "r", "", "name of the repository")
 	cmd.Flags().StringP("branch", "b", "", "name of the branch")
 	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")
@@ -133,13 +143,13 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--filepath", "required")
 			}
 
-			wid, err := cmd.Flags().GetString("workflow-id")
+			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return errors.NewWorkflowLoaderError().WithCause(err)
 			}
 
-			if wid == "" {
-				return errors.NewWorkflowCliFlagError("--workflow-id", "required")
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
 			client, err := client.NewAPIClient(rt.Config())
@@ -159,7 +169,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			run, err := client.RunWorkflow(context.Background(), wid, b)
+			run, err := client.RunWorkflow(context.Background(), name, b)
 			if err != nil {
 				return err
 			}
@@ -187,7 +197,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("filepath", "f", "", "path to a workflow.yaml")
-	cmd.Flags().StringP("workflow-id", "w", "", "the workflow ID to run against")
+	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
 
 	return cmd
 }
@@ -198,13 +208,13 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List workflow runs",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			wid, err := cmd.Flags().GetString("workflow-id")
+			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return errors.NewWorkflowLoaderError().WithCause(err)
 			}
 
-			if wid == "" {
-				return errors.NewWorkflowCliFlagError("--workflow-id", "required")
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
 			client, err := client.NewAPIClient(rt.Config())
@@ -212,7 +222,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			wrs, err := client.ListWorkflowRuns(context.Background(), wid)
+			wrs, err := client.ListWorkflowRuns(context.Background(), name)
 			if err != nil {
 				return err
 			}
@@ -242,7 +252,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("filepath", "f", "", "path to a workflow.yaml")
-	cmd.Flags().StringP("workflow-id", "w", "", "the workflow ID to run against")
+	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
 
 	return cmd
 }

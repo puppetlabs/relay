@@ -19,9 +19,6 @@ import (
 // swagger:model WorkflowRunSummary
 type WorkflowRunSummary struct {
 
-	// User provided workflow description
-	Description string `json:"description,omitempty"`
-
 	// Time at which the workflow execution ended
 	EndedAt string `json:"ended_at,omitempty"`
 

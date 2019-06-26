@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -66,11 +67,16 @@ type GetWorkflowRunLogsParams struct {
 
 	*/
 	Accept string
-	/*Rid
-	  ID of the workflow run we want to know about
+	/*RunNumber
+	  Inrecrmented run number of the associated workflow
 
 	*/
-	Rid string
+	RunNumber int64
+	/*WorkflowName
+	  Workflow name. Must be unique within a user account
+
+	*/
+	WorkflowName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,15 +127,26 @@ func (o *GetWorkflowRunLogsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithRid adds the rid to the get workflow run logs params
-func (o *GetWorkflowRunLogsParams) WithRid(rid string) *GetWorkflowRunLogsParams {
-	o.SetRid(rid)
+// WithRunNumber adds the runNumber to the get workflow run logs params
+func (o *GetWorkflowRunLogsParams) WithRunNumber(runNumber int64) *GetWorkflowRunLogsParams {
+	o.SetRunNumber(runNumber)
 	return o
 }
 
-// SetRid adds the rid to the get workflow run logs params
-func (o *GetWorkflowRunLogsParams) SetRid(rid string) {
-	o.Rid = rid
+// SetRunNumber adds the runNumber to the get workflow run logs params
+func (o *GetWorkflowRunLogsParams) SetRunNumber(runNumber int64) {
+	o.RunNumber = runNumber
+}
+
+// WithWorkflowName adds the workflowName to the get workflow run logs params
+func (o *GetWorkflowRunLogsParams) WithWorkflowName(workflowName string) *GetWorkflowRunLogsParams {
+	o.SetWorkflowName(workflowName)
+	return o
+}
+
+// SetWorkflowName adds the workflowName to the get workflow run logs params
+func (o *GetWorkflowRunLogsParams) SetWorkflowName(workflowName string) {
+	o.WorkflowName = workflowName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,8 +162,13 @@ func (o *GetWorkflowRunLogsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 
-	// path param rid
-	if err := r.SetPathParam("rid", o.Rid); err != nil {
+	// path param run_number
+	if err := r.SetPathParam("run_number", swag.FormatInt64(o.RunNumber)); err != nil {
+		return err
+	}
+
+	// path param workflow_name
+	if err := r.SetPathParam("workflow_name", o.WorkflowName); err != nil {
 		return err
 	}
 

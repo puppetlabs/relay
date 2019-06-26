@@ -30,12 +30,12 @@ func makeWorkflowFileFixture() *workflow.Workflow {
 	return &workflow.Workflow{}
 }
 
-func makeWorkflowFixture(id, repository, branch, path string) *models.Workflow {
+func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow {
 	createdAt := time.Now().String()
 	updatedAt := time.Now().String()
 
 	return &models.Workflow{
-		ID:         &id,
+		Name:       models.WorkflowName(name),
 		Repository: &repository,
 		Branch:     &branch,
 		Path:       &path,
@@ -45,17 +45,15 @@ func makeWorkflowFixture(id, repository, branch, path string) *models.Workflow {
 }
 
 func makeWorkflowRunFixture(wfm *models.Workflow) *models.WorkflowRun {
-	desc := "test description"
 	id := "wfr-1"
 	runNum := int64(1)
 	status := "pending"
 
 	return &models.WorkflowRun{
-		Description: &desc,
-		ID:          &id,
-		RunNumber:   &runNum,
-		Status:      &status,
-		Workflow:    wfm,
+		ID:        &id,
+		RunNumber: &runNum,
+		Status:    &status,
+		Workflow:  wfm,
 	}
 }
 
@@ -102,7 +100,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestWorkflowCreate(t *testing.T) {
-	wfm := makeWorkflowFixture("id1234", "repo1", "branch1", "workflow.yaml")
+	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
 
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows", http.StatusCreated, wfm, nil)
@@ -110,9 +108,9 @@ func TestWorkflowCreate(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wf, err := c.CreateWorkflow(context.Background(), "repo1", "branch1", "workflow.yaml")
+		wf, err := c.CreateWorkflow(context.Background(), "name", "repo1", "branch1", "workflow.yaml")
 		require.NoError(t, err, "could not create workflow")
-		require.Equal(t, *wf.ID, "id1234")
+		require.Equal(t, wf.Name, models.WorkflowName("name"))
 		require.Equal(t, *wf.Repository, "repo1")
 	})
 }
@@ -121,7 +119,7 @@ func TestWorkflowList(t *testing.T) {
 	wfl := &models.Workflows{}
 
 	for i := 0; i < 10; i++ {
-		wfm := makeWorkflowFixture(fmt.Sprintf("id-%d", i), "repo", "branch", fmt.Sprintf("workflow-%d.yaml", i))
+		wfm := makeWorkflowFixture("name", "repo", "branch", fmt.Sprintf("workflow-%d.yaml", i))
 		wfl.Items = append(wfl.Items, wfm)
 	}
 
@@ -136,18 +134,18 @@ func TestWorkflowList(t *testing.T) {
 
 		for i := 0; i < 10; i++ {
 			wf := wfl.Items[i]
-			require.Equal(t, *wf.ID, fmt.Sprintf("id-%d", i))
+			require.Equal(t, wf.Name, models.WorkflowName("name"))
 		}
 	})
 }
 
 func TestWorkflowRun(t *testing.T) {
 	wf := makeWorkflowFileFixture()
-	wfm := makeWorkflowFixture("wf-1", "repo1", "branch1", "workflow.yaml")
+	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
 	wfrm := makeWorkflowRunFixture(wfm)
 
 	routes := &testutil.MockRoutes{}
-	routes.Add("/api/workflows/wf-1/runs", http.StatusCreated, wfrm, nil)
+	routes.Add("/api/workflows/name/runs", http.StatusCreated, wfrm, nil)
 
 	wfb, err := wf.Encode()
 	require.NoError(t, err)
@@ -155,10 +153,10 @@ func TestWorkflowRun(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wfr, err := c.RunWorkflow(context.Background(), "wf-1", wfb)
+		wfr, err := c.RunWorkflow(context.Background(), "name", wfb)
 		require.NoError(t, err, "could not run workflow")
-		require.Equal(t, *wfr.ID, "wfr-1")
 		require.Equal(t, *wfr.Status, "pending")
-		require.Equal(t, *wfr.Workflow.ID, "wf-1")
+		require.Equal(t, *wfr.ID, "wfr-1")
+		require.Equal(t, wfr.Workflow.Name, models.WorkflowName("name"))
 	})
 }

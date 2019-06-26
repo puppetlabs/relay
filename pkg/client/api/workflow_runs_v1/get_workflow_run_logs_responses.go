@@ -51,7 +51,7 @@ type GetWorkflowRunLogsOK struct {
 }
 
 func (o *GetWorkflowRunLogsOK) Error() string {
-	return fmt.Sprintf("[GET /api/runs/{rid}/logs][%d] getWorkflowRunLogsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/workflows/{workflow_name}/runs/{run_number}/logs][%d] getWorkflowRunLogsOK  %+v", 200, o.Payload)
 }
 
 func (o *GetWorkflowRunLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

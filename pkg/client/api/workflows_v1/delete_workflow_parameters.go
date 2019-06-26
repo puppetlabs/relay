@@ -66,11 +66,11 @@ type DeleteWorkflowParams struct {
 
 	*/
 	Accept string
-	/*ID
-	  ID of the workflow to delete
+	/*WorkflowName
+	  Workflow name. Must be unique within a user account
 
 	*/
-	ID string
+	WorkflowName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,15 +121,15 @@ func (o *DeleteWorkflowParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithID adds the id to the delete workflow params
-func (o *DeleteWorkflowParams) WithID(id string) *DeleteWorkflowParams {
-	o.SetID(id)
+// WithWorkflowName adds the workflowName to the delete workflow params
+func (o *DeleteWorkflowParams) WithWorkflowName(workflowName string) *DeleteWorkflowParams {
+	o.SetWorkflowName(workflowName)
 	return o
 }
 
-// SetID adds the id to the delete workflow params
-func (o *DeleteWorkflowParams) SetID(id string) {
-	o.ID = id
+// SetWorkflowName adds the workflowName to the delete workflow params
+func (o *DeleteWorkflowParams) SetWorkflowName(workflowName string) {
+	o.WorkflowName = workflowName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,8 +145,8 @@ func (o *DeleteWorkflowParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 
-	// path param id
-	if err := r.SetPathParam("id", o.ID); err != nil {
+	// path param workflow_name
+	if err := r.SetPathParam("workflow_name", o.WorkflowName); err != nil {
 		return err
 	}
 

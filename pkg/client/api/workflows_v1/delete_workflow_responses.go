@@ -51,7 +51,7 @@ type DeleteWorkflowOK struct {
 }
 
 func (o *DeleteWorkflowOK) Error() string {
-	return fmt.Sprintf("[DELETE /api/workflows/{id}][%d] deleteWorkflowOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /api/workflows/{workflow_name}][%d] deleteWorkflowOK  %+v", 200, o.Payload)
 }
 
 func (o *DeleteWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

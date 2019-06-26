@@ -17,9 +17,18 @@ import (
 // swagger:model User
 type User struct {
 
+	// Timestamp of when T&C accepted
+	// Required: true
+	// Format: date-time
+	AcceptedTermsAt *strfmt.DateTime `json:"accepted_terms_at"`
+
 	// User email
 	// Required: true
 	Email *string `json:"email"`
+
+	// ID of the user
+	// Required: true
+	ID *string `json:"id"`
 
 	// User name
 	// Required: true
@@ -30,7 +39,15 @@ type User struct {
 func (m *User) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAcceptedTermsAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEmail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -44,9 +61,31 @@ func (m *User) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *User) validateAcceptedTermsAt(formats strfmt.Registry) error {
+
+	if err := validate.Required("accepted_terms_at", "body", m.AcceptedTermsAt); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("accepted_terms_at", "body", "date-time", m.AcceptedTermsAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *User) validateEmail(formats strfmt.Registry) error {
 
 	if err := validate.Required("email", "body", m.Email); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *User) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
 	}
 

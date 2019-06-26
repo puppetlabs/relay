@@ -51,7 +51,7 @@ type ListWorkflowRunsOK struct {
 }
 
 func (o *ListWorkflowRunsOK) Error() string {
-	return fmt.Sprintf("[GET /api/workflows/{id}/runs][%d] listWorkflowRunsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/workflows/{workflow_name}/runs][%d] listWorkflowRunsOK  %+v", 200, o.Payload)
 }
 
 func (o *ListWorkflowRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

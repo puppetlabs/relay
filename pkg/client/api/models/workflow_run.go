@@ -20,10 +20,6 @@ import (
 // swagger:model WorkflowRun
 type WorkflowRun struct {
 
-	// User provided workflow description
-	// Required: true
-	Description *string `json:"description"`
-
 	// Time at which the workflow execution ended
 	EndedAt string `json:"ended_at,omitempty"`
 
@@ -31,7 +27,7 @@ type WorkflowRun struct {
 	// Required: true
 	ID *string `json:"id"`
 
-	// Ordered index of this run of the corresponding workflow instance
+	// Incremented run number of the associated workflow
 	// Required: true
 	RunNumber *int64 `json:"run_number"`
 
@@ -62,10 +58,6 @@ type WorkflowRun struct {
 func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDescription(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -89,15 +81,6 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *WorkflowRun) validateDescription(formats strfmt.Registry) error {
-
-	if err := validate.Required("description", "body", m.Description); err != nil {
-		return err
-	}
-
 	return nil
 }
 

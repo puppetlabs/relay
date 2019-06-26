@@ -15,6 +15,7 @@ import (
 	"github.com/puppetlabs/nebula/pkg/client/api/integrations_v1"
 	"github.com/puppetlabs/nebula/pkg/client/api/priv"
 	"github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
+	"github.com/puppetlabs/nebula/pkg/client/api/workflow_secrets_v1"
 	"github.com/puppetlabs/nebula/pkg/client/api/workflows_v1"
 )
 
@@ -68,6 +69,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 	cli.Priv = priv.New(transport, formats)
 
 	cli.WorkflowRunsV1 = workflow_runs_v1.New(transport, formats)
+
+	cli.WorkflowSecretsV1 = workflow_secrets_v1.New(transport, formats)
 
 	cli.WorkflowsV1 = workflows_v1.New(transport, formats)
 
@@ -123,6 +126,8 @@ type Nebula struct {
 
 	WorkflowRunsV1 *workflow_runs_v1.Client
 
+	WorkflowSecretsV1 *workflow_secrets_v1.Client
+
 	WorkflowsV1 *workflows_v1.Client
 
 	Transport runtime.ClientTransport
@@ -139,6 +144,8 @@ func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 	c.Priv.SetTransport(transport)
 
 	c.WorkflowRunsV1.SetTransport(transport)
+
+	c.WorkflowSecretsV1.SetTransport(transport)
 
 	c.WorkflowsV1.SetTransport(transport)
 

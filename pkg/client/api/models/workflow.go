@@ -17,7 +17,7 @@ import (
 // swagger:model Workflow
 type Workflow struct {
 
-	// Git branch on which the workflow definition file lives
+	// Git branch on which the workflow definition file lives. By default we will pick the default branch of the repository
 	// Required: true
 	Branch *string `json:"branch"`
 
@@ -25,9 +25,16 @@ type Workflow struct {
 	// Required: true
 	CreatedAt *string `json:"created_at"`
 
+	// User provided friendly workflow description
+	Description string `json:"description,omitempty"`
+
 	// Workflow id
 	// Required: true
 	ID *string `json:"id"`
+
+	// name
+	// Required: true
+	Name WorkflowName `json:"name"`
 
 	// Relative path from the repository root to the workflow file
 	// Required: true
@@ -55,6 +62,10 @@ func (m *Workflow) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -97,6 +108,18 @@ func (m *Workflow) validateCreatedAt(formats strfmt.Registry) error {
 func (m *Workflow) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Workflow) validateName(formats strfmt.Registry) error {
+
+	if err := m.Name.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("name")
+		}
 		return err
 	}
 

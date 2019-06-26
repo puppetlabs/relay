@@ -66,11 +66,11 @@ type ListWorkflowRunsParams struct {
 
 	*/
 	Accept string
-	/*ID
-	  ID of the workflow whose runs we want to view
+	/*WorkflowName
+	  Workflow name. Must be unique within a user account
 
 	*/
-	ID string
+	WorkflowName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,15 +121,15 @@ func (o *ListWorkflowRunsParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithID adds the id to the list workflow runs params
-func (o *ListWorkflowRunsParams) WithID(id string) *ListWorkflowRunsParams {
-	o.SetID(id)
+// WithWorkflowName adds the workflowName to the list workflow runs params
+func (o *ListWorkflowRunsParams) WithWorkflowName(workflowName string) *ListWorkflowRunsParams {
+	o.SetWorkflowName(workflowName)
 	return o
 }
 
-// SetID adds the id to the list workflow runs params
-func (o *ListWorkflowRunsParams) SetID(id string) {
-	o.ID = id
+// SetWorkflowName adds the workflowName to the list workflow runs params
+func (o *ListWorkflowRunsParams) SetWorkflowName(workflowName string) {
+	o.WorkflowName = workflowName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,8 +145,8 @@ func (o *ListWorkflowRunsParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 
-	// path param id
-	if err := r.SetPathParam("id", o.ID); err != nil {
+	// path param workflow_name
+	if err := r.SetPathParam("workflow_name", o.WorkflowName); err != nil {
 		return err
 	}
 

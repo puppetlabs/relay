@@ -72,12 +72,12 @@ type UpdateWorkflowParams struct {
 	  Workflow attrs to update
 
 	*/
-	Body *models.CreateWorkflowSubmission
-	/*ID
-	  ID of the workflow to update
+	Body *models.WorkflowSubmission
+	/*WorkflowName
+	  Workflow name. Must be unique within a user account
 
 	*/
-	ID string
+	WorkflowName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -129,25 +129,25 @@ func (o *UpdateWorkflowParams) SetAccept(accept string) {
 }
 
 // WithBody adds the body to the update workflow params
-func (o *UpdateWorkflowParams) WithBody(body *models.CreateWorkflowSubmission) *UpdateWorkflowParams {
+func (o *UpdateWorkflowParams) WithBody(body *models.WorkflowSubmission) *UpdateWorkflowParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the update workflow params
-func (o *UpdateWorkflowParams) SetBody(body *models.CreateWorkflowSubmission) {
+func (o *UpdateWorkflowParams) SetBody(body *models.WorkflowSubmission) {
 	o.Body = body
 }
 
-// WithID adds the id to the update workflow params
-func (o *UpdateWorkflowParams) WithID(id string) *UpdateWorkflowParams {
-	o.SetID(id)
+// WithWorkflowName adds the workflowName to the update workflow params
+func (o *UpdateWorkflowParams) WithWorkflowName(workflowName string) *UpdateWorkflowParams {
+	o.SetWorkflowName(workflowName)
 	return o
 }
 
-// SetID adds the id to the update workflow params
-func (o *UpdateWorkflowParams) SetID(id string) {
-	o.ID = id
+// SetWorkflowName adds the workflowName to the update workflow params
+func (o *UpdateWorkflowParams) SetWorkflowName(workflowName string) {
+	o.WorkflowName = workflowName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -169,8 +169,8 @@ func (o *UpdateWorkflowParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 	}
 
-	// path param id
-	if err := r.SetPathParam("id", o.ID); err != nil {
+	// path param workflow_name
+	if err := r.SetPathParam("workflow_name", o.WorkflowName); err != nil {
 		return err
 	}
 
