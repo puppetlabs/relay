@@ -58,7 +58,7 @@ type CreateSessionOK struct {
 	 */
 	Authorization string
 
-	Payload *models.GenericSuccess
+	Payload *models.User
 }
 
 func (o *CreateSessionOK) Error() string {
@@ -70,7 +70,7 @@ func (o *CreateSessionOK) readResponse(response runtime.ClientResponse, consumer
 	// response header Authorization
 	o.Authorization = response.GetHeader("Authorization")
 
-	o.Payload = new(models.GenericSuccess)
+	o.Payload = new(models.User)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

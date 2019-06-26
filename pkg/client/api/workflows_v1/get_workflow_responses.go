@@ -16,17 +16,17 @@ import (
 	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
-// UpdateWorkflowReader is a Reader for the UpdateWorkflow structure.
-type UpdateWorkflowReader struct {
+// GetWorkflowReader is a Reader for the GetWorkflow structure.
+type GetWorkflowReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdateWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewUpdateWorkflowOK()
+		result := NewGetWorkflowOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *UpdateWorkflowReader) ReadResponse(response runtime.ClientResponse, con
 	}
 }
 
-// NewUpdateWorkflowOK creates a UpdateWorkflowOK with default headers values
-func NewUpdateWorkflowOK() *UpdateWorkflowOK {
-	return &UpdateWorkflowOK{}
+// NewGetWorkflowOK creates a GetWorkflowOK with default headers values
+func NewGetWorkflowOK() *GetWorkflowOK {
+	return &GetWorkflowOK{}
 }
 
-/*UpdateWorkflowOK handles this case with default header values.
+/*GetWorkflowOK handles this case with default header values.
 
-Update successful
+Workflow detail
 */
-type UpdateWorkflowOK struct {
+type GetWorkflowOK struct {
 	Payload *models.Workflow
 }
 
-func (o *UpdateWorkflowOK) Error() string {
-	return fmt.Sprintf("[PUT /api/workflows/{workflow_name}][%d] updateWorkflowOK  %+v", 200, o.Payload)
+func (o *GetWorkflowOK) Error() string {
+	return fmt.Sprintf("[GET /api/workflows/{workflow_name}][%d] getWorkflowOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.Workflow)
 

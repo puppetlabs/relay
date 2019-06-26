@@ -72,7 +72,7 @@ type CreateWorkflowParams struct {
 	  Workflow to create
 
 	*/
-	Body *models.CreateWorkflowSubmission
+	Body *models.WorkflowSubmission
 
 	timeout    time.Duration
 	Context    context.Context
@@ -124,13 +124,13 @@ func (o *CreateWorkflowParams) SetAccept(accept string) {
 }
 
 // WithBody adds the body to the create workflow params
-func (o *CreateWorkflowParams) WithBody(body *models.CreateWorkflowSubmission) *CreateWorkflowParams {
+func (o *CreateWorkflowParams) WithBody(body *models.WorkflowSubmission) *CreateWorkflowParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create workflow params
-func (o *CreateWorkflowParams) SetBody(body *models.CreateWorkflowSubmission) {
+func (o *CreateWorkflowParams) SetBody(body *models.WorkflowSubmission) {
 	o.Body = body
 }
 

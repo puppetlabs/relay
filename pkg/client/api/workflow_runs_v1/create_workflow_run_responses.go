@@ -51,7 +51,7 @@ type CreateWorkflowRunCreated struct {
 }
 
 func (o *CreateWorkflowRunCreated) Error() string {
-	return fmt.Sprintf("[POST /api/workflows/{id}/runs][%d] createWorkflowRunCreated  %+v", 201, o.Payload)
+	return fmt.Sprintf("[POST /api/workflows/{workflow_name}/runs][%d] createWorkflowRunCreated  %+v", 201, o.Payload)
 }
 
 func (o *CreateWorkflowRunCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -88,13 +88,15 @@ func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, error
 	return response.Payload, nil
 }
 
-func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path string) (*models.Workflow, errors.Error) {
+func (c *APIClient) CreateWorkflow(ctx context.Context, name string, repo string, branch string, path string) (*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowsv1.NewCreateWorkflowParams()
-	params.Body = &models.CreateWorkflowSubmission{
+
+	params.Body = &models.WorkflowSubmission{
+		Name:       models.WorkflowName(name),
 		Repository: &repo,
-		Branch:     &branch,
+		Branch:     branch,
 		Path:       &path,
 	}
 
@@ -106,7 +108,7 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, repo, branch, path strin
 	return resp.Payload, nil
 }
 
-func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) (*models.WorkflowRun, errors.Error) {
+func (c *APIClient) RunWorkflow(ctx context.Context, name string, content []byte) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	wfm := models.CreateWorkflowRunSubmissionWorkflowData{}
@@ -117,7 +119,7 @@ func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) 
 	}
 
 	params := workflowrunsv1.NewCreateWorkflowRunParams()
-	params.ID = id
+	params.WorkflowName = name
 	params.Body = &models.CreateWorkflowRunSubmission{WorkflowData: &wfm}
 
 	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params, auth)
@@ -128,11 +130,11 @@ func (c *APIClient) RunWorkflow(ctx context.Context, id string, content []byte) 
 	return resp.Payload, nil
 }
 
-func (c *APIClient) ListWorkflowRuns(ctx context.Context, id string) (*models.WorkflowRunSummaries, errors.Error) {
+func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) (*models.WorkflowRunSummaries, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowrunsv1.NewListWorkflowRunsParams()
-	params.ID = id
+	params.WorkflowName = name
 
 	resp, werr := c.delegate.WorkflowRunsV1.ListWorkflowRuns(params, auth)
 	if werr != nil {

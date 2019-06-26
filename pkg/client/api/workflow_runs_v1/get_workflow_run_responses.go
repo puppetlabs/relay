@@ -16,17 +16,17 @@ import (
 	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
-// ShowWorkflowRunReader is a Reader for the ShowWorkflowRun structure.
-type ShowWorkflowRunReader struct {
+// GetWorkflowRunReader is a Reader for the GetWorkflowRun structure.
+type GetWorkflowRunReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ShowWorkflowRunReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetWorkflowRunReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewShowWorkflowRunOK()
+		result := NewGetWorkflowRunOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *ShowWorkflowRunReader) ReadResponse(response runtime.ClientResponse, co
 	}
 }
 
-// NewShowWorkflowRunOK creates a ShowWorkflowRunOK with default headers values
-func NewShowWorkflowRunOK() *ShowWorkflowRunOK {
-	return &ShowWorkflowRunOK{}
+// NewGetWorkflowRunOK creates a GetWorkflowRunOK with default headers values
+func NewGetWorkflowRunOK() *GetWorkflowRunOK {
+	return &GetWorkflowRunOK{}
 }
 
-/*ShowWorkflowRunOK handles this case with default header values.
+/*GetWorkflowRunOK handles this case with default header values.
 
 An array of workflow runs
 */
-type ShowWorkflowRunOK struct {
+type GetWorkflowRunOK struct {
 	Payload *models.WorkflowRun
 }
 
-func (o *ShowWorkflowRunOK) Error() string {
-	return fmt.Sprintf("[GET /api/runs/{id}][%d] showWorkflowRunOK  %+v", 200, o.Payload)
+func (o *GetWorkflowRunOK) Error() string {
+	return fmt.Sprintf("[GET /api/workflows/{workflow_name}/runs/{run_number}][%d] getWorkflowRunOK  %+v", 200, o.Payload)
 }
 
-func (o *ShowWorkflowRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetWorkflowRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.WorkflowRun)
 
