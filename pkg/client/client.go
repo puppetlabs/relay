@@ -87,16 +87,17 @@ func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, error
 	return response.Payload, nil
 }
 
-func (c *APIClient) CreateWorkflow(ctx context.Context, name string, repo string, branch string, path string) (*models.Workflow, errors.Error) {
+func (c *APIClient) CreateWorkflow(ctx context.Context, name string, description string, repo string, branch string, path string) (*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowsv1.NewCreateWorkflowParams()
 
 	params.Body = &models.WorkflowSubmission{
-		Name:       models.WorkflowName(name),
-		Repository: &repo,
-		Branch:     branch,
-		Path:       &path,
+		Name:        models.WorkflowName(name),
+		Description: description,
+		Repository:  &repo,
+		Branch:      branch,
+		Path:        &path,
 	}
 
 	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params, auth)

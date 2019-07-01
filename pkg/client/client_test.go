@@ -108,7 +108,7 @@ func TestWorkflowCreate(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wf, err := c.CreateWorkflow(context.Background(), "name", "repo1", "branch1", "workflow.yaml")
+		wf, err := c.CreateWorkflow(context.Background(), "name", "description", "repo1", "branch1", "workflow.yaml")
 		require.NoError(t, err, "could not create workflow")
 		require.Equal(t, wf.Name, models.WorkflowName("name"))
 		require.Equal(t, *wf.Repository, "repo1")

@@ -76,6 +76,11 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
+			description, err := cmd.Flags().GetString("description")
+			if err != nil {
+				return err
+			}
+
 			repo, err := cmd.Flags().GetString("repository")
 			if err != nil {
 				return err
@@ -108,7 +113,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if _, err = client.CreateWorkflow(context.Background(), name, repo, branch, path); err != nil {
+			if _, err = client.CreateWorkflow(context.Background(), name, description, repo, branch, path); err != nil {
 				return err
 			}
 
@@ -119,6 +124,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("name", "n", "", "workflow name")
+	cmd.Flags().StringP("description", "d", "", "workflow description")
 	cmd.Flags().StringP("repository", "r", "", "name of the repository")
 	cmd.Flags().StringP("branch", "b", "", "name of the branch")
 	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")
