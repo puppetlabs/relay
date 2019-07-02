@@ -38,7 +38,7 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams, authInfo run
 		Method:             "POST",
 		PathPattern:        "/api/workflows/{workflow_name}/runs",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &CreateWorkflowRunReader{formats: a.formats},

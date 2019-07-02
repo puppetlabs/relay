@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
 // NewCreateWorkflowRunParams creates a new CreateWorkflowRunParams object
@@ -68,11 +66,6 @@ type CreateWorkflowRunParams struct {
 
 	*/
 	Accept string
-	/*Body
-	  Workflow to create
-
-	*/
-	Body *models.CreateWorkflowRunSubmission
 	/*WorkflowName
 	  Workflow name. Must be unique within a user account
 
@@ -128,17 +121,6 @@ func (o *CreateWorkflowRunParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithBody adds the body to the create workflow run params
-func (o *CreateWorkflowRunParams) WithBody(body *models.CreateWorkflowRunSubmission) *CreateWorkflowRunParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the create workflow run params
-func (o *CreateWorkflowRunParams) SetBody(body *models.CreateWorkflowRunSubmission) {
-	o.Body = body
-}
-
 // WithWorkflowName adds the workflowName to the create workflow run params
 func (o *CreateWorkflowRunParams) WithWorkflowName(workflowName string) *CreateWorkflowRunParams {
 	o.SetWorkflowName(workflowName)
@@ -161,12 +143,6 @@ func (o *CreateWorkflowRunParams) WriteToRequest(r runtime.ClientRequest, reg st
 	// header param Accept
 	if err := r.SetHeaderParam("Accept", o.Accept); err != nil {
 		return err
-	}
-
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
 	}
 
 	// path param workflow_name

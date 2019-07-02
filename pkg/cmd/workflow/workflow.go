@@ -9,8 +9,6 @@ import (
 	"github.com/puppetlabs/nebula/pkg/client"
 	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
 	"github.com/puppetlabs/nebula/pkg/errors"
-	"github.com/puppetlabs/nebula/pkg/loader"
-	"github.com/puppetlabs/nebula/pkg/workflow"
 	"github.com/spf13/cobra"
 )
 
@@ -78,6 +76,11 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
+			description, err := cmd.Flags().GetString("description")
+			if err != nil {
+				return err
+			}
+
 			repo, err := cmd.Flags().GetString("repository")
 			if err != nil {
 				return err
@@ -110,7 +113,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if _, err = client.CreateWorkflow(context.Background(), name, repo, branch, path); err != nil {
+			if _, err = client.CreateWorkflow(context.Background(), name, description, repo, branch, path); err != nil {
 				return err
 			}
 
@@ -121,6 +124,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("name", "n", "", "workflow name")
+	cmd.Flags().StringP("description", "d", "", "workflow description")
 	cmd.Flags().StringP("repository", "r", "", "name of the repository")
 	cmd.Flags().StringP("branch", "b", "", "name of the branch")
 	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")
@@ -134,15 +138,6 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Run workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			path, err := cmd.Flags().GetString("filepath")
-			if err != nil {
-				return errors.NewWorkflowLoaderError().WithCause(err)
-			}
-
-			if path == "" {
-				return errors.NewWorkflowCliFlagError("--filepath", "required")
-			}
-
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return errors.NewWorkflowLoaderError().WithCause(err)
@@ -157,19 +152,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			wfl := loader.NewFilepathLoader(path)
-			wf := workflow.Workflow{}
-
-			if err := wfl.Load(&wf); err != nil {
-				return err
-			}
-
-			b, err := wf.Encode()
-			if err != nil {
-				return err
-			}
-
-			run, err := client.RunWorkflow(context.Background(), name, b)
+			run, err := client.RunWorkflow(context.Background(), name)
 			if err != nil {
 				return err
 			}
@@ -196,7 +179,6 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("filepath", "f", "", "path to a workflow.yaml")
 	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
 
 	return cmd
