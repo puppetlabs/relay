@@ -1,0 +1,28 @@
+plugins:
+  -
+    - '@semantic-release/commit-analyzer'
+    - preset: eslint
+  -
+    - '@semantic-release/release-notes-generator'
+    - preset: eslint
+  -
+    - '@semantic-release/changelog'
+    - changelogFile: CHANGELOG.md
+  -
+    - '@semantic-release/git'
+    - assets:
+      - CHANGELOG.md
+      message: >
+        Chore: Release ${nextRelease.version}
+
+        ${nextRelease.notes}
+  -
+    - '@semantic-release/exec'
+    - prepareCmd: make dist
+  -
+    - '@semantic-release/github'
+    - assets:
+      - 'artifacts/*'
+      successComment: false
+      failComment: false
+      releasedLabels: false
