@@ -9,6 +9,10 @@ plugins:
     - '@semantic-release/changelog'
     - changelogFile: CHANGELOG.md
   -
+    - '@semantic-release/exec'
+    - prepareCmd: >
+        make CLI_DIST_VERSION=${nextRelease.gitTag} dist
+  -
     - '@semantic-release/git'
     - assets:
       - CHANGELOG.md
@@ -16,9 +20,6 @@ plugins:
         Chore: Release ${nextRelease.version}
 
         ${nextRelease.notes}
-  -
-    - '@semantic-release/exec'
-    - prepareCmd: make dist
   -
     - '@semantic-release/github'
     - assets:

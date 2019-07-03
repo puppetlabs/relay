@@ -26,7 +26,7 @@ CLI_DIST_TARGETS ?= linux-amd64 linux-386 linux-arm64 linux-ppc64le linux-s390x 
 #
 
 CLI_DIST_NAME := nebula-cli
-CLI_DIST_VERSION := $(shell $(GIT) describe --tags --always --dirty)
+CLI_DIST_VERSION ?= $(shell $(GIT) describe --tags --always --dirty)
 
 DEPEND_DIR := .depend
 ARTIFACTS_DIR := artifacts
