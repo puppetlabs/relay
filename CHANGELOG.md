@@ -1,3 +1,14 @@
+## [1.0.1](https://github.com/puppetlabs/nebula-cli/compare/v1.0.0...v1.0.1) (2019-07-03)
+
+
+### Chore
+
+* Release 1.0.0 ([1a64ea78fce057f19af7dff677434a84fbb6e4ae](https://github.com/puppetlabs/nebula-cli/commit/1a64ea78fce057f19af7dff677434a84fbb6e4ae))
+
+### Fix
+
+* Use the correct version when building binaries ([ee7af2e798471a2bd227ae36daad33ba361b4b34](https://github.com/puppetlabs/nebula-cli/commit/ee7af2e798471a2bd227ae36daad33ba361b4b34))
+
 # 1.0.0 (2019-07-03)
 
 
