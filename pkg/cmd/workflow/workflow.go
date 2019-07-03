@@ -140,7 +140,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return errors.NewWorkflowLoaderError().WithCause(err)
+				return err
 			}
 
 			if name == "" {
@@ -192,7 +192,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return errors.NewWorkflowLoaderError().WithCause(err)
+				return err
 			}
 
 			if name == "" {

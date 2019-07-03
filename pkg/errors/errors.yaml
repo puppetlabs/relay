@@ -49,60 +49,12 @@ sections:
         title: Not logged in
         description: not logged in
 
-  plan:
-    title: Plan errors
-    errors:
-      workflow_not_found:
-        title: Workflow not found
-        description: workflow {{ name }} was not found and there is no default
-        arguments:
-          name:
-            description: the name of the workflow
-      loader_error:
-        title: Loader error
-        description: an error occurred while loading the plan
-      file_not_found:
-        title: File not found
-        description: filepath `{{path}}` does not exist
-        arguments:
-          path:
-            description: the path that doesn't exist
-
   workflow:
     title: Workflow errors
     errors:
       unknown_runtime_error:
         title: Unknown runtime error
         description: "an unknown error occurred"
-      no_command_to_execute_error:
-        title: No command available to execute
-        description: A valid command was not found to execute
-      unknown_command_execution_error:
-        title: Unknown command execution error
-        description: something unexpected happened with command exection
-        arguments:
-          error_string:
-            description: Error being thrown
-          command_string:
-            description: Command being executed
-      loader_error:
-        title: Loader error
-        description: an error occurred while loading the workflow
-      file_not_found:
-        title: File not found
-        description: filepath `{{path}}` does not exist
-        arguments:
-          path:
-            description: the path that doesn't exist
-      missing_filepath_error:
-        title: Missing filepath error
-        description: filepath is required
-      runner_not_found:
-        title: Runner not found
-        description: the runner `{{kind}}` was not found
-        arguments:
-          kind:
-            description: the kind of runner that was not found
       cli_flag_error:
         title: CLI flag error
         description: "could not validate flag {{ flag }}: {{ msg }}"

@@ -74,12 +74,16 @@ depend-client: pkg/client/api/nebula_client.go
 .PHONY: depend
 depend: depend-client
 
+.PHONY: generate
+generate:
+	$(GO) generate ./...
+
 .PHONY: build
-build: depend $(BIN_DIR)
+build: generate depend $(BIN_DIR)
 	$(GO) build $(GOFLAGS) -o $(BIN_DIR)/$(CLI_DIST_NAME) ./cmd/nebula
 
 .PHONY: test
-test: depend
+test: generate depend
 	$(GO) test $(GOFLAGS) ./...
 
 .PHONY: dist
