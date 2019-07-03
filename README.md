@@ -2,14 +2,13 @@
 
 ## Usage
 ```bash
-./nebula -h
+./bin/nebula-cli -h
 ```
 
 ## Build
 
 ```bash
-make client
-make build
+make
 ```
 
 ## Configure

@@ -1,2 +1,6 @@
-bin/
+/.depend/
+/artifacts/
+/bin/
+/node_modules/
+
 *~
