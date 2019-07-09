@@ -14,7 +14,6 @@ import (
 	"github.com/puppetlabs/nebula/pkg/client/api/models"
 	"github.com/puppetlabs/nebula/pkg/client/testutil"
 	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/workflow"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,10 +23,6 @@ func fakeLogin(t *testing.T, c *APIClient) {
 
 	_, err = f.Write([]byte("token"))
 	require.NoError(t, err)
-}
-
-func makeWorkflowFileFixture() *workflow.Workflow {
-	return &workflow.Workflow{}
 }
 
 func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow {
