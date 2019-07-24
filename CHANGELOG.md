@@ -1,3 +1,14 @@
+# [1.1.0](https://github.com/puppetlabs/nebula-cli/compare/v1.0.1...v1.1.0) (2019-07-24)
+
+
+### Chore
+
+* Removing unused workflow file loading. (#4) ([257e0aa05a76c5954d88b120a761b142b104a18f](https://github.com/puppetlabs/nebula-cli/commit/257e0aa05a76c5954d88b120a761b142b104a18f)), closes [#4](https://github.com/puppetlabs/nebula-cli/issues/4)
+
+### New
+
+* Add ability to set secrets on a workflow ([35fdadc51bd7ffa781b2b6f168840b10ef0ef8fe](https://github.com/puppetlabs/nebula-cli/commit/35fdadc51bd7ffa781b2b6f168840b10ef0ef8fe))
+
 ## [1.0.1](https://github.com/puppetlabs/nebula-cli/compare/v1.0.0...v1.0.1) (2019-07-03)
 
 
