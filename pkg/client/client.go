@@ -13,6 +13,7 @@ import (
 	authv1 "github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
 	"github.com/puppetlabs/nebula/pkg/client/api/models"
 	workflowrunsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
+	workflowsecretsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_secrets_v1"
 	workflowsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflows_v1"
 	"github.com/puppetlabs/nebula/pkg/config"
 	"github.com/puppetlabs/nebula/pkg/errors"
@@ -131,6 +132,44 @@ func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) (*models.
 	resp, werr := c.delegate.WorkflowRunsV1.ListWorkflowRuns(params, auth)
 	if werr != nil {
 		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
+}
+
+func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflowsecretsv1.NewCreateWorkflowSecretParams()
+	params.WorkflowName = name
+	params.Body = &models.CreateSecret{
+		Key:   key,
+		Value: value,
+	}
+
+	resp, werr := c.delegate.WorkflowSecretsV1.CreateWorkflowSecret(params, auth)
+	if _, ok := werr.(*workflowsecretsv1.CreateWorkflowSecretConflict); ok {
+		return nil, errors.NewClientWorkflowSecretAlreadyExistsError(key)
+	} else if werr != nil {
+		return nil, errors.NewClientCreateWorkflowSecretError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
+}
+
+func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflowsecretsv1.NewUpdateSecretByKeyAndWorkflowIDParams()
+	params.WorkflowName = name
+	params.SecretKey = key
+	params.Body = &models.UpdateSecret{
+		Value: value,
+	}
+
+	resp, werr := c.delegate.WorkflowSecretsV1.UpdateSecretByKeyAndWorkflowID(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientUpdateWorkflowSecretError().WithCause(werr)
 	}
 
 	return resp.Payload, nil

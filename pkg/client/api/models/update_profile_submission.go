@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateUserSubmission The editable fields of a nebula user
-// swagger:model UpdateUserSubmission
-type UpdateUserSubmission struct {
+// UpdateProfileSubmission The editable fields of a Nebula user's profile
+// swagger:model UpdateProfileSubmission
+type UpdateProfileSubmission struct {
 
 	// Updated timestamp of when T&C accepted
 	// Format: date-time
@@ -25,8 +25,8 @@ type UpdateUserSubmission struct {
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this update user submission
-func (m *UpdateUserSubmission) Validate(formats strfmt.Registry) error {
+// Validate validates this update profile submission
+func (m *UpdateProfileSubmission) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAcceptedTermsAt(formats); err != nil {
@@ -39,7 +39,7 @@ func (m *UpdateUserSubmission) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateUserSubmission) validateAcceptedTermsAt(formats strfmt.Registry) error {
+func (m *UpdateProfileSubmission) validateAcceptedTermsAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.AcceptedTermsAt) { // not required
 		return nil
@@ -53,7 +53,7 @@ func (m *UpdateUserSubmission) validateAcceptedTermsAt(formats strfmt.Registry) 
 }
 
 // MarshalBinary interface implementation
-func (m *UpdateUserSubmission) MarshalBinary() ([]byte, error) {
+func (m *UpdateProfileSubmission) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -61,8 +61,8 @@ func (m *UpdateUserSubmission) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdateUserSubmission) UnmarshalBinary(b []byte) error {
-	var res UpdateUserSubmission
+func (m *UpdateProfileSubmission) UnmarshalBinary(b []byte) error {
+	var res UpdateProfileSubmission
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -83,34 +83,6 @@ func (a *Client) DeleteSecretByKeyAndWorkflowID(params *DeleteSecretByKeyAndWork
 }
 
 /*
-GetReferencedSecrets returns all the secrets referenced by the workflow yaml when it was run at the given run numer
-*/
-func (a *Client) GetReferencedSecrets(params *GetReferencedSecretsParams) (*GetReferencedSecretsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetReferencedSecretsParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getReferencedSecrets",
-		Method:             "GET",
-		PathPattern:        "/api/workflows/{workflow_name}/runs/{run_number}/secrets",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetReferencedSecretsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetReferencedSecretsOK), nil
-
-}
-
-/*
 ListWorkflowSecrets gets all secrets associated with given workflow id
 */
 func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo runtime.ClientAuthInfoWriter) (*ListWorkflowSecretsOK, error) {

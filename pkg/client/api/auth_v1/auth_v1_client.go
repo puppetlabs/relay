@@ -110,23 +110,23 @@ func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.Cli
 }
 
 /*
-GetUser gets a user
+GetProfile gets the currently authenticated user s profile
 */
-func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoWriter) (*GetUserOK, error) {
+func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetUserParams()
+		params = NewGetProfileParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getUser",
+		ID:                 "getProfile",
 		Method:             "GET",
-		PathPattern:        "/auth/users/{id}",
+		PathPattern:        "/auth/profile",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &GetUserReader{formats: a.formats},
+		Reader:             &GetProfileReader{formats: a.formats},
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
@@ -134,28 +134,28 @@ func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoW
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetUserOK), nil
+	return result.(*GetProfileOK), nil
 
 }
 
 /*
-UpdateUser updates a user
+UpdateProfile updates the currently authenticated user s profile
 */
-func (a *Client) UpdateUser(params *UpdateUserParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserOK, error) {
+func (a *Client) UpdateProfile(params *UpdateProfileParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfileOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateUserParams()
+		params = NewUpdateProfileParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateUser",
+		ID:                 "updateProfile",
 		Method:             "PUT",
-		PathPattern:        "/auth/users/{id}",
+		PathPattern:        "/auth/profile",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdateUserReader{formats: a.formats},
+		Reader:             &UpdateProfileReader{formats: a.formats},
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
@@ -163,28 +163,28 @@ func (a *Client) UpdateUser(params *UpdateUserParams, authInfo runtime.ClientAut
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateUserOK), nil
+	return result.(*UpdateProfileOK), nil
 
 }
 
 /*
-UpdateUserPassword updates a user s password
+UpdateProfilePassword updates your password
 */
-func (a *Client) UpdateUserPassword(params *UpdateUserPasswordParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserPasswordOK, error) {
+func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePasswordOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateUserPasswordParams()
+		params = NewUpdateProfilePasswordParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateUserPassword",
-		Method:             "POST",
-		PathPattern:        "/auth/users/{id}/change-password",
+		ID:                 "updateProfilePassword",
+		Method:             "PUT",
+		PathPattern:        "/auth/profile/password",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdateUserPasswordReader{formats: a.formats},
+		Reader:             &UpdateProfilePasswordReader{formats: a.formats},
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
@@ -192,7 +192,7 @@ func (a *Client) UpdateUserPassword(params *UpdateUserPasswordParams, authInfo r
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateUserPasswordOK), nil
+	return result.(*UpdateProfilePasswordOK), nil
 
 }
 
