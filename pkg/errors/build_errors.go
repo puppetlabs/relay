@@ -128,6 +128,54 @@ func NewClientCreateWorkflowError() Error {
 	return NewClientCreateWorkflowErrorBuilder().Build()
 }
 
+// ClientCreateWorkflowSecretErrorCode is the code for an instance of "create_workflow_secret_error".
+const ClientCreateWorkflowSecretErrorCode = "neb_client_create_workflow_secret_error"
+
+// IsClientCreateWorkflowSecretError tests whether a given error is an instance of "create_workflow_secret_error".
+func IsClientCreateWorkflowSecretError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientCreateWorkflowSecretErrorCode)
+}
+
+// IsClientCreateWorkflowSecretError tests whether a given error is an instance of "create_workflow_secret_error".
+func (External) IsClientCreateWorkflowSecretError(err errawr.Error) bool {
+	return IsClientCreateWorkflowSecretError(err)
+}
+
+// ClientCreateWorkflowSecretErrorBuilder is a builder for "create_workflow_secret_error" errors.
+type ClientCreateWorkflowSecretErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "create_workflow_secret_error" from this builder.
+func (b *ClientCreateWorkflowSecretErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error creating the workflow secret",
+		Technical: "there was an error creating the workflow secret",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "create_workflow_secret_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Create workflow secret error",
+		Version:          1,
+	}
+}
+
+// NewClientCreateWorkflowSecretErrorBuilder creates a new error builder for the code "create_workflow_secret_error".
+func NewClientCreateWorkflowSecretErrorBuilder() *ClientCreateWorkflowSecretErrorBuilder {
+	return &ClientCreateWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientCreateWorkflowSecretError creates a new error with the code "create_workflow_secret_error".
+func NewClientCreateWorkflowSecretError() Error {
+	return NewClientCreateWorkflowSecretErrorBuilder().Build()
+}
+
 // ClientInvalidAPIHostCode is the code for an instance of "invalid_api_host".
 const ClientInvalidAPIHostCode = "neb_client_invalid_api_host"
 
@@ -512,6 +560,54 @@ func NewClientTokenStorageError() Error {
 	return NewClientTokenStorageErrorBuilder().Build()
 }
 
+// ClientUpdateWorkflowSecretErrorCode is the code for an instance of "update_workflow_secret_error".
+const ClientUpdateWorkflowSecretErrorCode = "neb_client_update_workflow_secret_error"
+
+// IsClientUpdateWorkflowSecretError tests whether a given error is an instance of "update_workflow_secret_error".
+func IsClientUpdateWorkflowSecretError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUpdateWorkflowSecretErrorCode)
+}
+
+// IsClientUpdateWorkflowSecretError tests whether a given error is an instance of "update_workflow_secret_error".
+func (External) IsClientUpdateWorkflowSecretError(err errawr.Error) bool {
+	return IsClientUpdateWorkflowSecretError(err)
+}
+
+// ClientUpdateWorkflowSecretErrorBuilder is a builder for "update_workflow_secret_error" errors.
+type ClientUpdateWorkflowSecretErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "update_workflow_secret_error" from this builder.
+func (b *ClientUpdateWorkflowSecretErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error updating the workflow secret",
+		Technical: "there was an error updating the workflow secret",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "update_workflow_secret_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Update workflow secret error",
+		Version:          1,
+	}
+}
+
+// NewClientUpdateWorkflowSecretErrorBuilder creates a new error builder for the code "update_workflow_secret_error".
+func NewClientUpdateWorkflowSecretErrorBuilder() *ClientUpdateWorkflowSecretErrorBuilder {
+	return &ClientUpdateWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientUpdateWorkflowSecretError creates a new error with the code "update_workflow_secret_error".
+func NewClientUpdateWorkflowSecretError() Error {
+	return NewClientUpdateWorkflowSecretErrorBuilder().Build()
+}
+
 // ClientValidateWorkflowErrorCode is the code for an instance of "validate_workflow_error".
 const ClientValidateWorkflowErrorCode = "neb_client_validate_workflow_error"
 
@@ -558,6 +654,54 @@ func NewClientValidateWorkflowErrorBuilder() *ClientValidateWorkflowErrorBuilder
 // NewClientValidateWorkflowError creates a new error with the code "validate_workflow_error".
 func NewClientValidateWorkflowError() Error {
 	return NewClientValidateWorkflowErrorBuilder().Build()
+}
+
+// ClientWorkflowSecretAlreadyExistsErrorCode is the code for an instance of "workflow_secret_already_exists_error".
+const ClientWorkflowSecretAlreadyExistsErrorCode = "neb_client_workflow_secret_already_exists_error"
+
+// IsClientWorkflowSecretAlreadyExistsError tests whether a given error is an instance of "workflow_secret_already_exists_error".
+func IsClientWorkflowSecretAlreadyExistsError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientWorkflowSecretAlreadyExistsErrorCode)
+}
+
+// IsClientWorkflowSecretAlreadyExistsError tests whether a given error is an instance of "workflow_secret_already_exists_error".
+func (External) IsClientWorkflowSecretAlreadyExistsError(err errawr.Error) bool {
+	return IsClientWorkflowSecretAlreadyExistsError(err)
+}
+
+// ClientWorkflowSecretAlreadyExistsErrorBuilder is a builder for "workflow_secret_already_exists_error" errors.
+type ClientWorkflowSecretAlreadyExistsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "workflow_secret_already_exists_error" from this builder.
+func (b *ClientWorkflowSecretAlreadyExistsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The workflow secret identified by {{pre key}} already exists.",
+		Technical: "The workflow secret identified by {{pre key}} already exists.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "workflow_secret_already_exists_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Workflow secret already exists",
+		Version:          1,
+	}
+}
+
+// NewClientWorkflowSecretAlreadyExistsErrorBuilder creates a new error builder for the code "workflow_secret_already_exists_error".
+func NewClientWorkflowSecretAlreadyExistsErrorBuilder(key string) *ClientWorkflowSecretAlreadyExistsErrorBuilder {
+	return &ClientWorkflowSecretAlreadyExistsErrorBuilder{arguments: impl.ErrorArguments{"key": impl.NewErrorArgument(key, "the key of the secret")}}
+}
+
+// NewClientWorkflowSecretAlreadyExistsError creates a new error with the code "workflow_secret_already_exists_error".
+func NewClientWorkflowSecretAlreadyExistsError(key string) Error {
+	return NewClientWorkflowSecretAlreadyExistsErrorBuilder(key).Build()
 }
 
 // WorkflowSection defines a section of errors with the following scope:
@@ -616,6 +760,54 @@ func NewWorkflowCliFlagErrorBuilder(flag string, msg string) *WorkflowCliFlagErr
 // NewWorkflowCliFlagError creates a new error with the code "cli_flag_error".
 func NewWorkflowCliFlagError(flag string, msg string) Error {
 	return NewWorkflowCliFlagErrorBuilder(flag, msg).Build()
+}
+
+// WorkflowSecretValueNotSpecifiedErrorCode is the code for an instance of "secret_value_not_specified_error".
+const WorkflowSecretValueNotSpecifiedErrorCode = "neb_workflow_secret_value_not_specified_error"
+
+// IsWorkflowSecretValueNotSpecifiedError tests whether a given error is an instance of "secret_value_not_specified_error".
+func IsWorkflowSecretValueNotSpecifiedError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowSecretValueNotSpecifiedErrorCode)
+}
+
+// IsWorkflowSecretValueNotSpecifiedError tests whether a given error is an instance of "secret_value_not_specified_error".
+func (External) IsWorkflowSecretValueNotSpecifiedError(err errawr.Error) bool {
+	return IsWorkflowSecretValueNotSpecifiedError(err)
+}
+
+// WorkflowSecretValueNotSpecifiedErrorBuilder is a builder for "secret_value_not_specified_error" errors.
+type WorkflowSecretValueNotSpecifiedErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "secret_value_not_specified_error" from this builder.
+func (b *WorkflowSecretValueNotSpecifiedErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "You did not provide a secret value.",
+		Technical: "You did not provide a secret value.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "secret_value_not_specified_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Secret value not specified",
+		Version:          1,
+	}
+}
+
+// NewWorkflowSecretValueNotSpecifiedErrorBuilder creates a new error builder for the code "secret_value_not_specified_error".
+func NewWorkflowSecretValueNotSpecifiedErrorBuilder() *WorkflowSecretValueNotSpecifiedErrorBuilder {
+	return &WorkflowSecretValueNotSpecifiedErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowSecretValueNotSpecifiedError creates a new error with the code "secret_value_not_specified_error".
+func NewWorkflowSecretValueNotSpecifiedError() Error {
+	return NewWorkflowSecretValueNotSpecifiedErrorBuilder().Build()
 }
 
 // WorkflowUnknownRuntimeErrorCode is the code for an instance of "unknown_runtime_error".

@@ -19,6 +19,15 @@ import (
 // swagger:model WorkflowRunStep
 type WorkflowRunStep struct {
 
+	// Command arguments
+	Args []string `json:"args"`
+
+	// Command to issue
+	Command string `json:"command,omitempty"`
+
+	// Step names that must complete before this one starts
+	DependsOn []string `json:"depends_on"`
+
 	// Time at which the step execution ended
 	EndedAt string `json:"ended_at,omitempty"`
 
@@ -26,13 +35,15 @@ type WorkflowRunStep struct {
 	// Required: true
 	Image *string `json:"image"`
 
+	// Input script to execute
+	Input []string `json:"input"`
+
 	// A user provided step name. Must be unique within the workflow definition
 	// Required: true
 	Name *string `json:"name"`
 
-	// JSON representation of the step specification
-	// Required: true
-	Spec interface{} `json:"spec"`
+	// Variable specification data to provide to the container
+	Spec interface{} `json:"spec,omitempty"`
 
 	// Time at which step execution started
 	StartedAt string `json:"started_at,omitempty"`
@@ -52,10 +63,6 @@ func (m *WorkflowRunStep) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSpec(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -81,15 +88,6 @@ func (m *WorkflowRunStep) validateImage(formats strfmt.Registry) error {
 func (m *WorkflowRunStep) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *WorkflowRunStep) validateSpec(formats strfmt.Registry) error {
-
-	if err := validate.Required("spec", "body", m.Spec); err != nil {
 		return err
 	}
 

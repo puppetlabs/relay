@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdatePasswordSubmission a nebula user password object
-// swagger:model UpdatePasswordSubmission
-type UpdatePasswordSubmission struct {
+// PutChangePasswordEnvelope a nebula user password object
+// swagger:model PutChangePasswordEnvelope
+type PutChangePasswordEnvelope struct {
 
 	// Current user password
 	// Required: true
@@ -26,8 +26,8 @@ type UpdatePasswordSubmission struct {
 	NewPassword *string `json:"new_password"`
 }
 
-// Validate validates this update password submission
-func (m *UpdatePasswordSubmission) Validate(formats strfmt.Registry) error {
+// Validate validates this put change password envelope
+func (m *PutChangePasswordEnvelope) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCurrentPassword(formats); err != nil {
@@ -44,7 +44,7 @@ func (m *UpdatePasswordSubmission) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdatePasswordSubmission) validateCurrentPassword(formats strfmt.Registry) error {
+func (m *PutChangePasswordEnvelope) validateCurrentPassword(formats strfmt.Registry) error {
 
 	if err := validate.Required("current_password", "body", m.CurrentPassword); err != nil {
 		return err
@@ -53,7 +53,7 @@ func (m *UpdatePasswordSubmission) validateCurrentPassword(formats strfmt.Regist
 	return nil
 }
 
-func (m *UpdatePasswordSubmission) validateNewPassword(formats strfmt.Registry) error {
+func (m *PutChangePasswordEnvelope) validateNewPassword(formats strfmt.Registry) error {
 
 	if err := validate.Required("new_password", "body", m.NewPassword); err != nil {
 		return err
@@ -63,7 +63,7 @@ func (m *UpdatePasswordSubmission) validateNewPassword(formats strfmt.Registry) 
 }
 
 // MarshalBinary interface implementation
-func (m *UpdatePasswordSubmission) MarshalBinary() ([]byte, error) {
+func (m *PutChangePasswordEnvelope) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -71,8 +71,8 @@ func (m *UpdatePasswordSubmission) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *UpdatePasswordSubmission) UnmarshalBinary(b []byte) error {
-	var res UpdatePasswordSubmission
+func (m *PutChangePasswordEnvelope) UnmarshalBinary(b []byte) error {
+	var res PutChangePasswordEnvelope
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -42,6 +42,18 @@ sections:
       run_workflow_error:
         title: Run workflow error
         description: there was an error running the workflow
+      create_workflow_secret_error:
+        title: Create workflow secret error
+        description: there was an error creating the workflow secret
+      workflow_secret_already_exists_error:
+        title: Workflow secret already exists
+        description: The workflow secret identified by {{pre key}} already exists.
+        arguments:
+          key:
+            description: the key of the secret
+      update_workflow_secret_error:
+        title: Update workflow secret error
+        description: there was an error updating the workflow secret
       validate_workflow_error:
         title: Validate workflow error
         description: there was an error validating the workflow
@@ -63,3 +75,6 @@ sections:
             description: the name of the flag
           msg:
             description: a message about what went wrong
+      secret_value_not_specified_error:
+        title: Secret value not specified
+        description: You did not provide a secret value.

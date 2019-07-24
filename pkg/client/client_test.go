@@ -151,3 +151,33 @@ func TestWorkflowRun(t *testing.T) {
 		require.Equal(t, wfr.Workflow.Name, models.WorkflowName("name"))
 	})
 }
+
+func TestCreateWorkflowSecret(t *testing.T) {
+	ssm := &models.SecretSummary{Key: "key"}
+
+	routes := &testutil.MockRoutes{}
+	routes.Add("/api/workflows/name/secrets", http.StatusCreated, ssm, nil)
+
+	withAPIClient(t, routes, func(c *APIClient) {
+		fakeLogin(t, c)
+
+		ssr, err := c.CreateWorkflowSecret(context.Background(), "name", "key", "value")
+		require.NoError(t, err, "could not create secret")
+		require.Equal(t, ssr.Key, "key")
+	})
+}
+
+func TestUpdateWorkflowSecret(t *testing.T) {
+	ssm := &models.SecretSummary{Key: "key"}
+
+	routes := &testutil.MockRoutes{}
+	routes.Add("/api/workflows/name/secrets/key", http.StatusOK, ssm, nil)
+
+	withAPIClient(t, routes, func(c *APIClient) {
+		fakeLogin(t, c)
+
+		ssr, err := c.UpdateWorkflowSecret(context.Background(), "name", "key", "value")
+		require.NoError(t, err, "could not update secret")
+		require.Equal(t, ssr.Key, "key")
+	})
+}

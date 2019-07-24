@@ -13,6 +13,7 @@ import (
 	"github.com/puppetlabs/nebula/pkg/client"
 	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
 	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula/pkg/util"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -23,19 +24,6 @@ import (
 const readLimit = 512
 
 const defaultServerAddr = "https://api.nebula.puppet.com"
-
-func passedStdin() (bool, error) {
-	info, err := os.Stdin.Stat()
-	if err != nil {
-		return false, err
-	}
-
-	if (info.Mode() & os.ModeCharDevice) == 0 {
-		return true, nil
-	}
-
-	return false, nil
-}
 
 func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd := &cobra.Command{
@@ -55,7 +43,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			// os.Stdin, then we can continue to try and read the password from the pipe.
 			// Otherwise we will try to ask the user for their email and password via prompts.
 			if passFromStdin {
-				gotStdin, err := passedStdin()
+				gotStdin, err := util.PassedStdin()
 				if err != nil {
 					return err
 				}
