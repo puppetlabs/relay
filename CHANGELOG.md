@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/puppetlabs/nebula-cli/compare/v1.1.0...v1.2.0) (2019-07-24)
+
+
+### Update
+
+* Add timeout to `workflow run` command ([640dcee1d512510edde0e03946a05b56274398bf](https://github.com/puppetlabs/nebula-cli/commit/640dcee1d512510edde0e03946a05b56274398bf))
+* Add timeout to `workflow run` command ([0a7622b3c613baf5c3d5bfb86c360ace00d7c4b1](https://github.com/puppetlabs/nebula-cli/commit/0a7622b3c613baf5c3d5bfb86c360ace00d7c4b1))
+
 # [1.1.0](https://github.com/puppetlabs/nebula-cli/compare/v1.0.1...v1.1.0) (2019-07-24)
 
 
