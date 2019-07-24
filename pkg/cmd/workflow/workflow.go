@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/puppetlabs/nebula/pkg/client"
@@ -138,6 +139,14 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Run workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			timeout, err := cmd.Flags().GetDuration("timeout")
+			if err != nil {
+				return err
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -152,7 +161,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			run, err := client.RunWorkflow(context.Background(), name)
+			run, err := client.RunWorkflow(ctx, name)
 			if err != nil {
 				return err
 			}
@@ -180,6 +189,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
+	cmd.Flags().DurationP("timeout", "t", 10*time.Minute, "the timeout for a workflow run to start")
 
 	return cmd
 }

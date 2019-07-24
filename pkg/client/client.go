@@ -112,7 +112,7 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, name string, description
 func (c *APIClient) RunWorkflow(ctx context.Context, name string) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowrunsv1.NewCreateWorkflowRunParams()
+	params := workflowrunsv1.NewCreateWorkflowRunParamsWithContext(ctx)
 	params.WorkflowName = name
 
 	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params, auth)
