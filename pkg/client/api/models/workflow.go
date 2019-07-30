@@ -32,6 +32,9 @@ type Workflow struct {
 	// Required: true
 	ID *string `json:"id"`
 
+	// ID of integration used by workflow
+	IntegrationID string `json:"integration_id,omitempty"`
+
 	// name
 	// Required: true
 	Name WorkflowName `json:"name"`

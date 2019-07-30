@@ -8,6 +8,7 @@ import (
 
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/puppetlabs/nebula/pkg/client"
+	"github.com/puppetlabs/nebula/pkg/client/api/models"
 	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
 	"github.com/puppetlabs/nebula/pkg/errors"
 	"github.com/spf13/cobra"
@@ -43,17 +44,34 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			integrations, err := client.ListIntegrations(context.Background())
+			if err != nil {
+				return err
+			}
 
 			tw := table.NewWriter()
 
-			tw.AppendHeader(table.Row{"NAME", "WORKFLOW"})
+			tw.AppendHeader(table.Row{"NAME", "INTEGRATION", "WORKFLOW"})
 			for _, wf := range index.Items {
+				var integration models.Integration
+				var integrationName string
+				if wf.IntegrationID != "" {
+					for _, i := range integrations.Items {
+						if *i.ID == wf.IntegrationID {
+							integration = *i
+						}
+					}
+					integrationName = fmt.Sprintf("%s-%s", *integration.Provider, integration.AccountLogin)
+				} else {
+					integrationName = "None"
+				}
+
 				p := []string{*wf.Repository, *wf.Branch, *wf.Path}
 
-				tw.AppendRow(table.Row{wf.Name, strings.Join(p, "/")})
+				tw.AppendRow(table.Row{wf.Name, integrationName, strings.Join(p, "/")})
 			}
 
-			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
+			_, _ = fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
 
 			return nil
 		},
@@ -80,6 +98,15 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			description, err := cmd.Flags().GetString("description")
 			if err != nil {
 				return err
+			}
+
+			integration, err := cmd.Flags().GetString("integration")
+			if err != nil {
+				return err
+			}
+
+			if integration == "" {
+				return errors.NewWorkflowCliFlagError("--integration", "required")
 			}
 
 			repo, err := cmd.Flags().GetString("repository")
@@ -114,7 +141,22 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if _, err = client.CreateWorkflow(context.Background(), name, description, repo, branch, path); err != nil {
+			integrations, err := client.ListIntegrations(context.Background())
+			if err != nil {
+				return err
+			}
+			var integrationID string
+			for _, i := range integrations.Items {
+				iName := fmt.Sprintf("%s-%s", *i.Provider, i.AccountLogin)
+				if iName == integration {
+					integrationID = *i.ID
+				}
+			}
+			if integrationID == "" {
+				return errors.NewClientGetIntegrationError(integration)
+			}
+
+			if _, err = client.CreateWorkflow(context.Background(), name, description, integrationID, repo, branch, path); err != nil {
 				return err
 			}
 
@@ -126,6 +168,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 	cmd.Flags().StringP("name", "n", "", "workflow name")
 	cmd.Flags().StringP("description", "d", "", "workflow description")
+	cmd.Flags().StringP("integration", "i", "", "name of the integration")
 	cmd.Flags().StringP("repository", "r", "", "name of the repository")
 	cmd.Flags().StringP("branch", "b", "", "name of the branch")
 	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")

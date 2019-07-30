@@ -33,6 +33,15 @@ sections:
       token_load_error:
         title: Token load error
         description: there was an error loading the auth token
+      list_integrations_error:
+        title: List integrations error
+        description: there was an error fetching integrations
+      get_integration_error:
+        title: Get integration error
+        description: there was an error fetching integration {{id}}
+        arguments:
+          id:
+            description: the id of the integration
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows

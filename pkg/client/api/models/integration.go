@@ -19,6 +19,9 @@ import (
 // swagger:model Integration
 type Integration struct {
 
+	// Integration account login name.
+	AccountLogin string `json:"account_login,omitempty"`
+
 	// Time of integration creation
 	// Required: true
 	CreatedAt *string `json:"created_at"`
@@ -26,6 +29,9 @@ type Integration struct {
 	// Integration id
 	// Required: true
 	ID *string `json:"id"`
+
+	// Time of last integration call
+	LastUsed string `json:"last_used,omitempty"`
 
 	// A descriptive integration name
 	Name string `json:"name,omitempty"`
