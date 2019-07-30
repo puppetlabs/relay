@@ -39,6 +39,19 @@ func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow
 	}
 }
 
+func makeIntegrationFixture(accountLogin, provider string) *models.Integration {
+	createdAt := time.Now().String()
+	updatedAt := time.Now().String()
+
+	return &models.Integration{
+		Name:         "",
+		Provider:     &provider,
+		AccountLogin: accountLogin,
+		CreatedAt:    &createdAt,
+		UpdatedAt:    &updatedAt,
+	}
+}
+
 func makeWorkflowRunFixture(wfm *models.Workflow) *models.WorkflowRun {
 	id := "wfr-1"
 	runNum := int64(1)
@@ -100,10 +113,13 @@ func TestWorkflowCreate(t *testing.T) {
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows", http.StatusCreated, wfm, nil)
 
+	im := makeIntegrationFixture("test", "github")
+	routes.Add("/api/integrations", http.StatusOK, im, nil)
+
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wf, err := c.CreateWorkflow(context.Background(), "name", "description", "repo1", "branch1", "workflow.yaml")
+		wf, err := c.CreateWorkflow(context.Background(), "name", "description", "github-test", "repo1", "branch1", "workflow.yaml")
 		require.NoError(t, err, "could not create workflow")
 		require.Equal(t, wf.Name, models.WorkflowName("name"))
 		require.Equal(t, *wf.Repository, "repo1")
