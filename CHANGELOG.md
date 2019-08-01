@@ -1,3 +1,10 @@
+# [2.0.0](https://github.com/puppetlabs/nebula-cli/compare/v1.2.0...v2.0.0) (2019-08-01)
+
+
+### Breaking
+
+* Renaming output binary to nebula from nebula-cli ([2c9804441024700f3ce343b008f8b25577c71c33](https://github.com/puppetlabs/nebula-cli/commit/2c9804441024700f3ce343b008f8b25577c71c33))
+
 # [1.2.0](https://github.com/puppetlabs/nebula-cli/compare/v1.1.0...v1.2.0) (2019-07-24)
 
 
