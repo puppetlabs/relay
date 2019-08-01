@@ -176,6 +176,54 @@ func NewClientCreateWorkflowSecretError() Error {
 	return NewClientCreateWorkflowSecretErrorBuilder().Build()
 }
 
+// ClientGetIntegrationErrorCode is the code for an instance of "get_integration_error".
+const ClientGetIntegrationErrorCode = "neb_client_get_integration_error"
+
+// IsClientGetIntegrationError tests whether a given error is an instance of "get_integration_error".
+func IsClientGetIntegrationError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientGetIntegrationErrorCode)
+}
+
+// IsClientGetIntegrationError tests whether a given error is an instance of "get_integration_error".
+func (External) IsClientGetIntegrationError(err errawr.Error) bool {
+	return IsClientGetIntegrationError(err)
+}
+
+// ClientGetIntegrationErrorBuilder is a builder for "get_integration_error" errors.
+type ClientGetIntegrationErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "get_integration_error" from this builder.
+func (b *ClientGetIntegrationErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching integration {{id}}",
+		Technical: "there was an error fetching integration {{id}}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "get_integration_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Get integration error",
+		Version:          1,
+	}
+}
+
+// NewClientGetIntegrationErrorBuilder creates a new error builder for the code "get_integration_error".
+func NewClientGetIntegrationErrorBuilder(id string) *ClientGetIntegrationErrorBuilder {
+	return &ClientGetIntegrationErrorBuilder{arguments: impl.ErrorArguments{"id": impl.NewErrorArgument(id, "the id of the integration")}}
+}
+
+// NewClientGetIntegrationError creates a new error with the code "get_integration_error".
+func NewClientGetIntegrationError(id string) Error {
+	return NewClientGetIntegrationErrorBuilder(id).Build()
+}
+
 // ClientInvalidAPIHostCode is the code for an instance of "invalid_api_host".
 const ClientInvalidAPIHostCode = "neb_client_invalid_api_host"
 
@@ -222,6 +270,54 @@ func NewClientInvalidAPIHostBuilder(host string) *ClientInvalidAPIHostBuilder {
 // NewClientInvalidAPIHost creates a new error with the code "invalid_api_host".
 func NewClientInvalidAPIHost(host string) Error {
 	return NewClientInvalidAPIHostBuilder(host).Build()
+}
+
+// ClientListIntegrationsErrorCode is the code for an instance of "list_integrations_error".
+const ClientListIntegrationsErrorCode = "neb_client_list_integrations_error"
+
+// IsClientListIntegrationsError tests whether a given error is an instance of "list_integrations_error".
+func IsClientListIntegrationsError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientListIntegrationsErrorCode)
+}
+
+// IsClientListIntegrationsError tests whether a given error is an instance of "list_integrations_error".
+func (External) IsClientListIntegrationsError(err errawr.Error) bool {
+	return IsClientListIntegrationsError(err)
+}
+
+// ClientListIntegrationsErrorBuilder is a builder for "list_integrations_error" errors.
+type ClientListIntegrationsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "list_integrations_error" from this builder.
+func (b *ClientListIntegrationsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching integrations",
+		Technical: "there was an error fetching integrations",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "list_integrations_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "List integrations error",
+		Version:          1,
+	}
+}
+
+// NewClientListIntegrationsErrorBuilder creates a new error builder for the code "list_integrations_error".
+func NewClientListIntegrationsErrorBuilder() *ClientListIntegrationsErrorBuilder {
+	return &ClientListIntegrationsErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientListIntegrationsError creates a new error with the code "list_integrations_error".
+func NewClientListIntegrationsError() Error {
+	return NewClientListIntegrationsErrorBuilder().Build()
 }
 
 // ClientListWorkflowsErrorCode is the code for an instance of "list_workflows_error".

@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/puppetlabs/nebula/pkg/client/api"
 	authv1 "github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
+	integrationsv1 "github.com/puppetlabs/nebula/pkg/client/api/integrations_v1"
 	"github.com/puppetlabs/nebula/pkg/client/api/models"
 	workflowrunsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
 	workflowsecretsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_secrets_v1"
@@ -75,6 +76,33 @@ func (c *APIClient) Login(ctx context.Context, email string, password string) er
 	return nil
 }
 
+func (c *APIClient) ListIntegrations(ctx context.Context) (*models.Integrations, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := integrationsv1.NewListIntegrationsParams()
+
+	response, derr := c.delegate.IntegrationsV1.ListIntegrations(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientListIntegrationsError().WithCause(derr)
+	}
+
+	return response.Payload, nil
+}
+
+func (c *APIClient) GetIntegration(ctx context.Context, id string) (*models.Integration, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := integrationsv1.NewGetIntegrationParams()
+	params.ID = id
+
+	response, derr := c.delegate.IntegrationsV1.GetIntegration(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientGetIntegrationError(id).WithCause(derr)
+	}
+
+	return response.Payload, nil
+}
+
 func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
@@ -88,17 +116,19 @@ func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, error
 	return response.Payload, nil
 }
 
-func (c *APIClient) CreateWorkflow(ctx context.Context, name string, description string, repo string, branch string, path string) (*models.Workflow, errors.Error) {
+func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integrationID, repo, branch, path string) (*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflowsv1.NewCreateWorkflowParams()
 
+	// TODO List integrations and get by provider_id-account_name
 	params.Body = &models.WorkflowSubmission{
-		Name:        models.WorkflowName(name),
-		Description: description,
-		Repository:  &repo,
-		Branch:      branch,
-		Path:        &path,
+		Name:          models.WorkflowName(name),
+		Description:   description,
+		IntegrationID: &integrationID,
+		Repository:    &repo,
+		Branch:        &branch,
+		Path:          &path,
 	}
 
 	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params, auth)

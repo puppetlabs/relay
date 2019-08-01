@@ -18,10 +18,15 @@ import (
 type WorkflowSubmission struct {
 
 	// The branch on which we should look for the workflow yaml
-	Branch string `json:"branch,omitempty"`
+	// Required: true
+	Branch *string `json:"branch"`
 
 	// User provided friendly workflow description
 	Description string `json:"description,omitempty"`
+
+	// ID of integration used by workflow
+	// Required: true
+	IntegrationID *string `json:"integration_id"`
 
 	// name
 	// Required: true
@@ -40,6 +45,14 @@ type WorkflowSubmission struct {
 func (m *WorkflowSubmission) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateBranch(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateIntegrationID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
@@ -55,6 +68,24 @@ func (m *WorkflowSubmission) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WorkflowSubmission) validateBranch(formats strfmt.Registry) error {
+
+	if err := validate.Required("branch", "body", m.Branch); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WorkflowSubmission) validateIntegrationID(formats strfmt.Registry) error {
+
+	if err := validate.Required("integration_id", "body", m.IntegrationID); err != nil {
+		return err
+	}
+
 	return nil
 }
 

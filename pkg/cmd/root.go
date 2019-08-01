@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/puppetlabs/nebula/pkg/cmd/integration"
 	"github.com/puppetlabs/nebula/pkg/cmd/login"
 	"github.com/puppetlabs/nebula/pkg/cmd/secret"
 	"github.com/puppetlabs/nebula/pkg/cmd/version"
@@ -27,6 +28,7 @@ func NewRootCommand() (*cobra.Command, error) {
 
 	c.AddCommand(login.NewCommand(r))
 	c.AddCommand(workflow.NewCommand(r))
+	c.AddCommand(integration.NewCommand(r))
 	c.AddCommand(version.NewCommand(r))
 	c.AddCommand(secret.NewCommand(r))
 
