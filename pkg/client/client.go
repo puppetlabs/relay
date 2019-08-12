@@ -167,6 +167,21 @@ func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) (*models.
 	return resp.Payload, nil
 }
 
+func (c *APIClient) GetWorkflowRun(ctx context.Context, name string, runNum int64) (*models.WorkflowRun, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflowrunsv1.NewGetWorkflowRunParams()
+	params.WorkflowName = name
+	params.RunNumber = runNum
+
+	resp, werr := c.delegate.WorkflowRunsV1.GetWorkflowRun(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+	}
+
+	return resp.Payload, nil
+}
+
 func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
