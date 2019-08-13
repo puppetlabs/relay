@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/puppetlabs/nebula-cli/compare/v2.0.0...v2.1.0) (2019-08-13)
+
+
+### New
+
+* nebula-cli workflow {logs,status} subcommands ([9fd905300119007d3d95e2859d5c1ab4e172ac4d](https://github.com/puppetlabs/nebula-cli/commit/9fd905300119007d3d95e2859d5c1ab4e172ac4d))
+
 # [2.0.0](https://github.com/puppetlabs/nebula-cli/compare/v1.2.0...v2.0.0) (2019-08-01)
 
 
