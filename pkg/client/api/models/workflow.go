@@ -43,7 +43,7 @@ type Workflow struct {
 	// Required: true
 	Path *string `json:"path"`
 
-	// A git repository url
+	// A source repository slug
 	// Required: true
 	Repository *string `json:"repository"`
 

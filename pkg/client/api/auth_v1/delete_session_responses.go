@@ -24,7 +24,6 @@ type DeleteSessionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *DeleteSessionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewDeleteSessionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type DeleteSessionOK struct {
 
 func (o *DeleteSessionOK) Error() string {
 	return fmt.Sprintf("[DELETE /auth/sessions][%d] deleteSessionOK  %+v", 200, o.Payload)
+}
+
+func (o *DeleteSessionOK) GetPayload() *models.GenericSuccess {
+	return o.Payload
 }
 
 func (o *DeleteSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -13,13 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// IntegrationRedirect Response containing an integration ID and an oauth redirect
+// IntegrationRedirect Response containing an oauth redirect
 // swagger:model IntegrationRedirect
 type IntegrationRedirect struct {
-
-	// Integration id
-	// Required: true
-	IntegrationID *string `json:"integration_id"`
 
 	// A redirect url at which the integration can be authenticated
 	// Required: true
@@ -30,10 +26,6 @@ type IntegrationRedirect struct {
 func (m *IntegrationRedirect) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateIntegrationID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateRedirect(formats); err != nil {
 		res = append(res, err)
 	}
@@ -41,15 +33,6 @@ func (m *IntegrationRedirect) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *IntegrationRedirect) validateIntegrationID(formats strfmt.Registry) error {
-
-	if err := validate.Required("integration_id", "body", m.IntegrationID); err != nil {
-		return err
-	}
-
 	return nil
 }
 

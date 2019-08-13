@@ -24,7 +24,6 @@ type HealthCheckReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *HealthCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewHealthCheckOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type HealthCheckOK struct {
 
 func (o *HealthCheckOK) Error() string {
 	return fmt.Sprintf("[GET /_priv/healthz][%d] healthCheckOK  %+v", 200, o.Payload)
+}
+
+func (o *HealthCheckOK) GetPayload() *models.HealthResponse {
+	return o.Payload
 }
 
 func (o *HealthCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

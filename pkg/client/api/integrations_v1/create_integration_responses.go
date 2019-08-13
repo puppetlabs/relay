@@ -24,7 +24,6 @@ type CreateIntegrationReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CreateIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 201:
 		result := NewCreateIntegrationCreated()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type CreateIntegrationCreated struct {
 
 func (o *CreateIntegrationCreated) Error() string {
 	return fmt.Sprintf("[POST /api/integrations][%d] createIntegrationCreated  %+v", 201, o.Payload)
+}
+
+func (o *CreateIntegrationCreated) GetPayload() *models.Integration {
+	return o.Payload
 }
 
 func (o *CreateIntegrationCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

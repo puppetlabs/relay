@@ -24,7 +24,6 @@ type RedirectIntegrationReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *RedirectIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewRedirectIntegrationOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -51,7 +50,11 @@ type RedirectIntegrationOK struct {
 }
 
 func (o *RedirectIntegrationOK) Error() string {
-	return fmt.Sprintf("[GET /api/integrations/{id}/redirect][%d] redirectIntegrationOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/integrations/{providerId}/redirect][%d] redirectIntegrationOK  %+v", 200, o.Payload)
+}
+
+func (o *RedirectIntegrationOK) GetPayload() *models.IntegrationRedirect {
+	return o.Payload
 }
 
 func (o *RedirectIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

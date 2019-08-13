@@ -45,6 +45,15 @@ sections:
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows
+      list_workflow_runs_error:
+        title: List workflow runs error
+        description: there was an error fetching workflow runs
+      get_workflow_run_error:
+        title: Get workflow run error
+        description: there was an error fetching this workflow run
+      get_workflow_run_step_log_error:
+        title: Get workflow run step log error
+        description: there was an error fetching this workflow run step log
       create_workflow_error:
         title: Create workflow error
         description: there was an error creating the workflow

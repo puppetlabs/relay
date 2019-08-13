@@ -66,11 +66,11 @@ type RedirectIntegrationParams struct {
 
 	*/
 	Accept string
-	/*ID
-	  ID of the integration we want redirect information for
+	/*ProviderID
+	  Name of the integration provider we want redirect information for
 
 	*/
-	ID string
+	ProviderID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,15 +121,15 @@ func (o *RedirectIntegrationParams) SetAccept(accept string) {
 	o.Accept = accept
 }
 
-// WithID adds the id to the redirect integration params
-func (o *RedirectIntegrationParams) WithID(id string) *RedirectIntegrationParams {
-	o.SetID(id)
+// WithProviderID adds the providerID to the redirect integration params
+func (o *RedirectIntegrationParams) WithProviderID(providerID string) *RedirectIntegrationParams {
+	o.SetProviderID(providerID)
 	return o
 }
 
-// SetID adds the id to the redirect integration params
-func (o *RedirectIntegrationParams) SetID(id string) {
-	o.ID = id
+// SetProviderID adds the providerId to the redirect integration params
+func (o *RedirectIntegrationParams) SetProviderID(providerID string) {
+	o.ProviderID = providerID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,8 +145,8 @@ func (o *RedirectIntegrationParams) WriteToRequest(r runtime.ClientRequest, reg 
 		return err
 	}
 
-	// path param id
-	if err := r.SetPathParam("id", o.ID); err != nil {
+	// path param providerId
+	if err := r.SetPathParam("providerId", o.ProviderID); err != nil {
 		return err
 	}
 

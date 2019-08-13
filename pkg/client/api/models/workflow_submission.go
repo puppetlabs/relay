@@ -22,7 +22,8 @@ type WorkflowSubmission struct {
 	Branch *string `json:"branch"`
 
 	// User provided friendly workflow description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
 
 	// ID of integration used by workflow
 	// Required: true
@@ -36,7 +37,7 @@ type WorkflowSubmission struct {
 	// Required: true
 	Path *string `json:"path"`
 
-	// A git repository url.
+	// A source repository slug.
 	// Required: true
 	Repository *string `json:"repository"`
 }
@@ -46,6 +47,10 @@ func (m *WorkflowSubmission) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBranch(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -74,6 +79,15 @@ func (m *WorkflowSubmission) Validate(formats strfmt.Registry) error {
 func (m *WorkflowSubmission) validateBranch(formats strfmt.Registry) error {
 
 	if err := validate.Required("branch", "body", m.Branch); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WorkflowSubmission) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
 		return err
 	}
 

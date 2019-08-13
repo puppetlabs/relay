@@ -24,7 +24,6 @@ type UpdateSecretByKeyAndWorkflowIDReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *UpdateSecretByKeyAndWorkflowIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewUpdateSecretByKeyAndWorkflowIDOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type UpdateSecretByKeyAndWorkflowIDOK struct {
 
 func (o *UpdateSecretByKeyAndWorkflowIDOK) Error() string {
 	return fmt.Sprintf("[PUT /api/workflows/{workflow_name}/secrets/{secret_key}][%d] updateSecretByKeyAndWorkflowIdOK  %+v", 200, o.Payload)
+}
+
+func (o *UpdateSecretByKeyAndWorkflowIDOK) GetPayload() *models.SecretSummary {
+	return o.Payload
 }
 
 func (o *UpdateSecretByKeyAndWorkflowIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

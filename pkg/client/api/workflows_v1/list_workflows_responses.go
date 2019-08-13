@@ -24,7 +24,6 @@ type ListWorkflowsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ListWorkflowsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewListWorkflowsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type ListWorkflowsOK struct {
 
 func (o *ListWorkflowsOK) Error() string {
 	return fmt.Sprintf("[GET /api/workflows][%d] listWorkflowsOK  %+v", 200, o.Payload)
+}
+
+func (o *ListWorkflowsOK) GetPayload() *models.Workflows {
+	return o.Payload
 }
 
 func (o *ListWorkflowsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

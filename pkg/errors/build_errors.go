@@ -224,6 +224,102 @@ func NewClientGetIntegrationError(id string) Error {
 	return NewClientGetIntegrationErrorBuilder(id).Build()
 }
 
+// ClientGetWorkflowRunErrorCode is the code for an instance of "get_workflow_run_error".
+const ClientGetWorkflowRunErrorCode = "neb_client_get_workflow_run_error"
+
+// IsClientGetWorkflowRunError tests whether a given error is an instance of "get_workflow_run_error".
+func IsClientGetWorkflowRunError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientGetWorkflowRunErrorCode)
+}
+
+// IsClientGetWorkflowRunError tests whether a given error is an instance of "get_workflow_run_error".
+func (External) IsClientGetWorkflowRunError(err errawr.Error) bool {
+	return IsClientGetWorkflowRunError(err)
+}
+
+// ClientGetWorkflowRunErrorBuilder is a builder for "get_workflow_run_error" errors.
+type ClientGetWorkflowRunErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "get_workflow_run_error" from this builder.
+func (b *ClientGetWorkflowRunErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching this workflow run",
+		Technical: "there was an error fetching this workflow run",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "get_workflow_run_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Get workflow run error",
+		Version:          1,
+	}
+}
+
+// NewClientGetWorkflowRunErrorBuilder creates a new error builder for the code "get_workflow_run_error".
+func NewClientGetWorkflowRunErrorBuilder() *ClientGetWorkflowRunErrorBuilder {
+	return &ClientGetWorkflowRunErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientGetWorkflowRunError creates a new error with the code "get_workflow_run_error".
+func NewClientGetWorkflowRunError() Error {
+	return NewClientGetWorkflowRunErrorBuilder().Build()
+}
+
+// ClientGetWorkflowRunStepLogErrorCode is the code for an instance of "get_workflow_run_step_log_error".
+const ClientGetWorkflowRunStepLogErrorCode = "neb_client_get_workflow_run_step_log_error"
+
+// IsClientGetWorkflowRunStepLogError tests whether a given error is an instance of "get_workflow_run_step_log_error".
+func IsClientGetWorkflowRunStepLogError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientGetWorkflowRunStepLogErrorCode)
+}
+
+// IsClientGetWorkflowRunStepLogError tests whether a given error is an instance of "get_workflow_run_step_log_error".
+func (External) IsClientGetWorkflowRunStepLogError(err errawr.Error) bool {
+	return IsClientGetWorkflowRunStepLogError(err)
+}
+
+// ClientGetWorkflowRunStepLogErrorBuilder is a builder for "get_workflow_run_step_log_error" errors.
+type ClientGetWorkflowRunStepLogErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "get_workflow_run_step_log_error" from this builder.
+func (b *ClientGetWorkflowRunStepLogErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching this workflow run step log",
+		Technical: "there was an error fetching this workflow run step log",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "get_workflow_run_step_log_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Get workflow run step log error",
+		Version:          1,
+	}
+}
+
+// NewClientGetWorkflowRunStepLogErrorBuilder creates a new error builder for the code "get_workflow_run_step_log_error".
+func NewClientGetWorkflowRunStepLogErrorBuilder() *ClientGetWorkflowRunStepLogErrorBuilder {
+	return &ClientGetWorkflowRunStepLogErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientGetWorkflowRunStepLogError creates a new error with the code "get_workflow_run_step_log_error".
+func NewClientGetWorkflowRunStepLogError() Error {
+	return NewClientGetWorkflowRunStepLogErrorBuilder().Build()
+}
+
 // ClientInvalidAPIHostCode is the code for an instance of "invalid_api_host".
 const ClientInvalidAPIHostCode = "neb_client_invalid_api_host"
 
@@ -318,6 +414,54 @@ func NewClientListIntegrationsErrorBuilder() *ClientListIntegrationsErrorBuilder
 // NewClientListIntegrationsError creates a new error with the code "list_integrations_error".
 func NewClientListIntegrationsError() Error {
 	return NewClientListIntegrationsErrorBuilder().Build()
+}
+
+// ClientListWorkflowRunsErrorCode is the code for an instance of "list_workflow_runs_error".
+const ClientListWorkflowRunsErrorCode = "neb_client_list_workflow_runs_error"
+
+// IsClientListWorkflowRunsError tests whether a given error is an instance of "list_workflow_runs_error".
+func IsClientListWorkflowRunsError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientListWorkflowRunsErrorCode)
+}
+
+// IsClientListWorkflowRunsError tests whether a given error is an instance of "list_workflow_runs_error".
+func (External) IsClientListWorkflowRunsError(err errawr.Error) bool {
+	return IsClientListWorkflowRunsError(err)
+}
+
+// ClientListWorkflowRunsErrorBuilder is a builder for "list_workflow_runs_error" errors.
+type ClientListWorkflowRunsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "list_workflow_runs_error" from this builder.
+func (b *ClientListWorkflowRunsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching workflow runs",
+		Technical: "there was an error fetching workflow runs",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "list_workflow_runs_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "List workflow runs error",
+		Version:          1,
+	}
+}
+
+// NewClientListWorkflowRunsErrorBuilder creates a new error builder for the code "list_workflow_runs_error".
+func NewClientListWorkflowRunsErrorBuilder() *ClientListWorkflowRunsErrorBuilder {
+	return &ClientListWorkflowRunsErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientListWorkflowRunsError creates a new error with the code "list_workflow_runs_error".
+func NewClientListWorkflowRunsError() Error {
+	return NewClientListWorkflowRunsErrorBuilder().Build()
 }
 
 // ClientListWorkflowsErrorCode is the code for an instance of "list_workflows_error".

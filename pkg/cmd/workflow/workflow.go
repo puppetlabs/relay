@@ -3,6 +3,7 @@ package workflow
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -19,12 +20,17 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Use:                   "workflow",
 		Short:                 "Manage nebula workflows",
 		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return errors.NewWorkflowCliFlagError(fmt.Sprintf("unknown args: %v", args), "required")
+		},
 	}
 
 	cmd.AddCommand(NewListCommand(rt))
 	cmd.AddCommand(NewCreateCommand(rt))
 	cmd.AddCommand(NewRunCommand(rt))
 	cmd.AddCommand(NewListRunsCommand(rt))
+	cmd.AddCommand(NewRunStatusCommand(rt))
+	cmd.AddCommand(NewRunLogsCommand(rt))
 
 	return cmd
 }
@@ -286,8 +292,111 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringP("filepath", "f", "", "path to a workflow.yaml")
 	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
+
+	return cmd
+}
+
+func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "status",
+		Short:                 "Obtain the status of a workflow run",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+			runNum, err := cmd.Flags().GetInt64("run")
+			if err != nil {
+				return err
+			}
+			if -1 == runNum {
+				return errors.NewWorkflowCliFlagError("--run", "required")
+			}
+
+			client, err := client.NewAPIClient(rt.Config())
+			if err != nil {
+				return err
+			}
+
+			wr, err := client.GetWorkflowRun(context.Background(), name, runNum)
+			if err != nil {
+				return err
+			}
+
+			tw := table.NewWriter()
+			tw.AppendHeader(table.Row{"STEP", "STATUS"})
+
+			for _, step := range wr.Steps {
+				tw.AppendRow(table.Row{*step.Name, *step.Status})
+			}
+
+			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("name", "n", "", "the workflow name of the workflow")
+	cmd.Flags().Int64P("run", "r", -1, "the run number of the workflow")
+
+	return cmd
+}
+
+func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "logs",
+		Short:                 "Obtain the logs of a workflow run",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+			runNum, err := cmd.Flags().GetInt64("run")
+			if err != nil {
+				return err
+			}
+			if -1 == runNum {
+				return errors.NewWorkflowCliFlagError("--run", "required")
+			}
+			step, err := cmd.Flags().GetString("step")
+			if err != nil {
+				return err
+			}
+			if step == "" {
+				return errors.NewWorkflowCliFlagError("--step", "required")
+			}
+			follow, err := cmd.Flags().GetBool("follow")
+			if err != nil {
+				return err
+			}
+
+			client, err := client.NewAPIClient(rt.Config())
+			if err != nil {
+				return err
+			}
+
+			err = client.GetWorkflowRunStepLog(context.Background(), name, runNum, step, follow, os.Stdout)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("name", "n", "", "the workflow name")
+	cmd.Flags().Int64P("run", "r", -1, "the workflow run number")
+	cmd.Flags().StringP("step", "s", "", "the workflow step")
+	cmd.Flags().BoolP("follow", "f", false, "if the workflow is in progress, should we follow the log?")
 
 	return cmd
 }

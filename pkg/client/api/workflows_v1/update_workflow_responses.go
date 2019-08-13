@@ -24,7 +24,6 @@ type UpdateWorkflowReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *UpdateWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewUpdateWorkflowOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type UpdateWorkflowOK struct {
 
 func (o *UpdateWorkflowOK) Error() string {
 	return fmt.Sprintf("[PUT /api/workflows/{workflow_name}][%d] updateWorkflowOK  %+v", 200, o.Payload)
+}
+
+func (o *UpdateWorkflowOK) GetPayload() *models.Workflow {
+	return o.Payload
 }
 
 func (o *UpdateWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

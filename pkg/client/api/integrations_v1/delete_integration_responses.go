@@ -24,7 +24,6 @@ type DeleteIntegrationReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *DeleteIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewDeleteIntegrationOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type DeleteIntegrationOK struct {
 
 func (o *DeleteIntegrationOK) Error() string {
 	return fmt.Sprintf("[DELETE /api/integrations/{id}][%d] deleteIntegrationOK  %+v", 200, o.Payload)
+}
+
+func (o *DeleteIntegrationOK) GetPayload() *models.DeleteResponse {
+	return o.Payload
 }
 
 func (o *DeleteIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -7,10 +7,13 @@ package integrations_v1
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/puppetlabs/nebula/pkg/client/api/models"
 )
 
 // CallbackIntegrationReader is a Reader for the CallbackIntegration structure.
@@ -21,9 +24,14 @@ type CallbackIntegrationReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CallbackIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
-	case 301:
-		result := NewCallbackIntegrationMovedPermanently()
+	case 200:
+		result := NewCallbackIntegrationOK()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return result, nil
+	case 409:
+		result := NewCallbackIntegrationConflict()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -34,23 +42,56 @@ func (o *CallbackIntegrationReader) ReadResponse(response runtime.ClientResponse
 	}
 }
 
-// NewCallbackIntegrationMovedPermanently creates a CallbackIntegrationMovedPermanently with default headers values
-func NewCallbackIntegrationMovedPermanently() *CallbackIntegrationMovedPermanently {
-	return &CallbackIntegrationMovedPermanently{}
+// NewCallbackIntegrationOK creates a CallbackIntegrationOK with default headers values
+func NewCallbackIntegrationOK() *CallbackIntegrationOK {
+	return &CallbackIntegrationOK{}
 }
 
-/*CallbackIntegrationMovedPermanently handles this case with default header values.
+/*CallbackIntegrationOK handles this case with default header values.
 
-Redirect back to a UI page which closes the browser
+Creation successful
 */
-type CallbackIntegrationMovedPermanently struct {
+type CallbackIntegrationOK struct {
+	Payload *models.Integration
 }
 
-func (o *CallbackIntegrationMovedPermanently) Error() string {
-	return fmt.Sprintf("[GET /api/integrations/callback][%d] callbackIntegrationMovedPermanently ", 301)
+func (o *CallbackIntegrationOK) Error() string {
+	return fmt.Sprintf("[GET /api/integrations/callback][%d] callbackIntegrationOK  %+v", 200, o.Payload)
 }
 
-func (o *CallbackIntegrationMovedPermanently) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CallbackIntegrationOK) GetPayload() *models.Integration {
+	return o.Payload
+}
+
+func (o *CallbackIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(models.Integration)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCallbackIntegrationConflict creates a CallbackIntegrationConflict with default headers values
+func NewCallbackIntegrationConflict() *CallbackIntegrationConflict {
+	return &CallbackIntegrationConflict{}
+}
+
+/*CallbackIntegrationConflict handles this case with default header values.
+
+Integration already exists
+*/
+type CallbackIntegrationConflict struct {
+}
+
+func (o *CallbackIntegrationConflict) Error() string {
+	return fmt.Sprintf("[GET /api/integrations/callback][%d] callbackIntegrationConflict ", 409)
+}
+
+func (o *CallbackIntegrationConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }
