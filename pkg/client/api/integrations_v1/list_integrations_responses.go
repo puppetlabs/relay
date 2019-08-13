@@ -24,7 +24,6 @@ type ListIntegrationsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ListIntegrationsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewListIntegrationsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type ListIntegrationsOK struct {
 
 func (o *ListIntegrationsOK) Error() string {
 	return fmt.Sprintf("[GET /api/integrations][%d] listIntegrationsOK  %+v", 200, o.Payload)
+}
+
+func (o *ListIntegrationsOK) GetPayload() *models.Integrations {
+	return o.Payload
 }
 
 func (o *ListIntegrationsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

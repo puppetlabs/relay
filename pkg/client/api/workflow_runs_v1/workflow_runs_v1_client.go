@@ -6,6 +6,9 @@ package workflow_runs_v1
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -49,8 +52,14 @@ func (a *Client) CreateWorkflowRun(params *CreateWorkflowRunParams, authInfo run
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CreateWorkflowRunCreated), nil
-
+	success, ok := result.(*CreateWorkflowRunCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createWorkflowRun: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -78,8 +87,14 @@ func (a *Client) GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.C
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetWorkflowRunOK), nil
-
+	success, ok := result.(*GetWorkflowRunOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getWorkflowRun: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -107,37 +122,50 @@ func (a *Client) GetWorkflowRunLogs(params *GetWorkflowRunLogsParams, authInfo r
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetWorkflowRunLogsOK), nil
-
+	success, ok := result.(*GetWorkflowRunLogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getWorkflowRunLogs: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-GetWorkflowRunStepLogs returns the logs from a single workflow run step acessed by workflow name run number and step name
+GetWorkflowRunStepLog returns the log for a workflow step acessed by workflow name run number and step name
 */
-func (a *Client) GetWorkflowRunStepLogs(params *GetWorkflowRunStepLogsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunStepLogsOK, error) {
+func (a *Client) GetWorkflowRunStepLog(params *GetWorkflowRunStepLogParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer) (*GetWorkflowRunStepLogOK, *GetWorkflowRunStepLogPartialContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetWorkflowRunStepLogsParams()
+		params = NewGetWorkflowRunStepLogParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "getWorkflowRunStepLogs",
+		ID:                 "getWorkflowRunStepLog",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflow_name}/runs/{run_number}/steps/{step_name}/logs",
-		ProducesMediaTypes: []string{"application/json"},
+		ProducesMediaTypes: []string{"application/octet-stream"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &GetWorkflowRunStepLogsReader{formats: a.formats},
+		Reader:             &GetWorkflowRunStepLogReader{formats: a.formats, writer: writer},
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return result.(*GetWorkflowRunStepLogsOK), nil
-
+	switch value := result.(type) {
+	case *GetWorkflowRunStepLogOK:
+		return value, nil, nil
+	case *GetWorkflowRunStepLogPartialContent:
+		return nil, value, nil
+	}
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for workflow_runs_v1: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -165,8 +193,14 @@ func (a *Client) ListWorkflowRuns(params *ListWorkflowRunsParams, authInfo runti
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListWorkflowRunsOK), nil
-
+	success, ok := result.(*ListWorkflowRunsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for listWorkflowRuns: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

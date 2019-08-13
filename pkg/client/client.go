@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -124,7 +125,7 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integ
 	// TODO List integrations and get by provider_id-account_name
 	params.Body = &models.WorkflowSubmission{
 		Name:          models.WorkflowName(name),
-		Description:   description,
+		Description:   &description,
 		IntegrationID: &integrationID,
 		Repository:    &repo,
 		Branch:        &branch,
@@ -161,7 +162,7 @@ func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) (*models.
 
 	resp, werr := c.delegate.WorkflowRunsV1.ListWorkflowRuns(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+		return nil, errors.NewClientListWorkflowRunsError().WithCause(werr)
 	}
 
 	return resp.Payload, nil
@@ -176,10 +177,28 @@ func (c *APIClient) GetWorkflowRun(ctx context.Context, name string, runNum int6
 
 	resp, werr := c.delegate.WorkflowRunsV1.GetWorkflowRun(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+		return nil, errors.NewClientGetWorkflowRunError().WithCause(werr)
 	}
 
 	return resp.Payload, nil
+}
+
+func (c *APIClient) GetWorkflowRunStepLog(ctx context.Context, name string, runNum int64, step string, follow bool, writer io.Writer) errors.Error {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflowrunsv1.NewGetWorkflowRunStepLogParams()
+	params.Accept = "application/octet-stream"
+	params.WorkflowName = name
+	params.RunNumber = runNum
+	params.StepName = step
+	params.Follow = &follow
+
+	_, _, werr := c.delegate.WorkflowRunsV1.GetWorkflowRunStepLog(params, auth, writer)
+	if werr != nil {
+		return errors.NewClientGetWorkflowRunStepLogError().WithCause(werr)
+	}
+
+	return nil
 }
 
 func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {

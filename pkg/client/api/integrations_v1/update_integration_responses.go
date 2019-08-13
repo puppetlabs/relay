@@ -24,7 +24,6 @@ type UpdateIntegrationReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *UpdateIntegrationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewUpdateIntegrationOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type UpdateIntegrationOK struct {
 
 func (o *UpdateIntegrationOK) Error() string {
 	return fmt.Sprintf("[PUT /api/integrations/{id}][%d] updateIntegrationOK  %+v", 200, o.Payload)
+}
+
+func (o *UpdateIntegrationOK) GetPayload() *models.Integration {
+	return o.Payload
 }
 
 func (o *UpdateIntegrationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -24,7 +24,6 @@ type DeleteWorkflowReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *DeleteWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewDeleteWorkflowOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type DeleteWorkflowOK struct {
 
 func (o *DeleteWorkflowOK) Error() string {
 	return fmt.Sprintf("[DELETE /api/workflows/{workflow_name}][%d] deleteWorkflowOK  %+v", 200, o.Payload)
+}
+
+func (o *DeleteWorkflowOK) GetPayload() *models.DeleteResponse {
+	return o.Payload
 }
 
 func (o *DeleteWorkflowOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

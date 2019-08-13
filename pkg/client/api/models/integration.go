@@ -41,9 +41,16 @@ type Integration struct {
 	// Enum: [github]
 	Provider *string `json:"provider"`
 
+	// Current status of the integration
+	// Enum: [unconfigured configured]
+	Status string `json:"status,omitempty"`
+
 	// Time of last integration update
 	// Required: true
 	UpdatedAt *string `json:"updated_at"`
+
+	// workflows
+	Workflows *Workflows `json:"workflows,omitempty"`
 }
 
 // Validate validates this integration
@@ -62,7 +69,15 @@ func (m *Integration) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWorkflows(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -130,10 +145,71 @@ func (m *Integration) validateProvider(formats strfmt.Registry) error {
 	return nil
 }
 
+var integrationTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["unconfigured","configured"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		integrationTypeStatusPropEnum = append(integrationTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// IntegrationStatusUnconfigured captures enum value "unconfigured"
+	IntegrationStatusUnconfigured string = "unconfigured"
+
+	// IntegrationStatusConfigured captures enum value "configured"
+	IntegrationStatusConfigured string = "configured"
+)
+
+// prop value enum
+func (m *Integration) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, integrationTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Integration) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Integration) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *Integration) validateWorkflows(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Workflows) { // not required
+		return nil
+	}
+
+	if m.Workflows != nil {
+		if err := m.Workflows.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("workflows")
+			}
+			return err
+		}
 	}
 
 	return nil

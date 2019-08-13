@@ -6,6 +6,8 @@ package workflow_secrets_v1
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -49,8 +51,14 @@ func (a *Client) CreateWorkflowSecret(params *CreateWorkflowSecretParams, authIn
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CreateWorkflowSecretCreated), nil
-
+	success, ok := result.(*CreateWorkflowSecretCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createWorkflowSecret: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -78,8 +86,14 @@ func (a *Client) DeleteSecretByKeyAndWorkflowID(params *DeleteSecretByKeyAndWork
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteSecretByKeyAndWorkflowIDOK), nil
-
+	success, ok := result.(*DeleteSecretByKeyAndWorkflowIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for deleteSecretByKeyAndWorkflowID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -107,8 +121,14 @@ func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListWorkflowSecretsOK), nil
-
+	success, ok := result.(*ListWorkflowSecretsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for listWorkflowSecrets: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -136,8 +156,14 @@ func (a *Client) UpdateSecretByKeyAndWorkflowID(params *UpdateSecretByKeyAndWork
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateSecretByKeyAndWorkflowIDOK), nil
-
+	success, ok := result.(*UpdateSecretByKeyAndWorkflowIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateSecretByKeyAndWorkflowID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

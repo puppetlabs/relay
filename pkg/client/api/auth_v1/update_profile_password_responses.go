@@ -24,14 +24,12 @@ type UpdateProfilePasswordReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *UpdateProfilePasswordReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewUpdateProfilePasswordOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case 401:
 		result := NewUpdateProfilePasswordUnauthorized()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type UpdateProfilePasswordOK struct {
 
 func (o *UpdateProfilePasswordOK) Error() string {
 	return fmt.Sprintf("[PUT /auth/profile/password][%d] updateProfilePasswordOK  %+v", 200, o.Payload)
+}
+
+func (o *UpdateProfilePasswordOK) GetPayload() *models.GenericSuccess {
+	return o.Payload
 }
 
 func (o *UpdateProfilePasswordOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

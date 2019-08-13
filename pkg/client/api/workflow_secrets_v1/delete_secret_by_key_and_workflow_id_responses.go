@@ -24,7 +24,6 @@ type DeleteSecretByKeyAndWorkflowIDReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *DeleteSecretByKeyAndWorkflowIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewDeleteSecretByKeyAndWorkflowIDOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -52,6 +51,10 @@ type DeleteSecretByKeyAndWorkflowIDOK struct {
 
 func (o *DeleteSecretByKeyAndWorkflowIDOK) Error() string {
 	return fmt.Sprintf("[DELETE /api/workflows/{workflow_name}/secrets/{secret_key}][%d] deleteSecretByKeyAndWorkflowIdOK  %+v", 200, o.Payload)
+}
+
+func (o *DeleteSecretByKeyAndWorkflowIDOK) GetPayload() *models.GenericSuccess {
+	return o.Payload
 }
 
 func (o *DeleteSecretByKeyAndWorkflowIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

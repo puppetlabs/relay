@@ -6,6 +6,8 @@ package integrations_v1
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -27,17 +29,17 @@ type Client struct {
 /*
 CallbackIntegration thes o auth provider will redirect back through us to verify access credentials
 */
-func (a *Client) CallbackIntegration(params *CallbackIntegrationParams, authInfo runtime.ClientAuthInfoWriter) error {
+func (a *Client) CallbackIntegration(params *CallbackIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*CallbackIntegrationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCallbackIntegrationParams()
 	}
 
-	_, err := a.transport.Submit(&runtime.ClientOperation{
+	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "callbackIntegration",
 		Method:             "GET",
 		PathPattern:        "/api/integrations/callback",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
@@ -47,10 +49,16 @@ func (a *Client) CallbackIntegration(params *CallbackIntegrationParams, authInfo
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
-
+	success, ok := result.(*CallbackIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for callbackIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -78,8 +86,14 @@ func (a *Client) CreateIntegration(params *CreateIntegrationParams, authInfo run
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CreateIntegrationCreated), nil
-
+	success, ok := result.(*CreateIntegrationCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for createIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -107,8 +121,14 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams, authInfo run
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteIntegrationOK), nil
-
+	success, ok := result.(*DeleteIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for deleteIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -136,8 +156,14 @@ func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.C
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetIntegrationOK), nil
-
+	success, ok := result.(*GetIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for getIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -165,12 +191,18 @@ func (a *Client) ListIntegrations(params *ListIntegrationsParams, authInfo runti
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListIntegrationsOK), nil
-
+	success, ok := result.(*ListIntegrationsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for listIntegrations: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
-RedirectIntegration gets the oauth redirect information for integration with ID
+RedirectIntegration gets the redirect information for an integration provider
 */
 func (a *Client) RedirectIntegration(params *RedirectIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*RedirectIntegrationOK, error) {
 	// TODO: Validate the params before sending
@@ -181,7 +213,7 @@ func (a *Client) RedirectIntegration(params *RedirectIntegrationParams, authInfo
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "redirectIntegration",
 		Method:             "GET",
-		PathPattern:        "/api/integrations/{id}/redirect",
+		PathPattern:        "/api/integrations/{providerId}/redirect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
@@ -194,8 +226,14 @@ func (a *Client) RedirectIntegration(params *RedirectIntegrationParams, authInfo
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RedirectIntegrationOK), nil
-
+	success, ok := result.(*RedirectIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for redirectIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -223,8 +261,14 @@ func (a *Client) UpdateIntegration(params *UpdateIntegrationParams, authInfo run
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateIntegrationOK), nil
-
+	success, ok := result.(*UpdateIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateIntegration: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

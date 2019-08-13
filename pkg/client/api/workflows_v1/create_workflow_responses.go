@@ -24,14 +24,12 @@ type CreateWorkflowReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CreateWorkflowReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 201:
 		result := NewCreateWorkflowCreated()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case 409:
 		result := NewCreateWorkflowConflict()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type CreateWorkflowCreated struct {
 
 func (o *CreateWorkflowCreated) Error() string {
 	return fmt.Sprintf("[POST /api/workflows][%d] createWorkflowCreated  %+v", 201, o.Payload)
+}
+
+func (o *CreateWorkflowCreated) GetPayload() *models.Workflow {
+	return o.Payload
 }
 
 func (o *CreateWorkflowCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -24,14 +24,12 @@ type CreateSessionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CreateSessionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewCreateSessionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case 401:
 		result := NewCreateSessionUnauthorized()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -63,6 +61,10 @@ type CreateSessionOK struct {
 
 func (o *CreateSessionOK) Error() string {
 	return fmt.Sprintf("[POST /auth/sessions][%d] createSessionOK  %+v", 200, o.Payload)
+}
+
+func (o *CreateSessionOK) GetPayload() *models.User {
+	return o.Payload
 }
 
 func (o *CreateSessionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

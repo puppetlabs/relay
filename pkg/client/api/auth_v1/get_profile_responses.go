@@ -24,14 +24,12 @@ type GetProfileReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetProfileReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetProfileOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	case 401:
 		result := NewGetProfileUnauthorized()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type GetProfileOK struct {
 
 func (o *GetProfileOK) Error() string {
 	return fmt.Sprintf("[GET /auth/profile][%d] getProfileOK  %+v", 200, o.Payload)
+}
+
+func (o *GetProfileOK) GetPayload() *models.User {
+	return o.Payload
 }
 
 func (o *GetProfileOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
