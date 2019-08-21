@@ -41,7 +41,12 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, err := client.NewAPIClient(rt.Config())
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -92,6 +97,11 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Create workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -142,7 +152,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--filepath", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -188,6 +198,11 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Run workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			timeout, err := cmd.Flags().GetDuration("timeout")
 			if err != nil {
 				return err
@@ -205,7 +220,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -243,6 +258,11 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List workflow runs",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -252,7 +272,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -291,6 +311,11 @@ func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Obtain the status of a workflow run",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -306,7 +331,7 @@ func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--run", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -341,6 +366,11 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Obtain the logs of a workflow run",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -367,7 +397,7 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}

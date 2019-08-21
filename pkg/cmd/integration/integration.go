@@ -28,7 +28,12 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List integrations",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := client.NewAPIClient(rt.Config())
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			c, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}

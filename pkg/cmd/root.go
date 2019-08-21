@@ -11,11 +11,6 @@ import (
 )
 
 func NewRootCommand() (*cobra.Command, error) {
-	r, err := runtimefactory.NewRuntimeFactory()
-	if err != nil {
-		return nil, err
-	}
-
 	c := &cobra.Command{
 		Use:   "nebula",
 		Short: "Nebula workflow management cli",
@@ -24,6 +19,18 @@ func NewRootCommand() (*cobra.Command, error) {
 		// we want to be able to handle our own errors for display; this allows us to use
 		// the CLI display mechanism for errawr.
 		SilenceErrors: true,
+	}
+
+	r := runtimefactory.NewRuntimeFactory(c.Flags())
+
+	c.PersistentFlags().StringP("config", "c", "", "config file (default is $HOME/.config/nebula/config.yaml)")
+	c.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		// Check if we can load the config file
+		if _, err := r.Config(); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	c.AddCommand(login.NewCommand(r))

@@ -35,6 +35,11 @@ func NewSetCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Set the given secret value",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			workflow, err := cmd.Flags().GetString("workflow")
 			if err != nil {
 				return err
@@ -89,7 +94,7 @@ func NewSetCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				fmt.Println()
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
