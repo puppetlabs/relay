@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/horsehead/logging"
-	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/io"
-	"github.com/puppetlabs/nebula/pkg/logger"
+	"github.com/puppetlabs/nebula-cli/pkg/config"
+	"github.com/puppetlabs/nebula-cli/pkg/io"
+	"github.com/puppetlabs/nebula-cli/pkg/logger"
 	"github.com/spf13/viper"
 )
 

@@ -6,74 +6,117 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
+	"strconv"
 
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
-// Integration A nebula external integration
+// Integration integration
 // swagger:model Integration
 type Integration struct {
+	IntegrationSummary
+
+	Lifecycle
 
 	// Integration account login name.
 	AccountLogin string `json:"account_login,omitempty"`
 
-	// Time of integration creation
-	// Required: true
-	CreatedAt *string `json:"created_at"`
-
-	// Integration id
-	// Required: true
-	ID *string `json:"id"`
-
 	// Time of last integration call
 	LastUsed string `json:"last_used,omitempty"`
 
-	// A descriptive integration name
-	Name string `json:"name,omitempty"`
+	// The workflows being used by this integration
+	Workflows []*WorkflowSummary `json:"workflows"`
+}
 
-	// Integration provider id. Must be one of the suported integration providers
-	// Required: true
-	// Enum: [github]
-	Provider *string `json:"provider"`
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *Integration) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 IntegrationSummary
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.IntegrationSummary = aO0
 
-	// Current status of the integration
-	// Enum: [unconfigured configured]
-	Status string `json:"status,omitempty"`
+	// AO1
+	var aO1 Lifecycle
+	if err := swag.ReadJSON(raw, &aO1); err != nil {
+		return err
+	}
+	m.Lifecycle = aO1
 
-	// Time of last integration update
-	// Required: true
-	UpdatedAt *string `json:"updated_at"`
+	// AO2
+	var dataAO2 struct {
+		AccountLogin string `json:"account_login,omitempty"`
 
-	// workflows
-	Workflows *Workflows `json:"workflows,omitempty"`
+		LastUsed string `json:"last_used,omitempty"`
+
+		Workflows []*WorkflowSummary `json:"workflows"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
+		return err
+	}
+
+	m.AccountLogin = dataAO2.AccountLogin
+
+	m.LastUsed = dataAO2.LastUsed
+
+	m.Workflows = dataAO2.Workflows
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m Integration) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 3)
+
+	aO0, err := swag.WriteJSON(m.IntegrationSummary)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	aO1, err := swag.WriteJSON(m.Lifecycle)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO1)
+
+	var dataAO2 struct {
+		AccountLogin string `json:"account_login,omitempty"`
+
+		LastUsed string `json:"last_used,omitempty"`
+
+		Workflows []*WorkflowSummary `json:"workflows"`
+	}
+
+	dataAO2.AccountLogin = m.AccountLogin
+
+	dataAO2.LastUsed = m.LastUsed
+
+	dataAO2.Workflows = m.Workflows
+
+	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
+	if errAO2 != nil {
+		return nil, errAO2
+	}
+	_parts = append(_parts, jsonDataAO2)
+
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this integration
 func (m *Integration) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCreatedAt(formats); err != nil {
+	// validation for a type composition with IntegrationSummary
+	if err := m.IntegrationSummary.Validate(formats); err != nil {
 		res = append(res, err)
 	}
-
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateProvider(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
+	// validation for a type composition with Lifecycle
+	if err := m.Lifecycle.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,129 +130,26 @@ func (m *Integration) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Integration) validateCreatedAt(formats strfmt.Registry) error {
-
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Integration) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var integrationTypeProviderPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["github"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		integrationTypeProviderPropEnum = append(integrationTypeProviderPropEnum, v)
-	}
-}
-
-const (
-
-	// IntegrationProviderGithub captures enum value "github"
-	IntegrationProviderGithub string = "github"
-)
-
-// prop value enum
-func (m *Integration) validateProviderEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, integrationTypeProviderPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Integration) validateProvider(formats strfmt.Registry) error {
-
-	if err := validate.Required("provider", "body", m.Provider); err != nil {
-		return err
-	}
-
-	// value enum
-	if err := m.validateProviderEnum("provider", "body", *m.Provider); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var integrationTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["unconfigured","configured"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		integrationTypeStatusPropEnum = append(integrationTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// IntegrationStatusUnconfigured captures enum value "unconfigured"
-	IntegrationStatusUnconfigured string = "unconfigured"
-
-	// IntegrationStatusConfigured captures enum value "configured"
-	IntegrationStatusConfigured string = "configured"
-)
-
-// prop value enum
-func (m *Integration) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, integrationTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Integration) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Integration) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Integration) validateWorkflows(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Workflows) { // not required
 		return nil
 	}
 
-	if m.Workflows != nil {
-		if err := m.Workflows.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("workflows")
-			}
-			return err
+	for i := 0; i < len(m.Workflows); i++ {
+		if swag.IsZero(m.Workflows[i]) { // not required
+			continue
 		}
+
+		if m.Workflows[i] != nil {
+			if err := m.Workflows[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("workflows" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

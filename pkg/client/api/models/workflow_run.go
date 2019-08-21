@@ -6,7 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"strconv"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -16,30 +15,14 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// WorkflowRun An individual workflow run record
+// WorkflowRun workflow run
 // swagger:model WorkflowRun
 type WorkflowRun struct {
+	WorkflowRunSummary
 
-	// Time at which the workflow execution ended
-	EndedAt string `json:"ended_at,omitempty"`
+	Lifecycle
 
-	// Workflow run ID
-	// Required: true
-	ID *string `json:"id"`
-
-	// Incremented run number of the associated workflow
-	// Required: true
-	RunNumber *int64 `json:"run_number"`
-
-	// Time at which workflow execution started
-	StartedAt string `json:"started_at,omitempty"`
-
-	// Top level workflow run status
-	// Required: true
-	// Enum: [success failure in-progress pending]
-	Status *string `json:"status"`
-
-	// An array of workflow steps
+	// A list of workflow steps
 	// Required: true
 	Steps []*WorkflowRunStep `json:"steps"`
 
@@ -47,26 +30,107 @@ type WorkflowRun struct {
 	// Required: true
 	Workflow *Workflow `json:"workflow"`
 
-	// The raw json representation of the workflow at the time of execution
+	// The raw JSON representation of the workflow at the time of execution
 	WorkflowData interface{} `json:"workflow_data,omitempty"`
 
-	// base 64 encoded yaml representation of the workflow run
+	// Base64-encoded YAML representation of the workflow run
 	WorkflowYaml string `json:"workflow_yaml,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *WorkflowRun) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 WorkflowRunSummary
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.WorkflowRunSummary = aO0
+
+	// AO1
+	var aO1 Lifecycle
+	if err := swag.ReadJSON(raw, &aO1); err != nil {
+		return err
+	}
+	m.Lifecycle = aO1
+
+	// AO2
+	var dataAO2 struct {
+		Steps []*WorkflowRunStep `json:"steps"`
+
+		Workflow *Workflow `json:"workflow"`
+
+		WorkflowData interface{} `json:"workflow_data,omitempty"`
+
+		WorkflowYaml string `json:"workflow_yaml,omitempty"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
+		return err
+	}
+
+	m.Steps = dataAO2.Steps
+
+	m.Workflow = dataAO2.Workflow
+
+	m.WorkflowData = dataAO2.WorkflowData
+
+	m.WorkflowYaml = dataAO2.WorkflowYaml
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m WorkflowRun) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 3)
+
+	aO0, err := swag.WriteJSON(m.WorkflowRunSummary)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	aO1, err := swag.WriteJSON(m.Lifecycle)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO1)
+
+	var dataAO2 struct {
+		Steps []*WorkflowRunStep `json:"steps"`
+
+		Workflow *Workflow `json:"workflow"`
+
+		WorkflowData interface{} `json:"workflow_data,omitempty"`
+
+		WorkflowYaml string `json:"workflow_yaml,omitempty"`
+	}
+
+	dataAO2.Steps = m.Steps
+
+	dataAO2.Workflow = m.Workflow
+
+	dataAO2.WorkflowData = m.WorkflowData
+
+	dataAO2.WorkflowYaml = m.WorkflowYaml
+
+	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
+	if errAO2 != nil {
+		return nil, errAO2
+	}
+	_parts = append(_parts, jsonDataAO2)
+
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this workflow run
 func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
+	// validation for a type composition with WorkflowRunSummary
+	if err := m.WorkflowRunSummary.Validate(formats); err != nil {
 		res = append(res, err)
 	}
-
-	if err := m.validateRunNumber(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
+	// validation for a type composition with Lifecycle
+	if err := m.Lifecycle.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -81,73 +145,6 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *WorkflowRun) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *WorkflowRun) validateRunNumber(formats strfmt.Registry) error {
-
-	if err := validate.Required("run_number", "body", m.RunNumber); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var workflowRunTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["success","failure","in-progress","pending"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		workflowRunTypeStatusPropEnum = append(workflowRunTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// WorkflowRunStatusSuccess captures enum value "success"
-	WorkflowRunStatusSuccess string = "success"
-
-	// WorkflowRunStatusFailure captures enum value "failure"
-	WorkflowRunStatusFailure string = "failure"
-
-	// WorkflowRunStatusInProgress captures enum value "in-progress"
-	WorkflowRunStatusInProgress string = "in-progress"
-
-	// WorkflowRunStatusPending captures enum value "pending"
-	WorkflowRunStatusPending string = "pending"
-)
-
-// prop value enum
-func (m *WorkflowRun) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, workflowRunTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *WorkflowRun) validateStatus(formats strfmt.Registry) error {
-
-	if err := validate.Required("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
-		return err
-	}
-
 	return nil
 }
 

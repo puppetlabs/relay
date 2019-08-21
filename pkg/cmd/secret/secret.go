@@ -9,10 +9,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/puppetlabs/nebula/pkg/client"
-	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
-	"github.com/puppetlabs/nebula/pkg/errors"
-	"github.com/puppetlabs/nebula/pkg/util"
+	"github.com/puppetlabs/nebula-cli/pkg/client"
+	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
+	"github.com/puppetlabs/nebula-cli/pkg/errors"
+	"github.com/puppetlabs/nebula-cli/pkg/util"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )

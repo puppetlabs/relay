@@ -13,14 +13,14 @@ import (
 )
 
 // WorkflowName workflow name
-// swagger:model workflowName
+// swagger:model WorkflowName
 type WorkflowName string
 
 // Validate validates this workflow name
 func (m WorkflowName) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := validate.Pattern("", "body", string(m), `/^[\w-]+$/`); err != nil {
+	if err := validate.Pattern("", "body", string(m), `^[\w-]+$`); err != nil {
 		return err
 	}
 

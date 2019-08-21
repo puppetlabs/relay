@@ -2,13 +2,14 @@
 # Commands
 #
 
-API_SPEC_CONVERTER ?= api-spec-converter
-MKDIR ?= mkdir -p
+API_SPEC_CONVERTER := node_modules/api-spec-converter/bin/api-spec-converter
 GIT ?= git
 GO ?= go
+MKDIR ?= mkdir -p
+NPM ?= npm
 RM ?= rm -f
 SHA256SUM ?= shasum -a 256
-SWAGGER ?= swagger
+SWAGGER := $(GO) run -mod=vendor github.com/go-swagger/go-swagger/cmd/swagger
 
 #
 # Variables
@@ -54,16 +55,19 @@ all: build
 $(DEPEND_DIR) $(ARTIFACTS_DIR) $(BIN_DIR):
 	$(MKDIR) $@
 
+$(API_SPEC_CONVERTER):
+	$(NPM) install
+
 ifneq (,$(NEBULA_API_REPO))
 $(NEBULA_API_DIR)/.git:
 	$(GIT) clone --depth 1 --branch $(NEBULA_API_REF) $(NEBULA_API_REPO) $(NEBULA_API_DIR)
 
 $(NEBULA_API_SPEC_FILENAME): $(NEBULA_API_DIR)/.git
 
-$(DEPEND_DIR)/swagger.yaml: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR)
-	$(API_SPEC_CONVERTER) -f openapi_3 -t swagger_2 -s yaml $^ >$@
+$(DEPEND_DIR)/swagger.json: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR)
+	$(API_SPEC_CONVERTER) -f openapi_3 -t swagger_2 -s json $^ >$@
 
-pkg/client/api/nebula_client.go: $(DEPEND_DIR)/swagger.yaml
+pkg/client/api/nebula_client.go: $(DEPEND_DIR)/swagger.json
 	$(RM) -r pkg/client/api
 	$(SWAGGER) generate client -f $^ -c pkg/client/api -m pkg/client/api/models --skip-validation
 endif

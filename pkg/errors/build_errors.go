@@ -800,6 +800,54 @@ func NewClientTokenStorageError() Error {
 	return NewClientTokenStorageErrorBuilder().Build()
 }
 
+// ClientUnexpectedResponseTypeErrorCode is the code for an instance of "unexpected_response_type_error".
+const ClientUnexpectedResponseTypeErrorCode = "neb_client_unexpected_response_type_error"
+
+// IsClientUnexpectedResponseTypeError tests whether a given error is an instance of "unexpected_response_type_error".
+func IsClientUnexpectedResponseTypeError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUnexpectedResponseTypeErrorCode)
+}
+
+// IsClientUnexpectedResponseTypeError tests whether a given error is an instance of "unexpected_response_type_error".
+func (External) IsClientUnexpectedResponseTypeError(err errawr.Error) bool {
+	return IsClientUnexpectedResponseTypeError(err)
+}
+
+// ClientUnexpectedResponseTypeErrorBuilder is a builder for "unexpected_response_type_error" errors.
+type ClientUnexpectedResponseTypeErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unexpected_response_type_error" from this builder.
+func (b *ClientUnexpectedResponseTypeErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "An unexpected response type was returned for this request.",
+		Technical: "An unexpected response type was returned for this request.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unexpected_response_type_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Unexpected response type",
+		Version:          1,
+	}
+}
+
+// NewClientUnexpectedResponseTypeErrorBuilder creates a new error builder for the code "unexpected_response_type_error".
+func NewClientUnexpectedResponseTypeErrorBuilder() *ClientUnexpectedResponseTypeErrorBuilder {
+	return &ClientUnexpectedResponseTypeErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientUnexpectedResponseTypeError creates a new error with the code "unexpected_response_type_error".
+func NewClientUnexpectedResponseTypeError() Error {
+	return NewClientUnexpectedResponseTypeErrorBuilder().Build()
+}
+
 // ClientUpdateWorkflowSecretErrorCode is the code for an instance of "update_workflow_secret_error".
 const ClientUpdateWorkflowSecretErrorCode = "neb_client_update_workflow_secret_error"
 

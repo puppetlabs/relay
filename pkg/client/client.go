@@ -6,19 +6,19 @@ import (
 	"io"
 	"net/url"
 	"os"
-	"strings"
 
 	"github.com/go-openapi/runtime"
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/puppetlabs/nebula/pkg/client/api"
-	authv1 "github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
-	integrationsv1 "github.com/puppetlabs/nebula/pkg/client/api/integrations_v1"
-	"github.com/puppetlabs/nebula/pkg/client/api/models"
-	workflowrunsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
-	workflowsecretsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflow_secrets_v1"
-	workflowsv1 "github.com/puppetlabs/nebula/pkg/client/api/workflows_v1"
-	"github.com/puppetlabs/nebula/pkg/config"
-	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	runs "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
+	secrets "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
+	"github.com/puppetlabs/nebula-cli/pkg/config"
+	"github.com/puppetlabs/nebula-cli/pkg/errors"
 )
 
 const (
@@ -44,11 +44,11 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 		return nil, errors.NewClientInvalidAPIHost(addr).WithCause(err)
 	}
 
-	transport := api.DefaultTransportConfig()
-	transport.Host = host.Host
-	transport.Schemes = []string{host.Scheme}
+	transport := httptransport.New(host.Host, "/", []string{host.Scheme})
+	transport.Producers["application/vnd.puppet.nebula.v1+json"] = runtime.JSONProducer()
+	transport.Consumers["application/vnd.puppet.nebula.v1+json"] = runtime.JSONConsumer()
 
-	delegate := api.NewHTTPClientWithConfig(strfmt.Default, transport)
+	delegate := api.New(transport, strfmt.Default)
 
 	return &APIClient{
 		delegate: delegate,
@@ -57,18 +57,18 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 }
 
 func (c *APIClient) Login(ctx context.Context, email string, password string) errors.Error {
-	params := authv1.NewCreateSessionParams()
-	params.SetBody(&models.CreateSessionSubmission{
+	params := auth.NewCreateSessionParams()
+	params.SetBody(auth.CreateSessionBody{
 		Email:    &email,
 		Password: &password,
 	})
 
-	response, err := c.delegate.AuthV1.CreateSession(params)
+	response, err := c.delegate.Auth.CreateSession(params)
 	if err != nil {
-		return errors.NewClientCreateSessionError().WithCause(err)
+		return errors.NewClientCreateSessionError().WithCause(translateRuntimeError(err))
 	}
 
-	token := Token(strings.TrimPrefix(response.Authorization, "Bearer: "))
+	token := Token(*response.Payload.Token)
 
 	if err := c.storeToken(ctx, &token); err != nil {
 		return errors.NewClientCreateSessionError().WithCause(err)
@@ -77,166 +77,167 @@ func (c *APIClient) Login(ctx context.Context, email string, password string) er
 	return nil
 }
 
-func (c *APIClient) ListIntegrations(ctx context.Context) (*models.Integrations, errors.Error) {
+func (c *APIClient) ListIntegrations(ctx context.Context) ([]*models.Integration, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := integrationsv1.NewListIntegrationsParams()
+	params := integrations.NewGetIntegrationsParams()
 
-	response, derr := c.delegate.IntegrationsV1.ListIntegrations(params, auth)
+	response, derr := c.delegate.Integrations.GetIntegrations(params, auth)
 	if derr != nil {
-		return nil, errors.NewClientListIntegrationsError().WithCause(derr)
+		return nil, errors.NewClientListIntegrationsError().WithCause(translateRuntimeError(derr))
 	}
 
-	return response.Payload, nil
+	return response.Payload.Integrations, nil
 }
 
 func (c *APIClient) GetIntegration(ctx context.Context, id string) (*models.Integration, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := integrationsv1.NewGetIntegrationParams()
-	params.ID = id
+	params := integrations.NewGetIntegrationParams()
+	params.IntegrationID = id
 
-	response, derr := c.delegate.IntegrationsV1.GetIntegration(params, auth)
+	response, derr := c.delegate.Integrations.GetIntegration(params, auth)
 	if derr != nil {
-		return nil, errors.NewClientGetIntegrationError(id).WithCause(derr)
+		return nil, errors.NewClientGetIntegrationError(id).WithCause(translateRuntimeError(derr))
 	}
 
-	return response.Payload, nil
+	return response.Payload.Integration, nil
 }
 
-func (c *APIClient) ListWorkflows(ctx context.Context) (*models.Workflows, errors.Error) {
+func (c *APIClient) ListWorkflows(ctx context.Context) ([]*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowsv1.NewListWorkflowsParams()
+	params := workflows.NewGetWorkflowsParams()
 
-	response, derr := c.delegate.WorkflowsV1.ListWorkflows(params, auth)
+	response, derr := c.delegate.Workflows.GetWorkflows(params, auth)
 	if derr != nil {
-		return nil, errors.NewClientListWorkflowsError().WithCause(derr)
+		return nil, errors.NewClientListWorkflowsError().WithCause(translateRuntimeError(derr))
 	}
 
-	return response.Payload, nil
+	return response.Payload.Workflows, nil
 }
 
 func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integrationID, repo, branch, path string) (*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowsv1.NewCreateWorkflowParams()
+	params := workflows.NewCreateWorkflowParams()
+	params.SetBody(workflows.CreateWorkflowBody{
+		Name:        models.WorkflowName(name),
+		Description: description,
+		Integration: &models.IntegrationIdentifier{
+			ID: &integrationID,
+		},
+		Repository: &repo,
+		Branch:     &branch,
+		Path:       &path,
+	})
 
-	// TODO List integrations and get by provider_id-account_name
-	params.Body = &models.WorkflowSubmission{
-		Name:          models.WorkflowName(name),
-		Description:   &description,
-		IntegrationID: &integrationID,
-		Repository:    &repo,
-		Branch:        &branch,
-		Path:          &path,
-	}
-
-	resp, werr := c.delegate.WorkflowsV1.CreateWorkflow(params, auth)
+	resp, werr := c.delegate.Workflows.CreateWorkflow(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientCreateWorkflowError().WithCause(werr)
+		return nil, errors.NewClientCreateWorkflowError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Workflow, nil
 }
 
 func (c *APIClient) RunWorkflow(ctx context.Context, name string) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowrunsv1.NewCreateWorkflowRunParamsWithContext(ctx)
+	params := runs.NewRunWorkflowParamsWithContext(ctx)
 	params.WorkflowName = name
 
-	resp, werr := c.delegate.WorkflowRunsV1.CreateWorkflowRun(params, auth)
+	resp, werr := c.delegate.WorkflowRuns.RunWorkflow(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientRunWorkflowError().WithCause(werr)
+		return nil, errors.NewClientRunWorkflowError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Run, nil
 }
 
-func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) (*models.WorkflowRunSummaries, errors.Error) {
+func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) ([]*models.WorkflowRunSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowrunsv1.NewListWorkflowRunsParams()
+	params := runs.NewGetWorkflowRunsParams()
 	params.WorkflowName = name
 
-	resp, werr := c.delegate.WorkflowRunsV1.ListWorkflowRuns(params, auth)
+	resp, werr := c.delegate.WorkflowRuns.GetWorkflowRuns(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientListWorkflowRunsError().WithCause(werr)
+		return nil, errors.NewClientListWorkflowRunsError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Runs, nil
 }
 
 func (c *APIClient) GetWorkflowRun(ctx context.Context, name string, runNum int64) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowrunsv1.NewGetWorkflowRunParams()
+	params := runs.NewGetWorkflowRunParams()
 	params.WorkflowName = name
-	params.RunNumber = runNum
+	params.WorkflowRunNumber = runNum
 
-	resp, werr := c.delegate.WorkflowRunsV1.GetWorkflowRun(params, auth)
+	resp, werr := c.delegate.WorkflowRuns.GetWorkflowRun(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientGetWorkflowRunError().WithCause(werr)
+		return nil, errors.NewClientGetWorkflowRunError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Run, nil
 }
 
 func (c *APIClient) GetWorkflowRunStepLog(ctx context.Context, name string, runNum int64, step string, follow bool, writer io.Writer) errors.Error {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowrunsv1.NewGetWorkflowRunStepLogParams()
-	params.Accept = "application/octet-stream"
+	params := runs.NewGetWorkflowRunStepLogParams()
 	params.WorkflowName = name
-	params.RunNumber = runNum
-	params.StepName = step
+	params.WorkflowRunNumber = runNum
+	params.WorkflowStepName = step
 	params.Follow = &follow
 
-	_, _, werr := c.delegate.WorkflowRunsV1.GetWorkflowRunStepLog(params, auth, writer)
+	_, _, werr := c.delegate.WorkflowRuns.GetWorkflowRunStepLog(params, auth, writer)
 	if werr != nil {
-		return errors.NewClientGetWorkflowRunStepLogError().WithCause(werr)
+		return errors.NewClientGetWorkflowRunStepLogError().WithCause(translateRuntimeError(werr))
 	}
 
 	return nil
 }
 
-func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {
+func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.WorkflowSecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowsecretsv1.NewCreateWorkflowSecretParams()
+	params := secrets.NewCreateWorkflowSecretParams()
 	params.WorkflowName = name
-	params.Body = &models.CreateSecret{
-		Key:   key,
-		Value: value,
-	}
+	params.SetBody(secrets.CreateWorkflowSecretBody{
+		Key:   &key,
+		Value: &value,
+	})
 
-	resp, werr := c.delegate.WorkflowSecretsV1.CreateWorkflowSecret(params, auth)
-	if _, ok := werr.(*workflowsecretsv1.CreateWorkflowSecretConflict); ok {
-		return nil, errors.NewClientWorkflowSecretAlreadyExistsError(key)
-	} else if werr != nil {
+	resp, err := c.delegate.WorkflowSecrets.CreateWorkflowSecret(params, auth)
+	if werr := translateRuntimeError(err); werr != nil {
+		if werr.Is("napi_secret_create_conflict") {
+			return nil, errors.NewClientWorkflowSecretAlreadyExistsError(key)
+		}
+
 		return nil, errors.NewClientCreateWorkflowSecretError().WithCause(werr)
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Secret, nil
 }
 
-func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value string) (*models.SecretSummary, errors.Error) {
+func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value string) (*models.WorkflowSecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := workflowsecretsv1.NewUpdateSecretByKeyAndWorkflowIDParams()
+	params := secrets.NewUpdateWorkflowSecretParams()
 	params.WorkflowName = name
-	params.SecretKey = key
-	params.Body = &models.UpdateSecret{
-		Value: value,
-	}
+	params.WorkflowSecretKey = key
+	params.SetBody(secrets.UpdateWorkflowSecretBody{
+		Value: &value,
+	})
 
-	resp, werr := c.delegate.WorkflowSecretsV1.UpdateSecretByKeyAndWorkflowID(params, auth)
+	resp, werr := c.delegate.WorkflowSecrets.UpdateWorkflowSecret(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientUpdateWorkflowSecretError().WithCause(werr)
+		return nil, errors.NewClientUpdateWorkflowSecretError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload, nil
+	return resp.Payload.Secret, nil
 }
 
 func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {

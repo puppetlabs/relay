@@ -11,12 +11,13 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/puppetlabs/nebula/pkg/client/api/auth_v1"
-	"github.com/puppetlabs/nebula/pkg/client/api/integrations_v1"
-	"github.com/puppetlabs/nebula/pkg/client/api/priv"
-	"github.com/puppetlabs/nebula/pkg/client/api/workflow_runs_v1"
-	"github.com/puppetlabs/nebula/pkg/client/api/workflow_secrets_v1"
-	"github.com/puppetlabs/nebula/pkg/client/api/workflows_v1"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/access_control"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/integration_providers"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
 )
 
 // Default nebula HTTP client.
@@ -25,14 +26,14 @@ var Default = NewHTTPClient(nil)
 const (
 	// DefaultHost is the default Host
 	// found in Meta (info) section of spec file
-	DefaultHost string = "localhost"
+	DefaultHost string = "api.nebula.puppet.com"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
 	DefaultBasePath string = "/"
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
-var DefaultSchemes = []string{"http"}
+var DefaultSchemes = []string{"https"}
 
 // NewHTTPClient creates a new nebula HTTP client.
 func NewHTTPClient(formats strfmt.Registry) *Nebula {
@@ -62,17 +63,19 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 	cli := new(Nebula)
 	cli.Transport = transport
 
-	cli.AuthV1 = auth_v1.New(transport, formats)
+	cli.AccessControl = access_control.New(transport, formats)
 
-	cli.IntegrationsV1 = integrations_v1.New(transport, formats)
+	cli.Auth = auth.New(transport, formats)
 
-	cli.Priv = priv.New(transport, formats)
+	cli.IntegrationProviders = integration_providers.New(transport, formats)
 
-	cli.WorkflowRunsV1 = workflow_runs_v1.New(transport, formats)
+	cli.Integrations = integrations.New(transport, formats)
 
-	cli.WorkflowSecretsV1 = workflow_secrets_v1.New(transport, formats)
+	cli.WorkflowRuns = workflow_runs.New(transport, formats)
 
-	cli.WorkflowsV1 = workflows_v1.New(transport, formats)
+	cli.WorkflowSecrets = workflow_secrets.New(transport, formats)
+
+	cli.Workflows = workflows.New(transport, formats)
 
 	return cli
 }
@@ -118,17 +121,19 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // Nebula is a client for nebula
 type Nebula struct {
-	AuthV1 *auth_v1.Client
+	AccessControl *access_control.Client
 
-	IntegrationsV1 *integrations_v1.Client
+	Auth *auth.Client
 
-	Priv *priv.Client
+	IntegrationProviders *integration_providers.Client
 
-	WorkflowRunsV1 *workflow_runs_v1.Client
+	Integrations *integrations.Client
 
-	WorkflowSecretsV1 *workflow_secrets_v1.Client
+	WorkflowRuns *workflow_runs.Client
 
-	WorkflowsV1 *workflows_v1.Client
+	WorkflowSecrets *workflow_secrets.Client
+
+	Workflows *workflows.Client
 
 	Transport runtime.ClientTransport
 }
@@ -137,16 +142,18 @@ type Nebula struct {
 func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
-	c.AuthV1.SetTransport(transport)
+	c.AccessControl.SetTransport(transport)
 
-	c.IntegrationsV1.SetTransport(transport)
+	c.Auth.SetTransport(transport)
 
-	c.Priv.SetTransport(transport)
+	c.IntegrationProviders.SetTransport(transport)
 
-	c.WorkflowRunsV1.SetTransport(transport)
+	c.Integrations.SetTransport(transport)
 
-	c.WorkflowSecretsV1.SetTransport(transport)
+	c.WorkflowRuns.SetTransport(transport)
 
-	c.WorkflowsV1.SetTransport(transport)
+	c.WorkflowSecrets.SetTransport(transport)
+
+	c.Workflows.SetTransport(transport)
 
 }

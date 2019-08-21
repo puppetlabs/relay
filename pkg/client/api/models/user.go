@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -13,45 +15,92 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// User A nebula user object
+// User user
 // swagger:model User
 type User struct {
+	UserSummary
 
-	// Timestamp of when T&C accepted
-	// Required: true
-	// Format: date-time
-	AcceptedTermsAt *strfmt.DateTime `json:"accepted_terms_at"`
+	Lifecycle
 
-	// User email
+	// The roles that this user has been assigned
 	// Required: true
-	Email *string `json:"email"`
+	Roles []*RoleSummary `json:"roles"`
+}
 
-	// ID of the user
-	// Required: true
-	ID *string `json:"id"`
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *User) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 UserSummary
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.UserSummary = aO0
 
-	// User name
-	// Required: true
-	Name *string `json:"name"`
+	// AO1
+	var aO1 Lifecycle
+	if err := swag.ReadJSON(raw, &aO1); err != nil {
+		return err
+	}
+	m.Lifecycle = aO1
+
+	// AO2
+	var dataAO2 struct {
+		Roles []*RoleSummary `json:"roles"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
+		return err
+	}
+
+	m.Roles = dataAO2.Roles
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m User) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 3)
+
+	aO0, err := swag.WriteJSON(m.UserSummary)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	aO1, err := swag.WriteJSON(m.Lifecycle)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO1)
+
+	var dataAO2 struct {
+		Roles []*RoleSummary `json:"roles"`
+	}
+
+	dataAO2.Roles = m.Roles
+
+	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
+	if errAO2 != nil {
+		return nil, errAO2
+	}
+	_parts = append(_parts, jsonDataAO2)
+
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this user
 func (m *User) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAcceptedTermsAt(formats); err != nil {
+	// validation for a type composition with UserSummary
+	if err := m.UserSummary.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+	// validation for a type composition with Lifecycle
+	if err := m.Lifecycle.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateEmail(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateName(formats); err != nil {
+	if err := m.validateRoles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,41 +110,26 @@ func (m *User) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *User) validateAcceptedTermsAt(formats strfmt.Registry) error {
+func (m *User) validateRoles(formats strfmt.Registry) error {
 
-	if err := validate.Required("accepted_terms_at", "body", m.AcceptedTermsAt); err != nil {
+	if err := validate.Required("roles", "body", m.Roles); err != nil {
 		return err
 	}
 
-	if err := validate.FormatOf("accepted_terms_at", "body", "date-time", m.AcceptedTermsAt.String(), formats); err != nil {
-		return err
-	}
+	for i := 0; i < len(m.Roles); i++ {
+		if swag.IsZero(m.Roles[i]) { // not required
+			continue
+		}
 
-	return nil
-}
+		if m.Roles[i] != nil {
+			if err := m.Roles[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
 
-func (m *User) validateEmail(formats strfmt.Registry) error {
-
-	if err := validate.Required("email", "body", m.Email); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *User) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *User) validateName(formats strfmt.Registry) error {
-
-	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
 	}
 
 	return nil

@@ -15,23 +15,18 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// WorkflowRunSummary A minimal representation of a workflow run
+// WorkflowRunSummary workflow run summary
 // swagger:model WorkflowRunSummary
 type WorkflowRunSummary struct {
+	WorkflowRunIdentifier
 
 	// Time at which the workflow execution ended
-	EndedAt string `json:"ended_at,omitempty"`
-
-	// Workflow run id
-	// Required: true
-	ID *string `json:"id"`
-
-	// Ordered index of this run of the corresponding workflow instance
-	// Required: true
-	RunNumber *int64 `json:"run_number"`
+	// Format: date-time
+	EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
 
 	// Time at which workflow execution started
-	StartedAt string `json:"started_at,omitempty"`
+	// Format: date-time
+	StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
 
 	// Current status of the workflow
 	// Required: true
@@ -39,15 +34,83 @@ type WorkflowRunSummary struct {
 	Status *string `json:"status"`
 }
 
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *WorkflowRunSummary) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 WorkflowRunIdentifier
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.WorkflowRunIdentifier = aO0
+
+	// AO1
+	var dataAO1 struct {
+		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+
+		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+
+		Status *string `json:"status"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
+		return err
+	}
+
+	m.EndedAt = dataAO1.EndedAt
+
+	m.StartedAt = dataAO1.StartedAt
+
+	m.Status = dataAO1.Status
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m WorkflowRunSummary) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 2)
+
+	aO0, err := swag.WriteJSON(m.WorkflowRunIdentifier)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	var dataAO1 struct {
+		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+
+		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+
+		Status *string `json:"status"`
+	}
+
+	dataAO1.EndedAt = m.EndedAt
+
+	dataAO1.StartedAt = m.StartedAt
+
+	dataAO1.Status = m.Status
+
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
+	}
+	_parts = append(_parts, jsonDataAO1)
+
+	return swag.ConcatJSON(_parts...), nil
+}
+
 // Validate validates this workflow run summary
 func (m *WorkflowRunSummary) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
+	// validation for a type composition with WorkflowRunIdentifier
+	if err := m.WorkflowRunIdentifier.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateRunNumber(formats); err != nil {
+	if err := m.validateEndedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStartedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,18 +124,26 @@ func (m *WorkflowRunSummary) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WorkflowRunSummary) validateID(formats strfmt.Registry) error {
+func (m *WorkflowRunSummary) validateEndedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
+	if swag.IsZero(m.EndedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("ended_at", "body", "date-time", m.EndedAt.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *WorkflowRunSummary) validateRunNumber(formats strfmt.Registry) error {
+func (m *WorkflowRunSummary) validateStartedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("run_number", "body", m.RunNumber); err != nil {
+	if swag.IsZero(m.StartedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("started_at", "body", "date-time", m.StartedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -91,22 +162,7 @@ func init() {
 	}
 }
 
-const (
-
-	// WorkflowRunSummaryStatusSuccess captures enum value "success"
-	WorkflowRunSummaryStatusSuccess string = "success"
-
-	// WorkflowRunSummaryStatusFailure captures enum value "failure"
-	WorkflowRunSummaryStatusFailure string = "failure"
-
-	// WorkflowRunSummaryStatusInProgress captures enum value "in-progress"
-	WorkflowRunSummaryStatusInProgress string = "in-progress"
-
-	// WorkflowRunSummaryStatusPending captures enum value "pending"
-	WorkflowRunSummaryStatusPending string = "pending"
-)
-
-// prop value enum
+// property enum
 func (m *WorkflowRunSummary) validateStatusEnum(path, location string, value string) error {
 	if err := validate.Enum(path, location, value, workflowRunSummaryTypeStatusPropEnum); err != nil {
 		return err
