@@ -56,7 +56,7 @@ func (sr *StandardRuntime) Config() (*config.Config, error) {
 			v.SetConfigFile(cp)
 		} else {
 			v.AddConfigPath(defaultSystemConfigPath)
-			v.AddConfigPath(userConfigPath())
+			v.AddConfigPath(userConfigDir())
 		}
 
 		if err := v.ReadInConfig(); err != nil {
@@ -75,13 +75,17 @@ func (sr *StandardRuntime) Config() (*config.Config, error) {
 			return nil, err
 		}
 
-		cfg.CachePath = userCachePath()
+		if cfg.CacheDir == "" {
+			cfg.CacheDir = userCacheDir()
+		}
 
-		if err := os.MkdirAll(cfg.CachePath, 0750); err != nil {
+		if err := os.MkdirAll(cfg.CacheDir, 0750); err != nil {
 			return nil, err
 		}
 
-		cfg.TokenPath = filepath.Join(cfg.CachePath, "auth-token")
+		if cfg.TokenPath == "" {
+			cfg.TokenPath = filepath.Join(cfg.CacheDir, "auth-token")
+		}
 
 		sr.config = &cfg
 	}
@@ -115,7 +119,7 @@ func NewStandardRuntime(flags *pflag.FlagSet) *StandardRuntime {
 	return &r
 }
 
-func userConfigPath() string {
+func userConfigDir() string {
 	if os.Getenv("XDG_CONFIG_HOME") != "" {
 		return filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "nebula")
 	}
@@ -123,7 +127,7 @@ func userConfigPath() string {
 	return filepath.Join(os.Getenv("HOME"), ".config", "nebula")
 }
 
-func userCachePath() string {
+func userCacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
 		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "nebula")
 	}
