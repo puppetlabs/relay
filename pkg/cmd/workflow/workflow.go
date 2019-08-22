@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/jedib0t/go-pretty/table"
-	"github.com/puppetlabs/nebula/pkg/client"
-	"github.com/puppetlabs/nebula/pkg/client/api/models"
-	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
-	"github.com/puppetlabs/nebula/pkg/errors"
+	"github.com/puppetlabs/nebula-cli/pkg/client"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
+	"github.com/puppetlabs/nebula-cli/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +41,12 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client, err := client.NewAPIClient(rt.Config())
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -58,12 +63,12 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			tw := table.NewWriter()
 
 			tw.AppendHeader(table.Row{"NAME", "INTEGRATION", "WORKFLOW"})
-			for _, wf := range index.Items {
+			for _, wf := range index {
 				var integration models.Integration
 				var integrationName string
-				if wf.IntegrationID != "" {
-					for _, i := range integrations.Items {
-						if *i.ID == wf.IntegrationID {
+				if it := wf.Integration; it != nil {
+					for _, i := range integrations {
+						if *i.ID == *it.ID {
 							integration = *i
 						}
 					}
@@ -92,6 +97,11 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Create workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -142,7 +152,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--filepath", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -152,7 +162,7 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 			var integrationID string
-			for _, i := range integrations.Items {
+			for _, i := range integrations {
 				iName := fmt.Sprintf("%s-%s", *i.Provider, i.AccountLogin)
 				if iName == integration {
 					integrationID = *i.ID
@@ -188,6 +198,11 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Run workflows",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			timeout, err := cmd.Flags().GetDuration("timeout")
 			if err != nil {
 				return err
@@ -205,7 +220,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -215,21 +230,15 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			// TODO: temporary defaults until the API fills out the values
-			if run.RunNumber == nil {
-				num := int64(1)
-				run.RunNumber = &num
-			}
+			tw := table.NewWriter()
 
 			if run.Status == nil {
 				status := "pending"
 				run.Status = &status
 			}
 
-			tw := table.NewWriter()
-
-			tw.AppendHeader(table.Row{"#", "ID", "STATUS"})
-			tw.AppendRow(table.Row{fmt.Sprintf("%d", *run.RunNumber), *run.ID, *run.Status})
+			tw.AppendHeader(table.Row{"#", "STATUS"})
+			tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.Status})
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
 
@@ -249,6 +258,11 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "List workflow runs",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -258,7 +272,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--name", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -269,21 +283,15 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			}
 
 			tw := table.NewWriter()
-			tw.AppendHeader(table.Row{"#", "ID", "STATUS"})
+			tw.AppendHeader(table.Row{"#", "STATUS"})
 
-			for _, run := range wrs.Items {
-				// TODO: temporary defaults until the API fills out the values
-				if run.RunNumber == nil {
-					num := int64(1)
-					run.RunNumber = &num
-				}
-
+			for _, run := range wrs {
 				if run.Status == nil {
 					status := "pending"
 					run.Status = &status
 				}
 
-				tw.AppendRow(table.Row{fmt.Sprintf("%d", *run.RunNumber), *run.ID, *run.Status})
+				tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.Status})
 			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
@@ -303,6 +311,11 @@ func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Obtain the status of a workflow run",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -318,7 +331,7 @@ func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--run", "required")
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
@@ -353,6 +366,11 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Obtain the logs of a workflow run",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
@@ -379,7 +397,7 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}

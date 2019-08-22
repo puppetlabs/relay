@@ -13,31 +13,19 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Workflow A nebula workflow entry, identified by repository and unique filepath
+// Workflow workflow
 // swagger:model Workflow
 type Workflow struct {
+	WorkflowSummary
+
+	Lifecycle
 
 	// Git branch on which the workflow definition file lives. By default we will pick the default branch of the repository
 	// Required: true
 	Branch *string `json:"branch"`
 
-	// Time at which the workflow record was created
-	// Required: true
-	CreatedAt *string `json:"created_at"`
-
-	// User provided friendly workflow description
-	Description string `json:"description,omitempty"`
-
-	// Workflow id
-	// Required: true
-	ID *string `json:"id"`
-
-	// ID of integration used by workflow
-	IntegrationID string `json:"integration_id,omitempty"`
-
-	// name
-	// Required: true
-	Name WorkflowName `json:"name"`
+	// integration
+	Integration *IntegrationSummary `json:"integration,omitempty"`
 
 	// Relative path from the repository root to the workflow file
 	// Required: true
@@ -46,29 +34,110 @@ type Workflow struct {
 	// A source repository slug
 	// Required: true
 	Repository *string `json:"repository"`
+}
 
-	// Time at which the workflow record was last updated
-	// Required: true
-	UpdatedAt *string `json:"updated_at"`
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *Workflow) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 WorkflowSummary
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.WorkflowSummary = aO0
+
+	// AO1
+	var aO1 Lifecycle
+	if err := swag.ReadJSON(raw, &aO1); err != nil {
+		return err
+	}
+	m.Lifecycle = aO1
+
+	// AO2
+	var dataAO2 struct {
+		Branch *string `json:"branch"`
+
+		Integration *IntegrationSummary `json:"integration,omitempty"`
+
+		Path *string `json:"path"`
+
+		Repository *string `json:"repository"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
+		return err
+	}
+
+	m.Branch = dataAO2.Branch
+
+	m.Integration = dataAO2.Integration
+
+	m.Path = dataAO2.Path
+
+	m.Repository = dataAO2.Repository
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m Workflow) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 3)
+
+	aO0, err := swag.WriteJSON(m.WorkflowSummary)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	aO1, err := swag.WriteJSON(m.Lifecycle)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO1)
+
+	var dataAO2 struct {
+		Branch *string `json:"branch"`
+
+		Integration *IntegrationSummary `json:"integration,omitempty"`
+
+		Path *string `json:"path"`
+
+		Repository *string `json:"repository"`
+	}
+
+	dataAO2.Branch = m.Branch
+
+	dataAO2.Integration = m.Integration
+
+	dataAO2.Path = m.Path
+
+	dataAO2.Repository = m.Repository
+
+	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
+	if errAO2 != nil {
+		return nil, errAO2
+	}
+	_parts = append(_parts, jsonDataAO2)
+
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this workflow
 func (m *Workflow) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	// validation for a type composition with WorkflowSummary
+	if err := m.WorkflowSummary.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+	// validation for a type composition with Lifecycle
+	if err := m.Lifecycle.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateBranch(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateName(formats); err != nil {
+	if err := m.validateIntegration(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -77,10 +146,6 @@ func (m *Workflow) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRepository(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,31 +164,19 @@ func (m *Workflow) validateBranch(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Workflow) validateCreatedAt(formats strfmt.Registry) error {
+func (m *Workflow) validateIntegration(formats strfmt.Registry) error {
 
-	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
-		return err
+	if swag.IsZero(m.Integration) { // not required
+		return nil
 	}
 
-	return nil
-}
-
-func (m *Workflow) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Workflow) validateName(formats strfmt.Registry) error {
-
-	if err := m.Name.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("name")
+	if m.Integration != nil {
+		if err := m.Integration.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("integration")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -141,15 +194,6 @@ func (m *Workflow) validatePath(formats strfmt.Registry) error {
 func (m *Workflow) validateRepository(formats strfmt.Registry) error {
 
 	if err := validate.Required("repository", "body", m.Repository); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Workflow) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if err := validate.Required("updated_at", "body", m.UpdatedAt); err != nil {
 		return err
 	}
 

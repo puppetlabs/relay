@@ -38,7 +38,7 @@ func (mr *MockRoutes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf := bytes.NewReader(b)
 
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("content-type", "application/vnd.puppet.nebula.v1+json")
 
 	if route.header != nil {
 		for k, v := range route.header {

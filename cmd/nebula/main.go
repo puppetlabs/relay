@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/puppetlabs/nebula/pkg/cmd"
+	"github.com/puppetlabs/nebula-cli/pkg/cmd"
 )
 
 func main() {

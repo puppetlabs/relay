@@ -78,6 +78,9 @@ sections:
       not_logged_in:
         title: Not logged in
         description: not logged in
+      unexpected_response_type_error:
+        title: Unexpected response type
+        description: An unexpected response type was returned for this request.
 
   workflow:
     title: Workflow errors

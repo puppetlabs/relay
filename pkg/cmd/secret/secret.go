@@ -9,10 +9,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/puppetlabs/nebula/pkg/client"
-	"github.com/puppetlabs/nebula/pkg/config/runtimefactory"
-	"github.com/puppetlabs/nebula/pkg/errors"
-	"github.com/puppetlabs/nebula/pkg/util"
+	"github.com/puppetlabs/nebula-cli/pkg/client"
+	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
+	"github.com/puppetlabs/nebula-cli/pkg/errors"
+	"github.com/puppetlabs/nebula-cli/pkg/util"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -35,6 +35,11 @@ func NewSetCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 		Short:                 "Set the given secret value",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
 			workflow, err := cmd.Flags().GetString("workflow")
 			if err != nil {
 				return err
@@ -89,7 +94,7 @@ func NewSetCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				fmt.Println()
 			}
 
-			client, err := client.NewAPIClient(rt.Config())
+			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}

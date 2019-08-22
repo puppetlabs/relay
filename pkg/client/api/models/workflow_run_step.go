@@ -29,7 +29,8 @@ type WorkflowRunStep struct {
 	DependsOn []string `json:"depends_on"`
 
 	// Time at which the step execution ended
-	EndedAt string `json:"ended_at,omitempty"`
+	// Format: date-time
+	EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
 
 	// Container image on which step is executed
 	// Required: true
@@ -46,7 +47,8 @@ type WorkflowRunStep struct {
 	Spec interface{} `json:"spec,omitempty"`
 
 	// Time at which step execution started
-	StartedAt string `json:"started_at,omitempty"`
+	// Format: date-time
+	StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
 
 	// Workflow run step status
 	// Required: true
@@ -58,11 +60,19 @@ type WorkflowRunStep struct {
 func (m *WorkflowRunStep) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateEndedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateImage(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStartedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -73,6 +83,19 @@ func (m *WorkflowRunStep) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WorkflowRunStep) validateEndedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.EndedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("ended_at", "body", "date-time", m.EndedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -88,6 +111,19 @@ func (m *WorkflowRunStep) validateImage(formats strfmt.Registry) error {
 func (m *WorkflowRunStep) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *WorkflowRunStep) validateStartedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StartedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("started_at", "body", "date-time", m.StartedAt.String(), formats); err != nil {
 		return err
 	}
 
