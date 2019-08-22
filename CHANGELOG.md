@@ -1,3 +1,14 @@
+# [3.0.0](https://github.com/puppetlabs/nebula-cli/compare/v2.1.0...v3.0.0) (2019-08-22)
+
+
+### Breaking
+
+* Update to latest API endpoints ([5f313dd5120d72f04289af85089a9486dbb7a256](https://github.com/puppetlabs/nebula-cli/commit/5f313dd5120d72f04289af85089a9486dbb7a256))
+
+### Update
+
+* Added a config path flag to the global flags list ([120703ca175e9ddfca59e43d59528195d94c67f6](https://github.com/puppetlabs/nebula-cli/commit/120703ca175e9ddfca59e43d59528195d94c67f6))
+
 # [2.1.0](https://github.com/puppetlabs/nebula-cli/compare/v2.0.0...v2.1.0) (2019-08-13)
 
 
