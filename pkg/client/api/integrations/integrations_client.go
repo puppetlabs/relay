@@ -127,6 +127,74 @@ func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.C
 }
 
 /*
+GetIntegrationRepositories gets a list of available repositories for a given integration and owner
+*/
+func (a *Client) GetIntegrationRepositories(params *GetIntegrationRepositoriesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoriesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetIntegrationRepositoriesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getIntegrationRepositories",
+		Method:             "GET",
+		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetIntegrationRepositoriesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetIntegrationRepositoriesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetIntegrationRepositoriesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetIntegrationRepositoryBranches gets a list of available branches for a given integration owner and repository
+*/
+func (a *Client) GetIntegrationRepositoryBranches(params *GetIntegrationRepositoryBranchesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryBranchesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetIntegrationRepositoryBranchesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getIntegrationRepositoryBranches",
+		Method:             "GET",
+		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}/{integrationRepositoryName}/branches",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetIntegrationRepositoryBranchesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetIntegrationRepositoryBranchesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetIntegrationRepositoryBranchesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetIntegrations lists all account integrations
 */
 func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationsOK, error) {

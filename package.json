@@ -9,7 +9,7 @@
     "@semantic-release/changelog": "^3.0.2",
     "@semantic-release/exec": "^3.3.5",
     "@semantic-release/git": "^7.0.8",
-    "api-spec-converter": "github:puppetlabs/api-spec-converter#recursive-schema-conversion",
+    "api-spec-converter": "^2.10.0",
     "conventional-changelog-eslint": "^3.0.1",
     "cz-adapter-eslint": "^0.2.0",
     "semantic-release": "^15.13.3"

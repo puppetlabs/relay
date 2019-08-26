@@ -64,7 +64,7 @@ $(NEBULA_API_DIR)/.git:
 
 $(NEBULA_API_SPEC_FILENAME): $(NEBULA_API_DIR)/.git
 
-$(DEPEND_DIR)/swagger.json: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR)
+$(DEPEND_DIR)/swagger.json: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR) $(API_SPEC_CONVERTER)
 	$(API_SPEC_CONVERTER) -f openapi_3 -t swagger_2 -s json $^ >$@
 
 pkg/client/api/nebula_client.go: $(DEPEND_DIR)/swagger.json
