@@ -15,6 +15,7 @@ import (
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integration_providers"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
@@ -70,6 +71,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 	cli.IntegrationProviders = integration_providers.New(transport, formats)
 
 	cli.Integrations = integrations.New(transport, formats)
+
+	cli.WorkflowRevisions = workflow_revisions.New(transport, formats)
 
 	cli.WorkflowRuns = workflow_runs.New(transport, formats)
 
@@ -129,6 +132,8 @@ type Nebula struct {
 
 	Integrations *integrations.Client
 
+	WorkflowRevisions *workflow_revisions.Client
+
 	WorkflowRuns *workflow_runs.Client
 
 	WorkflowSecrets *workflow_secrets.Client
@@ -149,6 +154,8 @@ func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 	c.IntegrationProviders.SetTransport(transport)
 
 	c.Integrations.SetTransport(transport)
+
+	c.WorkflowRevisions.SetTransport(transport)
 
 	c.WorkflowRuns.SetTransport(transport)
 

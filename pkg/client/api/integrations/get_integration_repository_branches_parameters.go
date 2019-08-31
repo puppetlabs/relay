@@ -76,6 +76,11 @@ type GetIntegrationRepositoryBranchesParams struct {
 
 	*/
 	IntegrationRepositoryOwner string
+	/*Q
+	  A search term for filtering the results of a branch listing
+
+	*/
+	Q *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -148,6 +153,17 @@ func (o *GetIntegrationRepositoryBranchesParams) SetIntegrationRepositoryOwner(i
 	o.IntegrationRepositoryOwner = integrationRepositoryOwner
 }
 
+// WithQ adds the q to the get integration repository branches params
+func (o *GetIntegrationRepositoryBranchesParams) WithQ(q *string) *GetIntegrationRepositoryBranchesParams {
+	o.SetQ(q)
+	return o
+}
+
+// SetQ adds the q to the get integration repository branches params
+func (o *GetIntegrationRepositoryBranchesParams) SetQ(q *string) {
+	o.Q = q
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetIntegrationRepositoryBranchesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -169,6 +185,22 @@ func (o *GetIntegrationRepositoryBranchesParams) WriteToRequest(r runtime.Client
 	// path param integrationRepositoryOwner
 	if err := r.SetPathParam("integrationRepositoryOwner", o.IntegrationRepositoryOwner); err != nil {
 		return err
+	}
+
+	if o.Q != nil {
+
+		// query param q
+		var qrQ string
+		if o.Q != nil {
+			qrQ = *o.Q
+		}
+		qQ := qrQ
+		if qQ != "" {
+			if err := r.SetQueryParam("q", qQ); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	if len(res) > 0 {

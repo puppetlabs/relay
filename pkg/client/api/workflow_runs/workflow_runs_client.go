@@ -144,7 +144,7 @@ func (a *Client) RunWorkflow(params *RunWorkflowParams, authInfo runtime.ClientA
 		Method:             "POST",
 		PathPattern:        "/api/workflows/{workflowName}/runs",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &RunWorkflowReader{formats: a.formats},

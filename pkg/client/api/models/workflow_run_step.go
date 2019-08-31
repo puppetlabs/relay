@@ -15,36 +15,14 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// WorkflowRunStep An individual workflow run step
+// WorkflowRunStep workflow run step
 // swagger:model WorkflowRunStep
 type WorkflowRunStep struct {
-
-	// Command arguments
-	Args []string `json:"args"`
-
-	// Command to issue
-	Command string `json:"command,omitempty"`
-
-	// Step names that must complete before this one starts
-	DependsOn []string `json:"depends_on"`
+	WorkflowStep
 
 	// Time at which the step execution ended
 	// Format: date-time
 	EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
-
-	// Container image on which step is executed
-	// Required: true
-	Image *string `json:"image"`
-
-	// Input script to execute
-	Input []string `json:"input"`
-
-	// A user provided step name. Must be unique within the workflow definition
-	// Required: true
-	Name *string `json:"name"`
-
-	// Variable specification data to provide to the container
-	Spec interface{} `json:"spec,omitempty"`
 
 	// Time at which step execution started
 	// Format: date-time
@@ -56,19 +34,79 @@ type WorkflowRunStep struct {
 	Status *string `json:"status"`
 }
 
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *WorkflowRunStep) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 WorkflowStep
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.WorkflowStep = aO0
+
+	// AO1
+	var dataAO1 struct {
+		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+
+		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+
+		Status *string `json:"status"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
+		return err
+	}
+
+	m.EndedAt = dataAO1.EndedAt
+
+	m.StartedAt = dataAO1.StartedAt
+
+	m.Status = dataAO1.Status
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m WorkflowRunStep) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 2)
+
+	aO0, err := swag.WriteJSON(m.WorkflowStep)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	var dataAO1 struct {
+		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+
+		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+
+		Status *string `json:"status"`
+	}
+
+	dataAO1.EndedAt = m.EndedAt
+
+	dataAO1.StartedAt = m.StartedAt
+
+	dataAO1.Status = m.Status
+
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
+	}
+	_parts = append(_parts, jsonDataAO1)
+
+	return swag.ConcatJSON(_parts...), nil
+}
+
 // Validate validates this workflow run step
 func (m *WorkflowRunStep) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	// validation for a type composition with WorkflowStep
+	if err := m.WorkflowStep.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateEndedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateImage(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -93,24 +131,6 @@ func (m *WorkflowRunStep) validateEndedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("ended_at", "body", "date-time", m.EndedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *WorkflowRunStep) validateImage(formats strfmt.Registry) error {
-
-	if err := validate.Required("image", "body", m.Image); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *WorkflowRunStep) validateName(formats strfmt.Registry) error {
-
-	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
 
@@ -142,22 +162,7 @@ func init() {
 	}
 }
 
-const (
-
-	// WorkflowRunStepStatusSuccess captures enum value "success"
-	WorkflowRunStepStatusSuccess string = "success"
-
-	// WorkflowRunStepStatusFailure captures enum value "failure"
-	WorkflowRunStepStatusFailure string = "failure"
-
-	// WorkflowRunStepStatusInProgress captures enum value "in-progress"
-	WorkflowRunStepStatusInProgress string = "in-progress"
-
-	// WorkflowRunStepStatusPending captures enum value "pending"
-	WorkflowRunStepStatusPending string = "pending"
-)
-
-// prop value enum
+// property enum
 func (m *WorkflowRunStep) validateStatusEnum(path, location string, value string) error {
 	if err := validate.Enum(path, location, value, workflowRunStepTypeStatusPropEnum); err != nil {
 		return err

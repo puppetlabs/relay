@@ -28,6 +28,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd.AddCommand(NewListCommand(rt))
 	cmd.AddCommand(NewCreateCommand(rt))
 	cmd.AddCommand(NewRunCommand(rt))
+	cmd.AddCommand(NewListParametersCommand(rt))
 	cmd.AddCommand(NewListRunsCommand(rt))
 	cmd.AddCommand(NewRunStatusCommand(rt))
 	cmd.AddCommand(NewRunLogsCommand(rt))
@@ -193,6 +194,8 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 }
 
 func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	var parameters = make(map[string]string, 0)
+
 	cmd := &cobra.Command{
 		Use:                   "run",
 		Short:                 "Run workflows",
@@ -225,7 +228,7 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			run, err := client.RunWorkflow(ctx, name)
+			run, err := client.RunWorkflow(ctx, name, parameters)
 			if err != nil {
 				return err
 			}
@@ -248,6 +251,55 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
 	cmd.Flags().DurationP("timeout", "t", 10*time.Minute, "the timeout for a workflow run to start")
+	cmd.Flags().StringToStringVarP(&parameters, "parameter", "p", nil, "a workflow parameter formatted as a name=value pair")
+
+	return cmd
+}
+
+func NewListParametersCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "parameters",
+		Short:                 "Get the workflow parameters",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			c, err := client.NewAPIClient(cfg)
+			if err != nil {
+				return err
+			}
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+
+			workflowRevision, err := c.GetLatestWorkflowRevision(context.Background(), name)
+
+			if err != nil {
+				return err
+			}
+
+			tw := table.NewWriter()
+			tw.AppendHeader(table.Row{"NAME", "DEFAULT", "DESCRIPTION"})
+
+			for name, parameter := range workflowRevision.Parameters {
+				tw.AppendRow(table.Row{name, parameter.Default, parameter.Description})
+			}
+
+			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("name", "n", "", "the workflow name")
+	cmd.MarkFlagRequired("name")
 
 	return cmd
 }

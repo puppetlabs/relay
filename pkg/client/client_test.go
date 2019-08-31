@@ -182,7 +182,7 @@ func TestWorkflowRun(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wfr, err := c.RunWorkflow(context.Background(), "name")
+		wfr, err := c.RunWorkflow(context.Background(), "name", nil)
 		require.NoError(t, err, "could not run workflow")
 		require.Equal(t, *wfr.Status, "pending")
 		require.Equal(t, wfr.Workflow.Name, models.WorkflowName("name"))
