@@ -45,6 +45,9 @@ sections:
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows
+      get_workflow_revision_error:
+        title: Get workflow revision error
+        description: there was an error fetching this workflow revision
       list_workflow_runs_error:
         title: List workflow runs error
         description: there was an error fetching workflow runs

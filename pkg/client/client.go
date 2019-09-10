@@ -188,7 +188,7 @@ func (c *APIClient) GetLatestWorkflowRevision(ctx context.Context, name string) 
 
 	resp, werr := c.delegate.WorkflowRevisions.GetLatestWorkflowRevision(params, auth)
 	if werr != nil {
-		return nil, errors.NewClientGetWorkflowRunError().WithCause(translateRuntimeError(werr))
+		return nil, errors.NewClientGetWorkflowRevisionError().WithCause(translateRuntimeError(werr))
 	}
 
 	return resp.Payload.Revision, nil
