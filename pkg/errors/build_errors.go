@@ -224,6 +224,54 @@ func NewClientGetIntegrationError(id string) Error {
 	return NewClientGetIntegrationErrorBuilder(id).Build()
 }
 
+// ClientGetWorkflowRevisionErrorCode is the code for an instance of "get_workflow_revision_error".
+const ClientGetWorkflowRevisionErrorCode = "neb_client_get_workflow_revision_error"
+
+// IsClientGetWorkflowRevisionError tests whether a given error is an instance of "get_workflow_revision_error".
+func IsClientGetWorkflowRevisionError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientGetWorkflowRevisionErrorCode)
+}
+
+// IsClientGetWorkflowRevisionError tests whether a given error is an instance of "get_workflow_revision_error".
+func (External) IsClientGetWorkflowRevisionError(err errawr.Error) bool {
+	return IsClientGetWorkflowRevisionError(err)
+}
+
+// ClientGetWorkflowRevisionErrorBuilder is a builder for "get_workflow_revision_error" errors.
+type ClientGetWorkflowRevisionErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "get_workflow_revision_error" from this builder.
+func (b *ClientGetWorkflowRevisionErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error fetching this workflow revision",
+		Technical: "there was an error fetching this workflow revision",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "get_workflow_revision_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Get workflow revision error",
+		Version:          1,
+	}
+}
+
+// NewClientGetWorkflowRevisionErrorBuilder creates a new error builder for the code "get_workflow_revision_error".
+func NewClientGetWorkflowRevisionErrorBuilder() *ClientGetWorkflowRevisionErrorBuilder {
+	return &ClientGetWorkflowRevisionErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientGetWorkflowRevisionError creates a new error with the code "get_workflow_revision_error".
+func NewClientGetWorkflowRevisionError() Error {
+	return NewClientGetWorkflowRevisionErrorBuilder().Build()
+}
+
 // ClientGetWorkflowRunErrorCode is the code for an instance of "get_workflow_run_error".
 const ClientGetWorkflowRunErrorCode = "neb_client_get_workflow_run_error"
 

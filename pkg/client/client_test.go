@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
 	runs "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
 	secrets "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
@@ -32,6 +33,17 @@ func fakeLogin(t *testing.T, c *APIClient) {
 
 	_, err = f.Write([]byte("token"))
 	require.NoError(t, err)
+}
+
+func makeWorkflowRevisionFixture() *models.WorkflowRevision {
+	parameters := make(models.WorkflowParameters)
+	parameters["key1"] = models.WorkflowParameter{Default: 1, Description: "Key 1"}
+	parameters["key2"] = models.WorkflowParameter{Default: "test", Description: "Key 2"}
+	parameters["key3"] = models.WorkflowParameter{Default: true, Description: "Key 3"}
+
+	return &models.WorkflowRevision{
+		WorkflowData: models.WorkflowData{Parameters: parameters},
+	}
 }
 
 func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow {
@@ -170,6 +182,26 @@ func TestWorkflowList(t *testing.T) {
 	})
 }
 
+func TestWorkflowRevision(t *testing.T) {
+	wfr := &workflow_revisions.GetLatestWorkflowRevisionOKBody{}
+	wfr.Revision = makeWorkflowRevisionFixture()
+
+	routes := &testutil.MockRoutes{}
+	routes.Add("/api/workflows/name/revisions/latest", http.StatusOK, wfr, nil)
+
+	withAPIClient(t, routes, func(c *APIClient) {
+		fakeLogin(t, c)
+
+		workflowRevision, err := c.GetLatestWorkflowRevision(context.Background(), "name")
+		require.NoError(t, err, "could not list workflow parameters")
+
+		for name, parameter := range workflowRevision.Parameters {
+			require.EqualValues(t, parameter.Default, wfr.Revision.Parameters[name].Default)
+			require.EqualValues(t, parameter.Description, wfr.Revision.Parameters[name].Description)
+		}
+	})
+}
+
 func TestWorkflowRun(t *testing.T) {
 	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
 	wfrm := makeWorkflowRunFixture(wfm)
@@ -182,7 +214,7 @@ func TestWorkflowRun(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wfr, err := c.RunWorkflow(context.Background(), "name")
+		wfr, err := c.RunWorkflow(context.Background(), "name", nil)
 		require.NoError(t, err, "could not run workflow")
 		require.Equal(t, *wfr.Status, "pending")
 		require.Equal(t, wfr.Workflow.Name, models.WorkflowName("name"))

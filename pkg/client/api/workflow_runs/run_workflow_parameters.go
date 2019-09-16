@@ -61,6 +61,11 @@ for the run workflow operation typically these are written to a http.Request
 */
 type RunWorkflowParams struct {
 
+	/*Body
+	  Workflow run to create
+
+	*/
+	Body RunWorkflowBody
 	/*WorkflowName
 	  Workflow name
 
@@ -105,6 +110,17 @@ func (o *RunWorkflowParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithBody adds the body to the run workflow params
+func (o *RunWorkflowParams) WithBody(body RunWorkflowBody) *RunWorkflowParams {
+	o.SetBody(body)
+	return o
+}
+
+// SetBody adds the body to the run workflow params
+func (o *RunWorkflowParams) SetBody(body RunWorkflowBody) {
+	o.Body = body
+}
+
 // WithWorkflowName adds the workflowName to the run workflow params
 func (o *RunWorkflowParams) WithWorkflowName(workflowName string) *RunWorkflowParams {
 	o.SetWorkflowName(workflowName)
@@ -123,6 +139,10 @@ func (o *RunWorkflowParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
+
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
+	}
 
 	// path param workflowName
 	if err := r.SetPathParam("workflowName", o.WorkflowName); err != nil {

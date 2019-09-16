@@ -14,6 +14,7 @@ import (
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
 	runs "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
 	secrets "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
@@ -140,11 +141,22 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integ
 	return resp.Payload.Workflow, nil
 }
 
-func (c *APIClient) RunWorkflow(ctx context.Context, name string) (*models.WorkflowRun, errors.Error) {
+func (c *APIClient) RunWorkflow(ctx context.Context, name string, parameters map[string]string) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
+
+	wrp := make(models.WorkflowRunParameters)
+
+	for name, value := range parameters {
+		wrp[name] =
+			models.WorkflowRunParameter{Value: value}
+	}
 
 	params := runs.NewRunWorkflowParamsWithContext(ctx)
 	params.WorkflowName = name
+
+	params.SetBody(runs.RunWorkflowBody{
+		Parameters: wrp,
+	})
 
 	resp, werr := c.delegate.WorkflowRuns.RunWorkflow(params, auth)
 	if werr != nil {
@@ -166,6 +178,20 @@ func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) ([]*model
 	}
 
 	return resp.Payload.Runs, nil
+}
+
+func (c *APIClient) GetLatestWorkflowRevision(ctx context.Context, name string) (*models.WorkflowRevision, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflow_revisions.NewGetLatestWorkflowRevisionParams()
+	params.WorkflowName = name
+
+	resp, werr := c.delegate.WorkflowRevisions.GetLatestWorkflowRevision(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientGetWorkflowRevisionError().WithCause(translateRuntimeError(werr))
+	}
+
+	return resp.Payload.Revision, nil
 }
 
 func (c *APIClient) GetWorkflowRun(ctx context.Context, name string, runNum int64) (*models.WorkflowRun, errors.Error) {

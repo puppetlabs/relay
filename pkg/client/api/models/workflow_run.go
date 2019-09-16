@@ -22,6 +22,9 @@ type WorkflowRun struct {
 
 	Lifecycle
 
+	// parameters
+	Parameters WorkflowRunParameters `json:"parameters,omitempty"`
+
 	// A list of workflow steps
 	// Required: true
 	Steps []*WorkflowRunStep `json:"steps"`
@@ -30,8 +33,8 @@ type WorkflowRun struct {
 	// Required: true
 	Workflow *Workflow `json:"workflow"`
 
-	// The raw JSON representation of the workflow at the time of execution
-	WorkflowData interface{} `json:"workflow_data,omitempty"`
+	// workflow data
+	WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
 
 	// Base64-encoded YAML representation of the workflow run
 	WorkflowYaml string `json:"workflow_yaml,omitempty"`
@@ -55,17 +58,21 @@ func (m *WorkflowRun) UnmarshalJSON(raw []byte) error {
 
 	// AO2
 	var dataAO2 struct {
+		Parameters WorkflowRunParameters `json:"parameters,omitempty"`
+
 		Steps []*WorkflowRunStep `json:"steps"`
 
 		Workflow *Workflow `json:"workflow"`
 
-		WorkflowData interface{} `json:"workflow_data,omitempty"`
+		WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
 
 		WorkflowYaml string `json:"workflow_yaml,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
 		return err
 	}
+
+	m.Parameters = dataAO2.Parameters
 
 	m.Steps = dataAO2.Steps
 
@@ -95,14 +102,18 @@ func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, aO1)
 
 	var dataAO2 struct {
+		Parameters WorkflowRunParameters `json:"parameters,omitempty"`
+
 		Steps []*WorkflowRunStep `json:"steps"`
 
 		Workflow *Workflow `json:"workflow"`
 
-		WorkflowData interface{} `json:"workflow_data,omitempty"`
+		WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
 
 		WorkflowYaml string `json:"workflow_yaml,omitempty"`
 	}
+
+	dataAO2.Parameters = m.Parameters
 
 	dataAO2.Steps = m.Steps
 
@@ -134,6 +145,10 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateParameters(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSteps(formats); err != nil {
 		res = append(res, err)
 	}
@@ -142,9 +157,29 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateWorkflowData(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WorkflowRun) validateParameters(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Parameters) { // not required
+		return nil
+	}
+
+	if err := m.Parameters.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("parameters")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -183,6 +218,24 @@ func (m *WorkflowRun) validateWorkflow(formats strfmt.Registry) error {
 		if err := m.Workflow.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("workflow")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *WorkflowRun) validateWorkflowData(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.WorkflowData) { // not required
+		return nil
+	}
+
+	if m.WorkflowData != nil {
+		if err := m.WorkflowData.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("workflow_data")
 			}
 			return err
 		}

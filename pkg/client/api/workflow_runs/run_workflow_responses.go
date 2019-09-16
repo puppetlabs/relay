@@ -119,6 +119,63 @@ func (o *RunWorkflowDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
+/*RunWorkflowBody Fields to create a workflow run
+swagger:model RunWorkflowBody
+*/
+type RunWorkflowBody struct {
+
+	// parameters
+	Parameters models.WorkflowRunParameters `json:"parameters,omitempty"`
+}
+
+// Validate validates this run workflow body
+func (o *RunWorkflowBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateParameters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RunWorkflowBody) validateParameters(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Parameters) { // not required
+		return nil
+	}
+
+	if err := o.Parameters.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("body" + "." + "parameters")
+		}
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RunWorkflowBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RunWorkflowBody) UnmarshalBinary(b []byte) error {
+	var res RunWorkflowBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*RunWorkflowCreatedBody run workflow created body
 swagger:model RunWorkflowCreatedBody
 */
