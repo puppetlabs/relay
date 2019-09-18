@@ -448,13 +448,20 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			timeout, err := cmd.Flags().GetDuration("timeout")
+			if err != nil {
+				return err
+			}
 
 			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
 
-			err = client.GetWorkflowRunStepLog(context.Background(), name, runNum, step, follow, os.Stdout)
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+
+			err = client.GetWorkflowRunStepLog(ctx, name, runNum, step, follow, os.Stdout)
 			if err != nil {
 				return err
 			}
@@ -467,6 +474,7 @@ func NewRunLogsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd.Flags().Int64P("run", "r", -1, "the workflow run number")
 	cmd.Flags().StringP("step", "s", "", "the workflow step")
 	cmd.Flags().BoolP("follow", "f", false, "if the workflow is in progress, should we follow the log?")
+	cmd.Flags().DurationP("timeout", "t", 10*time.Minute, "the timeout for following logs")
 
 	return cmd
 }

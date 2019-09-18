@@ -212,7 +212,7 @@ func (c *APIClient) GetWorkflowRun(ctx context.Context, name string, runNum int6
 func (c *APIClient) GetWorkflowRunStepLog(ctx context.Context, name string, runNum int64, step string, follow bool, writer io.Writer) errors.Error {
 	auth := c.getAuthorizationFunc(ctx)
 
-	params := runs.NewGetWorkflowRunStepLogParams()
+	params := runs.NewGetWorkflowRunStepLogParamsWithContext(ctx)
 	params.WorkflowName = name
 	params.WorkflowRunNumber = runNum
 	params.WorkflowStepName = step
