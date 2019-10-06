@@ -1,3 +1,14 @@
+# [3.1.0](https://github.com/puppetlabs/nebula-cli/compare/v3.0.0...v3.1.0) (2019-10-06)
+
+
+### New
+
+* Support parameters ([df3e87f42b749c500896f49b346f4f717fa984a3](https://github.com/puppetlabs/nebula-cli/commit/df3e87f42b749c500896f49b346f4f717fa984a3))
+
+### Upgrade
+
+* Bump api-spec-converter back to upstream; update API client ([c13bd2d5aa79165be4e0469edfce7acc749d41c4](https://github.com/puppetlabs/nebula-cli/commit/c13bd2d5aa79165be4e0469edfce7acc749d41c4))
+
 # [3.0.0](https://github.com/puppetlabs/nebula-cli/compare/v2.1.0...v3.0.0) (2019-08-22)
 
 
