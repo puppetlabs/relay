@@ -92,6 +92,39 @@ func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.Cli
 }
 
 /*
+ForgotPassword requests a password reset for a user identified by their email address
+*/
+func (a *Client) ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAccepted, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewForgotPasswordParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "forgotPassword",
+		Method:             "POST",
+		PathPattern:        "/forgot-password",
+		ProducesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &ForgotPasswordReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ForgotPasswordAccepted)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ForgotPasswordDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetProfile gets the currently authenticated user s profile
 */
 func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfileOK, error) {

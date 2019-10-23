@@ -10,6 +10,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
@@ -144,11 +145,15 @@ func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integ
 func (c *APIClient) RunWorkflow(ctx context.Context, name string, parameters map[string]string) (*models.WorkflowRun, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
-	wrp := make(models.WorkflowRunParameters)
+	wrp := make(models.WorkflowRunParameters, len(parameters))
 
 	for name, value := range parameters {
-		wrp[name] =
-			models.WorkflowRunParameter{Value: value}
+		ev, err := transfer.EncodeJSON([]byte(value))
+		if err != nil {
+			return nil, errors.NewClientInvalidWorkflowParameterValueError().WithCause(err).Bug()
+		}
+
+		wrp[name] = models.WorkflowRunParameter{Value: ev}
 	}
 
 	params := runs.NewRunWorkflowParamsWithContext(ctx)
@@ -229,11 +234,16 @@ func (c *APIClient) GetWorkflowRunStepLog(ctx context.Context, name string, runN
 func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value string) (*models.WorkflowSecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
+	ev, err := transfer.EncodeJSON([]byte(value))
+	if err != nil {
+		return nil, errors.NewClientInvalidWorkflowSecretValueError().WithCause(err).Bug()
+	}
+
 	params := secrets.NewCreateWorkflowSecretParams()
 	params.WorkflowName = name
 	params.SetBody(secrets.CreateWorkflowSecretBody{
 		Key:   &key,
-		Value: &value,
+		Value: ev,
 	})
 
 	resp, err := c.delegate.WorkflowSecrets.CreateWorkflowSecret(params, auth)
@@ -251,11 +261,16 @@ func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value s
 func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value string) (*models.WorkflowSecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
+	ev, err := transfer.EncodeJSON([]byte(value))
+	if err != nil {
+		return nil, errors.NewClientInvalidWorkflowSecretValueError().WithCause(err).Bug()
+	}
+
 	params := secrets.NewUpdateWorkflowSecretParams()
 	params.WorkflowName = name
 	params.WorkflowSecretKey = key
 	params.SetBody(secrets.UpdateWorkflowSecretBody{
-		Value: &value,
+		Value: ev,
 	})
 
 	resp, werr := c.delegate.WorkflowSecrets.UpdateWorkflowSecret(params, auth)

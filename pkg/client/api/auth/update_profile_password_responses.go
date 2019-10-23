@@ -126,8 +126,7 @@ swagger:model UpdateProfilePasswordBody
 type UpdateProfilePasswordBody struct {
 
 	// Current user password
-	// Required: true
-	CurrentPassword *string `json:"current_password"`
+	CurrentPassword string `json:"current_password,omitempty"`
 
 	// New user password
 	// Required: true
@@ -138,10 +137,6 @@ type UpdateProfilePasswordBody struct {
 func (o *UpdateProfilePasswordBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateCurrentPassword(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateNewPassword(formats); err != nil {
 		res = append(res, err)
 	}
@@ -149,15 +144,6 @@ func (o *UpdateProfilePasswordBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *UpdateProfilePasswordBody) validateCurrentPassword(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"current_password", "body", o.CurrentPassword); err != nil {
-		return err
-	}
-
 	return nil
 }
 

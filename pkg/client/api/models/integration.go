@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // Integration integration
@@ -24,10 +25,15 @@ type Integration struct {
 	// Integration account login name.
 	AccountLogin string `json:"account_login,omitempty"`
 
+	// auth
+	// Required: true
+	Auth *IntegrationAO2Auth `json:"auth"`
+
 	// Time of last integration call
 	LastUsed string `json:"last_used,omitempty"`
 
 	// The workflows being used by this integration
+	// Required: true
 	Workflows []*WorkflowSummary `json:"workflows"`
 }
 
@@ -51,6 +57,8 @@ func (m *Integration) UnmarshalJSON(raw []byte) error {
 	var dataAO2 struct {
 		AccountLogin string `json:"account_login,omitempty"`
 
+		Auth *IntegrationAO2Auth `json:"auth"`
+
 		LastUsed string `json:"last_used,omitempty"`
 
 		Workflows []*WorkflowSummary `json:"workflows"`
@@ -60,6 +68,8 @@ func (m *Integration) UnmarshalJSON(raw []byte) error {
 	}
 
 	m.AccountLogin = dataAO2.AccountLogin
+
+	m.Auth = dataAO2.Auth
 
 	m.LastUsed = dataAO2.LastUsed
 
@@ -87,12 +97,16 @@ func (m Integration) MarshalJSON() ([]byte, error) {
 	var dataAO2 struct {
 		AccountLogin string `json:"account_login,omitempty"`
 
+		Auth *IntegrationAO2Auth `json:"auth"`
+
 		LastUsed string `json:"last_used,omitempty"`
 
 		Workflows []*WorkflowSummary `json:"workflows"`
 	}
 
 	dataAO2.AccountLogin = m.AccountLogin
+
+	dataAO2.Auth = m.Auth
 
 	dataAO2.LastUsed = m.LastUsed
 
@@ -120,6 +134,10 @@ func (m *Integration) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAuth(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateWorkflows(formats); err != nil {
 		res = append(res, err)
 	}
@@ -130,10 +148,28 @@ func (m *Integration) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Integration) validateAuth(formats strfmt.Registry) error {
+
+	if err := validate.Required("auth", "body", m.Auth); err != nil {
+		return err
+	}
+
+	if m.Auth != nil {
+		if err := m.Auth.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Integration) validateWorkflows(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Workflows) { // not required
-		return nil
+	if err := validate.Required("workflows", "body", m.Workflows); err != nil {
+		return err
 	}
 
 	for i := 0; i < len(m.Workflows); i++ {
@@ -166,6 +202,56 @@ func (m *Integration) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Integration) UnmarshalBinary(b []byte) error {
 	var res Integration
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// IntegrationAO2Auth The authentication details of this integration
+// swagger:model IntegrationAO2Auth
+type IntegrationAO2Auth struct {
+
+	// The authentication method
+	// Required: true
+	Type *string `json:"type"`
+}
+
+// Validate validates this integration a o2 auth
+func (m *IntegrationAO2Auth) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *IntegrationAO2Auth) validateType(formats strfmt.Registry) error {
+
+	if err := validate.Required("auth"+"."+"type", "body", m.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *IntegrationAO2Auth) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *IntegrationAO2Auth) UnmarshalBinary(b []byte) error {
+	var res IntegrationAO2Auth
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

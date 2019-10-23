@@ -125,11 +125,11 @@ swagger:model CreateSessionBody
 */
 type CreateSessionBody struct {
 
-	// User password
+	// User email
 	// Required: true
 	Email *string `json:"email"`
 
-	// User email
+	// User password
 	// Required: true
 	Password *string `json:"password"`
 }

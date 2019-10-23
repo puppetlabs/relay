@@ -195,6 +195,40 @@ func (a *Client) GetIntegrationRepositoryBranches(params *GetIntegrationReposito
 }
 
 /*
+GetIntegrationRepositoryFiles gets a list of files in a directory for a given integration owner repository branch and path
+*/
+func (a *Client) GetIntegrationRepositoryFiles(params *GetIntegrationRepositoryFilesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryFilesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetIntegrationRepositoryFilesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getIntegrationRepositoryFiles",
+		Method:             "GET",
+		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}/{integrationRepositoryName}/branches/{integrationRepositoryBranch}/files",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetIntegrationRepositoryFilesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetIntegrationRepositoryFilesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetIntegrationRepositoryFilesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetIntegrations lists all account integrations
 */
 func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationsOK, error) {
@@ -225,6 +259,40 @@ func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetIntegrationsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ReauthorizeIntegration reauthorizes an external integration
+*/
+func (a *Client) ReauthorizeIntegration(params *ReauthorizeIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*ReauthorizeIntegrationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewReauthorizeIntegrationParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "reauthorizeIntegration",
+		Method:             "POST",
+		PathPattern:        "/api/integrations/{integrationId}/reauthorize",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &ReauthorizeIntegrationReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ReauthorizeIntegrationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ReauthorizeIntegrationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

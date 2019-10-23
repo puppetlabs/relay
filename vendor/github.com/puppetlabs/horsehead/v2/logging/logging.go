@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/inconshreveable/log15"
-	"github.com/puppetlabs/horsehead/logging/handler"
+	"github.com/puppetlabs/horsehead/v2/logging/handler"
 )
 
 var (

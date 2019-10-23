@@ -131,7 +131,7 @@ type CreateWorkflowSecretBody struct {
 
 	// value
 	// Required: true
-	Value *string `json:"value"`
+	Value models.BinaryString `json:"value"`
 }
 
 // Validate validates this create workflow secret body

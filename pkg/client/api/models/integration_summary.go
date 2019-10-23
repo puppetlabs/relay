@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -25,6 +27,11 @@ type IntegrationSummary struct {
 	// This integration's provider identifier
 	// Required: true
 	Provider *string `json:"provider"`
+
+	// The availability status of this integration
+	// Required: true
+	// Enum: [active lapsed]
+	Status *string `json:"status"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -41,6 +48,8 @@ func (m *IntegrationSummary) UnmarshalJSON(raw []byte) error {
 		Name *string `json:"name"`
 
 		Provider *string `json:"provider"`
+
+		Status *string `json:"status"`
 	}
 	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
@@ -49,6 +58,8 @@ func (m *IntegrationSummary) UnmarshalJSON(raw []byte) error {
 	m.Name = dataAO1.Name
 
 	m.Provider = dataAO1.Provider
+
+	m.Status = dataAO1.Status
 
 	return nil
 }
@@ -67,11 +78,15 @@ func (m IntegrationSummary) MarshalJSON() ([]byte, error) {
 		Name *string `json:"name"`
 
 		Provider *string `json:"provider"`
+
+		Status *string `json:"status"`
 	}
 
 	dataAO1.Name = m.Name
 
 	dataAO1.Provider = m.Provider
+
+	dataAO1.Status = m.Status
 
 	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
 	if errAO1 != nil {
@@ -99,6 +114,10 @@ func (m *IntegrationSummary) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -117,6 +136,40 @@ func (m *IntegrationSummary) validateName(formats strfmt.Registry) error {
 func (m *IntegrationSummary) validateProvider(formats strfmt.Registry) error {
 
 	if err := validate.Required("provider", "body", m.Provider); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var integrationSummaryTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["active","lapsed"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		integrationSummaryTypeStatusPropEnum = append(integrationSummaryTypeStatusPropEnum, v)
+	}
+}
+
+// property enum
+func (m *IntegrationSummary) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, integrationSummaryTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *IntegrationSummary) validateStatus(formats strfmt.Registry) error {
+
+	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
 		return err
 	}
 
