@@ -1,3 +1,14 @@
+## [3.1.1](https://github.com/puppetlabs/nebula-cli/compare/v3.1.0...v3.1.1) (2019-10-24)
+
+
+### Fix
+
+* Correctly encode parameter and secret values with Base64 if needed ([efa9cddedb985cc05357035078c67ec3ab1e2360](https://github.com/puppetlabs/nebula-cli/commit/efa9cddedb985cc05357035078c67ec3ab1e2360))
+
+### Upgrade
+
+* Bump go-swagger version to resolve flattening issues ([5c2fad08cff4de95cfc25f76e84be2ee9c1ae454](https://github.com/puppetlabs/nebula-cli/commit/5c2fad08cff4de95cfc25f76e84be2ee9c1ae454))
+
 # [3.1.0](https://github.com/puppetlabs/nebula-cli/compare/v3.0.0...v3.1.0) (2019-10-06)
 
 
