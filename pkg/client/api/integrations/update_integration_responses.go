@@ -124,6 +124,9 @@ swagger:model UpdateIntegrationBody
 */
 type UpdateIntegrationBody struct {
 
+	// auth
+	Auth models.IntegrationAuth `json:"auth,omitempty"`
+
 	// A descriptive integration name
 	Name string `json:"name,omitempty"`
 }

@@ -2,7 +2,7 @@ package logger
 
 import (
 	"github.com/inconshreveable/log15"
-	"github.com/puppetlabs/horsehead/logging"
+	"github.com/puppetlabs/horsehead/v2/logging"
 )
 
 const (

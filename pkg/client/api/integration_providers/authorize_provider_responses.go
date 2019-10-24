@@ -185,7 +185,7 @@ type AuthorizeProviderOKBody struct {
 	models.Entity
 
 	// authorization
-	Authorization interface{} `json:"authorization,omitempty"`
+	Authorization models.ProviderAuth `json:"authorization,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -199,7 +199,7 @@ func (o *AuthorizeProviderOKBody) UnmarshalJSON(raw []byte) error {
 
 	// AuthorizeProviderOKBodyAO1
 	var dataAuthorizeProviderOKBodyAO1 struct {
-		Authorization interface{} `json:"authorization,omitempty"`
+		Authorization models.ProviderAuth `json:"authorization,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataAuthorizeProviderOKBodyAO1); err != nil {
 		return err
@@ -221,7 +221,7 @@ func (o AuthorizeProviderOKBody) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, authorizeProviderOKBodyAO0)
 
 	var dataAuthorizeProviderOKBodyAO1 struct {
-		Authorization interface{} `json:"authorization,omitempty"`
+		Authorization models.ProviderAuth `json:"authorization,omitempty"`
 	}
 
 	dataAuthorizeProviderOKBodyAO1.Authorization = o.Authorization

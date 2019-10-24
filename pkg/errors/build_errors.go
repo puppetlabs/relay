@@ -416,6 +416,102 @@ func NewClientInvalidAPIHost(host string) Error {
 	return NewClientInvalidAPIHostBuilder(host).Build()
 }
 
+// ClientInvalidWorkflowParameterValueErrorCode is the code for an instance of "invalid_workflow_parameter_value_error".
+const ClientInvalidWorkflowParameterValueErrorCode = "neb_client_invalid_workflow_parameter_value_error"
+
+// IsClientInvalidWorkflowParameterValueError tests whether a given error is an instance of "invalid_workflow_parameter_value_error".
+func IsClientInvalidWorkflowParameterValueError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientInvalidWorkflowParameterValueErrorCode)
+}
+
+// IsClientInvalidWorkflowParameterValueError tests whether a given error is an instance of "invalid_workflow_parameter_value_error".
+func (External) IsClientInvalidWorkflowParameterValueError(err errawr.Error) bool {
+	return IsClientInvalidWorkflowParameterValueError(err)
+}
+
+// ClientInvalidWorkflowParameterValueErrorBuilder is a builder for "invalid_workflow_parameter_value_error" errors.
+type ClientInvalidWorkflowParameterValueErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_workflow_parameter_value_error" from this builder.
+func (b *ClientInvalidWorkflowParameterValueErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The value of this workflow parameter cannot be encoded.",
+		Technical: "The value of this workflow parameter cannot be encoded.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_workflow_parameter_value_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid workflow parameter value",
+		Version:          1,
+	}
+}
+
+// NewClientInvalidWorkflowParameterValueErrorBuilder creates a new error builder for the code "invalid_workflow_parameter_value_error".
+func NewClientInvalidWorkflowParameterValueErrorBuilder() *ClientInvalidWorkflowParameterValueErrorBuilder {
+	return &ClientInvalidWorkflowParameterValueErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientInvalidWorkflowParameterValueError creates a new error with the code "invalid_workflow_parameter_value_error".
+func NewClientInvalidWorkflowParameterValueError() Error {
+	return NewClientInvalidWorkflowParameterValueErrorBuilder().Build()
+}
+
+// ClientInvalidWorkflowSecretValueErrorCode is the code for an instance of "invalid_workflow_secret_value_error".
+const ClientInvalidWorkflowSecretValueErrorCode = "neb_client_invalid_workflow_secret_value_error"
+
+// IsClientInvalidWorkflowSecretValueError tests whether a given error is an instance of "invalid_workflow_secret_value_error".
+func IsClientInvalidWorkflowSecretValueError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientInvalidWorkflowSecretValueErrorCode)
+}
+
+// IsClientInvalidWorkflowSecretValueError tests whether a given error is an instance of "invalid_workflow_secret_value_error".
+func (External) IsClientInvalidWorkflowSecretValueError(err errawr.Error) bool {
+	return IsClientInvalidWorkflowSecretValueError(err)
+}
+
+// ClientInvalidWorkflowSecretValueErrorBuilder is a builder for "invalid_workflow_secret_value_error" errors.
+type ClientInvalidWorkflowSecretValueErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_workflow_secret_value_error" from this builder.
+func (b *ClientInvalidWorkflowSecretValueErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The value of this workflow secret cannot be encoded.",
+		Technical: "The value of this workflow secret cannot be encoded.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_workflow_secret_value_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Invalid workflow secret value",
+		Version:          1,
+	}
+}
+
+// NewClientInvalidWorkflowSecretValueErrorBuilder creates a new error builder for the code "invalid_workflow_secret_value_error".
+func NewClientInvalidWorkflowSecretValueErrorBuilder() *ClientInvalidWorkflowSecretValueErrorBuilder {
+	return &ClientInvalidWorkflowSecretValueErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientInvalidWorkflowSecretValueError creates a new error with the code "invalid_workflow_secret_value_error".
+func NewClientInvalidWorkflowSecretValueError() Error {
+	return NewClientInvalidWorkflowSecretValueErrorBuilder().Build()
+}
+
 // ClientListIntegrationsErrorCode is the code for an instance of "list_integrations_error".
 const ClientListIntegrationsErrorCode = "neb_client_list_integrations_error"
 

@@ -60,9 +60,15 @@ sections:
       create_workflow_error:
         title: Create workflow error
         description: there was an error creating the workflow
+      invalid_workflow_parameter_value_error:
+        title: Invalid workflow parameter value
+        description: The value of this workflow parameter cannot be encoded.
       run_workflow_error:
         title: Run workflow error
         description: there was an error running the workflow
+      invalid_workflow_secret_value_error:
+        title: Invalid workflow secret value
+        description: The value of this workflow secret cannot be encoded.
       create_workflow_secret_error:
         title: Create workflow secret error
         description: there was an error creating the workflow secret

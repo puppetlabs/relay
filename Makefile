@@ -80,7 +80,7 @@ depend: depend-client
 
 .PHONY: generate
 generate:
-	$(GO) generate ./...
+	$(GO) generate $(GOFLAGS) ./...
 
 .PHONY: build
 build: generate depend $(BIN_DIR)
