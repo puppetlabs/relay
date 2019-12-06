@@ -15,8 +15,7 @@ SWAGGER := $(GO) run -mod=vendor github.com/go-swagger/go-swagger/cmd/swagger
 # Variables
 #
 
-NEBULA_API_REPO ?= $(if $(GITHUB_TOKEN),https://$(GITHUB_TOKEN):,ssh://git)@github.com/puppetlabs/nebula-api.git
-NEBULA_API_REF ?= master
+NEBULA_API_URL ?= https://api.nebula.puppet.com
 
 GOFLAGS ?= -mod=vendor
 
@@ -33,8 +32,8 @@ DEPEND_DIR := .depend
 ARTIFACTS_DIR := artifacts
 BIN_DIR := bin
 
-NEBULA_API_DIR := $(DEPEND_DIR)/nebula-api
-NEBULA_API_SPEC_FILENAME := $(NEBULA_API_DIR)/openapi/swagger.yaml
+NEBULA_API_SPEC_URL := $(NEBULA_API_URL)/openapi/v3
+NEBULA_API_SPEC_FILENAME := $(DEPEND_DIR)/openapiv3.json
 
 CLI_EXT_linux :=
 CLI_EXT_windows := .exe
@@ -58,16 +57,14 @@ $(DEPEND_DIR) $(ARTIFACTS_DIR) $(BIN_DIR):
 $(API_SPEC_CONVERTER):
 	$(NPM) install
 
-ifneq (,$(NEBULA_API_REPO))
-$(NEBULA_API_DIR)/.git:
-	$(GIT) clone --depth 1 --branch $(NEBULA_API_REF) $(NEBULA_API_REPO) $(NEBULA_API_DIR)
+ifneq (,$(NEBULA_API_URL))
+$(NEBULA_API_SPEC_FILENAME): $(DEPEND_DIR)
+	curl -o $(NEBULA_API_SPEC_FILENAME) $(NEBULA_API_SPEC_URL)
 
-$(NEBULA_API_SPEC_FILENAME): $(NEBULA_API_DIR)/.git
-
-$(DEPEND_DIR)/swagger.json: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR) $(API_SPEC_CONVERTER)
+$(DEPEND_DIR)/swaggerv2.json: $(NEBULA_API_SPEC_FILENAME) $(DEPEND_DIR) $(API_SPEC_CONVERTER)
 	$(API_SPEC_CONVERTER) -f openapi_3 -t swagger_2 -s json $^ >$@
 
-pkg/client/api/nebula_client.go: $(DEPEND_DIR)/swagger.json
+pkg/client/api/nebula_client.go: $(DEPEND_DIR)/swaggerv2.json
 	$(RM) -r pkg/client/api
 	$(SWAGGER) generate client -f $^ -c pkg/client/api -m pkg/client/api/models --skip-validation
 endif
