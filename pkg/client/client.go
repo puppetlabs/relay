@@ -13,6 +13,7 @@ import (
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/events"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
@@ -47,8 +48,8 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 	}
 
 	transport := httptransport.New(host.Host, "/", []string{host.Scheme})
-	transport.Producers["application/vnd.puppet.nebula.v1+json"] = runtime.JSONProducer()
-	transport.Consumers["application/vnd.puppet.nebula.v1+json"] = runtime.JSONConsumer()
+	transport.Producers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONProducer()
+	transport.Consumers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONConsumer()
 
 	delegate := api.New(transport, strfmt.Default)
 
@@ -92,6 +93,24 @@ func (c *APIClient) ListIntegrations(ctx context.Context) ([]*models.Integration
 	return response.Payload.Integrations, nil
 }
 
+func (c *APIClient) ListIntegrationRepositoryBranches(ctx context.Context, id, name, owner string, query *string) ([]*models.RepositoryBranch, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := integrations.NewGetIntegrationRepositoryBranchesParamsWithContext(ctx)
+
+	params.IntegrationID = id
+	params.IntegrationRepositoryName = name
+	params.IntegrationRepositoryOwner = owner
+	params.Q = query
+
+	response, derr := c.delegate.Integrations.GetIntegrationRepositoryBranches(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientListIntegrationsError().WithCause(translateRuntimeError(derr))
+	}
+
+	return response.Payload.Branches, nil
+}
+
 func (c *APIClient) GetIntegration(ctx context.Context, id string) (*models.Integration, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
@@ -104,6 +123,33 @@ func (c *APIClient) GetIntegration(ctx context.Context, id string) (*models.Inte
 	}
 
 	return response.Payload.Integration, nil
+}
+
+func (c *APIClient) ListEventSources(ctx context.Context) ([]*models.EventSource, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := events.NewGetEventSourcesParams()
+
+	response, derr := c.delegate.Events.GetEventSources(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientListIntegrationsError().WithCause(translateRuntimeError(derr))
+	}
+
+	return response.Payload.EventSources, nil
+}
+
+func (c *APIClient) GetEventSource(ctx context.Context, id string) (*models.EventSource, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := events.NewGetEventSourceParams()
+	params.EventSourceID = id
+
+	response, derr := c.delegate.Events.GetEventSource(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientGetIntegrationError(id).WithCause(translateRuntimeError(derr))
+	}
+
+	return response.Payload.EventSource, nil
 }
 
 func (c *APIClient) ListWorkflows(ctx context.Context) ([]*models.Workflow, errors.Error) {
@@ -169,6 +215,27 @@ func (c *APIClient) RunWorkflow(ctx context.Context, name string, parameters map
 	}
 
 	return resp.Payload.Run, nil
+}
+
+func (c *APIClient) CancelWorkflowRun(ctx context.Context, name string, runNum int64) errors.Error {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := runs.NewPatchWorkflowRunParams()
+	params.WorkflowName = name
+	params.WorkflowRunNumber = runNum
+
+	params.SetBody(runs.PatchWorkflowRunBody{
+		Operation: &models.WorkflowRunOperation{
+			Cancel: true,
+		},
+	})
+
+	_, werr := c.delegate.WorkflowRuns.PatchWorkflowRun(params, auth)
+	if werr != nil {
+		return errors.NewClientRunWorkflowError().WithCause(translateRuntimeError(werr))
+	}
+
+	return nil
 }
 
 func (c *APIClient) ListWorkflowRuns(ctx context.Context, name string) ([]*models.WorkflowRunSummary, errors.Error) {
@@ -242,7 +309,7 @@ func (c *APIClient) CreateWorkflowSecret(ctx context.Context, name, key, value s
 	params := secrets.NewCreateWorkflowSecretParams()
 	params.WorkflowName = name
 	params.SetBody(secrets.CreateWorkflowSecretBody{
-		Key:   &key,
+		Name:  &key,
 		Value: ev,
 	})
 
@@ -268,7 +335,7 @@ func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value s
 
 	params := secrets.NewUpdateWorkflowSecretParams()
 	params.WorkflowName = name
-	params.WorkflowSecretKey = key
+	params.WorkflowSecretName = key
 	params.SetBody(secrets.UpdateWorkflowSecretBody{
 		Value: ev,
 	})
@@ -279,6 +346,35 @@ func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value s
 	}
 
 	return resp.Payload.Secret, nil
+}
+
+func (c *APIClient) ListWorkflowSecrets(ctx context.Context, name string) ([]*models.WorkflowSecretSummary, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := secrets.NewListWorkflowSecretsParams()
+	params.WorkflowName = name
+
+	resp, werr := c.delegate.WorkflowSecrets.ListWorkflowSecrets(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientListWorkflowRunsError().WithCause(translateRuntimeError(werr))
+	}
+
+	return resp.Payload.Secrets, nil
+}
+
+func (c *APIClient) GetWorkflowRevision(ctx context.Context, name string, revisionId string) (*models.WorkflowRevision, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflow_revisions.NewGetWorkflowRevisionParams()
+	params.WorkflowName = name
+	params.WorkflowRevision = revisionId
+
+	resp, werr := c.delegate.WorkflowRevisions.GetWorkflowRevision(params, auth)
+	if werr != nil {
+		return nil, errors.NewClientListWorkflowRunsError().WithCause(translateRuntimeError(werr))
+	}
+
+	return resp.Payload.Revision, nil
 }
 
 func (c *APIClient) storeToken(ctx context.Context, token *Token) errors.Error {

@@ -9,7 +9,6 @@ import (
 
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/puppetlabs/nebula-cli/pkg/client"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
 	"github.com/puppetlabs/nebula-cli/pkg/errors"
 	"github.com/spf13/cobra"
@@ -30,6 +29,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd.AddCommand(NewRunCommand(rt))
 	cmd.AddCommand(NewListParametersCommand(rt))
 	cmd.AddCommand(NewListRunsCommand(rt))
+	cmd.AddCommand(NewRunCancelCommand(rt))
 	cmd.AddCommand(NewRunStatusCommand(rt))
 	cmd.AddCommand(NewRunLogsCommand(rt))
 
@@ -56,29 +56,17 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			integrations, err := client.ListIntegrations(context.Background())
-			if err != nil {
-				return err
-			}
 
 			tw := table.NewWriter()
 
 			tw.AppendHeader(table.Row{"NAME", "INTEGRATION", "WORKFLOW"})
 			for _, wf := range index {
-				var integration models.Integration
-				var integrationName string
-				if it := wf.Integration; it != nil {
-					for _, i := range integrations {
-						if *i.ID == *it.ID {
-							integration = *i
-						}
-					}
-					integrationName = fmt.Sprintf("%s-%s", *integration.Provider, integration.AccountLogin)
-				} else {
-					integrationName = "None"
+				integrationName := ""
+				if wf.Integration != nil {
+					integrationName = fmt.Sprintf("%s-%s", *wf.Integration.Provider, wf.Integration.AccountLogin)
 				}
 
-				p := []string{*wf.Repository, *wf.Branch, *wf.Path}
+				p := []string{wf.Repository, wf.Branch, wf.Path}
 
 				tw.AppendRow(table.Row{wf.Name, integrationName, strings.Join(p, "/")})
 			}
@@ -235,13 +223,13 @@ func NewRunCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 			tw := table.NewWriter()
 
-			if run.Status == nil {
+			if run.State.Status == nil {
 				status := "pending"
-				run.Status = &status
+				run.State.Status = &status
 			}
 
 			tw.AppendHeader(table.Row{"#", "STATUS"})
-			tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.Status})
+			tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.State.Status})
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
 
@@ -289,7 +277,12 @@ func NewListParametersCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			tw.AppendHeader(table.Row{"NAME", "DEFAULT", "DESCRIPTION"})
 
 			for name, parameter := range workflowRevision.Parameters {
-				tw.AppendRow(table.Row{name, parameter.Default, parameter.Description})
+				parameterDefault := parameter.Default
+				if parameterDefault == nil {
+					parameterDefault = ""
+				}
+
+				tw.AppendRow(table.Row{name, parameterDefault, parameter.Description})
 			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
@@ -335,15 +328,36 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			}
 
 			tw := table.NewWriter()
-			tw.AppendHeader(table.Row{"#", "STATUS"})
+			tw.AppendHeader(table.Row{"#", "STATUS", "REPOSITORY", "BRANCH", "HASH"})
 
 			for _, run := range wrs {
-				if run.Status == nil {
-					status := "pending"
-					run.Status = &status
-				}
+				if run.State != nil {
+					if run.State.Status == nil {
+						status := "pending"
+						run.State.Status = &status
+					}
 
-				tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.Status})
+					repository := ""
+					hash := ""
+					branch := ""
+
+					revision, err := client.GetWorkflowRevision(context.Background(), name, *run.Revision.ID)
+					if err != nil {
+						return err
+					}
+
+					if revision.Context != nil {
+						if revision.Context.Repository != nil {
+							repository = *revision.Context.Repository
+						}
+						branch = revision.Context.Branch
+						if revision.Context.Hash != nil {
+							hash = *revision.Context.Hash
+						}
+					}
+
+					tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.State.Status, repository, branch, hash})
+				}
 			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
@@ -353,6 +367,52 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.Flags().StringP("name", "n", "", "the workflow name to run against")
+
+	return cmd
+}
+
+func NewRunCancelCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "cancel",
+		Short:                 "Cancel a workflow run",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+			runNum, err := cmd.Flags().GetInt64("run")
+			if err != nil {
+				return err
+			}
+			if -1 == runNum {
+				return errors.NewWorkflowCliFlagError("--run", "required")
+			}
+
+			client, err := client.NewAPIClient(cfg)
+			if err != nil {
+				return err
+			}
+
+			err = client.CancelWorkflowRun(context.Background(), name, runNum)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("name", "n", "", "the workflow name of the workflow")
+	cmd.Flags().Int64P("run", "r", -1, "the run number of the workflow")
 
 	return cmd
 }
@@ -396,8 +456,13 @@ func NewRunStatusCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			tw := table.NewWriter()
 			tw.AppendHeader(table.Row{"STEP", "STATUS"})
 
-			for _, step := range wr.Steps {
-				tw.AppendRow(table.Row{*step.Name, *step.Status})
+			if wr.State != nil {
+				for name, step := range wr.State.Steps {
+					if step != nil {
+						stepMap := step.(map[string]interface{})
+						tw.AppendRow(table.Row{name, stepMap["status"]})
+					}
+				}
 			}
 
 			fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())

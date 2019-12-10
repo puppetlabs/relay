@@ -39,7 +39,7 @@ func (a *Client) GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.C
 		ID:                 "getWorkflowRun",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/runs/{workflowRunNumber}",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -109,7 +109,7 @@ func (a *Client) GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime
 		ID:                 "getWorkflowRuns",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/runs",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -131,6 +131,74 @@ func (a *Client) GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime
 }
 
 /*
+PatchWorkflowRun updates properties of a workflow
+*/
+func (a *Client) PatchWorkflowRun(params *PatchWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPatchWorkflowRunParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "patchWorkflowRun",
+		Method:             "PATCH",
+		PathPattern:        "/api/workflows/{workflowName}/runs/{workflowRunNumber}",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PatchWorkflowRunReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PatchWorkflowRunOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PatchWorkflowRunDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+PatchWorkflowRunStep updates properties of a workflow run step
+*/
+func (a *Client) PatchWorkflowRunStep(params *PatchWorkflowRunStepParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunStepOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPatchWorkflowRunStepParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "patchWorkflowRunStep",
+		Method:             "PATCH",
+		PathPattern:        "/api/workflows/{workflowName}/runs/{workflowRunNumber}/steps/{workflowStepName}",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PatchWorkflowRunStepReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PatchWorkflowRunStepOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PatchWorkflowRunStepDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 RunWorkflow runs the given workflow
 */
 func (a *Client) RunWorkflow(params *RunWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*RunWorkflowCreated, error) {
@@ -143,8 +211,8 @@ func (a *Client) RunWorkflow(params *RunWorkflowParams, authInfo runtime.ClientA
 		ID:                 "runWorkflow",
 		Method:             "POST",
 		PathPattern:        "/api/workflows/{workflowName}/runs",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &RunWorkflowReader{formats: a.formats},

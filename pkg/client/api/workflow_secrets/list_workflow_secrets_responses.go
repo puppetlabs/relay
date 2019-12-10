@@ -179,7 +179,7 @@ func (o *ListWorkflowSecretsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListWorkflowSecretsOKBody The response type for retrieving the secrets in a workflow
+/*ListWorkflowSecretsOKBody The response type for retrieving the secrets configured for a workflow
 swagger:model ListWorkflowSecretsOKBody
 */
 type ListWorkflowSecretsOKBody struct {

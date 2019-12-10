@@ -66,11 +66,11 @@ type DeleteWorkflowSecretParams struct {
 
 	*/
 	WorkflowName string
-	/*WorkflowSecretKey
-	  Key for a workflow secret
+	/*WorkflowSecretName
+	  The name of a workflow secret
 
 	*/
-	WorkflowSecretKey string
+	WorkflowSecretName string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,15 +121,15 @@ func (o *DeleteWorkflowSecretParams) SetWorkflowName(workflowName string) {
 	o.WorkflowName = workflowName
 }
 
-// WithWorkflowSecretKey adds the workflowSecretKey to the delete workflow secret params
-func (o *DeleteWorkflowSecretParams) WithWorkflowSecretKey(workflowSecretKey string) *DeleteWorkflowSecretParams {
-	o.SetWorkflowSecretKey(workflowSecretKey)
+// WithWorkflowSecretName adds the workflowSecretName to the delete workflow secret params
+func (o *DeleteWorkflowSecretParams) WithWorkflowSecretName(workflowSecretName string) *DeleteWorkflowSecretParams {
+	o.SetWorkflowSecretName(workflowSecretName)
 	return o
 }
 
-// SetWorkflowSecretKey adds the workflowSecretKey to the delete workflow secret params
-func (o *DeleteWorkflowSecretParams) SetWorkflowSecretKey(workflowSecretKey string) {
-	o.WorkflowSecretKey = workflowSecretKey
+// SetWorkflowSecretName adds the workflowSecretName to the delete workflow secret params
+func (o *DeleteWorkflowSecretParams) SetWorkflowSecretName(workflowSecretName string) {
+	o.WorkflowSecretName = workflowSecretName
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,8 +145,8 @@ func (o *DeleteWorkflowSecretParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 
-	// path param workflowSecretKey
-	if err := r.SetPathParam("workflowSecretKey", o.WorkflowSecretKey); err != nil {
+	// path param workflowSecretName
+	if err := r.SetPathParam("workflowSecretName", o.WorkflowSecretName); err != nil {
 		return err
 	}
 

@@ -22,15 +22,18 @@ type Integration struct {
 
 	Lifecycle
 
-	// Integration account login name.
-	AccountLogin string `json:"account_login,omitempty"`
-
 	// auth
 	// Required: true
 	Auth *IntegrationAO2Auth `json:"auth"`
 
+	// The event sources exposed by this integration
+	EventSources []*EventSourceSummary `json:"event_sources"`
+
 	// Time of last integration call
 	LastUsed string `json:"last_used,omitempty"`
+
+	// The workflow triggers that use this integration
+	WorkflowTriggers []*WorkflowTriggerSummary `json:"workflow_triggers"`
 
 	// The workflows being used by this integration
 	// Required: true
@@ -55,11 +58,13 @@ func (m *Integration) UnmarshalJSON(raw []byte) error {
 
 	// AO2
 	var dataAO2 struct {
-		AccountLogin string `json:"account_login,omitempty"`
-
 		Auth *IntegrationAO2Auth `json:"auth"`
 
+		EventSources []*EventSourceSummary `json:"event_sources"`
+
 		LastUsed string `json:"last_used,omitempty"`
+
+		WorkflowTriggers []*WorkflowTriggerSummary `json:"workflow_triggers"`
 
 		Workflows []*WorkflowSummary `json:"workflows"`
 	}
@@ -67,11 +72,13 @@ func (m *Integration) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	m.AccountLogin = dataAO2.AccountLogin
-
 	m.Auth = dataAO2.Auth
 
+	m.EventSources = dataAO2.EventSources
+
 	m.LastUsed = dataAO2.LastUsed
+
+	m.WorkflowTriggers = dataAO2.WorkflowTriggers
 
 	m.Workflows = dataAO2.Workflows
 
@@ -95,20 +102,24 @@ func (m Integration) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, aO1)
 
 	var dataAO2 struct {
-		AccountLogin string `json:"account_login,omitempty"`
-
 		Auth *IntegrationAO2Auth `json:"auth"`
 
+		EventSources []*EventSourceSummary `json:"event_sources"`
+
 		LastUsed string `json:"last_used,omitempty"`
+
+		WorkflowTriggers []*WorkflowTriggerSummary `json:"workflow_triggers"`
 
 		Workflows []*WorkflowSummary `json:"workflows"`
 	}
 
-	dataAO2.AccountLogin = m.AccountLogin
-
 	dataAO2.Auth = m.Auth
 
+	dataAO2.EventSources = m.EventSources
+
 	dataAO2.LastUsed = m.LastUsed
+
+	dataAO2.WorkflowTriggers = m.WorkflowTriggers
 
 	dataAO2.Workflows = m.Workflows
 
@@ -138,6 +149,14 @@ func (m *Integration) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateEventSources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWorkflowTriggers(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateWorkflows(formats); err != nil {
 		res = append(res, err)
 	}
@@ -161,6 +180,56 @@ func (m *Integration) validateAuth(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Integration) validateEventSources(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.EventSources) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.EventSources); i++ {
+		if swag.IsZero(m.EventSources[i]) { // not required
+			continue
+		}
+
+		if m.EventSources[i] != nil {
+			if err := m.EventSources[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("event_sources" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *Integration) validateWorkflowTriggers(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.WorkflowTriggers) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.WorkflowTriggers); i++ {
+		if swag.IsZero(m.WorkflowTriggers[i]) { // not required
+			continue
+		}
+
+		if m.WorkflowTriggers[i] != nil {
+			if err := m.WorkflowTriggers[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("workflow_triggers" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

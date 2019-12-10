@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// WorkflowParameters workflow parameters
+// WorkflowParameters A parsed representation of the declared parameters in a workflow yaml file
 // swagger:model WorkflowParameters
 type WorkflowParameters map[string]WorkflowParameter
 

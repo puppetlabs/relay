@@ -185,7 +185,7 @@ type GetProfileOKBody struct {
 	models.ProfileEntity
 
 	// user
-	User *models.UserSummary `json:"user,omitempty"`
+	User *models.UserProfile `json:"user,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -199,7 +199,7 @@ func (o *GetProfileOKBody) UnmarshalJSON(raw []byte) error {
 
 	// GetProfileOKBodyAO1
 	var dataGetProfileOKBodyAO1 struct {
-		User *models.UserSummary `json:"user,omitempty"`
+		User *models.UserProfile `json:"user,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataGetProfileOKBodyAO1); err != nil {
 		return err
@@ -221,7 +221,7 @@ func (o GetProfileOKBody) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, getProfileOKBodyAO0)
 
 	var dataGetProfileOKBodyAO1 struct {
-		User *models.UserSummary `json:"user,omitempty"`
+		User *models.UserProfile `json:"user,omitempty"`
 	}
 
 	dataGetProfileOKBodyAO1.User = o.User
