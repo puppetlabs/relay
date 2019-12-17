@@ -19,5 +19,5 @@ Note that you will need these two tools:
 ## Configure
 ```bash
 mkdir -p ${HOME}/.config/nebula
-echo 'apiHostAddr: http://api.staging.nebula.insights.puppet.net' > ${HOME}/.config/nebula/config.yaml
+echo 'apiHostAddr: http://api.nebula.puppet.com' > ${HOME}/.config/nebula/config.yaml
 ```
