@@ -7,17 +7,10 @@
 
 ## Build
 
+NPM and Go are required to build nebula-cli.
+
 ```bash
 make
 ```
 
-Note that you will need these two tools:
-
-- `npm i -g api-spec-converter`
-- `GO111MODULE=off go get -u github.com/go-swagger/go-swagger/cmd/swagger`
-
-## Configure
-```bash
-mkdir -p ${HOME}/.config/nebula
-echo 'apiHostAddr: http://api.staging.nebula.insights.puppet.net' > ${HOME}/.config/nebula/config.yaml
-```
+The resulting binary will be in `./bin/nebula`.
