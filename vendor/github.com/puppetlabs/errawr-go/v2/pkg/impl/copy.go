@@ -54,9 +54,10 @@ func Copy(e errawr.Error) *Error {
 			Friendly:  e.Description().Friendly(),
 			Technical: e.Description().Technical(),
 		},
-		ErrorArguments: eas,
-		ErrorItems:     eis,
-		ErrorMetadata:  metadata,
+		ErrorArguments:   eas,
+		ErrorItems:       eis,
+		ErrorMetadata:    metadata,
+		ErrorSensitivity: e.Sensitivity(),
 
 		causes: e.Causes(),
 		buggy:  e.IsBug(),

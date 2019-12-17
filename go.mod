@@ -13,9 +13,9 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jedib0t/go-pretty v4.0.3+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/puppetlabs/errawr-gen v1.0.0
-	github.com/puppetlabs/errawr-go/v2 v2.1.0
-	github.com/puppetlabs/horsehead/v2 v2.1.0
+	github.com/puppetlabs/errawr-gen v1.0.1
+	github.com/puppetlabs/errawr-go/v2 v2.2.0
+	github.com/puppetlabs/horsehead/v2 v2.4.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0

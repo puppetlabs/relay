@@ -98,18 +98,18 @@ github.com/pelletier/go-toml
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/puppetlabs/errawr-gen v1.0.0
+# github.com/puppetlabs/errawr-gen v1.0.1
 github.com/puppetlabs/errawr-gen/pkg/doc
 github.com/puppetlabs/errawr-gen/pkg/errors
 github.com/puppetlabs/errawr-gen/pkg/generator
 github.com/puppetlabs/errawr-gen/pkg/lang/golang
 github.com/puppetlabs/errawr-gen/pkg/util/fs
-# github.com/puppetlabs/errawr-go/v2 v2.1.0
+# github.com/puppetlabs/errawr-go/v2 v2.2.0
 github.com/puppetlabs/errawr-go/v2/pkg/encoding
 github.com/puppetlabs/errawr-go/v2/pkg/errawr
 github.com/puppetlabs/errawr-go/v2/pkg/golang
 github.com/puppetlabs/errawr-go/v2/pkg/impl
-# github.com/puppetlabs/horsehead/v2 v2.1.0
+# github.com/puppetlabs/horsehead/v2 v2.4.0
 github.com/puppetlabs/horsehead/v2/encoding/transfer
 github.com/puppetlabs/horsehead/v2/logging
 github.com/puppetlabs/horsehead/v2/logging/handler
@@ -183,5 +183,5 @@ golang.org/x/tools/internal/gopathwalk
 golang.org/x/tools/internal/imports
 golang.org/x/tools/internal/module
 golang.org/x/tools/internal/semver
-# gopkg.in/yaml.v2 v2.2.2
+# gopkg.in/yaml.v2 v2.2.4
 gopkg.in/yaml.v2

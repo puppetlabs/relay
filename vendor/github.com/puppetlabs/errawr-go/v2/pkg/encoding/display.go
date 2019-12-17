@@ -13,6 +13,7 @@ type ErrorDisplayEnvelope struct {
 	Section     string                           `json:"section"`
 	Code        string                           `json:"code"`
 	Title       string                           `json:"title"`
+	Sensitivity errawr.ErrorSensitivity          `json:"sensitivity,omitempty"`
 	Description *ErrorDescription                `json:"description,omitempty"`
 	Arguments   map[string]interface{}           `json:"arguments,omitempty"`
 	Items       map[string]*ErrorDisplayEnvelope `json:"items,omitempty"`
@@ -63,7 +64,7 @@ func (ede ErrorDisplayEnvelope) AsError() errawr.Error {
 		ErrorArguments:   arguments,
 		ErrorItems:       items,
 		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSensitivity: errawr.ErrorSensitivityEdge,
+		ErrorSensitivity: ede.Sensitivity,
 	}
 
 	for _, cause := range ede.Causes {
@@ -83,10 +84,11 @@ func ForDisplay(e errawr.Error) *ErrorDisplayEnvelope {
 
 func ForDisplayWithSensitivity(e errawr.Error, sensitivity errawr.ErrorSensitivity) *ErrorDisplayEnvelope {
 	ede := &ErrorDisplayEnvelope{
-		Domain:  e.Domain().Key(),
-		Section: e.Section().Key(),
-		Code:    e.ID(),
-		Title:   e.Title(),
+		Domain:      e.Domain().Key(),
+		Section:     e.Section().Key(),
+		Code:        e.ID(),
+		Title:       e.Title(),
+		Sensitivity: e.Sensitivity(),
 	}
 
 	if items, ok := e.Items(); ok {
