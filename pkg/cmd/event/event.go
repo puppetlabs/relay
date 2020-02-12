@@ -11,7 +11,7 @@ import (
 
 func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "event",
+		Use:                   "event-source",
 		Short:                 "Manage nebula event sources",
 		DisableFlagsInUseLine: true,
 	}
