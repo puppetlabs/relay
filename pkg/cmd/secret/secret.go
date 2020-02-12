@@ -26,6 +26,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	}
 
 	cmd.AddCommand(NewSetCommand(rt))
+	cmd.AddCommand(NewDeleteCommand(rt))
 	cmd.AddCommand(NewListCommand(rt))
 
 	return cmd
@@ -122,6 +123,61 @@ func NewSetCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 	cmd.Flags().StringP("workflow", "w", "", "the workflow name")
 	cmd.Flags().StringP("key", "k", "", "the secret key")
 	cmd.Flags().BoolP("value-stdin", "v", false, "accept the value from stdin")
+
+	return cmd
+}
+
+func NewDeleteCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "delete",
+		Short:                 "Delete the given secret",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			workflow, err := cmd.Flags().GetString("workflow")
+			if err != nil {
+				return err
+			}
+
+			if workflow == "" {
+				return errors.NewWorkflowCliFlagError("--workflow", "required")
+			}
+
+			key, err := cmd.Flags().GetString("key")
+			if err != nil {
+				return err
+			}
+
+			if key == "" {
+				return errors.NewWorkflowCliFlagError("--key", "required")
+			}
+
+			client, err := client.NewAPIClient(cfg)
+			if err != nil {
+				return err
+			}
+
+			// trim all prefixed and suffixed whitespace
+			workflow = strings.TrimSpace(workflow)
+			key = strings.TrimSpace(key)
+
+			err = client.DeleteWorkflowSecret(context.Background(), workflow, key)
+			if err != nil {
+				return err
+			}
+
+			fmt.Fprintln(rt.IO().Out, "Successfully deleted secret")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("workflow", "w", "", "the workflow name")
+	cmd.Flags().StringP("key", "k", "", "the secret key")
 
 	return cmd
 }

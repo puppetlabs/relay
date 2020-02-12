@@ -176,6 +176,54 @@ func NewClientCreateWorkflowSecretError() Error {
 	return NewClientCreateWorkflowSecretErrorBuilder().Build()
 }
 
+// ClientDeleteWorkflowSecretErrorCode is the code for an instance of "delete_workflow_secret_error".
+const ClientDeleteWorkflowSecretErrorCode = "neb_client_delete_workflow_secret_error"
+
+// IsClientDeleteWorkflowSecretError tests whether a given error is an instance of "delete_workflow_secret_error".
+func IsClientDeleteWorkflowSecretError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientDeleteWorkflowSecretErrorCode)
+}
+
+// IsClientDeleteWorkflowSecretError tests whether a given error is an instance of "delete_workflow_secret_error".
+func (External) IsClientDeleteWorkflowSecretError(err errawr.Error) bool {
+	return IsClientDeleteWorkflowSecretError(err)
+}
+
+// ClientDeleteWorkflowSecretErrorBuilder is a builder for "delete_workflow_secret_error" errors.
+type ClientDeleteWorkflowSecretErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "delete_workflow_secret_error" from this builder.
+func (b *ClientDeleteWorkflowSecretErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "there was an error deleting the workflow secret",
+		Technical: "there was an error deleting the workflow secret",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "delete_workflow_secret_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Delete workflow secret error",
+		Version:          1,
+	}
+}
+
+// NewClientDeleteWorkflowSecretErrorBuilder creates a new error builder for the code "delete_workflow_secret_error".
+func NewClientDeleteWorkflowSecretErrorBuilder() *ClientDeleteWorkflowSecretErrorBuilder {
+	return &ClientDeleteWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientDeleteWorkflowSecretError creates a new error with the code "delete_workflow_secret_error".
+func NewClientDeleteWorkflowSecretError() Error {
+	return NewClientDeleteWorkflowSecretErrorBuilder().Build()
+}
+
 // ClientGetIntegrationErrorCode is the code for an instance of "get_integration_error".
 const ClientGetIntegrationErrorCode = "neb_client_get_integration_error"
 
