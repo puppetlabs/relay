@@ -32,7 +32,7 @@ DEPEND_DIR := .depend
 ARTIFACTS_DIR := artifacts
 BIN_DIR := bin
 
-NEBULA_API_SPEC_URL := $(NEBULA_API_URL)/openapi/v3
+NEBULA_API_SPEC_URL := $(NEBULA_API_URL)/openapi/latest
 NEBULA_API_SPEC_FILENAME := $(DEPEND_DIR)/openapiv3.json
 
 CLI_EXT_linux :=

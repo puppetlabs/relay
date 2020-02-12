@@ -128,6 +128,9 @@ type UpdateProfileBody struct {
 	// Updated user name
 	// Required: true
 	Name *string `json:"name"`
+
+	// preferences
+	Preferences models.UserPreferences `json:"preferences,omitempty"`
 }
 
 // Validate validates this update profile body
@@ -237,7 +240,7 @@ type UpdateProfileOKBody struct {
 	models.ProfileEntity
 
 	// user
-	User *models.UserSummary `json:"user,omitempty"`
+	User *models.UserProfile `json:"user,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -251,7 +254,7 @@ func (o *UpdateProfileOKBody) UnmarshalJSON(raw []byte) error {
 
 	// UpdateProfileOKBodyAO1
 	var dataUpdateProfileOKBodyAO1 struct {
-		User *models.UserSummary `json:"user,omitempty"`
+		User *models.UserProfile `json:"user,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataUpdateProfileOKBodyAO1); err != nil {
 		return err
@@ -273,7 +276,7 @@ func (o UpdateProfileOKBody) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, updateProfileOKBodyAO0)
 
 	var dataUpdateProfileOKBodyAO1 struct {
-		User *models.UserSummary `json:"user,omitempty"`
+		User *models.UserProfile `json:"user,omitempty"`
 	}
 
 	dataUpdateProfileOKBodyAO1.User = o.User

@@ -62,7 +62,7 @@ for the create workflow secret operation typically these are written to a http.R
 type CreateWorkflowSecretParams struct {
 
 	/*Body
-	  Secret to key value pair to create
+	  Secret to name value pair to create
 
 	*/
 	Body CreateWorkflowSecretBody

@@ -37,8 +37,8 @@ func (a *Client) CreateWorkflowSecret(params *CreateWorkflowSecretParams, authIn
 		ID:                 "createWorkflowSecret",
 		Method:             "POST",
 		PathPattern:        "/api/workflows/{workflowName}/secrets",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &CreateWorkflowSecretReader{formats: a.formats},
@@ -59,7 +59,7 @@ func (a *Client) CreateWorkflowSecret(params *CreateWorkflowSecretParams, authIn
 }
 
 /*
-DeleteWorkflowSecret deletes the secret associated with the given workflow and secret key
+DeleteWorkflowSecret deletes the secret associated with the given workflow and secret name
 */
 func (a *Client) DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowSecretOK, error) {
 	// TODO: Validate the params before sending
@@ -70,7 +70,7 @@ func (a *Client) DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authIn
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "deleteWorkflowSecret",
 		Method:             "DELETE",
-		PathPattern:        "/api/workflows/{workflowName}/secrets/{workflowSecretKey}",
+		PathPattern:        "/api/workflows/{workflowName}/secrets/{workflowSecretName}",
 		ProducesMediaTypes: []string{""},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
@@ -105,7 +105,7 @@ func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo
 		ID:                 "listWorkflowSecrets",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/secrets",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -127,7 +127,7 @@ func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo
 }
 
 /*
-UpdateWorkflowSecret updates the secret associated with the given workflow and secret key
+UpdateWorkflowSecret updates the secret associated with the given workflow and secret name
 */
 func (a *Client) UpdateWorkflowSecret(params *UpdateWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowSecretOK, error) {
 	// TODO: Validate the params before sending
@@ -138,9 +138,9 @@ func (a *Client) UpdateWorkflowSecret(params *UpdateWorkflowSecretParams, authIn
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateWorkflowSecret",
 		Method:             "PUT",
-		PathPattern:        "/api/workflows/{workflowName}/secrets/{workflowSecretKey}",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		PathPattern:        "/api/workflows/{workflowName}/secrets/{workflowSecretName}",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &UpdateWorkflowSecretReader{formats: a.formats},

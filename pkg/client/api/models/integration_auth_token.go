@@ -19,13 +19,13 @@ import (
 // swagger:model IntegrationAuthToken
 type IntegrationAuthToken struct {
 
-	// The integration provider for this token
+	// The fields to use for authenticating
+	// Required: true
+	Fields interface{} `json:"fields"`
+
+	// The integration provider to authenticate with
 	// Required: true
 	Provider *string `json:"provider"`
-
-	// The token to use for authenticating
-	// Required: true
-	Token *string `json:"token"`
 
 	// type
 	// Required: true
@@ -37,11 +37,11 @@ type IntegrationAuthToken struct {
 func (m *IntegrationAuthToken) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateProvider(formats); err != nil {
+	if err := m.validateFields(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateToken(formats); err != nil {
+	if err := m.validateProvider(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -55,18 +55,18 @@ func (m *IntegrationAuthToken) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *IntegrationAuthToken) validateProvider(formats strfmt.Registry) error {
+func (m *IntegrationAuthToken) validateFields(formats strfmt.Registry) error {
 
-	if err := validate.Required("provider", "body", m.Provider); err != nil {
+	if err := validate.Required("fields", "body", m.Fields); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *IntegrationAuthToken) validateToken(formats strfmt.Registry) error {
+func (m *IntegrationAuthToken) validateProvider(formats strfmt.Registry) error {
 
-	if err := validate.Required("token", "body", m.Token); err != nil {
+	if err := validate.Required("provider", "body", m.Provider); err != nil {
 		return err
 	}
 

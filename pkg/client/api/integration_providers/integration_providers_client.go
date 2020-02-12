@@ -37,7 +37,7 @@ func (a *Client) AuthorizeProvider(params *AuthorizeProviderParams, authInfo run
 		ID:                 "authorizeProvider",
 		Method:             "POST",
 		PathPattern:        "/api/providers/{providerId}/authorize",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,

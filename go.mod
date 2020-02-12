@@ -8,7 +8,7 @@ require (
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
 	github.com/go-openapi/validate v0.19.3
-	github.com/go-swagger/go-swagger v0.21.0
+	github.com/go-swagger/go-swagger v0.21.1-0.20191226175919-31f5066e4d63
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jedib0t/go-pretty v4.0.3+incompatible

@@ -125,9 +125,9 @@ swagger:model CreateWorkflowSecretBody
 */
 type CreateWorkflowSecretBody struct {
 
-	// key
+	// name
 	// Required: true
-	Key *string `json:"key"`
+	Name *string `json:"name"`
 
 	// value
 	// Required: true
@@ -138,7 +138,7 @@ type CreateWorkflowSecretBody struct {
 func (o *CreateWorkflowSecretBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateKey(formats); err != nil {
+	if err := o.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -152,9 +152,9 @@ func (o *CreateWorkflowSecretBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *CreateWorkflowSecretBody) validateKey(formats strfmt.Registry) error {
+func (o *CreateWorkflowSecretBody) validateName(formats strfmt.Registry) error {
 
-	if err := validate.Required("body"+"."+"key", "body", o.Key); err != nil {
+	if err := validate.Required("body"+"."+"name", "body", o.Name); err != nil {
 		return err
 	}
 

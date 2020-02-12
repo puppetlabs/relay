@@ -37,7 +37,7 @@ func (a *Client) GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionPara
 		ID:                 "getLatestWorkflowRevision",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/revisions/latest",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -55,6 +55,40 @@ func (a *Client) GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionPara
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetLatestWorkflowRevisionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetWorkflowRevision retrieves workflow revision
+*/
+func (a *Client) GetWorkflowRevision(params *GetWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRevisionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetWorkflowRevisionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getWorkflowRevision",
+		Method:             "GET",
+		PathPattern:        "/api/workflows/{workflowName}/revisions/{workflowRevision}",
+		ProducesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetWorkflowRevisionReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetWorkflowRevisionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetWorkflowRevisionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -37,19 +37,18 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			index, err := c.ListIntegrations(context.Background())
+			integrations, err := c.ListIntegrations(context.Background())
 			if err != nil {
 				return err
 			}
 
 			tw := table.NewWriter()
 
-			tw.AppendHeader(table.Row{"ID", "PROVIDER", "ACCOUNT LOGIN"})
-			for _, i := range index {
-				integrationName := fmt.Sprintf("%s-%s", *i.Provider, i.AccountLogin)
-
-				tw.AppendRow(table.Row{integrationName, *i.Provider, i.AccountLogin})
+			tw.AppendHeader(table.Row{"PROVIDER", "LOGIN"})
+			for _, integration := range integrations {
+				tw.AppendRow(table.Row{*integration.Provider, integration.AccountLogin})
 			}
+
 			_, _ = fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
 
 			return nil

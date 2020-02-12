@@ -59,7 +59,7 @@ type DeleteWorkflowSecretOK struct {
 }
 
 func (o *DeleteWorkflowSecretOK) Error() string {
-	return fmt.Sprintf("[DELETE /api/workflows/{workflowName}/secrets/{workflowSecretKey}][%d] deleteWorkflowSecretOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /api/workflows/{workflowName}/secrets/{workflowSecretName}][%d] deleteWorkflowSecretOK  %+v", 200, o.Payload)
 }
 
 func (o *DeleteWorkflowSecretOK) GetPayload() *DeleteWorkflowSecretOKBody {
@@ -101,7 +101,7 @@ func (o *DeleteWorkflowSecretDefault) Code() int {
 }
 
 func (o *DeleteWorkflowSecretDefault) Error() string {
-	return fmt.Sprintf("[DELETE /api/workflows/{workflowName}/secrets/{workflowSecretKey}][%d] deleteWorkflowSecret default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[DELETE /api/workflows/{workflowName}/secrets/{workflowSecretName}][%d] deleteWorkflowSecret default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *DeleteWorkflowSecretDefault) GetPayload() *DeleteWorkflowSecretDefaultBody {

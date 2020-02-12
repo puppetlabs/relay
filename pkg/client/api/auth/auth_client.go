@@ -37,8 +37,8 @@ func (a *Client) CreateSession(params *CreateSessionParams) (*CreateSessionCreat
 		ID:                 "createSession",
 		Method:             "POST",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &CreateSessionReader{formats: a.formats},
@@ -105,7 +105,7 @@ func (a *Client) ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAc
 		Method:             "POST",
 		PathPattern:        "/forgot-password",
 		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &ForgotPasswordReader{formats: a.formats},
@@ -137,7 +137,7 @@ func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAut
 		ID:                 "getProfile",
 		Method:             "GET",
 		PathPattern:        "/auth/profile",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -155,6 +155,40 @@ func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAut
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetProfileDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetProfilePreferences gets the current user s public preferences
+*/
+func (a *Client) GetProfilePreferences(params *GetProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfilePreferencesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetProfilePreferencesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "getProfilePreferences",
+		Method:             "GET",
+		PathPattern:        "/auth/profile/preferences",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetProfilePreferencesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetProfilePreferencesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetProfilePreferencesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -205,8 +239,8 @@ func (a *Client) UpdateProfile(params *UpdateProfileParams, authInfo runtime.Cli
 		ID:                 "updateProfile",
 		Method:             "PUT",
 		PathPattern:        "/auth/profile",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &UpdateProfileReader{formats: a.formats},
@@ -239,8 +273,8 @@ func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, auth
 		ID:                 "updateProfilePassword",
 		Method:             "PUT",
 		PathPattern:        "/auth/profile/password",
-		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
-		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v1+json"},
+		ProducesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &UpdateProfilePasswordReader{formats: a.formats},
@@ -257,6 +291,40 @@ func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, auth
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*UpdateProfilePasswordDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateProfilePreferences sets the current user s public preferences
+*/
+func (a *Client) UpdateProfilePreferences(params *UpdateProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePreferencesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateProfilePreferencesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateProfilePreferences",
+		Method:             "PUT",
+		PathPattern:        "/auth/profile/preferences",
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &UpdateProfilePreferencesReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateProfilePreferencesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdateProfilePreferencesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

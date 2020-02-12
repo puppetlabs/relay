@@ -6,81 +6,91 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // WorkflowParameter workflow parameter
 // swagger:model WorkflowParameter
 type WorkflowParameter struct {
+	ValueTyped
 
 	// The default value for the parameter
 	Default interface{} `json:"default,omitempty"`
 
 	// A description of the parameter
 	Description string `json:"description,omitempty"`
+}
 
-	// The type of the parameter
-	// Enum: [string]
-	Type string `json:"type,omitempty"`
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *WorkflowParameter) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 ValueTyped
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.ValueTyped = aO0
+
+	// AO1
+	var dataAO1 struct {
+		Default interface{} `json:"default,omitempty"`
+
+		Description string `json:"description,omitempty"`
+	}
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
+		return err
+	}
+
+	m.Default = dataAO1.Default
+
+	m.Description = dataAO1.Description
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m WorkflowParameter) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 2)
+
+	aO0, err := swag.WriteJSON(m.ValueTyped)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	var dataAO1 struct {
+		Default interface{} `json:"default,omitempty"`
+
+		Description string `json:"description,omitempty"`
+	}
+
+	dataAO1.Default = m.Default
+
+	dataAO1.Description = m.Description
+
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
+	}
+	_parts = append(_parts, jsonDataAO1)
+
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this workflow parameter
 func (m *WorkflowParameter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateType(formats); err != nil {
+	// validation for a type composition with ValueTyped
+	if err := m.ValueTyped.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var workflowParameterTypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["string"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		workflowParameterTypeTypePropEnum = append(workflowParameterTypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// WorkflowParameterTypeString captures enum value "string"
-	WorkflowParameterTypeString string = "string"
-)
-
-// prop value enum
-func (m *WorkflowParameter) validateTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, workflowParameterTypeTypePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *WorkflowParameter) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateTypeEnum("type", "body", m.Type); err != nil {
-		return err
-	}
-
 	return nil
 }
 

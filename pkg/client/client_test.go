@@ -42,7 +42,7 @@ func makeWorkflowRevisionFixture() *models.WorkflowRevision {
 	parameters["key3"] = models.WorkflowParameter{Default: true, Description: "Key 3"}
 
 	return &models.WorkflowRevision{
-		WorkflowData: models.WorkflowData{Parameters: parameters},
+		Parameters: parameters,
 	}
 }
 
@@ -55,9 +55,9 @@ func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow
 				Name: models.WorkflowName(name),
 			},
 		},
-		Repository: &repository,
-		Branch:     &branch,
-		Path:       &path,
+		Repository: repository,
+		Branch:     branch,
+		Path:       path,
 		Lifecycle: models.Lifecycle{
 			CreatedAt: &now,
 			UpdatedAt: &now,
@@ -70,9 +70,9 @@ func makeIntegrationFixture(accountLogin, provider string) *models.Integration {
 
 	return &models.Integration{
 		IntegrationSummary: models.IntegrationSummary{
-			Provider: &provider,
+			AccountLogin: accountLogin,
+			Provider:     &provider,
 		},
-		AccountLogin: accountLogin,
 		Lifecycle: models.Lifecycle{
 			CreatedAt: &now,
 			UpdatedAt: &now,
@@ -85,14 +85,16 @@ func makeWorkflowRunFixture(wfm *models.Workflow) *models.WorkflowRun {
 	status := "pending"
 
 	return &models.WorkflowRun{
-		WorkflowRunSummary: models.WorkflowRunSummary{
-			WorkflowRunIdentifier: models.WorkflowRunIdentifier{
-				RunNumber: models.WorkflowRunNumber(runNum),
-				Workflow:  &wfm.WorkflowIdentifier,
-			},
-			Status: &status,
+		WorkflowRunIdentifier: models.WorkflowRunIdentifier{
+			RunNumber: models.WorkflowRunNumber(runNum),
+			Workflow:  &wfm.WorkflowIdentifier,
 		},
-		Workflow: wfm,
+		State: &models.WorkflowRunState{
+			WorkflowRunStateSummary: models.WorkflowRunStateSummary{
+				Status: &status,
+			},
+			Steps: map[string]models.WorkflowRunStepState{},
+		},
 	}
 }
 
@@ -154,7 +156,7 @@ func TestWorkflowCreate(t *testing.T) {
 		wf, err := c.CreateWorkflow(context.Background(), "name", "description", "github-test", "repo1", "branch1", "workflow.yaml")
 		require.NoError(t, err, "could not create workflow")
 		require.Equal(t, wf.Name, models.WorkflowName("name"))
-		require.Equal(t, *wf.Repository, "repo1")
+		require.Equal(t, wf.Repository, "repo1")
 	})
 }
 
@@ -216,13 +218,14 @@ func TestWorkflowRun(t *testing.T) {
 
 		wfr, err := c.RunWorkflow(context.Background(), "name", nil)
 		require.NoError(t, err, "could not run workflow")
-		require.Equal(t, *wfr.Status, "pending")
+		require.Equal(t, *wfr.State.Status, "pending")
 		require.Equal(t, wfr.Workflow.Name, models.WorkflowName("name"))
 	})
 }
 
 func TestCreateWorkflowSecret(t *testing.T) {
-	ssm := &models.WorkflowSecretSummary{Key: "key"}
+	key := "key"
+	ssm := &models.WorkflowSecretSummary{Name: &key}
 
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows/name/secrets", http.StatusCreated, &secrets.CreateWorkflowSecretCreatedBody{
@@ -234,12 +237,13 @@ func TestCreateWorkflowSecret(t *testing.T) {
 
 		ssr, err := c.CreateWorkflowSecret(context.Background(), "name", "key", "value")
 		require.NoError(t, err, "could not create secret")
-		require.Equal(t, ssr.Key, "key")
+		require.Equal(t, "key", *ssr.Name)
 	})
 }
 
 func TestUpdateWorkflowSecret(t *testing.T) {
-	ssm := &models.WorkflowSecretSummary{Key: "key"}
+	key := "key"
+	ssm := &models.WorkflowSecretSummary{Name: &key}
 
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows/name/secrets/key", http.StatusOK, &secrets.UpdateWorkflowSecretOKBody{
@@ -251,6 +255,6 @@ func TestUpdateWorkflowSecret(t *testing.T) {
 
 		ssr, err := c.UpdateWorkflowSecret(context.Background(), "name", "key", "value")
 		require.NoError(t, err, "could not update secret")
-		require.Equal(t, ssr.Key, "key")
+		require.Equal(t, "key", *ssr.Name)
 	})
 }

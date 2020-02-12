@@ -18,36 +18,36 @@ import (
 // WorkflowRun workflow run
 // swagger:model WorkflowRun
 type WorkflowRun struct {
-	WorkflowRunSummary
+	WorkflowRunIdentifier
 
 	Lifecycle
+
+	// error
+	Error *Error `json:"error,omitempty"`
 
 	// parameters
 	Parameters WorkflowRunParameters `json:"parameters,omitempty"`
 
-	// A list of workflow steps
+	// revision
 	// Required: true
-	Steps []*WorkflowRunStep `json:"steps"`
+	Revision *WorkflowRevisionSummary `json:"revision"`
 
-	// workflow
+	// Secret names provided to the run, both used and unused
+	Secrets []*WorkflowSecretSummary `json:"secrets"`
+
+	// state
 	// Required: true
-	Workflow *Workflow `json:"workflow"`
-
-	// workflow data
-	WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
-
-	// Base64-encoded YAML representation of the workflow run
-	WorkflowYaml string `json:"workflow_yaml,omitempty"`
+	State *WorkflowRunState `json:"state"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (m *WorkflowRun) UnmarshalJSON(raw []byte) error {
 	// AO0
-	var aO0 WorkflowRunSummary
+	var aO0 WorkflowRunIdentifier
 	if err := swag.ReadJSON(raw, &aO0); err != nil {
 		return err
 	}
-	m.WorkflowRunSummary = aO0
+	m.WorkflowRunIdentifier = aO0
 
 	// AO1
 	var aO1 Lifecycle
@@ -58,29 +58,29 @@ func (m *WorkflowRun) UnmarshalJSON(raw []byte) error {
 
 	// AO2
 	var dataAO2 struct {
+		Error *Error `json:"error,omitempty"`
+
 		Parameters WorkflowRunParameters `json:"parameters,omitempty"`
 
-		Steps []*WorkflowRunStep `json:"steps"`
+		Revision *WorkflowRevisionSummary `json:"revision"`
 
-		Workflow *Workflow `json:"workflow"`
+		Secrets []*WorkflowSecretSummary `json:"secrets"`
 
-		WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
-
-		WorkflowYaml string `json:"workflow_yaml,omitempty"`
+		State *WorkflowRunState `json:"state"`
 	}
 	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
 		return err
 	}
 
+	m.Error = dataAO2.Error
+
 	m.Parameters = dataAO2.Parameters
 
-	m.Steps = dataAO2.Steps
+	m.Revision = dataAO2.Revision
 
-	m.Workflow = dataAO2.Workflow
+	m.Secrets = dataAO2.Secrets
 
-	m.WorkflowData = dataAO2.WorkflowData
-
-	m.WorkflowYaml = dataAO2.WorkflowYaml
+	m.State = dataAO2.State
 
 	return nil
 }
@@ -89,7 +89,7 @@ func (m *WorkflowRun) UnmarshalJSON(raw []byte) error {
 func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 	_parts := make([][]byte, 0, 3)
 
-	aO0, err := swag.WriteJSON(m.WorkflowRunSummary)
+	aO0, err := swag.WriteJSON(m.WorkflowRunIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -102,26 +102,26 @@ func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, aO1)
 
 	var dataAO2 struct {
+		Error *Error `json:"error,omitempty"`
+
 		Parameters WorkflowRunParameters `json:"parameters,omitempty"`
 
-		Steps []*WorkflowRunStep `json:"steps"`
+		Revision *WorkflowRevisionSummary `json:"revision"`
 
-		Workflow *Workflow `json:"workflow"`
+		Secrets []*WorkflowSecretSummary `json:"secrets"`
 
-		WorkflowData *WorkflowData `json:"workflow_data,omitempty"`
-
-		WorkflowYaml string `json:"workflow_yaml,omitempty"`
+		State *WorkflowRunState `json:"state"`
 	}
+
+	dataAO2.Error = m.Error
 
 	dataAO2.Parameters = m.Parameters
 
-	dataAO2.Steps = m.Steps
+	dataAO2.Revision = m.Revision
 
-	dataAO2.Workflow = m.Workflow
+	dataAO2.Secrets = m.Secrets
 
-	dataAO2.WorkflowData = m.WorkflowData
-
-	dataAO2.WorkflowYaml = m.WorkflowYaml
+	dataAO2.State = m.State
 
 	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
 	if errAO2 != nil {
@@ -136,8 +136,8 @@ func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with WorkflowRunSummary
-	if err := m.WorkflowRunSummary.Validate(formats); err != nil {
+	// validation for a type composition with WorkflowRunIdentifier
+	if err := m.WorkflowRunIdentifier.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 	// validation for a type composition with Lifecycle
@@ -145,25 +145,47 @@ func (m *WorkflowRun) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateError(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateParameters(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSteps(formats); err != nil {
+	if err := m.validateRevision(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateWorkflow(formats); err != nil {
+	if err := m.validateSecrets(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateWorkflowData(formats); err != nil {
+	if err := m.validateState(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *WorkflowRun) validateError(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Error) { // not required
+		return nil
+	}
+
+	if m.Error != nil {
+		if err := m.Error.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("error")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -183,21 +205,39 @@ func (m *WorkflowRun) validateParameters(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WorkflowRun) validateSteps(formats strfmt.Registry) error {
+func (m *WorkflowRun) validateRevision(formats strfmt.Registry) error {
 
-	if err := validate.Required("steps", "body", m.Steps); err != nil {
+	if err := validate.Required("revision", "body", m.Revision); err != nil {
 		return err
 	}
 
-	for i := 0; i < len(m.Steps); i++ {
-		if swag.IsZero(m.Steps[i]) { // not required
+	if m.Revision != nil {
+		if err := m.Revision.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("revision")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *WorkflowRun) validateSecrets(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Secrets) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Secrets); i++ {
+		if swag.IsZero(m.Secrets[i]) { // not required
 			continue
 		}
 
-		if m.Steps[i] != nil {
-			if err := m.Steps[i].Validate(formats); err != nil {
+		if m.Secrets[i] != nil {
+			if err := m.Secrets[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("steps" + "." + strconv.Itoa(i))
+					return ve.ValidateName("secrets" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -208,34 +248,16 @@ func (m *WorkflowRun) validateSteps(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WorkflowRun) validateWorkflow(formats strfmt.Registry) error {
+func (m *WorkflowRun) validateState(formats strfmt.Registry) error {
 
-	if err := validate.Required("workflow", "body", m.Workflow); err != nil {
+	if err := validate.Required("state", "body", m.State); err != nil {
 		return err
 	}
 
-	if m.Workflow != nil {
-		if err := m.Workflow.Validate(formats); err != nil {
+	if m.State != nil {
+		if err := m.State.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("workflow")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *WorkflowRun) validateWorkflowData(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.WorkflowData) { // not required
-		return nil
-	}
-
-	if m.WorkflowData != nil {
-		if err := m.WorkflowData.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("workflow_data")
+				return ve.ValidateName("state")
 			}
 			return err
 		}

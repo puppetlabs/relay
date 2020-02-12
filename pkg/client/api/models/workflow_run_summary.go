@@ -6,8 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -20,18 +18,16 @@ import (
 type WorkflowRunSummary struct {
 	WorkflowRunIdentifier
 
-	// Time at which the workflow execution ended
-	// Format: date-time
-	EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+	// created by
+	CreatedBy WorkflowRunCreatedBySummary `json:"created_by,omitempty"`
 
-	// Time at which workflow execution started
-	// Format: date-time
-	StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
-
-	// Current status of the workflow
+	// revision
 	// Required: true
-	// Enum: [success failure in-progress pending]
-	Status *string `json:"status"`
+	Revision *WorkflowRevisionIdentifier `json:"revision"`
+
+	// state
+	// Required: true
+	State *WorkflowRunStateSummary `json:"state"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -45,21 +41,21 @@ func (m *WorkflowRunSummary) UnmarshalJSON(raw []byte) error {
 
 	// AO1
 	var dataAO1 struct {
-		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+		CreatedBy WorkflowRunCreatedBySummary `json:"created_by,omitempty"`
 
-		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+		Revision *WorkflowRevisionIdentifier `json:"revision"`
 
-		Status *string `json:"status"`
+		State *WorkflowRunStateSummary `json:"state"`
 	}
 	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
 
-	m.EndedAt = dataAO1.EndedAt
+	m.CreatedBy = dataAO1.CreatedBy
 
-	m.StartedAt = dataAO1.StartedAt
+	m.Revision = dataAO1.Revision
 
-	m.Status = dataAO1.Status
+	m.State = dataAO1.State
 
 	return nil
 }
@@ -75,18 +71,18 @@ func (m WorkflowRunSummary) MarshalJSON() ([]byte, error) {
 	_parts = append(_parts, aO0)
 
 	var dataAO1 struct {
-		EndedAt *strfmt.DateTime `json:"ended_at,omitempty"`
+		CreatedBy WorkflowRunCreatedBySummary `json:"created_by,omitempty"`
 
-		StartedAt *strfmt.DateTime `json:"started_at,omitempty"`
+		Revision *WorkflowRevisionIdentifier `json:"revision"`
 
-		Status *string `json:"status"`
+		State *WorkflowRunStateSummary `json:"state"`
 	}
 
-	dataAO1.EndedAt = m.EndedAt
+	dataAO1.CreatedBy = m.CreatedBy
 
-	dataAO1.StartedAt = m.StartedAt
+	dataAO1.Revision = m.Revision
 
-	dataAO1.Status = m.Status
+	dataAO1.State = m.State
 
 	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
 	if errAO1 != nil {
@@ -106,15 +102,11 @@ func (m *WorkflowRunSummary) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateEndedAt(formats); err != nil {
+	if err := m.validateRevision(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateStartedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStatus(formats); err != nil {
+	if err := m.validateState(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -124,61 +116,37 @@ func (m *WorkflowRunSummary) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WorkflowRunSummary) validateEndedAt(formats strfmt.Registry) error {
+func (m *WorkflowRunSummary) validateRevision(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.EndedAt) { // not required
-		return nil
+	if err := validate.Required("revision", "body", m.Revision); err != nil {
+		return err
 	}
 
-	if err := validate.FormatOf("ended_at", "body", "date-time", m.EndedAt.String(), formats); err != nil {
-		return err
+	if m.Revision != nil {
+		if err := m.Revision.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("revision")
+			}
+			return err
+		}
 	}
 
 	return nil
 }
 
-func (m *WorkflowRunSummary) validateStartedAt(formats strfmt.Registry) error {
+func (m *WorkflowRunSummary) validateState(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.StartedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("started_at", "body", "date-time", m.StartedAt.String(), formats); err != nil {
+	if err := validate.Required("state", "body", m.State); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-var workflowRunSummaryTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["success","failure","in-progress","pending"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		workflowRunSummaryTypeStatusPropEnum = append(workflowRunSummaryTypeStatusPropEnum, v)
-	}
-}
-
-// property enum
-func (m *WorkflowRunSummary) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, workflowRunSummaryTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *WorkflowRunSummary) validateStatus(formats strfmt.Registry) error {
-
-	if err := validate.Required("status", "body", m.Status); err != nil {
-		return err
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
-		return err
+	if m.State != nil {
+		if err := m.State.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("state")
+			}
+			return err
+		}
 	}
 
 	return nil

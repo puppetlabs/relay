@@ -13,11 +13,13 @@ import (
 
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/access_control"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/events"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integration_providers"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_triggers"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
 )
 
@@ -68,6 +70,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 
 	cli.Auth = auth.New(transport, formats)
 
+	cli.Events = events.New(transport, formats)
+
 	cli.IntegrationProviders = integration_providers.New(transport, formats)
 
 	cli.Integrations = integrations.New(transport, formats)
@@ -77,6 +81,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 	cli.WorkflowRuns = workflow_runs.New(transport, formats)
 
 	cli.WorkflowSecrets = workflow_secrets.New(transport, formats)
+
+	cli.WorkflowTriggers = workflow_triggers.New(transport, formats)
 
 	cli.Workflows = workflows.New(transport, formats)
 
@@ -128,6 +134,8 @@ type Nebula struct {
 
 	Auth *auth.Client
 
+	Events *events.Client
+
 	IntegrationProviders *integration_providers.Client
 
 	Integrations *integrations.Client
@@ -137,6 +145,8 @@ type Nebula struct {
 	WorkflowRuns *workflow_runs.Client
 
 	WorkflowSecrets *workflow_secrets.Client
+
+	WorkflowTriggers *workflow_triggers.Client
 
 	Workflows *workflows.Client
 
@@ -151,6 +161,8 @@ func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 
 	c.Auth.SetTransport(transport)
 
+	c.Events.SetTransport(transport)
+
 	c.IntegrationProviders.SetTransport(transport)
 
 	c.Integrations.SetTransport(transport)
@@ -160,6 +172,8 @@ func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 	c.WorkflowRuns.SetTransport(transport)
 
 	c.WorkflowSecrets.SetTransport(transport)
+
+	c.WorkflowTriggers.SetTransport(transport)
 
 	c.Workflows.SetTransport(transport)
 

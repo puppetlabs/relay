@@ -17,12 +17,12 @@ import (
 // swagger:model Lifecycle
 type Lifecycle struct {
 
-	// Time of integration creation
+	// Time of creation
 	// Required: true
 	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
-	// Time of last integration update
+	// Time of last update
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updated_at"`

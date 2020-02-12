@@ -59,7 +59,7 @@ type UpdateWorkflowSecretOK struct {
 }
 
 func (o *UpdateWorkflowSecretOK) Error() string {
-	return fmt.Sprintf("[PUT /api/workflows/{workflowName}/secrets/{workflowSecretKey}][%d] updateWorkflowSecretOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /api/workflows/{workflowName}/secrets/{workflowSecretName}][%d] updateWorkflowSecretOK  %+v", 200, o.Payload)
 }
 
 func (o *UpdateWorkflowSecretOK) GetPayload() *UpdateWorkflowSecretOKBody {
@@ -101,7 +101,7 @@ func (o *UpdateWorkflowSecretDefault) Code() int {
 }
 
 func (o *UpdateWorkflowSecretDefault) Error() string {
-	return fmt.Sprintf("[PUT /api/workflows/{workflowName}/secrets/{workflowSecretKey}][%d] updateWorkflowSecret default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[PUT /api/workflows/{workflowName}/secrets/{workflowSecretName}][%d] updateWorkflowSecret default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *UpdateWorkflowSecretDefault) GetPayload() *UpdateWorkflowSecretDefaultBody {
