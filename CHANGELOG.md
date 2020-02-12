@@ -1,3 +1,17 @@
+# [3.2.0](https://github.com/puppetlabs/nebula-cli/compare/v3.1.1...v3.2.0) (2020-02-12)
+
+
+### Update
+
+* New API version, support listing workflow secrets, event sources, and canceling workflow run ([49db3ed37269dd408556b569256ad01b906fd80d](https://github.com/puppetlabs/nebula-cli/commit/49db3ed37269dd408556b569256ad01b906fd80d))
+
+### Upgrade
+
+* Bump handlebars from 4.1.2 to 4.5.3 ([0117b0db39a30c82bbb40e9570330a45f51f43d9](https://github.com/puppetlabs/nebula-cli/commit/0117b0db39a30c82bbb40e9570330a45f51f43d9))
+* Bump lodash from 4.17.11 to 4.17.15 ([6da9d5a5b96d78c4957d5c988976461da6bee110](https://github.com/puppetlabs/nebula-cli/commit/6da9d5a5b96d78c4957d5c988976461da6bee110))
+* Bump npm from 6.9.2 to 6.13.4 ([957205b7b58bddc5c11004e0bd3e24e7cf9f8446](https://github.com/puppetlabs/nebula-cli/commit/957205b7b58bddc5c11004e0bd3e24e7cf9f8446))
+* Fix dependencies to avoid checksum errors ([baab2cf511beaf4be57cf530b3b2c13919f3a5d0](https://github.com/puppetlabs/nebula-cli/commit/baab2cf511beaf4be57cf530b3b2c13919f3a5d0))
+
 ## [3.1.1](https://github.com/puppetlabs/nebula-cli/compare/v3.1.0...v3.1.1) (2019-10-24)
 
 
