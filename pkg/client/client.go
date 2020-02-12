@@ -348,6 +348,21 @@ func (c *APIClient) UpdateWorkflowSecret(ctx context.Context, name, key, value s
 	return resp.Payload.Secret, nil
 }
 
+func (c *APIClient) DeleteWorkflowSecret(ctx context.Context, name, key string) errors.Error {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := secrets.NewDeleteWorkflowSecretParams()
+	params.WorkflowName = name
+	params.WorkflowSecretName = key
+
+	_, werr := c.delegate.WorkflowSecrets.DeleteWorkflowSecret(params, auth)
+	if werr != nil {
+		return errors.NewClientDeleteWorkflowSecretError().WithCause(translateRuntimeError(werr))
+	}
+
+	return nil
+}
+
 func (c *APIClient) ListWorkflowSecrets(ctx context.Context, name string) ([]*models.WorkflowSecretSummary, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 

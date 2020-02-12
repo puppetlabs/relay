@@ -81,6 +81,9 @@ sections:
       update_workflow_secret_error:
         title: Update workflow secret error
         description: there was an error updating the workflow secret
+      delete_workflow_secret_error:
+        title: Delete workflow secret error
+        description: there was an error deleting the workflow secret
       validate_workflow_error:
         title: Validate workflow error
         description: there was an error validating the workflow
