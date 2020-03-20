@@ -7,12 +7,11 @@ package workflow_secrets
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new workflow secrets API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,21 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateWorkflowSecret(params *CreateWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowSecretCreated, error)
+
+	DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowSecretOK, error)
+
+	ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo runtime.ClientAuthInfoWriter) (*ListWorkflowSecretsOK, error)
+
+	UpdateWorkflowSecret(params *UpdateWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowSecretOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CreateWorkflowSecret adds a new secret to the given workflow
+  CreateWorkflowSecret adds a new secret to the given workflow
 */
 func (a *Client) CreateWorkflowSecret(params *CreateWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowSecretCreated, error) {
 	// TODO: Validate the params before sending
@@ -59,7 +71,7 @@ func (a *Client) CreateWorkflowSecret(params *CreateWorkflowSecretParams, authIn
 }
 
 /*
-DeleteWorkflowSecret deletes the secret associated with the given workflow and secret name
+  DeleteWorkflowSecret deletes the secret associated with the given workflow and secret name
 */
 func (a *Client) DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowSecretOK, error) {
 	// TODO: Validate the params before sending
@@ -71,8 +83,8 @@ func (a *Client) DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authIn
 		ID:                 "deleteWorkflowSecret",
 		Method:             "DELETE",
 		PathPattern:        "/api/workflows/{workflowName}/secrets/{workflowSecretName}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteWorkflowSecretReader{formats: a.formats},
@@ -93,7 +105,7 @@ func (a *Client) DeleteWorkflowSecret(params *DeleteWorkflowSecretParams, authIn
 }
 
 /*
-ListWorkflowSecrets gets all secrets associated with the given workflow
+  ListWorkflowSecrets gets all secrets associated with the given workflow
 */
 func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo runtime.ClientAuthInfoWriter) (*ListWorkflowSecretsOK, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +118,7 @@ func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/secrets",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &ListWorkflowSecretsReader{formats: a.formats},
@@ -127,7 +139,7 @@ func (a *Client) ListWorkflowSecrets(params *ListWorkflowSecretsParams, authInfo
 }
 
 /*
-UpdateWorkflowSecret updates the secret associated with the given workflow and secret name
+  UpdateWorkflowSecret updates the secret associated with the given workflow and secret name
 */
 func (a *Client) UpdateWorkflowSecret(params *UpdateWorkflowSecretParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowSecretOK, error) {
 	// TODO: Validate the params before sending

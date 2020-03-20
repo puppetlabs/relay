@@ -6,13 +6,13 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Role role
+//
 // swagger:model Role
 type Role struct {
 	RoleSummary
@@ -69,7 +69,6 @@ func (m Role) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO2)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -112,5 +111,6 @@ func (m *Role) UnmarshalBinary(b []byte) error {
 }
 
 // RoleAllOf2 An account role
+//
 // swagger:model RoleAllOf2
 type RoleAllOf2 interface{}

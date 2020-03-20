@@ -7,12 +7,11 @@ package events
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new events API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,21 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetEventSource(params *GetEventSourceParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventSourceOK, error)
+
+	GetEventSources(params *GetEventSourcesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventSourcesOK, error)
+
+	GetEventType(params *GetEventTypeParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventTypeOK, error)
+
+	GetEventTypes(params *GetEventTypesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventTypesOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetEventSource gets an event source
+  GetEventSource gets an event source
 */
 func (a *Client) GetEventSource(params *GetEventSourceParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventSourceOK, error) {
 	// TODO: Validate the params before sending
@@ -38,7 +50,7 @@ func (a *Client) GetEventSource(params *GetEventSourceParams, authInfo runtime.C
 		Method:             "GET",
 		PathPattern:        "/api/event-sources/{eventSourceId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetEventSourceReader{formats: a.formats},
@@ -59,7 +71,7 @@ func (a *Client) GetEventSource(params *GetEventSourceParams, authInfo runtime.C
 }
 
 /*
-GetEventSources gets the list of event sources in this account
+  GetEventSources gets the list of event sources in this account
 */
 func (a *Client) GetEventSources(params *GetEventSourcesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventSourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -72,7 +84,7 @@ func (a *Client) GetEventSources(params *GetEventSourcesParams, authInfo runtime
 		Method:             "GET",
 		PathPattern:        "/api/event-sources",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetEventSourcesReader{formats: a.formats},
@@ -93,7 +105,7 @@ func (a *Client) GetEventSources(params *GetEventSourcesParams, authInfo runtime
 }
 
 /*
-GetEventType gets the event type by name and version
+  GetEventType gets the event type by name and version
 */
 func (a *Client) GetEventType(params *GetEventTypeParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventTypeOK, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +118,7 @@ func (a *Client) GetEventType(params *GetEventTypeParams, authInfo runtime.Clien
 		Method:             "GET",
 		PathPattern:        "/api/event-types/{eventTypeId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetEventTypeReader{formats: a.formats},
@@ -127,7 +139,7 @@ func (a *Client) GetEventType(params *GetEventTypeParams, authInfo runtime.Clien
 }
 
 /*
-GetEventTypes lists all event types
+  GetEventTypes lists all event types
 */
 func (a *Client) GetEventTypes(params *GetEventTypesParams, authInfo runtime.ClientAuthInfoWriter) (*GetEventTypesOK, error) {
 	// TODO: Validate the params before sending
@@ -140,7 +152,7 @@ func (a *Client) GetEventTypes(params *GetEventTypesParams, authInfo runtime.Cli
 		Method:             "GET",
 		PathPattern:        "/api/event-types",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetEventTypesReader{formats: a.formats},

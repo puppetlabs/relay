@@ -7,12 +7,11 @@ package workflow_revisions
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new workflow revisions API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*GetLatestWorkflowRevisionOK, error)
+
+	GetWorkflowRevision(params *GetWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRevisionOK, error)
+
+	PostWorkflowRevision(params *PostWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*PostWorkflowRevisionCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetLatestWorkflowRevision retrieves the latest workflow revision
+  GetLatestWorkflowRevision retrieves the latest workflow revision
 */
 func (a *Client) GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*GetLatestWorkflowRevisionOK, error) {
 	// TODO: Validate the params before sending
@@ -38,7 +48,7 @@ func (a *Client) GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionPara
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/revisions/latest",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetLatestWorkflowRevisionReader{formats: a.formats},
@@ -59,7 +69,7 @@ func (a *Client) GetLatestWorkflowRevision(params *GetLatestWorkflowRevisionPara
 }
 
 /*
-GetWorkflowRevision retrieves workflow revision
+  GetWorkflowRevision retrieves workflow revision
 */
 func (a *Client) GetWorkflowRevision(params *GetWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRevisionOK, error) {
 	// TODO: Validate the params before sending
@@ -71,8 +81,8 @@ func (a *Client) GetWorkflowRevision(params *GetWorkflowRevisionParams, authInfo
 		ID:                 "getWorkflowRevision",
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/revisions/{workflowRevision}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowRevisionReader{formats: a.formats},
@@ -89,6 +99,40 @@ func (a *Client) GetWorkflowRevision(params *GetWorkflowRevisionParams, authInfo
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetWorkflowRevisionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PostWorkflowRevision updates the workflow revision
+*/
+func (a *Client) PostWorkflowRevision(params *PostWorkflowRevisionParams, authInfo runtime.ClientAuthInfoWriter) (*PostWorkflowRevisionCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPostWorkflowRevisionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "postWorkflowRevision",
+		Method:             "POST",
+		PathPattern:        "/api/workflows/{workflowName}/revisions",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+yaml"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PostWorkflowRevisionReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PostWorkflowRevisionCreated)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PostWorkflowRevisionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -9,12 +9,11 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new workflow runs API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,8 +25,25 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunOK, error)
+
+	GetWorkflowRunStepLog(params *GetWorkflowRunStepLogParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer) (*GetWorkflowRunStepLogOK, *GetWorkflowRunStepLogPartialContent, error)
+
+	GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunsOK, error)
+
+	PatchWorkflowRun(params *PatchWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunOK, error)
+
+	PatchWorkflowRunStep(params *PatchWorkflowRunStepParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunStepOK, error)
+
+	RunWorkflow(params *RunWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*RunWorkflowCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetWorkflowRun gets a workflow run accessed with a workflow name and run number
+  GetWorkflowRun gets a workflow run accessed with a workflow name and run number
 */
 func (a *Client) GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunOK, error) {
 	// TODO: Validate the params before sending
@@ -40,7 +56,7 @@ func (a *Client) GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.C
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/runs/{workflowRunNumber}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowRunReader{formats: a.formats},
@@ -61,7 +77,7 @@ func (a *Client) GetWorkflowRun(params *GetWorkflowRunParams, authInfo runtime.C
 }
 
 /*
-GetWorkflowRunStepLog returns the log for a workflow step acessed by workflow name run number and step name
+  GetWorkflowRunStepLog returns the log for a workflow step acessed by workflow name run number and step name
 */
 func (a *Client) GetWorkflowRunStepLog(params *GetWorkflowRunStepLogParams, authInfo runtime.ClientAuthInfoWriter, writer io.Writer) (*GetWorkflowRunStepLogOK, *GetWorkflowRunStepLogPartialContent, error) {
 	// TODO: Validate the params before sending
@@ -74,7 +90,7 @@ func (a *Client) GetWorkflowRunStepLog(params *GetWorkflowRunStepLogParams, auth
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/runs/{workflowRunNumber}/steps/{workflowStepName}/logs",
 		ProducesMediaTypes: []string{"application/octet-stream"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowRunStepLogReader{formats: a.formats, writer: writer},
@@ -97,7 +113,7 @@ func (a *Client) GetWorkflowRunStepLog(params *GetWorkflowRunStepLogParams, auth
 }
 
 /*
-GetWorkflowRuns gets all the runs of a workflow
+  GetWorkflowRuns gets all the runs of a workflow
 */
 func (a *Client) GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowRunsOK, error) {
 	// TODO: Validate the params before sending
@@ -110,7 +126,7 @@ func (a *Client) GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/runs",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowRunsReader{formats: a.formats},
@@ -131,7 +147,7 @@ func (a *Client) GetWorkflowRuns(params *GetWorkflowRunsParams, authInfo runtime
 }
 
 /*
-PatchWorkflowRun updates properties of a workflow
+  PatchWorkflowRun updates properties of a workflow
 */
 func (a *Client) PatchWorkflowRun(params *PatchWorkflowRunParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunOK, error) {
 	// TODO: Validate the params before sending
@@ -165,7 +181,7 @@ func (a *Client) PatchWorkflowRun(params *PatchWorkflowRunParams, authInfo runti
 }
 
 /*
-PatchWorkflowRunStep updates properties of a workflow run step
+  PatchWorkflowRunStep updates properties of a workflow run step
 */
 func (a *Client) PatchWorkflowRunStep(params *PatchWorkflowRunStepParams, authInfo runtime.ClientAuthInfoWriter) (*PatchWorkflowRunStepOK, error) {
 	// TODO: Validate the params before sending
@@ -199,7 +215,7 @@ func (a *Client) PatchWorkflowRunStep(params *PatchWorkflowRunStepParams, authIn
 }
 
 /*
-RunWorkflow runs the given workflow
+  RunWorkflow runs the given workflow
 */
 func (a *Client) RunWorkflow(params *RunWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*RunWorkflowCreated, error) {
 	// TODO: Validate the params before sending

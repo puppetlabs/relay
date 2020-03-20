@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // ReauthorizeIntegrationReader is a Reader for the ReauthorizeIntegration structure.
@@ -219,7 +218,6 @@ func (o ReauthorizeIntegrationOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, reauthorizeIntegrationOKBodyAO0)
-
 	var dataReauthorizeIntegrationOKBodyAO1 struct {
 		Authorization models.ProviderAuth `json:"authorization,omitempty"`
 	}
@@ -231,7 +229,6 @@ func (o ReauthorizeIntegrationOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errReauthorizeIntegrationOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataReauthorizeIntegrationOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

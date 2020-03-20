@@ -7,12 +7,11 @@ package workflows
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new workflows API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,23 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateWorkflow(params *CreateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowCreated, error)
+
+	DeleteWorkflow(params *DeleteWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowOK, error)
+
+	GetWorkflow(params *GetWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowOK, error)
+
+	GetWorkflows(params *GetWorkflowsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowsOK, error)
+
+	UpdateWorkflow(params *UpdateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CreateWorkflow creates a new workflow associated with this account
+  CreateWorkflow creates a new workflow associated with this account
 */
 func (a *Client) CreateWorkflow(params *CreateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowCreated, error) {
 	// TODO: Validate the params before sending
@@ -59,7 +73,7 @@ func (a *Client) CreateWorkflow(params *CreateWorkflowParams, authInfo runtime.C
 }
 
 /*
-DeleteWorkflow deletes a workflow
+  DeleteWorkflow deletes a workflow
 */
 func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowOK, error) {
 	// TODO: Validate the params before sending
@@ -71,8 +85,8 @@ func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams, authInfo runtime.C
 		ID:                 "deleteWorkflow",
 		Method:             "DELETE",
 		PathPattern:        "/api/workflows/{workflowName}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteWorkflowReader{formats: a.formats},
@@ -93,7 +107,7 @@ func (a *Client) DeleteWorkflow(params *DeleteWorkflowParams, authInfo runtime.C
 }
 
 /*
-GetWorkflow retrieves a workflow
+  GetWorkflow retrieves a workflow
 */
 func (a *Client) GetWorkflow(params *GetWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowOK, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +120,7 @@ func (a *Client) GetWorkflow(params *GetWorkflowParams, authInfo runtime.ClientA
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowReader{formats: a.formats},
@@ -127,7 +141,7 @@ func (a *Client) GetWorkflow(params *GetWorkflowParams, authInfo runtime.ClientA
 }
 
 /*
-GetWorkflows lists all workflows associated with this account
+  GetWorkflows lists all workflows associated with this account
 */
 func (a *Client) GetWorkflows(params *GetWorkflowsParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowsOK, error) {
 	// TODO: Validate the params before sending
@@ -140,7 +154,7 @@ func (a *Client) GetWorkflows(params *GetWorkflowsParams, authInfo runtime.Clien
 		Method:             "GET",
 		PathPattern:        "/api/workflows",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowsReader{formats: a.formats},
@@ -161,7 +175,7 @@ func (a *Client) GetWorkflows(params *GetWorkflowsParams, authInfo runtime.Clien
 }
 
 /*
-UpdateWorkflow updates a workflow
+  UpdateWorkflow updates a workflow
 */
 func (a *Client) UpdateWorkflow(params *UpdateWorkflowParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowOK, error) {
 	// TODO: Validate the params before sending

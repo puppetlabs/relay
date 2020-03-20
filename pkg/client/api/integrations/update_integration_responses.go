@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // UpdateIntegrationReader is a Reader for the UpdateIntegration structure.
@@ -254,7 +253,6 @@ func (o UpdateIntegrationOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, updateIntegrationOKBodyAO0)
-
 	var dataUpdateIntegrationOKBodyAO1 struct {
 		Integration *models.Integration `json:"integration,omitempty"`
 	}
@@ -266,7 +264,6 @@ func (o UpdateIntegrationOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errUpdateIntegrationOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataUpdateIntegrationOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

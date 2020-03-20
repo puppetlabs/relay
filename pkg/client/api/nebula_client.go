@@ -8,14 +8,14 @@ package api
 import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/access_control"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/events"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integration_providers"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/notifications"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
@@ -65,27 +65,17 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Nebula {
 
 	cli := new(Nebula)
 	cli.Transport = transport
-
 	cli.AccessControl = access_control.New(transport, formats)
-
 	cli.Auth = auth.New(transport, formats)
-
 	cli.Events = events.New(transport, formats)
-
 	cli.IntegrationProviders = integration_providers.New(transport, formats)
-
 	cli.Integrations = integrations.New(transport, formats)
-
+	cli.Notifications = notifications.New(transport, formats)
 	cli.WorkflowRevisions = workflow_revisions.New(transport, formats)
-
 	cli.WorkflowRuns = workflow_runs.New(transport, formats)
-
 	cli.WorkflowSecrets = workflow_secrets.New(transport, formats)
-
 	cli.WorkflowTriggers = workflow_triggers.New(transport, formats)
-
 	cli.Workflows = workflows.New(transport, formats)
-
 	return cli
 }
 
@@ -130,25 +120,27 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // Nebula is a client for nebula
 type Nebula struct {
-	AccessControl *access_control.Client
+	AccessControl access_control.ClientService
 
-	Auth *auth.Client
+	Auth auth.ClientService
 
-	Events *events.Client
+	Events events.ClientService
 
-	IntegrationProviders *integration_providers.Client
+	IntegrationProviders integration_providers.ClientService
 
-	Integrations *integrations.Client
+	Integrations integrations.ClientService
 
-	WorkflowRevisions *workflow_revisions.Client
+	Notifications notifications.ClientService
 
-	WorkflowRuns *workflow_runs.Client
+	WorkflowRevisions workflow_revisions.ClientService
 
-	WorkflowSecrets *workflow_secrets.Client
+	WorkflowRuns workflow_runs.ClientService
 
-	WorkflowTriggers *workflow_triggers.Client
+	WorkflowSecrets workflow_secrets.ClientService
 
-	Workflows *workflows.Client
+	WorkflowTriggers workflow_triggers.ClientService
+
+	Workflows workflows.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -156,25 +148,15 @@ type Nebula struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *Nebula) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-
 	c.AccessControl.SetTransport(transport)
-
 	c.Auth.SetTransport(transport)
-
 	c.Events.SetTransport(transport)
-
 	c.IntegrationProviders.SetTransport(transport)
-
 	c.Integrations.SetTransport(transport)
-
+	c.Notifications.SetTransport(transport)
 	c.WorkflowRevisions.SetTransport(transport)
-
 	c.WorkflowRuns.SetTransport(transport)
-
 	c.WorkflowSecrets.SetTransport(transport)
-
 	c.WorkflowTriggers.SetTransport(transport)
-
 	c.Workflows.SetTransport(transport)
-
 }

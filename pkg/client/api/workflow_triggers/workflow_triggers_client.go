@@ -7,12 +7,11 @@ package workflow_triggers
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new workflow triggers API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,23 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateWorkflowTrigger(params *CreateWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowTriggerCreated, error)
+
+	DeleteWorkflowTrigger(params *DeleteWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowTriggerOK, error)
+
+	GetWorkflowTrigger(params *GetWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowTriggerOK, error)
+
+	GetWorkflowTriggers(params *GetWorkflowTriggersParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowTriggersOK, error)
+
+	UpdateWorkflowTrigger(params *UpdateWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowTriggerOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CreateWorkflowTrigger creates a new workflow trigger
+  CreateWorkflowTrigger creates a new workflow trigger
 */
 func (a *Client) CreateWorkflowTrigger(params *CreateWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*CreateWorkflowTriggerCreated, error) {
 	// TODO: Validate the params before sending
@@ -59,7 +73,7 @@ func (a *Client) CreateWorkflowTrigger(params *CreateWorkflowTriggerParams, auth
 }
 
 /*
-DeleteWorkflowTrigger deletes a given workflow trigger
+  DeleteWorkflowTrigger deletes a given workflow trigger
 */
 func (a *Client) DeleteWorkflowTrigger(params *DeleteWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteWorkflowTriggerOK, error) {
 	// TODO: Validate the params before sending
@@ -71,8 +85,8 @@ func (a *Client) DeleteWorkflowTrigger(params *DeleteWorkflowTriggerParams, auth
 		ID:                 "deleteWorkflowTrigger",
 		Method:             "DELETE",
 		PathPattern:        "/api/workflows/{workflowName}/triggers/{workflowTriggerId}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteWorkflowTriggerReader{formats: a.formats},
@@ -93,7 +107,7 @@ func (a *Client) DeleteWorkflowTrigger(params *DeleteWorkflowTriggerParams, auth
 }
 
 /*
-GetWorkflowTrigger gets a workflow trigger
+  GetWorkflowTrigger gets a workflow trigger
 */
 func (a *Client) GetWorkflowTrigger(params *GetWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowTriggerOK, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +120,7 @@ func (a *Client) GetWorkflowTrigger(params *GetWorkflowTriggerParams, authInfo r
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/triggers/{workflowTriggerId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowTriggerReader{formats: a.formats},
@@ -127,7 +141,7 @@ func (a *Client) GetWorkflowTrigger(params *GetWorkflowTriggerParams, authInfo r
 }
 
 /*
-GetWorkflowTriggers gets the list of triggers for this workflow
+  GetWorkflowTriggers gets the list of triggers for this workflow
 */
 func (a *Client) GetWorkflowTriggers(params *GetWorkflowTriggersParams, authInfo runtime.ClientAuthInfoWriter) (*GetWorkflowTriggersOK, error) {
 	// TODO: Validate the params before sending
@@ -140,7 +154,7 @@ func (a *Client) GetWorkflowTriggers(params *GetWorkflowTriggersParams, authInfo
 		Method:             "GET",
 		PathPattern:        "/api/workflows/{workflowName}/triggers",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetWorkflowTriggersReader{formats: a.formats},
@@ -161,7 +175,7 @@ func (a *Client) GetWorkflowTriggers(params *GetWorkflowTriggersParams, authInfo
 }
 
 /*
-UpdateWorkflowTrigger updates a workflow trigger
+  UpdateWorkflowTrigger updates a workflow trigger
 */
 func (a *Client) UpdateWorkflowTrigger(params *UpdateWorkflowTriggerParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateWorkflowTriggerOK, error) {
 	// TODO: Validate the params before sending

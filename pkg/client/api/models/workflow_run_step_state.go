@@ -6,5 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 // WorkflowRunStepState State representation of a workflow run step
+//
 // swagger:model WorkflowRunStepState
 type WorkflowRunStepState interface{}

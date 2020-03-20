@@ -11,12 +11,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // AcceptAccountTermsReader is a Reader for the AcceptAccountTerms structure.
@@ -271,7 +270,6 @@ func (o AcceptAccountTermsOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, acceptAccountTermsOKBodyAO0)
-
 	var dataAcceptAccountTermsOKBodyAO1 struct {
 		AcceptedTerms *models.AcceptedTerms `json:"accepted_terms,omitempty"`
 	}
@@ -283,7 +281,6 @@ func (o AcceptAccountTermsOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errAcceptAccountTermsOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataAcceptAccountTermsOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

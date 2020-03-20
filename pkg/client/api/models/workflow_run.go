@@ -8,14 +8,14 @@ package models
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // WorkflowRun workflow run
+//
 // swagger:model WorkflowRun
 type WorkflowRun struct {
 	WorkflowRunIdentifier
@@ -100,7 +100,6 @@ func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO1)
-
 	var dataAO2 struct {
 		Error *Error `json:"error,omitempty"`
 
@@ -128,7 +127,6 @@ func (m WorkflowRun) MarshalJSON() ([]byte, error) {
 		return nil, errAO2
 	}
 	_parts = append(_parts, jsonDataAO2)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

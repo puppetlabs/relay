@@ -8,14 +8,14 @@ package models
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ApprovalWorkflowStep approval workflow step
+//
 // swagger:model ApprovalWorkflowStep
 type ApprovalWorkflowStep struct {
 	AnyWorkflowStep
@@ -57,7 +57,6 @@ func (m ApprovalWorkflowStep) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO0)
-
 	var dataAO1 struct {
 		Type *string `json:"type"`
 	}
@@ -69,7 +68,6 @@ func (m ApprovalWorkflowStep) MarshalJSON() ([]byte, error) {
 		return nil, errAO1
 	}
 	_parts = append(_parts, jsonDataAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

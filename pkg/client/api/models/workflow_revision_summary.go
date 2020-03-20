@@ -6,13 +6,13 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // WorkflowRevisionSummary workflow revision summary
+//
 // swagger:model WorkflowRevisionSummary
 type WorkflowRevisionSummary struct {
 	WorkflowRevisionIdentifier
@@ -54,7 +54,6 @@ func (m WorkflowRevisionSummary) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -93,5 +92,6 @@ func (m *WorkflowRevisionSummary) UnmarshalBinary(b []byte) error {
 }
 
 // WorkflowRevisionSummaryAllOf1 Summary information about a point-in-time representation of the content of a yaml workflow definition
+//
 // swagger:model WorkflowRevisionSummaryAllOf1
 type WorkflowRevisionSummaryAllOf1 interface{}

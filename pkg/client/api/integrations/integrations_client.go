@@ -7,12 +7,11 @@ package integrations
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new integrations API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,31 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateIntegration(params *CreateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*CreateIntegrationCreated, error)
+
+	DeleteIntegration(params *DeleteIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteIntegrationOK, error)
+
+	GetIntegration(params *GetIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationOK, error)
+
+	GetIntegrationRepositories(params *GetIntegrationRepositoriesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoriesOK, error)
+
+	GetIntegrationRepositoryBranches(params *GetIntegrationRepositoryBranchesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryBranchesOK, error)
+
+	GetIntegrationRepositoryFiles(params *GetIntegrationRepositoryFilesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryFilesOK, error)
+
+	GetIntegrations(params *GetIntegrationsParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationsOK, error)
+
+	ReauthorizeIntegration(params *ReauthorizeIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*ReauthorizeIntegrationOK, error)
+
+	UpdateIntegration(params *UpdateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateIntegrationOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CreateIntegration creates an integration in your account
+  CreateIntegration creates an integration in your account
 */
 func (a *Client) CreateIntegration(params *CreateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*CreateIntegrationCreated, error) {
 	// TODO: Validate the params before sending
@@ -59,7 +81,7 @@ func (a *Client) CreateIntegration(params *CreateIntegrationParams, authInfo run
 }
 
 /*
-DeleteIntegration deletes an integration
+  DeleteIntegration deletes an integration
 */
 func (a *Client) DeleteIntegration(params *DeleteIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteIntegrationOK, error) {
 	// TODO: Validate the params before sending
@@ -72,7 +94,7 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams, authInfo run
 		Method:             "DELETE",
 		PathPattern:        "/api/integrations/{integrationId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteIntegrationReader{formats: a.formats},
@@ -93,7 +115,7 @@ func (a *Client) DeleteIntegration(params *DeleteIntegrationParams, authInfo run
 }
 
 /*
-GetIntegration gets an integration
+  GetIntegration gets an integration
 */
 func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationOK, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +128,7 @@ func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.C
 		Method:             "GET",
 		PathPattern:        "/api/integrations/{integrationId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetIntegrationReader{formats: a.formats},
@@ -127,7 +149,7 @@ func (a *Client) GetIntegration(params *GetIntegrationParams, authInfo runtime.C
 }
 
 /*
-GetIntegrationRepositories gets a list of available repositories for a given integration and owner
+  GetIntegrationRepositories gets a list of available repositories for a given integration and owner
 */
 func (a *Client) GetIntegrationRepositories(params *GetIntegrationRepositoriesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoriesOK, error) {
 	// TODO: Validate the params before sending
@@ -140,7 +162,7 @@ func (a *Client) GetIntegrationRepositories(params *GetIntegrationRepositoriesPa
 		Method:             "GET",
 		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetIntegrationRepositoriesReader{formats: a.formats},
@@ -161,7 +183,7 @@ func (a *Client) GetIntegrationRepositories(params *GetIntegrationRepositoriesPa
 }
 
 /*
-GetIntegrationRepositoryBranches gets a list of available branches for a given integration owner and repository
+  GetIntegrationRepositoryBranches gets a list of available branches for a given integration owner and repository
 */
 func (a *Client) GetIntegrationRepositoryBranches(params *GetIntegrationRepositoryBranchesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryBranchesOK, error) {
 	// TODO: Validate the params before sending
@@ -174,7 +196,7 @@ func (a *Client) GetIntegrationRepositoryBranches(params *GetIntegrationReposito
 		Method:             "GET",
 		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}/{integrationRepositoryName}/branches",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetIntegrationRepositoryBranchesReader{formats: a.formats},
@@ -195,7 +217,7 @@ func (a *Client) GetIntegrationRepositoryBranches(params *GetIntegrationReposito
 }
 
 /*
-GetIntegrationRepositoryFiles gets a list of files in a directory for a given integration owner repository branch and path
+  GetIntegrationRepositoryFiles gets a list of files in a directory for a given integration owner repository branch and path
 */
 func (a *Client) GetIntegrationRepositoryFiles(params *GetIntegrationRepositoryFilesParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationRepositoryFilesOK, error) {
 	// TODO: Validate the params before sending
@@ -208,7 +230,7 @@ func (a *Client) GetIntegrationRepositoryFiles(params *GetIntegrationRepositoryF
 		Method:             "GET",
 		PathPattern:        "/api/integrations/{integrationId}/repositories/{integrationRepositoryOwner}/{integrationRepositoryName}/branches/{integrationRepositoryBranch}/files",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetIntegrationRepositoryFilesReader{formats: a.formats},
@@ -229,7 +251,7 @@ func (a *Client) GetIntegrationRepositoryFiles(params *GetIntegrationRepositoryF
 }
 
 /*
-GetIntegrations lists all account integrations
+  GetIntegrations lists all account integrations
 */
 func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime.ClientAuthInfoWriter) (*GetIntegrationsOK, error) {
 	// TODO: Validate the params before sending
@@ -242,7 +264,7 @@ func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime
 		Method:             "GET",
 		PathPattern:        "/api/integrations",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetIntegrationsReader{formats: a.formats},
@@ -263,7 +285,7 @@ func (a *Client) GetIntegrations(params *GetIntegrationsParams, authInfo runtime
 }
 
 /*
-ReauthorizeIntegration reauthorizes an external integration
+  ReauthorizeIntegration reauthorizes an external integration
 */
 func (a *Client) ReauthorizeIntegration(params *ReauthorizeIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*ReauthorizeIntegrationOK, error) {
 	// TODO: Validate the params before sending
@@ -276,7 +298,7 @@ func (a *Client) ReauthorizeIntegration(params *ReauthorizeIntegrationParams, au
 		Method:             "POST",
 		PathPattern:        "/api/integrations/{integrationId}/reauthorize",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &ReauthorizeIntegrationReader{formats: a.formats},
@@ -297,7 +319,7 @@ func (a *Client) ReauthorizeIntegration(params *ReauthorizeIntegrationParams, au
 }
 
 /*
-UpdateIntegration updates an integration
+  UpdateIntegration updates an integration
 */
 func (a *Client) UpdateIntegration(params *UpdateIntegrationParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateIntegrationOK, error) {
 	// TODO: Validate the params before sending

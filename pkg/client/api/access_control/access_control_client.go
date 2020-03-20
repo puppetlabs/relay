@@ -7,12 +7,11 @@ package access_control
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new access control API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,49 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AcceptAccountTerms(params *AcceptAccountTermsParams, authInfo runtime.ClientAuthInfoWriter) (*AcceptAccountTermsOK, error)
+
+	AcceptInvite(params *AcceptInviteParams, authInfo runtime.ClientAuthInfoWriter) (*AcceptInviteOK, error)
+
+	AttachUserRole(params *AttachUserRoleParams, authInfo runtime.ClientAuthInfoWriter) (*AttachUserRoleCreated, error)
+
+	CreateInvite(params *CreateInviteParams, authInfo runtime.ClientAuthInfoWriter) (*CreateInviteCreated, error)
+
+	DeleteInvite(params *DeleteInviteParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteInviteOK, error)
+
+	DeleteUser(params *DeleteUserParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteUserOK, error)
+
+	DetachUserRole(params *DetachUserRoleParams, authInfo runtime.ClientAuthInfoWriter) (*DetachUserRoleOK, error)
+
+	GetAccess(params *GetAccessParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccessOK, error)
+
+	GetAccount(params *GetAccountParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountOK, error)
+
+	GetInvite(params *GetInviteParams, authInfo runtime.ClientAuthInfoWriter) (*GetInviteOK, error)
+
+	GetInvites(params *GetInvitesParams, authInfo runtime.ClientAuthInfoWriter) (*GetInvitesOK, error)
+
+	GetPermissions(params *GetPermissionsParams, authInfo runtime.ClientAuthInfoWriter) (*GetPermissionsOK, error)
+
+	GetRolePermissions(params *GetRolePermissionsParams, authInfo runtime.ClientAuthInfoWriter) (*GetRolePermissionsOK, error)
+
+	GetRoles(params *GetRolesParams, authInfo runtime.ClientAuthInfoWriter) (*GetRolesOK, error)
+
+	GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoWriter) (*GetUserOK, error)
+
+	GetUsers(params *GetUsersParams, authInfo runtime.ClientAuthInfoWriter) (*GetUsersOK, error)
+
+	ResendInvite(params *ResendInviteParams, authInfo runtime.ClientAuthInfoWriter) (*ResendInviteAccepted, error)
+
+	UpdateUser(params *UpdateUserParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-AcceptAccountTerms accepts the terms and conditions for this account
+  AcceptAccountTerms accepts the terms and conditions for this account
 */
 func (a *Client) AcceptAccountTerms(params *AcceptAccountTermsParams, authInfo runtime.ClientAuthInfoWriter) (*AcceptAccountTermsOK, error) {
 	// TODO: Validate the params before sending
@@ -59,7 +99,7 @@ func (a *Client) AcceptAccountTerms(params *AcceptAccountTermsParams, authInfo r
 }
 
 /*
-AcceptInvite accepts the given invite
+  AcceptInvite accepts the given invite
 */
 func (a *Client) AcceptInvite(params *AcceptInviteParams, authInfo runtime.ClientAuthInfoWriter) (*AcceptInviteOK, error) {
 	// TODO: Validate the params before sending
@@ -93,7 +133,7 @@ func (a *Client) AcceptInvite(params *AcceptInviteParams, authInfo runtime.Clien
 }
 
 /*
-AttachUserRole attaches a role to the user
+  AttachUserRole attaches a role to the user
 */
 func (a *Client) AttachUserRole(params *AttachUserRoleParams, authInfo runtime.ClientAuthInfoWriter) (*AttachUserRoleCreated, error) {
 	// TODO: Validate the params before sending
@@ -106,7 +146,7 @@ func (a *Client) AttachUserRole(params *AttachUserRoleParams, authInfo runtime.C
 		Method:             "PUT",
 		PathPattern:        "/api/users/{userId}/roles/{roleId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &AttachUserRoleReader{formats: a.formats},
@@ -127,7 +167,7 @@ func (a *Client) AttachUserRole(params *AttachUserRoleParams, authInfo runtime.C
 }
 
 /*
-CreateInvite invites a new user to this account
+  CreateInvite invites a new user to this account
 */
 func (a *Client) CreateInvite(params *CreateInviteParams, authInfo runtime.ClientAuthInfoWriter) (*CreateInviteCreated, error) {
 	// TODO: Validate the params before sending
@@ -161,7 +201,7 @@ func (a *Client) CreateInvite(params *CreateInviteParams, authInfo runtime.Clien
 }
 
 /*
-DeleteInvite rescinds the given invite
+  DeleteInvite rescinds the given invite
 */
 func (a *Client) DeleteInvite(params *DeleteInviteParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteInviteOK, error) {
 	// TODO: Validate the params before sending
@@ -173,8 +213,8 @@ func (a *Client) DeleteInvite(params *DeleteInviteParams, authInfo runtime.Clien
 		ID:                 "deleteInvite",
 		Method:             "DELETE",
 		PathPattern:        "/api/invites/{inviteId}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteInviteReader{formats: a.formats},
@@ -195,7 +235,7 @@ func (a *Client) DeleteInvite(params *DeleteInviteParams, authInfo runtime.Clien
 }
 
 /*
-DeleteUser removes the given user from this account
+  DeleteUser removes the given user from this account
 */
 func (a *Client) DeleteUser(params *DeleteUserParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteUserOK, error) {
 	// TODO: Validate the params before sending
@@ -207,8 +247,8 @@ func (a *Client) DeleteUser(params *DeleteUserParams, authInfo runtime.ClientAut
 		ID:                 "deleteUser",
 		Method:             "DELETE",
 		PathPattern:        "/api/users/{userId}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteUserReader{formats: a.formats},
@@ -229,7 +269,7 @@ func (a *Client) DeleteUser(params *DeleteUserParams, authInfo runtime.ClientAut
 }
 
 /*
-DetachUserRole detaches a role from a user
+  DetachUserRole detaches a role from a user
 */
 func (a *Client) DetachUserRole(params *DetachUserRoleParams, authInfo runtime.ClientAuthInfoWriter) (*DetachUserRoleOK, error) {
 	// TODO: Validate the params before sending
@@ -241,8 +281,8 @@ func (a *Client) DetachUserRole(params *DetachUserRoleParams, authInfo runtime.C
 		ID:                 "detachUserRole",
 		Method:             "DELETE",
 		PathPattern:        "/api/users/{userId}/roles/{roleId}",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DetachUserRoleReader{formats: a.formats},
@@ -263,7 +303,7 @@ func (a *Client) DetachUserRole(params *DetachUserRoleParams, authInfo runtime.C
 }
 
 /*
-GetAccess resolves the list of global permissions available to the current user
+  GetAccess resolves the list of global permissions available to the current user
 */
 func (a *Client) GetAccess(params *GetAccessParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccessOK, error) {
 	// TODO: Validate the params before sending
@@ -276,7 +316,7 @@ func (a *Client) GetAccess(params *GetAccessParams, authInfo runtime.ClientAuthI
 		Method:             "GET",
 		PathPattern:        "/api/access",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetAccessReader{formats: a.formats},
@@ -297,7 +337,7 @@ func (a *Client) GetAccess(params *GetAccessParams, authInfo runtime.ClientAuthI
 }
 
 /*
-GetAccount retrieves information about the current account
+  GetAccount retrieves information about the current account
 */
 func (a *Client) GetAccount(params *GetAccountParams, authInfo runtime.ClientAuthInfoWriter) (*GetAccountOK, error) {
 	// TODO: Validate the params before sending
@@ -310,7 +350,7 @@ func (a *Client) GetAccount(params *GetAccountParams, authInfo runtime.ClientAut
 		Method:             "GET",
 		PathPattern:        "/api/account",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetAccountReader{formats: a.formats},
@@ -331,7 +371,7 @@ func (a *Client) GetAccount(params *GetAccountParams, authInfo runtime.ClientAut
 }
 
 /*
-GetInvite retrieves information about the given invite
+  GetInvite retrieves information about the given invite
 */
 func (a *Client) GetInvite(params *GetInviteParams, authInfo runtime.ClientAuthInfoWriter) (*GetInviteOK, error) {
 	// TODO: Validate the params before sending
@@ -344,7 +384,7 @@ func (a *Client) GetInvite(params *GetInviteParams, authInfo runtime.ClientAuthI
 		Method:             "GET",
 		PathPattern:        "/api/invites/{inviteId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetInviteReader{formats: a.formats},
@@ -365,7 +405,7 @@ func (a *Client) GetInvite(params *GetInviteParams, authInfo runtime.ClientAuthI
 }
 
 /*
-GetInvites retrieves the pending invites for this account
+  GetInvites retrieves the pending invites for this account
 */
 func (a *Client) GetInvites(params *GetInvitesParams, authInfo runtime.ClientAuthInfoWriter) (*GetInvitesOK, error) {
 	// TODO: Validate the params before sending
@@ -378,7 +418,7 @@ func (a *Client) GetInvites(params *GetInvitesParams, authInfo runtime.ClientAut
 		Method:             "GET",
 		PathPattern:        "/api/invites",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetInvitesReader{formats: a.formats},
@@ -399,7 +439,7 @@ func (a *Client) GetInvites(params *GetInvitesParams, authInfo runtime.ClientAut
 }
 
 /*
-GetPermissions retrieves the list of access permissions available to this account
+  GetPermissions retrieves the list of access permissions available to this account
 */
 func (a *Client) GetPermissions(params *GetPermissionsParams, authInfo runtime.ClientAuthInfoWriter) (*GetPermissionsOK, error) {
 	// TODO: Validate the params before sending
@@ -412,7 +452,7 @@ func (a *Client) GetPermissions(params *GetPermissionsParams, authInfo runtime.C
 		Method:             "GET",
 		PathPattern:        "/api/permissions",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetPermissionsReader{formats: a.formats},
@@ -433,7 +473,7 @@ func (a *Client) GetPermissions(params *GetPermissionsParams, authInfo runtime.C
 }
 
 /*
-GetRolePermissions retrieves the permission grants associated with the given role
+  GetRolePermissions retrieves the permission grants associated with the given role
 */
 func (a *Client) GetRolePermissions(params *GetRolePermissionsParams, authInfo runtime.ClientAuthInfoWriter) (*GetRolePermissionsOK, error) {
 	// TODO: Validate the params before sending
@@ -446,7 +486,7 @@ func (a *Client) GetRolePermissions(params *GetRolePermissionsParams, authInfo r
 		Method:             "GET",
 		PathPattern:        "/api/roles/{roleId}/permissions",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetRolePermissionsReader{formats: a.formats},
@@ -467,7 +507,7 @@ func (a *Client) GetRolePermissions(params *GetRolePermissionsParams, authInfo r
 }
 
 /*
-GetRoles retrieves the roles available to this account
+  GetRoles retrieves the roles available to this account
 */
 func (a *Client) GetRoles(params *GetRolesParams, authInfo runtime.ClientAuthInfoWriter) (*GetRolesOK, error) {
 	// TODO: Validate the params before sending
@@ -480,7 +520,7 @@ func (a *Client) GetRoles(params *GetRolesParams, authInfo runtime.ClientAuthInf
 		Method:             "GET",
 		PathPattern:        "/api/roles",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetRolesReader{formats: a.formats},
@@ -501,7 +541,7 @@ func (a *Client) GetRoles(params *GetRolesParams, authInfo runtime.ClientAuthInf
 }
 
 /*
-GetUser retrieves information about a given user in this account
+  GetUser retrieves information about a given user in this account
 */
 func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoWriter) (*GetUserOK, error) {
 	// TODO: Validate the params before sending
@@ -514,7 +554,7 @@ func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoW
 		Method:             "GET",
 		PathPattern:        "/api/users/{userId}",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetUserReader{formats: a.formats},
@@ -535,7 +575,7 @@ func (a *Client) GetUser(params *GetUserParams, authInfo runtime.ClientAuthInfoW
 }
 
 /*
-GetUsers retrieves the list of users in the authenticated user s account
+  GetUsers retrieves the list of users in the authenticated user s account
 */
 func (a *Client) GetUsers(params *GetUsersParams, authInfo runtime.ClientAuthInfoWriter) (*GetUsersOK, error) {
 	// TODO: Validate the params before sending
@@ -548,7 +588,7 @@ func (a *Client) GetUsers(params *GetUsersParams, authInfo runtime.ClientAuthInf
 		Method:             "GET",
 		PathPattern:        "/api/users",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetUsersReader{formats: a.formats},
@@ -569,7 +609,7 @@ func (a *Client) GetUsers(params *GetUsersParams, authInfo runtime.ClientAuthInf
 }
 
 /*
-ResendInvite resends the given invite
+  ResendInvite resends the given invite
 */
 func (a *Client) ResendInvite(params *ResendInviteParams, authInfo runtime.ClientAuthInfoWriter) (*ResendInviteAccepted, error) {
 	// TODO: Validate the params before sending
@@ -582,7 +622,7 @@ func (a *Client) ResendInvite(params *ResendInviteParams, authInfo runtime.Clien
 		Method:             "POST",
 		PathPattern:        "/api/invites/{inviteId}/resend",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &ResendInviteReader{formats: a.formats},
@@ -603,7 +643,7 @@ func (a *Client) ResendInvite(params *ResendInviteParams, authInfo runtime.Clien
 }
 
 /*
-UpdateUser updates the given user
+  UpdateUser updates the given user
 */
 func (a *Client) UpdateUser(params *UpdateUserParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateUserOK, error) {
 	// TODO: Validate the params before sending
