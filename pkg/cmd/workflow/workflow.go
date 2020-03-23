@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/jedib0t/go-pretty/table"
@@ -26,6 +25,7 @@ func NewCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 	cmd.AddCommand(NewListCommand(rt))
 	cmd.AddCommand(NewCreateCommand(rt))
+	cmd.AddCommand(NewUpdateCommand(rt))
 	cmd.AddCommand(NewRunCommand(rt))
 	cmd.AddCommand(NewListParametersCommand(rt))
 	cmd.AddCommand(NewListRunsCommand(rt))
@@ -59,16 +59,9 @@ func NewListCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 			tw := table.NewWriter()
 
-			tw.AppendHeader(table.Row{"NAME", "INTEGRATION", "WORKFLOW"})
+			tw.AppendHeader(table.Row{"NAME"})
 			for _, wf := range index {
-				integrationName := ""
-				if wf.Integration != nil {
-					integrationName = fmt.Sprintf("%s-%s", *wf.Integration.Provider, wf.Integration.AccountLogin)
-				}
-
-				p := []string{wf.Repository, wf.Branch, wf.Path}
-
-				tw.AppendRow(table.Row{wf.Name, integrationName, strings.Join(p, "/")})
+				tw.AppendRow(table.Row{wf.Name})
 			}
 
 			_, _ = fmt.Fprintf(rt.IO().Out, "%s\n", tw.Render())
@@ -105,33 +98,6 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			integration, err := cmd.Flags().GetString("integration")
-			if err != nil {
-				return err
-			}
-
-			if integration == "" {
-				return errors.NewWorkflowCliFlagError("--integration", "required")
-			}
-
-			repo, err := cmd.Flags().GetString("repository")
-			if err != nil {
-				return err
-			}
-
-			if repo == "" {
-				return errors.NewWorkflowCliFlagError("--repository", "required")
-			}
-
-			branch, err := cmd.Flags().GetString("branch")
-			if err != nil {
-				return err
-			}
-
-			if branch == "" {
-				return errors.NewWorkflowCliFlagError("--branch", "required")
-			}
-
 			path, err := cmd.Flags().GetString("filepath")
 			if err != nil {
 				return err
@@ -141,27 +107,17 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return errors.NewWorkflowCliFlagError("--filepath", "required")
 			}
 
+			f, err := os.Open(path)
+			if err != nil {
+				return errors.NewWorkflowFileReadError().WithCause(err)
+			}
+
 			client, err := client.NewAPIClient(cfg)
 			if err != nil {
 				return err
 			}
 
-			integrations, err := client.ListIntegrations(context.Background())
-			if err != nil {
-				return err
-			}
-			var integrationID string
-			for _, i := range integrations {
-				iName := fmt.Sprintf("%s-%s", *i.Provider, i.AccountLogin)
-				if iName == integration {
-					integrationID = *i.ID
-				}
-			}
-			if integrationID == "" {
-				return errors.NewClientGetIntegrationError(integration)
-			}
-
-			if _, err = client.CreateWorkflow(context.Background(), name, description, integrationID, repo, branch, path); err != nil {
+			if _, err = client.CreateWorkflow(context.Background(), name, description, f); err != nil {
 				return err
 			}
 
@@ -173,9 +129,67 @@ func NewCreateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 
 	cmd.Flags().StringP("name", "n", "", "workflow name")
 	cmd.Flags().StringP("description", "d", "", "workflow description")
-	cmd.Flags().StringP("integration", "i", "", "name of the integration")
-	cmd.Flags().StringP("repository", "r", "", "name of the repository")
-	cmd.Flags().StringP("branch", "b", "", "name of the branch")
+	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")
+
+	return cmd
+}
+
+func NewUpdateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "update",
+		Short:                 "Update workflows",
+		DisableFlagsInUseLine: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := rt.Config()
+			if err != nil {
+				return err
+			}
+
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return err
+			}
+
+			if name == "" {
+				return errors.NewWorkflowCliFlagError("--name", "required")
+			}
+
+			description, err := cmd.Flags().GetString("description")
+			if err != nil {
+				return err
+			}
+
+			path, err := cmd.Flags().GetString("filepath")
+			if err != nil {
+				return err
+			}
+
+			if path == "" {
+				return errors.NewWorkflowCliFlagError("--filepath", "required")
+			}
+
+			f, err := os.Open(path)
+			if err != nil {
+				return errors.NewWorkflowFileReadError().WithCause(err)
+			}
+
+			client, err := client.NewAPIClient(cfg)
+			if err != nil {
+				return err
+			}
+
+			if _, err = client.UpdateWorkflow(context.Background(), name, description, f); err != nil {
+				return err
+			}
+
+			fmt.Fprintln(rt.IO().Out, "Success")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("name", "n", "", "workflow name")
+	cmd.Flags().StringP("description", "d", "", "workflow description")
 	cmd.Flags().StringP("filepath", "f", "", "path to the workflow file")
 
 	return cmd
@@ -328,7 +342,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 			}
 
 			tw := table.NewWriter()
-			tw.AppendHeader(table.Row{"#", "STATUS", "REPOSITORY", "BRANCH", "HASH"})
+			tw.AppendHeader(table.Row{"#", "STATUS"})
 
 			for _, run := range wrs {
 				if run.State != nil {
@@ -337,26 +351,7 @@ func NewListRunsCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 						run.State.Status = &status
 					}
 
-					repository := ""
-					hash := ""
-					branch := ""
-
-					revision, err := client.GetWorkflowRevision(context.Background(), name, *run.Revision.ID)
-					if err != nil {
-						return err
-					}
-
-					if revision.Context != nil {
-						if revision.Context.Repository != nil {
-							repository = *revision.Context.Repository
-						}
-						branch = revision.Context.Branch
-						if revision.Context.Hash != nil {
-							hash = *revision.Context.Hash
-						}
-					}
-
-					tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.State.Status, repository, branch, hash})
+					tw.AppendRow(table.Row{fmt.Sprintf("%d", run.RunNumber), *run.State.Status})
 				}
 			}
 
