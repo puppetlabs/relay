@@ -230,13 +230,15 @@ func (c *APIClient) UpdateWorkflow(ctx context.Context, name, description string
 		wf = response.Payload.Workflow
 	}
 
-	revisionParams := workflow_revisions.NewPostWorkflowRevisionParams()
-	revisionParams.SetBody(content)
-	revisionParams.WorkflowName = string(wf.Name)
+	if content != nil {
+		revisionParams := workflow_revisions.NewPostWorkflowRevisionParams()
+		revisionParams.SetBody(content)
+		revisionParams.WorkflowName = string(wf.Name)
 
-	_, wrerr := c.delegate.WorkflowRevisions.PostWorkflowRevision(revisionParams, auth)
-	if wrerr != nil {
-		return nil, errors.NewClientCreateWorkflowRevisionError().WithCause(translateRuntimeError(wrerr))
+		_, wrerr := c.delegate.WorkflowRevisions.PostWorkflowRevision(revisionParams, auth)
+		if wrerr != nil {
+			return nil, errors.NewClientCreateWorkflowRevisionError().WithCause(translateRuntimeError(wrerr))
+		}
 	}
 
 	return wf, nil
