@@ -49,6 +49,7 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 
 	transport := httptransport.New(host.Host, "/", []string{host.Scheme})
 	transport.Producers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONProducer()
+	transport.Producers["application/vnd.puppet.nebula.v20200131+yaml"] = runtime.TextProducer()
 	transport.Consumers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONConsumer()
 
 	delegate := api.New(transport, strfmt.Default)

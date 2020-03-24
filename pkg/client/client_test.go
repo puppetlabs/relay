@@ -161,9 +161,7 @@ func TestWorkflowCreate(t *testing.T) {
 	}, nil)
 	routes.Add("/api/workflows/name/revisions", http.StatusCreated, &workflow_revisions.PostWorkflowRevisionCreatedBody{
 		Workflow: wfm,
-	}, map[string]string{
-		"Accept": "application/vnd.puppet.nebula.v20200131+yaml",
-	})
+	}, nil)
 
 	im := makeIntegrationFixture("test", "github")
 	routes.Add("/api/integrations", http.StatusOK, im, nil)
