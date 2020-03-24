@@ -9,6 +9,7 @@ require (
 	github.com/go-openapi/swag v0.19.8
 	github.com/go-openapi/validate v0.19.7
 	github.com/go-swagger/go-swagger v0.23.0
+	github.com/google/uuid v1.1.1
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/jedib0t/go-pretty v4.0.3+incompatible
 	github.com/mattn/go-runewidth v0.0.4 // indirect

@@ -1,8 +1,8 @@
 package client
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
@@ -22,6 +23,14 @@ import (
 	"github.com/puppetlabs/nebula-cli/pkg/config"
 	"github.com/stretchr/testify/require"
 )
+
+const workflowContent = `
+apiVersion: v1
+description: description
+steps:
+- name: test-step
+  image: alpine:latest
+  input: ps aux`
 
 func stringP(s string) *string {
 	return &s
@@ -46,8 +55,10 @@ func makeWorkflowRevisionFixture() *models.WorkflowRevision {
 	}
 }
 
-func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow {
+func makeWorkflowFixture(name, description, content string) *models.Workflow {
 	now := strfmt.DateTime(time.Now())
+
+	wfrID := uuid.New().String()
 
 	return &models.Workflow{
 		WorkflowSummary: models.WorkflowSummary{
@@ -55,9 +66,11 @@ func makeWorkflowFixture(name, repository, branch, path string) *models.Workflow
 				Name: models.WorkflowName(name),
 			},
 		},
-		Repository: repository,
-		Branch:     branch,
-		Path:       path,
+		LatestRevision: &models.WorkflowRevisionSummary{
+			WorkflowRevisionIdentifier: models.WorkflowRevisionIdentifier{
+				ID: &wfrID,
+			},
+		},
 		Lifecycle: models.Lifecycle{
 			CreatedAt: &now,
 			UpdatedAt: &now,
@@ -140,12 +153,17 @@ func TestLogin(t *testing.T) {
 }
 
 func TestWorkflowCreate(t *testing.T) {
-	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
+	wfm := makeWorkflowFixture("name", "description", workflowContent)
 
 	routes := &testutil.MockRoutes{}
 	routes.Add("/api/workflows", http.StatusCreated, &workflows.CreateWorkflowCreatedBody{
 		Workflow: wfm,
 	}, nil)
+	routes.Add("/api/workflows/name/revisions", http.StatusCreated, &workflow_revisions.PostWorkflowRevisionCreatedBody{
+		Workflow: wfm,
+	}, map[string]string{
+		"Accept": "application/vnd.puppet.nebula.v20200131+yaml",
+	})
 
 	im := makeIntegrationFixture("test", "github")
 	routes.Add("/api/integrations", http.StatusOK, im, nil)
@@ -153,10 +171,13 @@ func TestWorkflowCreate(t *testing.T) {
 	withAPIClient(t, routes, func(c *APIClient) {
 		fakeLogin(t, c)
 
-		wf, err := c.CreateWorkflow(context.Background(), "name", "description", "github-test", "repo1", "branch1", "workflow.yaml")
+		r := bytes.NewBufferString(workflowContent)
+		rc := ioutil.NopCloser(r)
+
+		wf, err := c.CreateWorkflow(context.Background(), "name", "description", rc)
 		require.NoError(t, err, "could not create workflow")
 		require.Equal(t, wf.Name, models.WorkflowName("name"))
-		require.Equal(t, wf.Repository, "repo1")
+		require.NotNil(t, wf.LatestRevision)
 	})
 }
 
@@ -164,7 +185,7 @@ func TestWorkflowList(t *testing.T) {
 	wfl := &workflows.GetWorkflowsOKBody{}
 
 	for i := 0; i < 10; i++ {
-		wfm := makeWorkflowFixture("name", "repo", "branch", fmt.Sprintf("workflow-%d.yaml", i))
+		wfm := makeWorkflowFixture("name", "description", workflowContent)
 		wfl.Workflows = append(wfl.Workflows, wfm)
 	}
 
@@ -205,7 +226,7 @@ func TestWorkflowRevision(t *testing.T) {
 }
 
 func TestWorkflowRun(t *testing.T) {
-	wfm := makeWorkflowFixture("name", "repo1", "branch1", "workflow.yaml")
+	wfm := makeWorkflowFixture("name", "description", workflowContent)
 	wfrm := makeWorkflowRunFixture(wfm)
 
 	routes := &testutil.MockRoutes{}

@@ -3,6 +3,7 @@ package workflow
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -164,13 +165,15 @@ func NewUpdateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if path == "" {
-				return errors.NewWorkflowCliFlagError("--filepath", "required")
-			}
+			var rc io.ReadCloser
 
-			f, err := os.Open(path)
-			if err != nil {
-				return errors.NewWorkflowFileReadError().WithCause(err)
+			if path != "" {
+				f, err := os.Open(path)
+				if err != nil {
+					return errors.NewWorkflowFileReadError().WithCause(err)
+				}
+
+				rc = f
 			}
 
 			client, err := client.NewAPIClient(cfg)
@@ -178,7 +181,7 @@ func NewUpdateCommand(rt runtimefactory.RuntimeFactory) *cobra.Command {
 				return err
 			}
 
-			if _, err = client.UpdateWorkflow(context.Background(), name, description, f); err != nil {
+			if _, err = client.UpdateWorkflow(context.Background(), name, description, rc); err != nil {
 				return err
 			}
 
