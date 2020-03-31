@@ -1,9 +1,9 @@
 {
-  "description": "The command line interface for interacting with Puppet Nebula",
+  "description": "The command line interface for interacting with Relay by Puppet",
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/puppetlabs/nebula-cli.git"
+    "url": "git+https://github.com/puppetlabs/relay.git"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^3.0.2",

@@ -1,16 +1,16 @@
-# Nebula CLI
+# Relay by Puppet
 
 ## Usage
 ```bash
-./bin/nebula-cli -h
+./bin/relay
 ```
 
 ## Build
 
-NPM and Go are required to build nebula-cli.
+NPM and Go are required to build relay
 
 ```bash
 make
 ```
 
-The resulting binary will be in `./bin/nebula`.
+The resulting binary will be in `./bin/relay`.
