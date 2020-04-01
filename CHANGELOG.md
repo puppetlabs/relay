@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/puppetlabs/relay/compare/v3.3.0...v3.4.0) (2020-04-01)
+
+
+### Update
+
+* This change updates the api client to support adding workflow content through the workflow c ([2ca507b](https://github.com/puppetlabs/relay/commit/2ca507b5088726d4423730da0eba68418a9dcee0))
+
 # [3.3.0](https://github.com/puppetlabs/relay/compare/v3.2.0...v3.3.0) (2020-02-12)
 
 
