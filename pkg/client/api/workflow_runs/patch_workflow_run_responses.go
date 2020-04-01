@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // PatchWorkflowRunReader is a Reader for the PatchWorkflowRun structure.
@@ -278,7 +277,6 @@ func (o PatchWorkflowRunOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, patchWorkflowRunOKBodyAO0)
-
 	var dataPatchWorkflowRunOKBodyAO1 struct {
 		Run *models.WorkflowRun `json:"run,omitempty"`
 	}
@@ -290,7 +288,6 @@ func (o PatchWorkflowRunOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errPatchWorkflowRunOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataPatchWorkflowRunOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

@@ -6,14 +6,14 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // WorkflowRunSummary workflow run summary
+//
 // swagger:model WorkflowRunSummary
 type WorkflowRunSummary struct {
 	WorkflowRunIdentifier
@@ -69,7 +69,6 @@ func (m WorkflowRunSummary) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO0)
-
 	var dataAO1 struct {
 		CreatedBy WorkflowRunCreatedBySummary `json:"created_by,omitempty"`
 
@@ -89,7 +88,6 @@ func (m WorkflowRunSummary) MarshalJSON() ([]byte, error) {
 		return nil, errAO1
 	}
 	_parts = append(_parts, jsonDataAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

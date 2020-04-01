@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // GetEventSourceReader is a Reader for the GetEventSource structure.
@@ -219,7 +218,6 @@ func (o GetEventSourceOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, getEventSourceOKBodyAO0)
-
 	var dataGetEventSourceOKBodyAO1 struct {
 		EventSource *models.EventSource `json:"event_source,omitempty"`
 	}
@@ -231,7 +229,6 @@ func (o GetEventSourceOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errGetEventSourceOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataGetEventSourceOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

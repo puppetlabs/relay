@@ -12,12 +12,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // PatchWorkflowRunStepReader is a Reader for the PatchWorkflowRunStep structure.
@@ -296,7 +295,6 @@ func (o PatchWorkflowRunStepOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, patchWorkflowRunStepOKBodyAO0)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

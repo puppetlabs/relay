@@ -11,12 +11,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // AcceptInviteReader is a Reader for the AcceptInvite structure.
@@ -271,7 +270,6 @@ func (o AcceptInviteOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, acceptInviteOKBodyAO0)
-
 	var dataAcceptInviteOKBodyAO1 struct {
 		Invite *models.Invite `json:"invite,omitempty"`
 	}
@@ -283,7 +281,6 @@ func (o AcceptInviteOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errAcceptInviteOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataAcceptInviteOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

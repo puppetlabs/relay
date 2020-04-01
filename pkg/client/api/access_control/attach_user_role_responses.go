@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // AttachUserRoleReader is a Reader for the AttachUserRole structure.
@@ -160,7 +159,6 @@ func (o AttachUserRoleCreatedBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, attachUserRoleCreatedBodyAO0)
-
 	var dataAttachUserRoleCreatedBodyAO1 struct {
 		Role *models.RoleSummary `json:"role,omitempty"`
 	}
@@ -172,7 +170,6 @@ func (o AttachUserRoleCreatedBody) MarshalJSON() ([]byte, error) {
 		return nil, errAttachUserRoleCreatedBodyAO1
 	}
 	_parts = append(_parts, jsonDataAttachUserRoleCreatedBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

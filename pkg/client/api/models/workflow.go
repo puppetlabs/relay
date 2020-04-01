@@ -6,33 +6,24 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Workflow workflow
+//
 // swagger:model Workflow
 type Workflow struct {
 	WorkflowSummary
 
 	Lifecycle
 
-	// Git branch on which the workflow definition file lives. By default we will pick the default branch of the repository
-	Branch string `json:"branch,omitempty"`
-
-	// integration
-	Integration *IntegrationSummary `json:"integration,omitempty"`
+	// latest revision
+	LatestRevision *WorkflowRevisionSummary `json:"latest_revision,omitempty"`
 
 	// most recent run
 	MostRecentRun *WorkflowRunSummary `json:"most_recent_run,omitempty"`
-
-	// Relative path from the repository root to the workflow file
-	Path string `json:"path,omitempty"`
-
-	// A source repository slug
-	Repository string `json:"repository,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -53,29 +44,17 @@ func (m *Workflow) UnmarshalJSON(raw []byte) error {
 
 	// AO2
 	var dataAO2 struct {
-		Branch string `json:"branch,omitempty"`
-
-		Integration *IntegrationSummary `json:"integration,omitempty"`
+		LatestRevision *WorkflowRevisionSummary `json:"latest_revision,omitempty"`
 
 		MostRecentRun *WorkflowRunSummary `json:"most_recent_run,omitempty"`
-
-		Path string `json:"path,omitempty"`
-
-		Repository string `json:"repository,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
 		return err
 	}
 
-	m.Branch = dataAO2.Branch
-
-	m.Integration = dataAO2.Integration
+	m.LatestRevision = dataAO2.LatestRevision
 
 	m.MostRecentRun = dataAO2.MostRecentRun
-
-	m.Path = dataAO2.Path
-
-	m.Repository = dataAO2.Repository
 
 	return nil
 }
@@ -95,35 +74,21 @@ func (m Workflow) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO1)
-
 	var dataAO2 struct {
-		Branch string `json:"branch,omitempty"`
-
-		Integration *IntegrationSummary `json:"integration,omitempty"`
+		LatestRevision *WorkflowRevisionSummary `json:"latest_revision,omitempty"`
 
 		MostRecentRun *WorkflowRunSummary `json:"most_recent_run,omitempty"`
-
-		Path string `json:"path,omitempty"`
-
-		Repository string `json:"repository,omitempty"`
 	}
 
-	dataAO2.Branch = m.Branch
-
-	dataAO2.Integration = m.Integration
+	dataAO2.LatestRevision = m.LatestRevision
 
 	dataAO2.MostRecentRun = m.MostRecentRun
-
-	dataAO2.Path = m.Path
-
-	dataAO2.Repository = m.Repository
 
 	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
 	if errAO2 != nil {
 		return nil, errAO2
 	}
 	_parts = append(_parts, jsonDataAO2)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -140,7 +105,7 @@ func (m *Workflow) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateIntegration(formats); err != nil {
+	if err := m.validateLatestRevision(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,16 +119,16 @@ func (m *Workflow) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Workflow) validateIntegration(formats strfmt.Registry) error {
+func (m *Workflow) validateLatestRevision(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Integration) { // not required
+	if swag.IsZero(m.LatestRevision) { // not required
 		return nil
 	}
 
-	if m.Integration != nil {
-		if err := m.Integration.Validate(formats); err != nil {
+	if m.LatestRevision != nil {
+		if err := m.LatestRevision.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("integration")
+				return ve.ValidateName("latest_revision")
 			}
 			return err
 		}

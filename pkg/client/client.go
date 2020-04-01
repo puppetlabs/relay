@@ -49,6 +49,7 @@ func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
 
 	transport := httptransport.New(host.Host, "/", []string{host.Scheme})
 	transport.Producers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONProducer()
+	transport.Producers["application/vnd.puppet.nebula.v20200131+yaml"] = runtime.TextProducer()
 	transport.Consumers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONConsumer()
 
 	delegate := api.New(transport, strfmt.Default)
@@ -165,27 +166,83 @@ func (c *APIClient) ListWorkflows(ctx context.Context) ([]*models.Workflow, erro
 	return response.Payload.Workflows, nil
 }
 
-func (c *APIClient) CreateWorkflow(ctx context.Context, name, description, integrationID, repo, branch, path string) (*models.Workflow, errors.Error) {
+func (c *APIClient) GetWorkflow(ctx context.Context, name string) (*models.Workflow, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	params := workflows.NewGetWorkflowParams()
+	params.WorkflowName = name
+
+	response, derr := c.delegate.Workflows.GetWorkflow(params, auth)
+	if derr != nil {
+		return nil, errors.NewClientGetWorkflowError(name).WithCause(translateRuntimeError(derr))
+	}
+
+	return response.Payload.Workflow, nil
+}
+
+func (c *APIClient) CreateWorkflow(ctx context.Context, name, description string, content io.ReadCloser) (*models.Workflow, errors.Error) {
 	auth := c.getAuthorizationFunc(ctx)
 
 	params := workflows.NewCreateWorkflowParams()
 	params.SetBody(workflows.CreateWorkflowBody{
 		Name:        models.WorkflowName(name),
 		Description: description,
-		Integration: &models.IntegrationIdentifier{
-			ID: &integrationID,
-		},
-		Repository: &repo,
-		Branch:     &branch,
-		Path:       &path,
 	})
 
-	resp, werr := c.delegate.Workflows.CreateWorkflow(params, auth)
+	wfresp, werr := c.delegate.Workflows.CreateWorkflow(params, auth)
 	if werr != nil {
 		return nil, errors.NewClientCreateWorkflowError().WithCause(translateRuntimeError(werr))
 	}
 
-	return resp.Payload.Workflow, nil
+	wf := wfresp.Payload.Workflow
+
+	revisionParams := workflow_revisions.NewPostWorkflowRevisionParams()
+	revisionParams.SetBody(content)
+	revisionParams.WorkflowName = string(wf.Name)
+
+	_, wrerr := c.delegate.WorkflowRevisions.PostWorkflowRevision(revisionParams, auth)
+	if wrerr != nil {
+		return nil, errors.NewClientCreateWorkflowRevisionError().WithCause(translateRuntimeError(wrerr))
+	}
+
+	return wf, nil
+}
+
+func (c *APIClient) UpdateWorkflow(ctx context.Context, name, description string, content io.ReadCloser) (*models.Workflow, errors.Error) {
+	auth := c.getAuthorizationFunc(ctx)
+
+	wf, err := c.GetWorkflow(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if description != wf.Description {
+		params := workflows.NewUpdateWorkflowParams()
+		params.WorkflowName = name
+		params.SetBody(workflows.UpdateWorkflowBody{
+			Description: description,
+		})
+
+		response, err := c.delegate.Workflows.UpdateWorkflow(params, auth)
+		if err != nil {
+			return nil, errors.NewClientUpdateWorkflowError(name)
+		}
+
+		wf = response.Payload.Workflow
+	}
+
+	if content != nil {
+		revisionParams := workflow_revisions.NewPostWorkflowRevisionParams()
+		revisionParams.SetBody(content)
+		revisionParams.WorkflowName = string(wf.Name)
+
+		_, wrerr := c.delegate.WorkflowRevisions.PostWorkflowRevision(revisionParams, auth)
+		if wrerr != nil {
+			return nil, errors.NewClientCreateWorkflowRevisionError().WithCause(translateRuntimeError(wrerr))
+		}
+	}
+
+	return wf, nil
 }
 
 func (c *APIClient) RunWorkflow(ctx context.Context, name string, parameters map[string]string) (*models.WorkflowRun, errors.Error) {

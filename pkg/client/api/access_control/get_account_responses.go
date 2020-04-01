@@ -11,11 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // GetAccountReader is a Reader for the GetAccount structure.
@@ -219,7 +218,6 @@ func (o GetAccountOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, getAccountOKBodyAO0)
-
 	var dataGetAccountOKBodyAO1 struct {
 		Account *models.Account `json:"account,omitempty"`
 	}
@@ -231,7 +229,6 @@ func (o GetAccountOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errGetAccountOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataGetAccountOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

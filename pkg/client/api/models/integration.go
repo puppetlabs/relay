@@ -8,14 +8,14 @@ package models
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Integration integration
+//
 // swagger:model Integration
 type Integration struct {
 	IntegrationSummary
@@ -100,7 +100,6 @@ func (m Integration) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO1)
-
 	var dataAO2 struct {
 		Auth *IntegrationAO2Auth `json:"auth"`
 
@@ -128,7 +127,6 @@ func (m Integration) MarshalJSON() ([]byte, error) {
 		return nil, errAO2
 	}
 	_parts = append(_parts, jsonDataAO2)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -279,6 +277,7 @@ func (m *Integration) UnmarshalBinary(b []byte) error {
 }
 
 // IntegrationAO2Auth The authentication details of this integration
+//
 // swagger:model IntegrationAO2Auth
 type IntegrationAO2Auth struct {
 

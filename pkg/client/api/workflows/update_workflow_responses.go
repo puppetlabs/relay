@@ -11,12 +11,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // UpdateWorkflowReader is a Reader for the UpdateWorkflow structure.
@@ -120,99 +118,17 @@ func (o *UpdateWorkflowDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*UpdateWorkflowBody Required fields to update a workflow entry
+/*UpdateWorkflowBody The metadata fields of a workflow
 swagger:model UpdateWorkflowBody
 */
 type UpdateWorkflowBody struct {
 
-	// The branch on which we should look for the workflow yaml
-	// Required: true
-	Branch *string `json:"branch"`
-
 	// User provided friendly workflow description
 	Description string `json:"description,omitempty"`
-
-	// integration
-	// Required: true
-	Integration *models.IntegrationIdentifier `json:"integration"`
-
-	// Relative path from the repository root to the workflow file
-	// Required: true
-	Path *string `json:"path"`
-
-	// A source repository slug.
-	// Required: true
-	Repository *string `json:"repository"`
 }
 
 // Validate validates this update workflow body
 func (o *UpdateWorkflowBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateBranch(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateIntegration(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePath(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateRepository(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateWorkflowBody) validateBranch(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"branch", "body", o.Branch); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *UpdateWorkflowBody) validateIntegration(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"integration", "body", o.Integration); err != nil {
-		return err
-	}
-
-	if o.Integration != nil {
-		if err := o.Integration.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "integration")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *UpdateWorkflowBody) validatePath(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"path", "body", o.Path); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *UpdateWorkflowBody) validateRepository(formats strfmt.Registry) error {
-
-	if err := validate.Required("body"+"."+"repository", "body", o.Repository); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -334,7 +250,6 @@ func (o UpdateWorkflowOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, updateWorkflowOKBodyAO0)
-
 	var dataUpdateWorkflowOKBodyAO1 struct {
 		Workflow *models.Workflow `json:"workflow,omitempty"`
 	}
@@ -346,7 +261,6 @@ func (o UpdateWorkflowOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errUpdateWorkflowOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataUpdateWorkflowOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

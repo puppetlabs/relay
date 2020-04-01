@@ -6,22 +6,21 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // WorkflowRevision workflow revision
+//
 // swagger:model WorkflowRevision
 type WorkflowRevision struct {
-	Lifecycle
-
 	WorkflowRevisionSummary
 
-	// context
-	Context *WorkflowSourceContext `json:"context,omitempty"`
+	// Time of creation
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// parameters
 	Parameters WorkflowParameters `json:"parameters,omitempty"`
@@ -38,22 +37,15 @@ type WorkflowRevision struct {
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (m *WorkflowRevision) UnmarshalJSON(raw []byte) error {
 	// AO0
-	var aO0 Lifecycle
+	var aO0 WorkflowRevisionSummary
 	if err := swag.ReadJSON(raw, &aO0); err != nil {
 		return err
 	}
-	m.Lifecycle = aO0
+	m.WorkflowRevisionSummary = aO0
 
 	// AO1
-	var aO1 WorkflowRevisionSummary
-	if err := swag.ReadJSON(raw, &aO1); err != nil {
-		return err
-	}
-	m.WorkflowRevisionSummary = aO1
-
-	// AO2
-	var dataAO2 struct {
-		Context *WorkflowSourceContext `json:"context,omitempty"`
+	var dataAO1 struct {
+		CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 		Parameters WorkflowParameters `json:"parameters,omitempty"`
 
@@ -61,39 +53,32 @@ func (m *WorkflowRevision) UnmarshalJSON(raw []byte) error {
 
 		Steps []WorkflowStep `json:"steps"`
 	}
-	if err := swag.ReadJSON(raw, &dataAO2); err != nil {
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
 
-	m.Context = dataAO2.Context
+	m.CreatedAt = dataAO1.CreatedAt
 
-	m.Parameters = dataAO2.Parameters
+	m.Parameters = dataAO1.Parameters
 
-	m.Raw = dataAO2.Raw
+	m.Raw = dataAO1.Raw
 
-	m.Steps = dataAO2.Steps
+	m.Steps = dataAO1.Steps
 
 	return nil
 }
 
 // MarshalJSON marshals this object to a JSON structure
 func (m WorkflowRevision) MarshalJSON() ([]byte, error) {
-	_parts := make([][]byte, 0, 3)
+	_parts := make([][]byte, 0, 2)
 
-	aO0, err := swag.WriteJSON(m.Lifecycle)
+	aO0, err := swag.WriteJSON(m.WorkflowRevisionSummary)
 	if err != nil {
 		return nil, err
 	}
 	_parts = append(_parts, aO0)
-
-	aO1, err := swag.WriteJSON(m.WorkflowRevisionSummary)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, aO1)
-
-	var dataAO2 struct {
-		Context *WorkflowSourceContext `json:"context,omitempty"`
+	var dataAO1 struct {
+		CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 		Parameters WorkflowParameters `json:"parameters,omitempty"`
 
@@ -102,20 +87,19 @@ func (m WorkflowRevision) MarshalJSON() ([]byte, error) {
 		Steps []WorkflowStep `json:"steps"`
 	}
 
-	dataAO2.Context = m.Context
+	dataAO1.CreatedAt = m.CreatedAt
 
-	dataAO2.Parameters = m.Parameters
+	dataAO1.Parameters = m.Parameters
 
-	dataAO2.Raw = m.Raw
+	dataAO1.Raw = m.Raw
 
-	dataAO2.Steps = m.Steps
+	dataAO1.Steps = m.Steps
 
-	jsonDataAO2, errAO2 := swag.WriteJSON(dataAO2)
-	if errAO2 != nil {
-		return nil, errAO2
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
 	}
-	_parts = append(_parts, jsonDataAO2)
-
+	_parts = append(_parts, jsonDataAO1)
 	return swag.ConcatJSON(_parts...), nil
 }
 
@@ -123,16 +107,12 @@ func (m WorkflowRevision) MarshalJSON() ([]byte, error) {
 func (m *WorkflowRevision) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with Lifecycle
-	if err := m.Lifecycle.Validate(formats); err != nil {
-		res = append(res, err)
-	}
 	// validation for a type composition with WorkflowRevisionSummary
 	if err := m.WorkflowRevisionSummary.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateContext(formats); err != nil {
+	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,19 +134,14 @@ func (m *WorkflowRevision) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *WorkflowRevision) validateContext(formats strfmt.Registry) error {
+func (m *WorkflowRevision) validateCreatedAt(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Context) { // not required
+	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
 
-	if m.Context != nil {
-		if err := m.Context.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("context")
-			}
-			return err
-		}
+	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

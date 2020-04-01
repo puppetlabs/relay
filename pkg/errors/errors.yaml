@@ -45,6 +45,18 @@ sections:
       list_workflows_error:
         title: List workflows error
         description: there was an error fetching workflows
+      get_workflow_error:
+        title: Get workflow error
+        description: there was an error fetching the workflow
+        arguments:
+          name:
+            description: the name of the workflow
+      update_workflow_error:
+        title: Update workflow error
+        description: there was an error updating the workflow
+        arguments:
+          name:
+            description: the name of the workflow
       get_workflow_revision_error:
         title: Get workflow revision error
         description: there was an error fetching this workflow revision
@@ -60,6 +72,9 @@ sections:
       create_workflow_error:
         title: Create workflow error
         description: there was an error creating the workflow
+      create_workflow_revision_error:
+        title: Create workflow revision error
+        description: there was an error creating the workflow revision
       invalid_workflow_parameter_value_error:
         title: Invalid workflow parameter value
         description: The value of this workflow parameter cannot be encoded.
@@ -111,3 +126,6 @@ sections:
       secret_value_not_specified_error:
         title: Secret value not specified
         description: You did not provide a secret value.
+      file_read_error:
+        title: File read error
+        description: There was an error reading the workflow file

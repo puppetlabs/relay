@@ -8,13 +8,13 @@ package models
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // WorkflowDataReferences An index of data references in a section of yaml
+//
 // swagger:model WorkflowDataReferences
 type WorkflowDataReferences struct {
 

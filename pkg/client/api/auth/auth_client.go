@@ -7,12 +7,11 @@ package auth
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new auth API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,31 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateSession(params *CreateSessionParams) (*CreateSessionCreated, error)
+
+	DeleteSession(params *DeleteSessionParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteSessionOK, error)
+
+	ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAccepted, error)
+
+	GetProfile(params *GetProfileParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfileOK, error)
+
+	GetProfilePreferences(params *GetProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfilePreferencesOK, error)
+
+	GetSession(params *GetSessionParams, authInfo runtime.ClientAuthInfoWriter) (*GetSessionOK, error)
+
+	UpdateProfile(params *UpdateProfileParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfileOK, error)
+
+	UpdateProfilePassword(params *UpdateProfilePasswordParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePasswordOK, error)
+
+	UpdateProfilePreferences(params *UpdateProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePreferencesOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CreateSession requests an j w t access token from email and password
+  CreateSession requests an j w t access token from email and password
 */
 func (a *Client) CreateSession(params *CreateSessionParams) (*CreateSessionCreated, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +80,7 @@ func (a *Client) CreateSession(params *CreateSessionParams) (*CreateSessionCreat
 }
 
 /*
-DeleteSession invalidates attached j w t token used likely for logout
+  DeleteSession invalidates attached j w t token used likely for logout
 */
 func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.ClientAuthInfoWriter) (*DeleteSessionOK, error) {
 	// TODO: Validate the params before sending
@@ -70,8 +92,8 @@ func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.Cli
 		ID:                 "deleteSession",
 		Method:             "DELETE",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &DeleteSessionReader{formats: a.formats},
@@ -92,7 +114,7 @@ func (a *Client) DeleteSession(params *DeleteSessionParams, authInfo runtime.Cli
 }
 
 /*
-ForgotPassword requests a password reset for a user identified by their email address
+  ForgotPassword requests a password reset for a user identified by their email address
 */
 func (a *Client) ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAccepted, error) {
 	// TODO: Validate the params before sending
@@ -104,7 +126,7 @@ func (a *Client) ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAc
 		ID:                 "forgotPassword",
 		Method:             "POST",
 		PathPattern:        "/forgot-password",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -125,7 +147,7 @@ func (a *Client) ForgotPassword(params *ForgotPasswordParams) (*ForgotPasswordAc
 }
 
 /*
-GetProfile gets the currently authenticated user s profile
+  GetProfile gets the currently authenticated user s profile
 */
 func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfileOK, error) {
 	// TODO: Validate the params before sending
@@ -138,7 +160,7 @@ func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAut
 		Method:             "GET",
 		PathPattern:        "/auth/profile",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetProfileReader{formats: a.formats},
@@ -159,7 +181,7 @@ func (a *Client) GetProfile(params *GetProfileParams, authInfo runtime.ClientAut
 }
 
 /*
-GetProfilePreferences gets the current user s public preferences
+  GetProfilePreferences gets the current user s public preferences
 */
 func (a *Client) GetProfilePreferences(params *GetProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*GetProfilePreferencesOK, error) {
 	// TODO: Validate the params before sending
@@ -172,7 +194,7 @@ func (a *Client) GetProfilePreferences(params *GetProfilePreferencesParams, auth
 		Method:             "GET",
 		PathPattern:        "/auth/profile/preferences",
 		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetProfilePreferencesReader{formats: a.formats},
@@ -193,7 +215,7 @@ func (a *Client) GetProfilePreferences(params *GetProfilePreferencesParams, auth
 }
 
 /*
-GetSession checks if attached j w t token is valid
+  GetSession checks if attached j w t token is valid
 */
 func (a *Client) GetSession(params *GetSessionParams, authInfo runtime.ClientAuthInfoWriter) (*GetSessionOK, error) {
 	// TODO: Validate the params before sending
@@ -205,8 +227,8 @@ func (a *Client) GetSession(params *GetSessionParams, authInfo runtime.ClientAut
 		ID:                 "getSession",
 		Method:             "GET",
 		PathPattern:        "/auth/sessions",
-		ProducesMediaTypes: []string{""},
-		ConsumesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"https"},
 		Params:             params,
 		Reader:             &GetSessionReader{formats: a.formats},
@@ -227,7 +249,7 @@ func (a *Client) GetSession(params *GetSessionParams, authInfo runtime.ClientAut
 }
 
 /*
-UpdateProfile updates the currently authenticated user s profile
+  UpdateProfile updates the currently authenticated user s profile
 */
 func (a *Client) UpdateProfile(params *UpdateProfileParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfileOK, error) {
 	// TODO: Validate the params before sending
@@ -261,7 +283,7 @@ func (a *Client) UpdateProfile(params *UpdateProfileParams, authInfo runtime.Cli
 }
 
 /*
-UpdateProfilePassword updates your password
+  UpdateProfilePassword updates your password
 */
 func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePasswordOK, error) {
 	// TODO: Validate the params before sending
@@ -273,7 +295,7 @@ func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, auth
 		ID:                 "updateProfilePassword",
 		Method:             "PUT",
 		PathPattern:        "/auth/profile/password",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		Schemes:            []string{"https"},
 		Params:             params,
@@ -295,7 +317,7 @@ func (a *Client) UpdateProfilePassword(params *UpdateProfilePasswordParams, auth
 }
 
 /*
-UpdateProfilePreferences sets the current user s public preferences
+  UpdateProfilePreferences sets the current user s public preferences
 */
 func (a *Client) UpdateProfilePreferences(params *UpdateProfilePreferencesParams, authInfo runtime.ClientAuthInfoWriter) (*UpdateProfilePreferencesOK, error) {
 	// TODO: Validate the params before sending

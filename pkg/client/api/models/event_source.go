@@ -6,14 +6,14 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // EventSource event source
+//
 // swagger:model EventSource
 type EventSource struct {
 	EventSourceSummary
@@ -83,7 +83,6 @@ func (m EventSource) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, aO1)
-
 	var dataAO2 struct {
 		EventType *EventTypeSummary `json:"event_type"`
 
@@ -103,7 +102,6 @@ func (m EventSource) MarshalJSON() ([]byte, error) {
 		return nil, errAO2
 	}
 	_parts = append(_parts, jsonDataAO2)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

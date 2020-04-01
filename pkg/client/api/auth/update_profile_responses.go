@@ -11,12 +11,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // UpdateProfileReader is a Reader for the UpdateProfile structure.
@@ -274,7 +273,6 @@ func (o UpdateProfileOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, updateProfileOKBodyAO0)
-
 	var dataUpdateProfileOKBodyAO1 struct {
 		User *models.UserProfile `json:"user,omitempty"`
 	}
@@ -286,7 +284,6 @@ func (o UpdateProfileOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errUpdateProfileOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataUpdateProfileOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

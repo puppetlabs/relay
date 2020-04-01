@@ -12,11 +12,10 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
 )
 
 // UpdateUserReader is a Reader for the UpdateUser structure.
@@ -289,7 +288,6 @@ func (o UpdateUserOKBody) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	_parts = append(_parts, updateUserOKBodyAO0)
-
 	var dataUpdateUserOKBodyAO1 struct {
 		User *models.User `json:"user,omitempty"`
 	}
@@ -301,7 +299,6 @@ func (o UpdateUserOKBody) MarshalJSON() ([]byte, error) {
 		return nil, errUpdateUserOKBodyAO1
 	}
 	_parts = append(_parts, jsonDataUpdateUserOKBodyAO1)
-
 	return swag.ConcatJSON(_parts...), nil
 }
 

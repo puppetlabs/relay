@@ -6,5 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 // WorkflowRunCreatedBySummary workflow run created by summary
+//
 // swagger:model WorkflowRunCreatedBySummary
 type WorkflowRunCreatedBySummary interface{}

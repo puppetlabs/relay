@@ -8,14 +8,14 @@ package models
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ProviderAuthOAuth Metadata for authorizing an OAuth-authenticated integration provider
+//
 // swagger:model ProviderAuthOAuth
 type ProviderAuthOAuth struct {
 
