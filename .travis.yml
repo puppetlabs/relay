@@ -16,7 +16,7 @@ jobs:
     deploy:
       provider: script
       skip_cleanup: true
-      script: sh -c 'npm install && npx semantic-release'
+      script: sh -c 'nvm install lts/* && npx semantic-release'
 notifications:
   email: false
   slack:
