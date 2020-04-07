@@ -33,6 +33,9 @@ type ContainerWorkflowStep struct {
 	// Input script to execute
 	Input []string `json:"input"`
 
+	// A URL to a script to run
+	InputFile string `json:"inputFile,omitempty"`
+
 	// Variable specification data to provide to the container
 	Spec interface{} `json:"spec,omitempty"`
 
@@ -61,6 +64,8 @@ func (m *ContainerWorkflowStep) UnmarshalJSON(raw []byte) error {
 
 		Input []string `json:"input"`
 
+		InputFile string `json:"inputFile,omitempty"`
+
 		Spec interface{} `json:"spec,omitempty"`
 
 		Type *string `json:"type"`
@@ -76,6 +81,8 @@ func (m *ContainerWorkflowStep) UnmarshalJSON(raw []byte) error {
 	m.Image = dataAO1.Image
 
 	m.Input = dataAO1.Input
+
+	m.InputFile = dataAO1.InputFile
 
 	m.Spec = dataAO1.Spec
 
@@ -102,6 +109,8 @@ func (m ContainerWorkflowStep) MarshalJSON() ([]byte, error) {
 
 		Input []string `json:"input"`
 
+		InputFile string `json:"inputFile,omitempty"`
+
 		Spec interface{} `json:"spec,omitempty"`
 
 		Type *string `json:"type"`
@@ -114,6 +123,8 @@ func (m ContainerWorkflowStep) MarshalJSON() ([]byte, error) {
 	dataAO1.Image = m.Image
 
 	dataAO1.Input = m.Input
+
+	dataAO1.InputFile = m.InputFile
 
 	dataAO1.Spec = m.Spec
 

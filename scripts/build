@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+MKDIR_P="${MKDIR_P:-mkdir -p}"
+GO="${GO:-go}"
+
+#
+# Variables
+#
+
+BIN_DIR="${BIN_DIR:-bin}"
+
+GOOS="$( $GO env GOOS )"
+GOARCH="$( $GO env GOARCH )"
+LDFLAGS="${LDFLAGS:-}"
+
+#
+#
+#
+
+. scripts/library.sh
+
+eval "$( relay::cli::cli_vars )"
+
+$MKDIR_P "${BIN_DIR}"
+
+set -x
+$GO build -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "${LDFLAGS[*]}" "./cmd/${CLI_NAME}"

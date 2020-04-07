@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+GO="${GO:-go}"
+
+DEPEND_DIR=.depend
+ARTIFACTS_DIR=artifacts
+BIN_DIR=bin
+
+NEBULA_API_URL=https://api.nebula.puppet.com
+NEBULA_API_SPEC_URL=${NEBULA_API_URL}/openapi/latest
+NEBULA_API_SPEC_FILENAME=${DEPEND_DIR}/openapiv3.json
+
+#
+#
+#
+
+set -x
+curl -o $NEBULA_API_SPEC_FILENAME $NEBULA_API_SPEC_URL
+npx api-spec-converter -f openapi_3 -t swagger_2 -s json $NEBULA_API_SPEC_FILENAME >.depend/swaggerv2.json
+rm -r pkg/client/api
+
+
+$GO run -mod=vendor github.com/go-swagger/go-swagger/cmd/swagger generate client -f .depend/swaggerv2.json -c pkg/client/api -m pkg/client/api/models --skip-validation
+$GO generate ./...

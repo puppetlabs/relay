@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"context"
 	"io/ioutil"
 	"net/http"
@@ -149,33 +148,6 @@ func TestLogin(t *testing.T) {
 			err := c.Login(context.Background(), "test@example.com", "password1234")
 			require.Error(t, err, "login did not fail")
 		})
-	})
-}
-
-func TestWorkflowCreate(t *testing.T) {
-	wfm := makeWorkflowFixture("name", "description", workflowContent)
-
-	routes := &testutil.MockRoutes{}
-	routes.Add("/api/workflows", http.StatusCreated, &workflows.CreateWorkflowCreatedBody{
-		Workflow: wfm,
-	}, nil)
-	routes.Add("/api/workflows/name/revisions", http.StatusCreated, &workflow_revisions.PostWorkflowRevisionCreatedBody{
-		Workflow: wfm,
-	}, nil)
-
-	im := makeIntegrationFixture("test", "github")
-	routes.Add("/api/integrations", http.StatusOK, im, nil)
-
-	withAPIClient(t, routes, func(c *APIClient) {
-		fakeLogin(t, c)
-
-		r := bytes.NewBufferString(workflowContent)
-		rc := ioutil.NopCloser(r)
-
-		wf, err := c.CreateWorkflow(context.Background(), "name", "description", rc)
-		require.NoError(t, err, "could not create workflow")
-		require.Equal(t, wf.Name, models.WorkflowName("name"))
-		require.NotNil(t, wf.LatestRevision)
 	})
 }
 

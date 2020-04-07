@@ -115,7 +115,7 @@ func (a *Client) PostWorkflowRevision(params *PostWorkflowRevisionParams, authIn
 		ID:                 "postWorkflowRevision",
 		Method:             "POST",
 		PathPattern:        "/api/workflows/{workflowName}/revisions",
-		ProducesMediaTypes: []string{"application/json"},
+		ProducesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+json"},
 		ConsumesMediaTypes: []string{"application/vnd.puppet.nebula.v20200131+yaml"},
 		Schemes:            []string{"https"},
 		Params:             params,

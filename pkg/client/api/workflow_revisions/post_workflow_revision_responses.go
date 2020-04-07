@@ -50,7 +50,7 @@ func NewPostWorkflowRevisionCreated() *PostWorkflowRevisionCreated {
 
 /*PostWorkflowRevisionCreated handles this case with default header values.
 
-The retrieved workflow information
+The newly created workflow revision
 */
 type PostWorkflowRevisionCreated struct {
 	Payload *PostWorkflowRevisionCreatedBody
@@ -122,30 +122,30 @@ func (o *PostWorkflowRevisionDefault) readResponse(response runtime.ClientRespon
 swagger:model PostWorkflowRevisionCreatedBody
 */
 type PostWorkflowRevisionCreatedBody struct {
-	models.WorkflowEntity
+	models.Entity
 
-	// workflow
-	Workflow *models.Workflow `json:"workflow,omitempty"`
+	// revision
+	Revision *models.WorkflowRevision `json:"revision,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (o *PostWorkflowRevisionCreatedBody) UnmarshalJSON(raw []byte) error {
 	// PostWorkflowRevisionCreatedBodyAO0
-	var postWorkflowRevisionCreatedBodyAO0 models.WorkflowEntity
+	var postWorkflowRevisionCreatedBodyAO0 models.Entity
 	if err := swag.ReadJSON(raw, &postWorkflowRevisionCreatedBodyAO0); err != nil {
 		return err
 	}
-	o.WorkflowEntity = postWorkflowRevisionCreatedBodyAO0
+	o.Entity = postWorkflowRevisionCreatedBodyAO0
 
 	// PostWorkflowRevisionCreatedBodyAO1
 	var dataPostWorkflowRevisionCreatedBodyAO1 struct {
-		Workflow *models.Workflow `json:"workflow,omitempty"`
+		Revision *models.WorkflowRevision `json:"revision,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &dataPostWorkflowRevisionCreatedBodyAO1); err != nil {
 		return err
 	}
 
-	o.Workflow = dataPostWorkflowRevisionCreatedBodyAO1.Workflow
+	o.Revision = dataPostWorkflowRevisionCreatedBodyAO1.Revision
 
 	return nil
 }
@@ -154,16 +154,16 @@ func (o *PostWorkflowRevisionCreatedBody) UnmarshalJSON(raw []byte) error {
 func (o PostWorkflowRevisionCreatedBody) MarshalJSON() ([]byte, error) {
 	_parts := make([][]byte, 0, 2)
 
-	postWorkflowRevisionCreatedBodyAO0, err := swag.WriteJSON(o.WorkflowEntity)
+	postWorkflowRevisionCreatedBodyAO0, err := swag.WriteJSON(o.Entity)
 	if err != nil {
 		return nil, err
 	}
 	_parts = append(_parts, postWorkflowRevisionCreatedBodyAO0)
 	var dataPostWorkflowRevisionCreatedBodyAO1 struct {
-		Workflow *models.Workflow `json:"workflow,omitempty"`
+		Revision *models.WorkflowRevision `json:"revision,omitempty"`
 	}
 
-	dataPostWorkflowRevisionCreatedBodyAO1.Workflow = o.Workflow
+	dataPostWorkflowRevisionCreatedBodyAO1.Revision = o.Revision
 
 	jsonDataPostWorkflowRevisionCreatedBodyAO1, errPostWorkflowRevisionCreatedBodyAO1 := swag.WriteJSON(dataPostWorkflowRevisionCreatedBodyAO1)
 	if errPostWorkflowRevisionCreatedBodyAO1 != nil {
@@ -177,12 +177,12 @@ func (o PostWorkflowRevisionCreatedBody) MarshalJSON() ([]byte, error) {
 func (o *PostWorkflowRevisionCreatedBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with models.WorkflowEntity
-	if err := o.WorkflowEntity.Validate(formats); err != nil {
+	// validation for a type composition with models.Entity
+	if err := o.Entity.Validate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateWorkflow(formats); err != nil {
+	if err := o.validateRevision(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -192,16 +192,16 @@ func (o *PostWorkflowRevisionCreatedBody) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *PostWorkflowRevisionCreatedBody) validateWorkflow(formats strfmt.Registry) error {
+func (o *PostWorkflowRevisionCreatedBody) validateRevision(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Workflow) { // not required
+	if swag.IsZero(o.Revision) { // not required
 		return nil
 	}
 
-	if o.Workflow != nil {
-		if err := o.Workflow.Validate(formats); err != nil {
+	if o.Revision != nil {
+		if err := o.Revision.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("postWorkflowRevisionCreated" + "." + "workflow")
+				return ve.ValidateName("postWorkflowRevisionCreated" + "." + "revision")
 			}
 			return err
 		}

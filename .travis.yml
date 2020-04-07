@@ -7,17 +7,15 @@ env:
   # Disable updating the API spec in CI
   - NEBULA_API_URL=
   - secure: P5Z9AteX+QPxirj4XGbTt9zOgENevx6s+aDKcCpQDQm7qx28tnp4YTlbeLCSupwxpwg/IcaUk9mz2MWbquMnt8IQM1KlDN7YZsTfkIG553puDBsW3lMLx85whTliihbdRSklj9tRIoLgthQrtcc+9hv48oCbDVYNU3hiN4bMFa+RthYON9UDnSYMNN9U4fm/XUNQHYctwLCVRChDd33r6q8MN9Kt9TkjHagqWqmx7DaqMJn6aWUqD5OT08AV/ZuigA/A5IK94ho8jaHOAHnPKO2Y/vTU4KLI1pJdpmNtgt4b0VNlRFoQ+c36Eo1crQqu998N/fnbfFzXHPR8M0lNpuhoiwmjwNEvKHZSwQjxpyu8Z0mviMmmYzlGOXc5Q1a+jjoOHvNBY3vRnb8mB8r9NPKQgbG30nVKbXBAHRJn/VShjibRBFIK8c08g/U7sNHggkPW4/esMcPL+gAB1JqzsPKs+U2b1UAuqiIRtw+vWTBjcbR5HbmNdz+hlM6wfyLmirzaVshIU/vHOSbp+YpaIQpoIDZqM+6bm63FMXz7nnLxQtf0WLpBZlN2m/JZ5jqxCxuBMt7EqxyeCmxovrnWpYOua5sKnkDjI/YLa4Kb76k6An28dWH12HNh2URnpPxSYyTWzYr/IAIu4QL63R+EChAMmocg7AyKxnbObAcC2S0=
-script:
-- nvm install lts/*
-- make
-- make test
 jobs:
   include:
-  - stage: deploy
-    deploy:
-      provider: script
-      skip_cleanup: true
-      script: sh -c 'npm install && npx semantic-release'
+  - stage: build
+    install: []
+    script:
+    - set -e
+    - scripts/ci scripts/generate
+    - scripts/ci scripts/build
+    - scripts/ci scripts/test
 notifications:
   email: false
   slack:
