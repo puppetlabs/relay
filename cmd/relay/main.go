@@ -8,10 +8,19 @@ import (
 
 func main() {
 	cmd := &cobra.Command{
-		Use:   os.Args[0],
+		Use:   "relay",
 		Short: "Relay by Puppet.",
-		Long:  "Relay by Puppet is like fireworks for your glitter-encrusted marketing bomb. Please give us all your money.",
+		Args:  cobra.MinimumNArgs(1),
+		Long: `Relay connects your tools, APIs, and infrastructure 
+to automate common tasks through simple event driven workflows.`,
 	}
+
+	cmd.PersistentFlags().BoolP("verbose", "v", false, "print verbose output")
+	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
+	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
+	// Config flag is hidden for now
+	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")
+	cmd.PersistentFlags().MarkHidden("config")
 
 	cmd.AddCommand(NewAuthCommand())
 
