@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
 )
 
 // GetEventSourcesReader is a Reader for the GetEventSources structure.

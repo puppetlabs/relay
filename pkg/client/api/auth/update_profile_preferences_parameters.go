@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
 )
 
 // NewUpdateProfilePreferencesParams creates a new UpdateProfilePreferencesParams object

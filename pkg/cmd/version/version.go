@@ -3,8 +3,8 @@ package version
 import (
 	"fmt"
 
-	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
-	"github.com/puppetlabs/nebula-cli/pkg/version"
+	"github.com/puppetlabs/relay/pkg/config/runtimefactory"
+	"github.com/puppetlabs/relay/pkg/version"
 	"github.com/spf13/cobra"
 )
 

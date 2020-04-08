@@ -1,4 +1,4 @@
-module github.com/puppetlabs/nebula-cli
+module github.com/puppetlabs/relay
 
 go 1.12
 

@@ -12,14 +12,14 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/google/uuid"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
-	runs "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
-	secrets "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
-	"github.com/puppetlabs/nebula-cli/pkg/client/testutil"
-	"github.com/puppetlabs/nebula-cli/pkg/config"
+	"github.com/puppetlabs/relay/pkg/client/api/auth"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_revisions"
+	runs "github.com/puppetlabs/relay/pkg/client/api/workflow_runs"
+	secrets "github.com/puppetlabs/relay/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/relay/pkg/client/api/workflows"
+	"github.com/puppetlabs/relay/pkg/client/testutil"
+	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -111,7 +111,7 @@ func makeWorkflowRunFixture(wfm *models.Workflow) *models.WorkflowRun {
 }
 
 func withAPIClient(t *testing.T, routes http.Handler, fn func(c *APIClient)) {
-	tmpdir, err := ioutil.TempDir("", "nebula-cli-test")
+	tmpdir, err := ioutil.TempDir("", "relay-cli-test")
 	require.NoError(t, err)
 
 	defer os.RemoveAll(tmpdir)
