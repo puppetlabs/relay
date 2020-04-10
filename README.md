@@ -46,7 +46,7 @@ For more about workflows and further onboarding information, check out the [docu
 NPM and Go are required to build relay
 
 ```bash
-make
+./scripts/build
 ```
 
 The resulting binary will be in `./bin/relay`.

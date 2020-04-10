@@ -10,17 +10,17 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/access_control"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/events"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/integration_providers"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/integrations"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/notifications"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_triggers"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
+	"github.com/puppetlabs/relay/pkg/client/api/access_control"
+	"github.com/puppetlabs/relay/pkg/client/api/auth"
+	"github.com/puppetlabs/relay/pkg/client/api/events"
+	"github.com/puppetlabs/relay/pkg/client/api/integration_providers"
+	"github.com/puppetlabs/relay/pkg/client/api/integrations"
+	"github.com/puppetlabs/relay/pkg/client/api/notifications"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_revisions"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_runs"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_triggers"
+	"github.com/puppetlabs/relay/pkg/client/api/workflows"
 )
 
 // Default nebula HTTP client.

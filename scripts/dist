@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+MKDIR_P="${MKDIR_P:-mkdir -p}"
+GO="${GO:-go}"
+TAR="${TAR:-tar}"
+ZIP_M="${ZIP_M:-zip -m}"
+
+#
+# Variables
+#
+
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-artifacts}"
+
+GOOS="$( $GO env GOOS )"
+GOARCH="$( $GO env GOARCH )"
+
+#
+#
+#
+
+. scripts/library.sh
+
+relay::cli::release_check
+eval "$( relay::cli::cli_vars )"
+
+ARTIFACTS_CLI_DIR="${ARTIFACTS_DIR}/${CLI_NAME}"
+
+BIN_DIR="${ARTIFACTS_CLI_DIR}" \
+  CGO_ENABLED=0 \
+  GOFLAGS="${GOFLAGS:-} -a" \
+  LDFLAGS="${LDFLAGS:-}"' -extldflags "-static"' \
+  scripts/build "${CLI_NAME}"
+
+case "$( $GO env GOOS )" in
+windows)
+  (
+    set -x
+    pushd "${ARTIFACTS_CLI_DIR}" >/dev/null
+    $ZIP_M -q "${CLI_FILE_PREFIX}.zip" "${CLI_FILE_BIN}"
+    relay::cli::sha256sum <"${CLI_FILE_PREFIX}.zip" >"${CLI_FILE_PREFIX}.zip.sha256"
+  )
+  ;;
+*)
+  (
+    set -x
+    pushd "${ARTIFACTS_CLI_DIR}" >/dev/null
+    $TAR -cJ -f "${CLI_FILE_PREFIX}.tar.xz" "${CLI_FILE_BIN}"
+    relay::cli::sha256sum <"${CLI_FILE_PREFIX}.tar.xz" >"${CLI_FILE_PREFIX}.tar.xz.sha256"
+  )
+  ;;
+esac
+
+set +x

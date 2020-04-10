@@ -14,6 +14,7 @@ github.com/fsnotify/fsnotify
 github.com/go-openapi/analysis
 github.com/go-openapi/analysis/internal
 # github.com/go-openapi/errors v0.19.4
+## explicit
 github.com/go-openapi/errors
 # github.com/go-openapi/inflect v0.19.0
 github.com/go-openapi/inflect
@@ -25,6 +26,7 @@ github.com/go-openapi/jsonreference
 github.com/go-openapi/loads
 github.com/go-openapi/loads/fmts
 # github.com/go-openapi/runtime v0.19.12
+## explicit
 github.com/go-openapi/runtime
 github.com/go-openapi/runtime/client
 github.com/go-openapi/runtime/logger
@@ -36,14 +38,18 @@ github.com/go-openapi/runtime/security
 # github.com/go-openapi/spec v0.19.7
 github.com/go-openapi/spec
 # github.com/go-openapi/strfmt v0.19.5
+## explicit
 github.com/go-openapi/strfmt
 # github.com/go-openapi/swag v0.19.8
+## explicit
 github.com/go-openapi/swag
 # github.com/go-openapi/validate v0.19.7
+## explicit
 github.com/go-openapi/validate
 # github.com/go-stack/stack v1.8.0
 github.com/go-stack/stack
 # github.com/go-swagger/go-swagger v0.23.0
+## explicit
 github.com/go-swagger/go-swagger/cmd/swagger
 github.com/go-swagger/go-swagger/cmd/swagger/commands
 github.com/go-swagger/go-swagger/cmd/swagger/commands/diff
@@ -53,6 +59,7 @@ github.com/go-swagger/go-swagger/codescan
 github.com/go-swagger/go-swagger/generator
 github.com/go-swagger/go-swagger/scan
 # github.com/google/uuid v1.1.1
+## explicit
 github.com/google/uuid
 # github.com/gorilla/handlers v1.4.2
 github.com/gorilla/handlers
@@ -68,10 +75,12 @@ github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
 # github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
+## explicit
 github.com/inconshreveable/log15
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
 # github.com/jedib0t/go-pretty v4.0.3+incompatible
+## explicit
 github.com/jedib0t/go-pretty/table
 github.com/jedib0t/go-pretty/text
 # github.com/jessevdk/go-flags v1.4.0
@@ -91,6 +100,7 @@ github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.8
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.4
+## explicit
 github.com/mattn/go-runewidth
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
@@ -101,17 +111,20 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/puppetlabs/errawr-gen v1.0.1
+## explicit
 github.com/puppetlabs/errawr-gen/pkg/doc
 github.com/puppetlabs/errawr-gen/pkg/errors
 github.com/puppetlabs/errawr-gen/pkg/generator
 github.com/puppetlabs/errawr-gen/pkg/lang/golang
 github.com/puppetlabs/errawr-gen/pkg/util/fs
 # github.com/puppetlabs/errawr-go/v2 v2.2.0
+## explicit
 github.com/puppetlabs/errawr-go/v2/pkg/encoding
 github.com/puppetlabs/errawr-go/v2/pkg/errawr
 github.com/puppetlabs/errawr-go/v2/pkg/golang
 github.com/puppetlabs/errawr-go/v2/pkg/impl
 # github.com/puppetlabs/horsehead/v2 v2.4.0
+## explicit
 github.com/puppetlabs/horsehead/v2/encoding/transfer
 github.com/puppetlabs/horsehead/v2/logging
 github.com/puppetlabs/horsehead/v2/logging/handler
@@ -132,14 +145,18 @@ github.com/spf13/afero/mem
 # github.com/spf13/cast v1.3.1
 github.com/spf13/cast
 # github.com/spf13/cobra v0.0.3
+## explicit
 github.com/spf13/cobra
 # github.com/spf13/jwalterweatherman v1.1.0
 github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.5
+## explicit
 github.com/spf13/pflag
 # github.com/spf13/viper v1.6.2
+## explicit
 github.com/spf13/viper
 # github.com/stretchr/testify v1.4.0
+## explicit
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 # github.com/subosito/gotenv v1.2.0
@@ -161,6 +178,7 @@ go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
 # golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
+## explicit
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/mod v0.2.0
 golang.org/x/mod/module

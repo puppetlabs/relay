@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"context"
 	"io/ioutil"
 	"net/http"
@@ -13,14 +12,14 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/google/uuid"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/auth"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_revisions"
-	runs "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_runs"
-	secrets "github.com/puppetlabs/nebula-cli/pkg/client/api/workflow_secrets"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/workflows"
-	"github.com/puppetlabs/nebula-cli/pkg/client/testutil"
-	"github.com/puppetlabs/nebula-cli/pkg/config"
+	"github.com/puppetlabs/relay/pkg/client/api/auth"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/client/api/workflow_revisions"
+	runs "github.com/puppetlabs/relay/pkg/client/api/workflow_runs"
+	secrets "github.com/puppetlabs/relay/pkg/client/api/workflow_secrets"
+	"github.com/puppetlabs/relay/pkg/client/api/workflows"
+	"github.com/puppetlabs/relay/pkg/client/testutil"
+	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -112,7 +111,7 @@ func makeWorkflowRunFixture(wfm *models.Workflow) *models.WorkflowRun {
 }
 
 func withAPIClient(t *testing.T, routes http.Handler, fn func(c *APIClient)) {
-	tmpdir, err := ioutil.TempDir("", "nebula-cli-test")
+	tmpdir, err := ioutil.TempDir("", "relay-cli-test")
 	require.NoError(t, err)
 
 	defer os.RemoveAll(tmpdir)
@@ -149,33 +148,6 @@ func TestLogin(t *testing.T) {
 			err := c.Login(context.Background(), "test@example.com", "password1234")
 			require.Error(t, err, "login did not fail")
 		})
-	})
-}
-
-func TestWorkflowCreate(t *testing.T) {
-	wfm := makeWorkflowFixture("name", "description", workflowContent)
-
-	routes := &testutil.MockRoutes{}
-	routes.Add("/api/workflows", http.StatusCreated, &workflows.CreateWorkflowCreatedBody{
-		Workflow: wfm,
-	}, nil)
-	routes.Add("/api/workflows/name/revisions", http.StatusCreated, &workflow_revisions.PostWorkflowRevisionCreatedBody{
-		Workflow: wfm,
-	}, nil)
-
-	im := makeIntegrationFixture("test", "github")
-	routes.Add("/api/integrations", http.StatusOK, im, nil)
-
-	withAPIClient(t, routes, func(c *APIClient) {
-		fakeLogin(t, c)
-
-		r := bytes.NewBufferString(workflowContent)
-		rc := ioutil.NopCloser(r)
-
-		wf, err := c.CreateWorkflow(context.Background(), "name", "description", rc)
-		require.NoError(t, err, "could not create workflow")
-		require.Equal(t, wf.Name, models.WorkflowName("name"))
-		require.NotNil(t, wf.LatestRevision)
 	})
 }
 

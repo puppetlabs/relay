@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
 )
 
 // UpdateProfilePasswordReader is a Reader for the UpdateProfilePassword structure.

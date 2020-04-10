@@ -7,8 +7,8 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/puppetlabs/errawr-go/v2/pkg/encoding"
 	"github.com/puppetlabs/errawr-go/v2/pkg/errawr"
-	"github.com/puppetlabs/nebula-cli/pkg/client/api/models"
-	"github.com/puppetlabs/nebula-cli/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/client/api/models"
+	"github.com/puppetlabs/relay/pkg/errors"
 )
 
 func translateModelErrorToEnvelope(merr *models.Error) *encoding.ErrorDisplayEnvelope {

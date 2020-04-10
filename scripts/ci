@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -n "${TRAVIS_TAG-}" ]; then
+  export GIT_TAG_OVERRIDE="${TRAVIS_TAG}"
+fi
+
+exec "$@"

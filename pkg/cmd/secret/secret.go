@@ -10,10 +10,10 @@ import (
 	"syscall"
 
 	"github.com/jedib0t/go-pretty/table"
-	"github.com/puppetlabs/nebula-cli/pkg/client"
-	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
-	"github.com/puppetlabs/nebula-cli/pkg/errors"
-	"github.com/puppetlabs/nebula-cli/pkg/util"
+	"github.com/puppetlabs/relay/pkg/client"
+	"github.com/puppetlabs/relay/pkg/config/runtimefactory"
+	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )

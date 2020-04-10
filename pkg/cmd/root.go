@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/event"
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/integration"
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/login"
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/secret"
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/version"
-	"github.com/puppetlabs/nebula-cli/pkg/cmd/workflow"
-	"github.com/puppetlabs/nebula-cli/pkg/config/runtimefactory"
+	"github.com/puppetlabs/relay/pkg/cmd/event"
+	"github.com/puppetlabs/relay/pkg/cmd/integration"
+	"github.com/puppetlabs/relay/pkg/cmd/login"
+	"github.com/puppetlabs/relay/pkg/cmd/secret"
+	"github.com/puppetlabs/relay/pkg/cmd/version"
+	"github.com/puppetlabs/relay/pkg/cmd/workflow"
+	"github.com/puppetlabs/relay/pkg/config/runtimefactory"
 	"github.com/spf13/cobra"
 )
 
