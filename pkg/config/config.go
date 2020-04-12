@@ -179,7 +179,6 @@ func readOutput(v *viper.Viper) (OutputType, error) {
 	output := OutputType(v.GetString("out"))
 
 	if output != OutputTypeText && output != OutputTypeJSON {
-
 		return "", errors.NewConfigInvalidOutputFlag(v.GetString("out"))
 	}
 
