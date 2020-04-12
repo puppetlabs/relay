@@ -76,13 +76,8 @@ github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
 # github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 ## explicit
-github.com/inconshreveable/log15
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
-# github.com/jedib0t/go-pretty v4.0.3+incompatible
-## explicit
-github.com/jedib0t/go-pretty/table
-github.com/jedib0t/go-pretty/text
 # github.com/jessevdk/go-flags v1.4.0
 github.com/jessevdk/go-flags
 # github.com/kr/pretty v0.2.0
@@ -95,13 +90,6 @@ github.com/magiconair/properties
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/mattn/go-colorable v0.1.2
-github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.8
-github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.4
-## explicit
-github.com/mattn/go-runewidth
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
 # github.com/pelletier/go-toml v1.6.0
@@ -126,8 +114,6 @@ github.com/puppetlabs/errawr-go/v2/pkg/impl
 # github.com/puppetlabs/horsehead/v2 v2.4.0
 ## explicit
 github.com/puppetlabs/horsehead/v2/encoding/transfer
-github.com/puppetlabs/horsehead/v2/logging
-github.com/puppetlabs/horsehead/v2/logging/handler
 # github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50
 github.com/reflect/raymond
 github.com/reflect/raymond/ast
@@ -177,9 +163,6 @@ go.mongodb.org/mongo-driver/bson/bsonrw
 go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
-# golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
-## explicit
-golang.org/x/crypto/ssh/terminal
 # golang.org/x/mod v0.2.0
 golang.org/x/mod/module
 golang.org/x/mod/semver
@@ -187,7 +170,6 @@ golang.org/x/mod/semver
 golang.org/x/net/idna
 # golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527
 golang.org/x/sys/unix
-golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform

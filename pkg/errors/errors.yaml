@@ -1,17 +1,53 @@
 version: 1
 domain:
-  key: neb
-  title: Nebula
+  key: rcli
+  title: Relay CLI
 sections:
+  config:
+    title: CLI Config errors
+    errors:
+      invalid_config_flag:
+        title: Invalid config flag
+        description: Could not read config path. Value must be a valid filepath.
+      file_not_found:
+        title: Config file not found
+        description: No config file found at {{ path }}
+        arguments:
+          path:
+            description: User specified config filepath
+      invalid_config_file:
+        title: Invalid config file
+        description: Could not read config file at {{ path }}
+        arguments:
+          path:
+            description: User specified config filepath
+      invalid_output_flag:
+        title: Invalid output flag
+        description: Unknown value '{{ out }}' provided as output type. Allowed values are 'text' and 'json'.
+        arguments:
+          out:
+            description: User provided output type
+      invalid_api_domain:
+        title: Invalid API Domain
+        description: Provided UI Domain {{ domain }} is not a valid url.
+        arguments:
+          domain:
+            description: User provided api domain
+      invalid_ui_domain:
+        title: Invalid UI Domain
+        description: Provided API Domain {{ domain }} is not a valid url.
+        arguments:
+          domain:
+            description: User provided ui domain      
+      invalid_web_domain:
+        title: Invalid Web Domain
+        description: Provided Web Domain {{ domain }} is not a valid url.
+        arguments:
+          domain:
+            description: User provided web domain  
   client:
     title: Client errors
     errors:
-      invalid_api_host:
-        title: Invalid API host
-        description: "{{ host }} is not a valid api url"
-        arguments:
-          host:
-            description: the host url given that was not valid
       password_error:
         title: Password error
         description: "{{ msg }}"
@@ -108,24 +144,3 @@ sections:
       unexpected_response_type_error:
         title: Unexpected response type
         description: An unexpected response type was returned for this request.
-
-  workflow:
-    title: Workflow errors
-    errors:
-      unknown_runtime_error:
-        title: Unknown runtime error
-        description: "an unknown error occurred"
-      cli_flag_error:
-        title: CLI flag error
-        description: "could not validate flag {{ flag }}: {{ msg }}"
-        arguments:
-          flag:
-            description: the name of the flag
-          msg:
-            description: a message about what went wrong
-      secret_value_not_specified_error:
-        title: Secret value not specified
-        description: You did not provide a secret value.
-      file_read_error:
-        title: File read error
-        description: There was an error reading the workflow file
