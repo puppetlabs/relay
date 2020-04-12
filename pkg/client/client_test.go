@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
@@ -117,9 +118,13 @@ func withAPIClient(t *testing.T, routes http.Handler, fn func(c *APIClient)) {
 	defer os.RemoveAll(tmpdir)
 
 	testutil.WithTestServer(routes, func(ts *httptest.Server) {
+		apiDomain, aderr := url.Parse(ts.URL)
+
+		require.NoError(t, aderr, "invalid api domain")
+
 		c, err := NewAPIClient(&config.Config{
-			APIHostAddr: ts.URL,
-			TokenPath:   filepath.Join(tmpdir, "auth-token"),
+			APIDomain: apiDomain,
+			TokenPath: filepath.Join(tmpdir, "auth-token"),
 		})
 
 		require.NoError(t, err, "failed to setup api client using mock server")

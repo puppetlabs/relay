@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"net/url"
 	"os"
 
 	"github.com/go-openapi/runtime"
@@ -36,16 +35,7 @@ type APIClient struct {
 }
 
 func NewAPIClient(cfg *config.Config) (*APIClient, errors.Error) {
-	addr := defaultAPIHostURL
-
-	if cfg.APIHostAddr != "" {
-		addr = cfg.APIHostAddr
-	}
-
-	host, err := url.Parse(addr)
-	if err != nil {
-		return nil, errors.NewClientInvalidAPIHost(addr).WithCause(err)
-	}
+	host := cfg.APIDomain
 
 	transport := httptransport.New(host.Host, "/", []string{host.Scheme})
 	transport.Producers["application/vnd.puppet.nebula.v20200131+json"] = runtime.JSONProducer()
