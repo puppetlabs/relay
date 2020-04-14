@@ -48,99 +48,21 @@ sections:
   client:
     title: Client errors
     errors:
-      password_error:
-        title: Password error
-        description: "{{ msg }}"
-        arguments:
-          msg:
-            description: a message about what the issue was
-      missing_email_error:
-        title: Missing email error
-        description: "{{ msg }}"
-        arguments:
-          msg:
-            description: a message about what the issue was
-      create_session_error:
-        title: Create session error
-        description: "there was an error fetching your API token"
-      token_storage_error:
-        title: Token storage error
-        description: there was an error storing the auth token
-      token_load_error:
-        title: Token load error
-        description: there was an error loading the auth token
-      list_integrations_error:
-        title: List integrations error
-        description: there was an error fetching integrations
-      get_integration_error:
-        title: Get integration error
-        description: there was an error fetching integration {{id}}
-        arguments:
-          id:
-            description: the id of the integration
-      list_workflows_error:
-        title: List workflows error
-        description: there was an error fetching workflows
-      get_workflow_error:
-        title: Get workflow error
-        description: there was an error fetching the workflow
-        arguments:
-          name:
-            description: the name of the workflow
-      update_workflow_error:
-        title: Update workflow error
-        description: there was an error updating the workflow
-        arguments:
-          name:
-            description: the name of the workflow
-      get_workflow_revision_error:
-        title: Get workflow revision error
-        description: there was an error fetching this workflow revision
-      list_workflow_runs_error:
-        title: List workflow runs error
-        description: there was an error fetching workflow runs
-      get_workflow_run_error:
-        title: Get workflow run error
-        description: there was an error fetching this workflow run
-      get_workflow_run_step_log_error:
-        title: Get workflow run step log error
-        description: there was an error fetching this workflow run step log
-      create_workflow_error:
-        title: Create workflow error
-        description: there was an error creating the workflow
-      create_workflow_revision_error:
-        title: Create workflow revision error
-        description: there was an error creating the workflow revision
-      invalid_workflow_parameter_value_error:
-        title: Invalid workflow parameter value
-        description: The value of this workflow parameter cannot be encoded.
-      run_workflow_error:
-        title: Run workflow error
-        description: there was an error running the workflow
-      invalid_workflow_secret_value_error:
-        title: Invalid workflow secret value
-        description: The value of this workflow secret cannot be encoded.
-      create_workflow_secret_error:
-        title: Create workflow secret error
-        description: there was an error creating the workflow secret
-      workflow_secret_already_exists_error:
-        title: Workflow secret already exists
-        description: The workflow secret identified by {{pre key}} already exists.
-        arguments:
-          key:
-            description: the key of the secret
-      update_workflow_secret_error:
-        title: Update workflow secret error
-        description: there was an error updating the workflow secret
-      delete_workflow_secret_error:
-        title: Delete workflow secret error
-        description: there was an error deleting the workflow secret
-      validate_workflow_error:
-        title: Validate workflow error
-        description: there was an error validating the workflow
-      not_logged_in:
-        title: Not logged in
-        description: not logged in
-      unexpected_response_type_error:
-        title: Unexpected response type
-        description: An unexpected response type was returned for this request.
+      # This error probably means a CLI developer screwed up
+      internal_error:
+        title: Unknown error
+        description: There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues. 
+      # This error means there was a problem executing an http request.  
+      request_error:
+        title: Request error
+        description: There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.
+      # Generic not found should almost always be replaced with a specific one but it's useful nonetheless
+      response_not_found:
+        title: Response not found error
+        description: Response not found.
+      user_not_authorized:
+        title: User not authorized error
+        description: You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.
+      user_not_authenticated:
+        title: User not authenticated error
+        description: You must be logged in to perform this operation. Try `relay auth login`.

@@ -32,1252 +32,244 @@ var ClientSection = &impl.ErrorSection{
 	Title: "Client errors",
 }
 
-// ClientCreateSessionErrorCode is the code for an instance of "create_session_error".
-const ClientCreateSessionErrorCode = "rcli_client_create_session_error"
+// ClientInternalErrorCode is the code for an instance of "internal_error".
+const ClientInternalErrorCode = "rcli_client_internal_error"
 
-// IsClientCreateSessionError tests whether a given error is an instance of "create_session_error".
-func IsClientCreateSessionError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientCreateSessionErrorCode)
+// IsClientInternalError tests whether a given error is an instance of "internal_error".
+func IsClientInternalError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientInternalErrorCode)
 }
 
-// IsClientCreateSessionError tests whether a given error is an instance of "create_session_error".
-func (External) IsClientCreateSessionError(err errawr.Error) bool {
-	return IsClientCreateSessionError(err)
+// IsClientInternalError tests whether a given error is an instance of "internal_error".
+func (External) IsClientInternalError(err errawr.Error) bool {
+	return IsClientInternalError(err)
 }
 
-// ClientCreateSessionErrorBuilder is a builder for "create_session_error" errors.
-type ClientCreateSessionErrorBuilder struct {
+// ClientInternalErrorBuilder is a builder for "internal_error" errors.
+type ClientInternalErrorBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "create_session_error" from this builder.
-func (b *ClientCreateSessionErrorBuilder) Build() Error {
+// Build creates the error for the code "internal_error" from this builder.
+func (b *ClientInternalErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching your API token",
-		Technical: "there was an error fetching your API token",
+		Friendly:  "There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
+		Technical: "There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
 	}
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "create_session_error",
+		ErrorCode:        "internal_error",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     ClientSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Create session error",
+		ErrorTitle:       "Unknown error",
 		Version:          1,
 	}
 }
 
-// NewClientCreateSessionErrorBuilder creates a new error builder for the code "create_session_error".
-func NewClientCreateSessionErrorBuilder() *ClientCreateSessionErrorBuilder {
-	return &ClientCreateSessionErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientInternalErrorBuilder creates a new error builder for the code "internal_error".
+func NewClientInternalErrorBuilder() *ClientInternalErrorBuilder {
+	return &ClientInternalErrorBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientCreateSessionError creates a new error with the code "create_session_error".
-func NewClientCreateSessionError() Error {
-	return NewClientCreateSessionErrorBuilder().Build()
+// NewClientInternalError creates a new error with the code "internal_error".
+func NewClientInternalError() Error {
+	return NewClientInternalErrorBuilder().Build()
 }
 
-// ClientCreateWorkflowErrorCode is the code for an instance of "create_workflow_error".
-const ClientCreateWorkflowErrorCode = "rcli_client_create_workflow_error"
+// ClientRequestErrorCode is the code for an instance of "request_error".
+const ClientRequestErrorCode = "rcli_client_request_error"
 
-// IsClientCreateWorkflowError tests whether a given error is an instance of "create_workflow_error".
-func IsClientCreateWorkflowError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientCreateWorkflowErrorCode)
+// IsClientRequestError tests whether a given error is an instance of "request_error".
+func IsClientRequestError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientRequestErrorCode)
 }
 
-// IsClientCreateWorkflowError tests whether a given error is an instance of "create_workflow_error".
-func (External) IsClientCreateWorkflowError(err errawr.Error) bool {
-	return IsClientCreateWorkflowError(err)
+// IsClientRequestError tests whether a given error is an instance of "request_error".
+func (External) IsClientRequestError(err errawr.Error) bool {
+	return IsClientRequestError(err)
 }
 
-// ClientCreateWorkflowErrorBuilder is a builder for "create_workflow_error" errors.
-type ClientCreateWorkflowErrorBuilder struct {
+// ClientRequestErrorBuilder is a builder for "request_error" errors.
+type ClientRequestErrorBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "create_workflow_error" from this builder.
-func (b *ClientCreateWorkflowErrorBuilder) Build() Error {
+// Build creates the error for the code "request_error" from this builder.
+func (b *ClientRequestErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "there was an error creating the workflow",
-		Technical: "there was an error creating the workflow",
+		Friendly:  "There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
+		Technical: "There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
 	}
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "create_workflow_error",
+		ErrorCode:        "request_error",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     ClientSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Create workflow error",
+		ErrorTitle:       "Request error",
 		Version:          1,
 	}
 }
 
-// NewClientCreateWorkflowErrorBuilder creates a new error builder for the code "create_workflow_error".
-func NewClientCreateWorkflowErrorBuilder() *ClientCreateWorkflowErrorBuilder {
-	return &ClientCreateWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientRequestErrorBuilder creates a new error builder for the code "request_error".
+func NewClientRequestErrorBuilder() *ClientRequestErrorBuilder {
+	return &ClientRequestErrorBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientCreateWorkflowError creates a new error with the code "create_workflow_error".
-func NewClientCreateWorkflowError() Error {
-	return NewClientCreateWorkflowErrorBuilder().Build()
+// NewClientRequestError creates a new error with the code "request_error".
+func NewClientRequestError() Error {
+	return NewClientRequestErrorBuilder().Build()
 }
 
-// ClientCreateWorkflowRevisionErrorCode is the code for an instance of "create_workflow_revision_error".
-const ClientCreateWorkflowRevisionErrorCode = "rcli_client_create_workflow_revision_error"
+// ClientResponseNotFoundCode is the code for an instance of "response_not_found".
+const ClientResponseNotFoundCode = "rcli_client_response_not_found"
 
-// IsClientCreateWorkflowRevisionError tests whether a given error is an instance of "create_workflow_revision_error".
-func IsClientCreateWorkflowRevisionError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientCreateWorkflowRevisionErrorCode)
+// IsClientResponseNotFound tests whether a given error is an instance of "response_not_found".
+func IsClientResponseNotFound(err errawr.Error) bool {
+	return err != nil && err.Is(ClientResponseNotFoundCode)
 }
 
-// IsClientCreateWorkflowRevisionError tests whether a given error is an instance of "create_workflow_revision_error".
-func (External) IsClientCreateWorkflowRevisionError(err errawr.Error) bool {
-	return IsClientCreateWorkflowRevisionError(err)
+// IsClientResponseNotFound tests whether a given error is an instance of "response_not_found".
+func (External) IsClientResponseNotFound(err errawr.Error) bool {
+	return IsClientResponseNotFound(err)
 }
 
-// ClientCreateWorkflowRevisionErrorBuilder is a builder for "create_workflow_revision_error" errors.
-type ClientCreateWorkflowRevisionErrorBuilder struct {
+// ClientResponseNotFoundBuilder is a builder for "response_not_found" errors.
+type ClientResponseNotFoundBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "create_workflow_revision_error" from this builder.
-func (b *ClientCreateWorkflowRevisionErrorBuilder) Build() Error {
+// Build creates the error for the code "response_not_found" from this builder.
+func (b *ClientResponseNotFoundBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "there was an error creating the workflow revision",
-		Technical: "there was an error creating the workflow revision",
+		Friendly:  "Response not found.",
+		Technical: "Response not found.",
 	}
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "create_workflow_revision_error",
+		ErrorCode:        "response_not_found",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     ClientSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Create workflow revision error",
+		ErrorTitle:       "Response not found error",
 		Version:          1,
 	}
 }
 
-// NewClientCreateWorkflowRevisionErrorBuilder creates a new error builder for the code "create_workflow_revision_error".
-func NewClientCreateWorkflowRevisionErrorBuilder() *ClientCreateWorkflowRevisionErrorBuilder {
-	return &ClientCreateWorkflowRevisionErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientResponseNotFoundBuilder creates a new error builder for the code "response_not_found".
+func NewClientResponseNotFoundBuilder() *ClientResponseNotFoundBuilder {
+	return &ClientResponseNotFoundBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientCreateWorkflowRevisionError creates a new error with the code "create_workflow_revision_error".
-func NewClientCreateWorkflowRevisionError() Error {
-	return NewClientCreateWorkflowRevisionErrorBuilder().Build()
+// NewClientResponseNotFound creates a new error with the code "response_not_found".
+func NewClientResponseNotFound() Error {
+	return NewClientResponseNotFoundBuilder().Build()
 }
 
-// ClientCreateWorkflowSecretErrorCode is the code for an instance of "create_workflow_secret_error".
-const ClientCreateWorkflowSecretErrorCode = "rcli_client_create_workflow_secret_error"
+// ClientUserNotAuthenticatedCode is the code for an instance of "user_not_authenticated".
+const ClientUserNotAuthenticatedCode = "rcli_client_user_not_authenticated"
 
-// IsClientCreateWorkflowSecretError tests whether a given error is an instance of "create_workflow_secret_error".
-func IsClientCreateWorkflowSecretError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientCreateWorkflowSecretErrorCode)
+// IsClientUserNotAuthenticated tests whether a given error is an instance of "user_not_authenticated".
+func IsClientUserNotAuthenticated(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUserNotAuthenticatedCode)
 }
 
-// IsClientCreateWorkflowSecretError tests whether a given error is an instance of "create_workflow_secret_error".
-func (External) IsClientCreateWorkflowSecretError(err errawr.Error) bool {
-	return IsClientCreateWorkflowSecretError(err)
+// IsClientUserNotAuthenticated tests whether a given error is an instance of "user_not_authenticated".
+func (External) IsClientUserNotAuthenticated(err errawr.Error) bool {
+	return IsClientUserNotAuthenticated(err)
 }
 
-// ClientCreateWorkflowSecretErrorBuilder is a builder for "create_workflow_secret_error" errors.
-type ClientCreateWorkflowSecretErrorBuilder struct {
+// ClientUserNotAuthenticatedBuilder is a builder for "user_not_authenticated" errors.
+type ClientUserNotAuthenticatedBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "create_workflow_secret_error" from this builder.
-func (b *ClientCreateWorkflowSecretErrorBuilder) Build() Error {
+// Build creates the error for the code "user_not_authenticated" from this builder.
+func (b *ClientUserNotAuthenticatedBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "there was an error creating the workflow secret",
-		Technical: "there was an error creating the workflow secret",
+		Friendly:  "You must be logged in to perform this operation. Try `relay auth login`.",
+		Technical: "You must be logged in to perform this operation. Try `relay auth login`.",
 	}
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "create_workflow_secret_error",
+		ErrorCode:        "user_not_authenticated",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     ClientSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Create workflow secret error",
+		ErrorTitle:       "User not authenticated error",
 		Version:          1,
 	}
 }
 
-// NewClientCreateWorkflowSecretErrorBuilder creates a new error builder for the code "create_workflow_secret_error".
-func NewClientCreateWorkflowSecretErrorBuilder() *ClientCreateWorkflowSecretErrorBuilder {
-	return &ClientCreateWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientUserNotAuthenticatedBuilder creates a new error builder for the code "user_not_authenticated".
+func NewClientUserNotAuthenticatedBuilder() *ClientUserNotAuthenticatedBuilder {
+	return &ClientUserNotAuthenticatedBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientCreateWorkflowSecretError creates a new error with the code "create_workflow_secret_error".
-func NewClientCreateWorkflowSecretError() Error {
-	return NewClientCreateWorkflowSecretErrorBuilder().Build()
+// NewClientUserNotAuthenticated creates a new error with the code "user_not_authenticated".
+func NewClientUserNotAuthenticated() Error {
+	return NewClientUserNotAuthenticatedBuilder().Build()
 }
 
-// ClientDeleteWorkflowSecretErrorCode is the code for an instance of "delete_workflow_secret_error".
-const ClientDeleteWorkflowSecretErrorCode = "rcli_client_delete_workflow_secret_error"
+// ClientUserNotAuthorizedCode is the code for an instance of "user_not_authorized".
+const ClientUserNotAuthorizedCode = "rcli_client_user_not_authorized"
 
-// IsClientDeleteWorkflowSecretError tests whether a given error is an instance of "delete_workflow_secret_error".
-func IsClientDeleteWorkflowSecretError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientDeleteWorkflowSecretErrorCode)
+// IsClientUserNotAuthorized tests whether a given error is an instance of "user_not_authorized".
+func IsClientUserNotAuthorized(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUserNotAuthorizedCode)
 }
 
-// IsClientDeleteWorkflowSecretError tests whether a given error is an instance of "delete_workflow_secret_error".
-func (External) IsClientDeleteWorkflowSecretError(err errawr.Error) bool {
-	return IsClientDeleteWorkflowSecretError(err)
+// IsClientUserNotAuthorized tests whether a given error is an instance of "user_not_authorized".
+func (External) IsClientUserNotAuthorized(err errawr.Error) bool {
+	return IsClientUserNotAuthorized(err)
 }
 
-// ClientDeleteWorkflowSecretErrorBuilder is a builder for "delete_workflow_secret_error" errors.
-type ClientDeleteWorkflowSecretErrorBuilder struct {
+// ClientUserNotAuthorizedBuilder is a builder for "user_not_authorized" errors.
+type ClientUserNotAuthorizedBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "delete_workflow_secret_error" from this builder.
-func (b *ClientDeleteWorkflowSecretErrorBuilder) Build() Error {
+// Build creates the error for the code "user_not_authorized" from this builder.
+func (b *ClientUserNotAuthorizedBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "there was an error deleting the workflow secret",
-		Technical: "there was an error deleting the workflow secret",
+		Friendly:  "You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.",
+		Technical: "You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.",
 	}
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "delete_workflow_secret_error",
+		ErrorCode:        "user_not_authorized",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     ClientSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Delete workflow secret error",
+		ErrorTitle:       "User not authorized error",
 		Version:          1,
 	}
 }
 
-// NewClientDeleteWorkflowSecretErrorBuilder creates a new error builder for the code "delete_workflow_secret_error".
-func NewClientDeleteWorkflowSecretErrorBuilder() *ClientDeleteWorkflowSecretErrorBuilder {
-	return &ClientDeleteWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientUserNotAuthorizedBuilder creates a new error builder for the code "user_not_authorized".
+func NewClientUserNotAuthorizedBuilder() *ClientUserNotAuthorizedBuilder {
+	return &ClientUserNotAuthorizedBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientDeleteWorkflowSecretError creates a new error with the code "delete_workflow_secret_error".
-func NewClientDeleteWorkflowSecretError() Error {
-	return NewClientDeleteWorkflowSecretErrorBuilder().Build()
-}
-
-// ClientGetIntegrationErrorCode is the code for an instance of "get_integration_error".
-const ClientGetIntegrationErrorCode = "rcli_client_get_integration_error"
-
-// IsClientGetIntegrationError tests whether a given error is an instance of "get_integration_error".
-func IsClientGetIntegrationError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientGetIntegrationErrorCode)
-}
-
-// IsClientGetIntegrationError tests whether a given error is an instance of "get_integration_error".
-func (External) IsClientGetIntegrationError(err errawr.Error) bool {
-	return IsClientGetIntegrationError(err)
-}
-
-// ClientGetIntegrationErrorBuilder is a builder for "get_integration_error" errors.
-type ClientGetIntegrationErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "get_integration_error" from this builder.
-func (b *ClientGetIntegrationErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching integration {{id}}",
-		Technical: "there was an error fetching integration {{id}}",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "get_integration_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Get integration error",
-		Version:          1,
-	}
-}
-
-// NewClientGetIntegrationErrorBuilder creates a new error builder for the code "get_integration_error".
-func NewClientGetIntegrationErrorBuilder(id string) *ClientGetIntegrationErrorBuilder {
-	return &ClientGetIntegrationErrorBuilder{arguments: impl.ErrorArguments{"id": impl.NewErrorArgument(id, "the id of the integration")}}
-}
-
-// NewClientGetIntegrationError creates a new error with the code "get_integration_error".
-func NewClientGetIntegrationError(id string) Error {
-	return NewClientGetIntegrationErrorBuilder(id).Build()
-}
-
-// ClientGetWorkflowErrorCode is the code for an instance of "get_workflow_error".
-const ClientGetWorkflowErrorCode = "rcli_client_get_workflow_error"
-
-// IsClientGetWorkflowError tests whether a given error is an instance of "get_workflow_error".
-func IsClientGetWorkflowError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientGetWorkflowErrorCode)
-}
-
-// IsClientGetWorkflowError tests whether a given error is an instance of "get_workflow_error".
-func (External) IsClientGetWorkflowError(err errawr.Error) bool {
-	return IsClientGetWorkflowError(err)
-}
-
-// ClientGetWorkflowErrorBuilder is a builder for "get_workflow_error" errors.
-type ClientGetWorkflowErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "get_workflow_error" from this builder.
-func (b *ClientGetWorkflowErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching the workflow",
-		Technical: "there was an error fetching the workflow",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "get_workflow_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Get workflow error",
-		Version:          1,
-	}
-}
-
-// NewClientGetWorkflowErrorBuilder creates a new error builder for the code "get_workflow_error".
-func NewClientGetWorkflowErrorBuilder(name string) *ClientGetWorkflowErrorBuilder {
-	return &ClientGetWorkflowErrorBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the workflow")}}
-}
-
-// NewClientGetWorkflowError creates a new error with the code "get_workflow_error".
-func NewClientGetWorkflowError(name string) Error {
-	return NewClientGetWorkflowErrorBuilder(name).Build()
-}
-
-// ClientGetWorkflowRevisionErrorCode is the code for an instance of "get_workflow_revision_error".
-const ClientGetWorkflowRevisionErrorCode = "rcli_client_get_workflow_revision_error"
-
-// IsClientGetWorkflowRevisionError tests whether a given error is an instance of "get_workflow_revision_error".
-func IsClientGetWorkflowRevisionError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientGetWorkflowRevisionErrorCode)
-}
-
-// IsClientGetWorkflowRevisionError tests whether a given error is an instance of "get_workflow_revision_error".
-func (External) IsClientGetWorkflowRevisionError(err errawr.Error) bool {
-	return IsClientGetWorkflowRevisionError(err)
-}
-
-// ClientGetWorkflowRevisionErrorBuilder is a builder for "get_workflow_revision_error" errors.
-type ClientGetWorkflowRevisionErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "get_workflow_revision_error" from this builder.
-func (b *ClientGetWorkflowRevisionErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching this workflow revision",
-		Technical: "there was an error fetching this workflow revision",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "get_workflow_revision_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Get workflow revision error",
-		Version:          1,
-	}
-}
-
-// NewClientGetWorkflowRevisionErrorBuilder creates a new error builder for the code "get_workflow_revision_error".
-func NewClientGetWorkflowRevisionErrorBuilder() *ClientGetWorkflowRevisionErrorBuilder {
-	return &ClientGetWorkflowRevisionErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientGetWorkflowRevisionError creates a new error with the code "get_workflow_revision_error".
-func NewClientGetWorkflowRevisionError() Error {
-	return NewClientGetWorkflowRevisionErrorBuilder().Build()
-}
-
-// ClientGetWorkflowRunErrorCode is the code for an instance of "get_workflow_run_error".
-const ClientGetWorkflowRunErrorCode = "rcli_client_get_workflow_run_error"
-
-// IsClientGetWorkflowRunError tests whether a given error is an instance of "get_workflow_run_error".
-func IsClientGetWorkflowRunError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientGetWorkflowRunErrorCode)
-}
-
-// IsClientGetWorkflowRunError tests whether a given error is an instance of "get_workflow_run_error".
-func (External) IsClientGetWorkflowRunError(err errawr.Error) bool {
-	return IsClientGetWorkflowRunError(err)
-}
-
-// ClientGetWorkflowRunErrorBuilder is a builder for "get_workflow_run_error" errors.
-type ClientGetWorkflowRunErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "get_workflow_run_error" from this builder.
-func (b *ClientGetWorkflowRunErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching this workflow run",
-		Technical: "there was an error fetching this workflow run",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "get_workflow_run_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Get workflow run error",
-		Version:          1,
-	}
-}
-
-// NewClientGetWorkflowRunErrorBuilder creates a new error builder for the code "get_workflow_run_error".
-func NewClientGetWorkflowRunErrorBuilder() *ClientGetWorkflowRunErrorBuilder {
-	return &ClientGetWorkflowRunErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientGetWorkflowRunError creates a new error with the code "get_workflow_run_error".
-func NewClientGetWorkflowRunError() Error {
-	return NewClientGetWorkflowRunErrorBuilder().Build()
-}
-
-// ClientGetWorkflowRunStepLogErrorCode is the code for an instance of "get_workflow_run_step_log_error".
-const ClientGetWorkflowRunStepLogErrorCode = "rcli_client_get_workflow_run_step_log_error"
-
-// IsClientGetWorkflowRunStepLogError tests whether a given error is an instance of "get_workflow_run_step_log_error".
-func IsClientGetWorkflowRunStepLogError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientGetWorkflowRunStepLogErrorCode)
-}
-
-// IsClientGetWorkflowRunStepLogError tests whether a given error is an instance of "get_workflow_run_step_log_error".
-func (External) IsClientGetWorkflowRunStepLogError(err errawr.Error) bool {
-	return IsClientGetWorkflowRunStepLogError(err)
-}
-
-// ClientGetWorkflowRunStepLogErrorBuilder is a builder for "get_workflow_run_step_log_error" errors.
-type ClientGetWorkflowRunStepLogErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "get_workflow_run_step_log_error" from this builder.
-func (b *ClientGetWorkflowRunStepLogErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching this workflow run step log",
-		Technical: "there was an error fetching this workflow run step log",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "get_workflow_run_step_log_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Get workflow run step log error",
-		Version:          1,
-	}
-}
-
-// NewClientGetWorkflowRunStepLogErrorBuilder creates a new error builder for the code "get_workflow_run_step_log_error".
-func NewClientGetWorkflowRunStepLogErrorBuilder() *ClientGetWorkflowRunStepLogErrorBuilder {
-	return &ClientGetWorkflowRunStepLogErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientGetWorkflowRunStepLogError creates a new error with the code "get_workflow_run_step_log_error".
-func NewClientGetWorkflowRunStepLogError() Error {
-	return NewClientGetWorkflowRunStepLogErrorBuilder().Build()
-}
-
-// ClientInvalidWorkflowParameterValueErrorCode is the code for an instance of "invalid_workflow_parameter_value_error".
-const ClientInvalidWorkflowParameterValueErrorCode = "rcli_client_invalid_workflow_parameter_value_error"
-
-// IsClientInvalidWorkflowParameterValueError tests whether a given error is an instance of "invalid_workflow_parameter_value_error".
-func IsClientInvalidWorkflowParameterValueError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientInvalidWorkflowParameterValueErrorCode)
-}
-
-// IsClientInvalidWorkflowParameterValueError tests whether a given error is an instance of "invalid_workflow_parameter_value_error".
-func (External) IsClientInvalidWorkflowParameterValueError(err errawr.Error) bool {
-	return IsClientInvalidWorkflowParameterValueError(err)
-}
-
-// ClientInvalidWorkflowParameterValueErrorBuilder is a builder for "invalid_workflow_parameter_value_error" errors.
-type ClientInvalidWorkflowParameterValueErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "invalid_workflow_parameter_value_error" from this builder.
-func (b *ClientInvalidWorkflowParameterValueErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "The value of this workflow parameter cannot be encoded.",
-		Technical: "The value of this workflow parameter cannot be encoded.",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "invalid_workflow_parameter_value_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Invalid workflow parameter value",
-		Version:          1,
-	}
-}
-
-// NewClientInvalidWorkflowParameterValueErrorBuilder creates a new error builder for the code "invalid_workflow_parameter_value_error".
-func NewClientInvalidWorkflowParameterValueErrorBuilder() *ClientInvalidWorkflowParameterValueErrorBuilder {
-	return &ClientInvalidWorkflowParameterValueErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientInvalidWorkflowParameterValueError creates a new error with the code "invalid_workflow_parameter_value_error".
-func NewClientInvalidWorkflowParameterValueError() Error {
-	return NewClientInvalidWorkflowParameterValueErrorBuilder().Build()
-}
-
-// ClientInvalidWorkflowSecretValueErrorCode is the code for an instance of "invalid_workflow_secret_value_error".
-const ClientInvalidWorkflowSecretValueErrorCode = "rcli_client_invalid_workflow_secret_value_error"
-
-// IsClientInvalidWorkflowSecretValueError tests whether a given error is an instance of "invalid_workflow_secret_value_error".
-func IsClientInvalidWorkflowSecretValueError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientInvalidWorkflowSecretValueErrorCode)
-}
-
-// IsClientInvalidWorkflowSecretValueError tests whether a given error is an instance of "invalid_workflow_secret_value_error".
-func (External) IsClientInvalidWorkflowSecretValueError(err errawr.Error) bool {
-	return IsClientInvalidWorkflowSecretValueError(err)
-}
-
-// ClientInvalidWorkflowSecretValueErrorBuilder is a builder for "invalid_workflow_secret_value_error" errors.
-type ClientInvalidWorkflowSecretValueErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "invalid_workflow_secret_value_error" from this builder.
-func (b *ClientInvalidWorkflowSecretValueErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "The value of this workflow secret cannot be encoded.",
-		Technical: "The value of this workflow secret cannot be encoded.",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "invalid_workflow_secret_value_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Invalid workflow secret value",
-		Version:          1,
-	}
-}
-
-// NewClientInvalidWorkflowSecretValueErrorBuilder creates a new error builder for the code "invalid_workflow_secret_value_error".
-func NewClientInvalidWorkflowSecretValueErrorBuilder() *ClientInvalidWorkflowSecretValueErrorBuilder {
-	return &ClientInvalidWorkflowSecretValueErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientInvalidWorkflowSecretValueError creates a new error with the code "invalid_workflow_secret_value_error".
-func NewClientInvalidWorkflowSecretValueError() Error {
-	return NewClientInvalidWorkflowSecretValueErrorBuilder().Build()
-}
-
-// ClientListIntegrationsErrorCode is the code for an instance of "list_integrations_error".
-const ClientListIntegrationsErrorCode = "rcli_client_list_integrations_error"
-
-// IsClientListIntegrationsError tests whether a given error is an instance of "list_integrations_error".
-func IsClientListIntegrationsError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientListIntegrationsErrorCode)
-}
-
-// IsClientListIntegrationsError tests whether a given error is an instance of "list_integrations_error".
-func (External) IsClientListIntegrationsError(err errawr.Error) bool {
-	return IsClientListIntegrationsError(err)
-}
-
-// ClientListIntegrationsErrorBuilder is a builder for "list_integrations_error" errors.
-type ClientListIntegrationsErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "list_integrations_error" from this builder.
-func (b *ClientListIntegrationsErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching integrations",
-		Technical: "there was an error fetching integrations",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "list_integrations_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "List integrations error",
-		Version:          1,
-	}
-}
-
-// NewClientListIntegrationsErrorBuilder creates a new error builder for the code "list_integrations_error".
-func NewClientListIntegrationsErrorBuilder() *ClientListIntegrationsErrorBuilder {
-	return &ClientListIntegrationsErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientListIntegrationsError creates a new error with the code "list_integrations_error".
-func NewClientListIntegrationsError() Error {
-	return NewClientListIntegrationsErrorBuilder().Build()
-}
-
-// ClientListWorkflowRunsErrorCode is the code for an instance of "list_workflow_runs_error".
-const ClientListWorkflowRunsErrorCode = "rcli_client_list_workflow_runs_error"
-
-// IsClientListWorkflowRunsError tests whether a given error is an instance of "list_workflow_runs_error".
-func IsClientListWorkflowRunsError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientListWorkflowRunsErrorCode)
-}
-
-// IsClientListWorkflowRunsError tests whether a given error is an instance of "list_workflow_runs_error".
-func (External) IsClientListWorkflowRunsError(err errawr.Error) bool {
-	return IsClientListWorkflowRunsError(err)
-}
-
-// ClientListWorkflowRunsErrorBuilder is a builder for "list_workflow_runs_error" errors.
-type ClientListWorkflowRunsErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "list_workflow_runs_error" from this builder.
-func (b *ClientListWorkflowRunsErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching workflow runs",
-		Technical: "there was an error fetching workflow runs",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "list_workflow_runs_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "List workflow runs error",
-		Version:          1,
-	}
-}
-
-// NewClientListWorkflowRunsErrorBuilder creates a new error builder for the code "list_workflow_runs_error".
-func NewClientListWorkflowRunsErrorBuilder() *ClientListWorkflowRunsErrorBuilder {
-	return &ClientListWorkflowRunsErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientListWorkflowRunsError creates a new error with the code "list_workflow_runs_error".
-func NewClientListWorkflowRunsError() Error {
-	return NewClientListWorkflowRunsErrorBuilder().Build()
-}
-
-// ClientListWorkflowsErrorCode is the code for an instance of "list_workflows_error".
-const ClientListWorkflowsErrorCode = "rcli_client_list_workflows_error"
-
-// IsClientListWorkflowsError tests whether a given error is an instance of "list_workflows_error".
-func IsClientListWorkflowsError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientListWorkflowsErrorCode)
-}
-
-// IsClientListWorkflowsError tests whether a given error is an instance of "list_workflows_error".
-func (External) IsClientListWorkflowsError(err errawr.Error) bool {
-	return IsClientListWorkflowsError(err)
-}
-
-// ClientListWorkflowsErrorBuilder is a builder for "list_workflows_error" errors.
-type ClientListWorkflowsErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "list_workflows_error" from this builder.
-func (b *ClientListWorkflowsErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error fetching workflows",
-		Technical: "there was an error fetching workflows",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "list_workflows_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "List workflows error",
-		Version:          1,
-	}
-}
-
-// NewClientListWorkflowsErrorBuilder creates a new error builder for the code "list_workflows_error".
-func NewClientListWorkflowsErrorBuilder() *ClientListWorkflowsErrorBuilder {
-	return &ClientListWorkflowsErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientListWorkflowsError creates a new error with the code "list_workflows_error".
-func NewClientListWorkflowsError() Error {
-	return NewClientListWorkflowsErrorBuilder().Build()
-}
-
-// ClientMissingEmailErrorCode is the code for an instance of "missing_email_error".
-const ClientMissingEmailErrorCode = "rcli_client_missing_email_error"
-
-// IsClientMissingEmailError tests whether a given error is an instance of "missing_email_error".
-func IsClientMissingEmailError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientMissingEmailErrorCode)
-}
-
-// IsClientMissingEmailError tests whether a given error is an instance of "missing_email_error".
-func (External) IsClientMissingEmailError(err errawr.Error) bool {
-	return IsClientMissingEmailError(err)
-}
-
-// ClientMissingEmailErrorBuilder is a builder for "missing_email_error" errors.
-type ClientMissingEmailErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "missing_email_error" from this builder.
-func (b *ClientMissingEmailErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "{{ msg }}",
-		Technical: "{{ msg }}",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "missing_email_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Missing email error",
-		Version:          1,
-	}
-}
-
-// NewClientMissingEmailErrorBuilder creates a new error builder for the code "missing_email_error".
-func NewClientMissingEmailErrorBuilder(msg string) *ClientMissingEmailErrorBuilder {
-	return &ClientMissingEmailErrorBuilder{arguments: impl.ErrorArguments{"msg": impl.NewErrorArgument(msg, "a message about what the issue was")}}
-}
-
-// NewClientMissingEmailError creates a new error with the code "missing_email_error".
-func NewClientMissingEmailError(msg string) Error {
-	return NewClientMissingEmailErrorBuilder(msg).Build()
-}
-
-// ClientNotLoggedInCode is the code for an instance of "not_logged_in".
-const ClientNotLoggedInCode = "rcli_client_not_logged_in"
-
-// IsClientNotLoggedIn tests whether a given error is an instance of "not_logged_in".
-func IsClientNotLoggedIn(err errawr.Error) bool {
-	return err != nil && err.Is(ClientNotLoggedInCode)
-}
-
-// IsClientNotLoggedIn tests whether a given error is an instance of "not_logged_in".
-func (External) IsClientNotLoggedIn(err errawr.Error) bool {
-	return IsClientNotLoggedIn(err)
-}
-
-// ClientNotLoggedInBuilder is a builder for "not_logged_in" errors.
-type ClientNotLoggedInBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "not_logged_in" from this builder.
-func (b *ClientNotLoggedInBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "not logged in",
-		Technical: "not logged in",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "not_logged_in",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Not logged in",
-		Version:          1,
-	}
-}
-
-// NewClientNotLoggedInBuilder creates a new error builder for the code "not_logged_in".
-func NewClientNotLoggedInBuilder() *ClientNotLoggedInBuilder {
-	return &ClientNotLoggedInBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientNotLoggedIn creates a new error with the code "not_logged_in".
-func NewClientNotLoggedIn() Error {
-	return NewClientNotLoggedInBuilder().Build()
-}
-
-// ClientPasswordErrorCode is the code for an instance of "password_error".
-const ClientPasswordErrorCode = "rcli_client_password_error"
-
-// IsClientPasswordError tests whether a given error is an instance of "password_error".
-func IsClientPasswordError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientPasswordErrorCode)
-}
-
-// IsClientPasswordError tests whether a given error is an instance of "password_error".
-func (External) IsClientPasswordError(err errawr.Error) bool {
-	return IsClientPasswordError(err)
-}
-
-// ClientPasswordErrorBuilder is a builder for "password_error" errors.
-type ClientPasswordErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "password_error" from this builder.
-func (b *ClientPasswordErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "{{ msg }}",
-		Technical: "{{ msg }}",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "password_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Password error",
-		Version:          1,
-	}
-}
-
-// NewClientPasswordErrorBuilder creates a new error builder for the code "password_error".
-func NewClientPasswordErrorBuilder(msg string) *ClientPasswordErrorBuilder {
-	return &ClientPasswordErrorBuilder{arguments: impl.ErrorArguments{"msg": impl.NewErrorArgument(msg, "a message about what the issue was")}}
-}
-
-// NewClientPasswordError creates a new error with the code "password_error".
-func NewClientPasswordError(msg string) Error {
-	return NewClientPasswordErrorBuilder(msg).Build()
-}
-
-// ClientRunWorkflowErrorCode is the code for an instance of "run_workflow_error".
-const ClientRunWorkflowErrorCode = "rcli_client_run_workflow_error"
-
-// IsClientRunWorkflowError tests whether a given error is an instance of "run_workflow_error".
-func IsClientRunWorkflowError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientRunWorkflowErrorCode)
-}
-
-// IsClientRunWorkflowError tests whether a given error is an instance of "run_workflow_error".
-func (External) IsClientRunWorkflowError(err errawr.Error) bool {
-	return IsClientRunWorkflowError(err)
-}
-
-// ClientRunWorkflowErrorBuilder is a builder for "run_workflow_error" errors.
-type ClientRunWorkflowErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "run_workflow_error" from this builder.
-func (b *ClientRunWorkflowErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error running the workflow",
-		Technical: "there was an error running the workflow",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "run_workflow_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Run workflow error",
-		Version:          1,
-	}
-}
-
-// NewClientRunWorkflowErrorBuilder creates a new error builder for the code "run_workflow_error".
-func NewClientRunWorkflowErrorBuilder() *ClientRunWorkflowErrorBuilder {
-	return &ClientRunWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientRunWorkflowError creates a new error with the code "run_workflow_error".
-func NewClientRunWorkflowError() Error {
-	return NewClientRunWorkflowErrorBuilder().Build()
-}
-
-// ClientTokenLoadErrorCode is the code for an instance of "token_load_error".
-const ClientTokenLoadErrorCode = "rcli_client_token_load_error"
-
-// IsClientTokenLoadError tests whether a given error is an instance of "token_load_error".
-func IsClientTokenLoadError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientTokenLoadErrorCode)
-}
-
-// IsClientTokenLoadError tests whether a given error is an instance of "token_load_error".
-func (External) IsClientTokenLoadError(err errawr.Error) bool {
-	return IsClientTokenLoadError(err)
-}
-
-// ClientTokenLoadErrorBuilder is a builder for "token_load_error" errors.
-type ClientTokenLoadErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "token_load_error" from this builder.
-func (b *ClientTokenLoadErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error loading the auth token",
-		Technical: "there was an error loading the auth token",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "token_load_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Token load error",
-		Version:          1,
-	}
-}
-
-// NewClientTokenLoadErrorBuilder creates a new error builder for the code "token_load_error".
-func NewClientTokenLoadErrorBuilder() *ClientTokenLoadErrorBuilder {
-	return &ClientTokenLoadErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientTokenLoadError creates a new error with the code "token_load_error".
-func NewClientTokenLoadError() Error {
-	return NewClientTokenLoadErrorBuilder().Build()
-}
-
-// ClientTokenStorageErrorCode is the code for an instance of "token_storage_error".
-const ClientTokenStorageErrorCode = "rcli_client_token_storage_error"
-
-// IsClientTokenStorageError tests whether a given error is an instance of "token_storage_error".
-func IsClientTokenStorageError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientTokenStorageErrorCode)
-}
-
-// IsClientTokenStorageError tests whether a given error is an instance of "token_storage_error".
-func (External) IsClientTokenStorageError(err errawr.Error) bool {
-	return IsClientTokenStorageError(err)
-}
-
-// ClientTokenStorageErrorBuilder is a builder for "token_storage_error" errors.
-type ClientTokenStorageErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "token_storage_error" from this builder.
-func (b *ClientTokenStorageErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error storing the auth token",
-		Technical: "there was an error storing the auth token",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "token_storage_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Token storage error",
-		Version:          1,
-	}
-}
-
-// NewClientTokenStorageErrorBuilder creates a new error builder for the code "token_storage_error".
-func NewClientTokenStorageErrorBuilder() *ClientTokenStorageErrorBuilder {
-	return &ClientTokenStorageErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientTokenStorageError creates a new error with the code "token_storage_error".
-func NewClientTokenStorageError() Error {
-	return NewClientTokenStorageErrorBuilder().Build()
-}
-
-// ClientUnexpectedResponseTypeErrorCode is the code for an instance of "unexpected_response_type_error".
-const ClientUnexpectedResponseTypeErrorCode = "rcli_client_unexpected_response_type_error"
-
-// IsClientUnexpectedResponseTypeError tests whether a given error is an instance of "unexpected_response_type_error".
-func IsClientUnexpectedResponseTypeError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientUnexpectedResponseTypeErrorCode)
-}
-
-// IsClientUnexpectedResponseTypeError tests whether a given error is an instance of "unexpected_response_type_error".
-func (External) IsClientUnexpectedResponseTypeError(err errawr.Error) bool {
-	return IsClientUnexpectedResponseTypeError(err)
-}
-
-// ClientUnexpectedResponseTypeErrorBuilder is a builder for "unexpected_response_type_error" errors.
-type ClientUnexpectedResponseTypeErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "unexpected_response_type_error" from this builder.
-func (b *ClientUnexpectedResponseTypeErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "An unexpected response type was returned for this request.",
-		Technical: "An unexpected response type was returned for this request.",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "unexpected_response_type_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Unexpected response type",
-		Version:          1,
-	}
-}
-
-// NewClientUnexpectedResponseTypeErrorBuilder creates a new error builder for the code "unexpected_response_type_error".
-func NewClientUnexpectedResponseTypeErrorBuilder() *ClientUnexpectedResponseTypeErrorBuilder {
-	return &ClientUnexpectedResponseTypeErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientUnexpectedResponseTypeError creates a new error with the code "unexpected_response_type_error".
-func NewClientUnexpectedResponseTypeError() Error {
-	return NewClientUnexpectedResponseTypeErrorBuilder().Build()
-}
-
-// ClientUpdateWorkflowErrorCode is the code for an instance of "update_workflow_error".
-const ClientUpdateWorkflowErrorCode = "rcli_client_update_workflow_error"
-
-// IsClientUpdateWorkflowError tests whether a given error is an instance of "update_workflow_error".
-func IsClientUpdateWorkflowError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientUpdateWorkflowErrorCode)
-}
-
-// IsClientUpdateWorkflowError tests whether a given error is an instance of "update_workflow_error".
-func (External) IsClientUpdateWorkflowError(err errawr.Error) bool {
-	return IsClientUpdateWorkflowError(err)
-}
-
-// ClientUpdateWorkflowErrorBuilder is a builder for "update_workflow_error" errors.
-type ClientUpdateWorkflowErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "update_workflow_error" from this builder.
-func (b *ClientUpdateWorkflowErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error updating the workflow",
-		Technical: "there was an error updating the workflow",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "update_workflow_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Update workflow error",
-		Version:          1,
-	}
-}
-
-// NewClientUpdateWorkflowErrorBuilder creates a new error builder for the code "update_workflow_error".
-func NewClientUpdateWorkflowErrorBuilder(name string) *ClientUpdateWorkflowErrorBuilder {
-	return &ClientUpdateWorkflowErrorBuilder{arguments: impl.ErrorArguments{"name": impl.NewErrorArgument(name, "the name of the workflow")}}
-}
-
-// NewClientUpdateWorkflowError creates a new error with the code "update_workflow_error".
-func NewClientUpdateWorkflowError(name string) Error {
-	return NewClientUpdateWorkflowErrorBuilder(name).Build()
-}
-
-// ClientUpdateWorkflowSecretErrorCode is the code for an instance of "update_workflow_secret_error".
-const ClientUpdateWorkflowSecretErrorCode = "rcli_client_update_workflow_secret_error"
-
-// IsClientUpdateWorkflowSecretError tests whether a given error is an instance of "update_workflow_secret_error".
-func IsClientUpdateWorkflowSecretError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientUpdateWorkflowSecretErrorCode)
-}
-
-// IsClientUpdateWorkflowSecretError tests whether a given error is an instance of "update_workflow_secret_error".
-func (External) IsClientUpdateWorkflowSecretError(err errawr.Error) bool {
-	return IsClientUpdateWorkflowSecretError(err)
-}
-
-// ClientUpdateWorkflowSecretErrorBuilder is a builder for "update_workflow_secret_error" errors.
-type ClientUpdateWorkflowSecretErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "update_workflow_secret_error" from this builder.
-func (b *ClientUpdateWorkflowSecretErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error updating the workflow secret",
-		Technical: "there was an error updating the workflow secret",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "update_workflow_secret_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Update workflow secret error",
-		Version:          1,
-	}
-}
-
-// NewClientUpdateWorkflowSecretErrorBuilder creates a new error builder for the code "update_workflow_secret_error".
-func NewClientUpdateWorkflowSecretErrorBuilder() *ClientUpdateWorkflowSecretErrorBuilder {
-	return &ClientUpdateWorkflowSecretErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientUpdateWorkflowSecretError creates a new error with the code "update_workflow_secret_error".
-func NewClientUpdateWorkflowSecretError() Error {
-	return NewClientUpdateWorkflowSecretErrorBuilder().Build()
-}
-
-// ClientValidateWorkflowErrorCode is the code for an instance of "validate_workflow_error".
-const ClientValidateWorkflowErrorCode = "rcli_client_validate_workflow_error"
-
-// IsClientValidateWorkflowError tests whether a given error is an instance of "validate_workflow_error".
-func IsClientValidateWorkflowError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientValidateWorkflowErrorCode)
-}
-
-// IsClientValidateWorkflowError tests whether a given error is an instance of "validate_workflow_error".
-func (External) IsClientValidateWorkflowError(err errawr.Error) bool {
-	return IsClientValidateWorkflowError(err)
-}
-
-// ClientValidateWorkflowErrorBuilder is a builder for "validate_workflow_error" errors.
-type ClientValidateWorkflowErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "validate_workflow_error" from this builder.
-func (b *ClientValidateWorkflowErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "there was an error validating the workflow",
-		Technical: "there was an error validating the workflow",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "validate_workflow_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Validate workflow error",
-		Version:          1,
-	}
-}
-
-// NewClientValidateWorkflowErrorBuilder creates a new error builder for the code "validate_workflow_error".
-func NewClientValidateWorkflowErrorBuilder() *ClientValidateWorkflowErrorBuilder {
-	return &ClientValidateWorkflowErrorBuilder{arguments: impl.ErrorArguments{}}
-}
-
-// NewClientValidateWorkflowError creates a new error with the code "validate_workflow_error".
-func NewClientValidateWorkflowError() Error {
-	return NewClientValidateWorkflowErrorBuilder().Build()
-}
-
-// ClientWorkflowSecretAlreadyExistsErrorCode is the code for an instance of "workflow_secret_already_exists_error".
-const ClientWorkflowSecretAlreadyExistsErrorCode = "rcli_client_workflow_secret_already_exists_error"
-
-// IsClientWorkflowSecretAlreadyExistsError tests whether a given error is an instance of "workflow_secret_already_exists_error".
-func IsClientWorkflowSecretAlreadyExistsError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientWorkflowSecretAlreadyExistsErrorCode)
-}
-
-// IsClientWorkflowSecretAlreadyExistsError tests whether a given error is an instance of "workflow_secret_already_exists_error".
-func (External) IsClientWorkflowSecretAlreadyExistsError(err errawr.Error) bool {
-	return IsClientWorkflowSecretAlreadyExistsError(err)
-}
-
-// ClientWorkflowSecretAlreadyExistsErrorBuilder is a builder for "workflow_secret_already_exists_error" errors.
-type ClientWorkflowSecretAlreadyExistsErrorBuilder struct {
-	arguments impl.ErrorArguments
-}
-
-// Build creates the error for the code "workflow_secret_already_exists_error" from this builder.
-func (b *ClientWorkflowSecretAlreadyExistsErrorBuilder) Build() Error {
-	description := &impl.ErrorDescription{
-		Friendly:  "The workflow secret identified by {{pre key}} already exists.",
-		Technical: "The workflow secret identified by {{pre key}} already exists.",
-	}
-
-	return &impl.Error{
-		ErrorArguments:   b.arguments,
-		ErrorCode:        "workflow_secret_already_exists_error",
-		ErrorDescription: description,
-		ErrorDomain:      Domain,
-		ErrorMetadata:    &impl.ErrorMetadata{},
-		ErrorSection:     ClientSection,
-		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Workflow secret already exists",
-		Version:          1,
-	}
-}
-
-// NewClientWorkflowSecretAlreadyExistsErrorBuilder creates a new error builder for the code "workflow_secret_already_exists_error".
-func NewClientWorkflowSecretAlreadyExistsErrorBuilder(key string) *ClientWorkflowSecretAlreadyExistsErrorBuilder {
-	return &ClientWorkflowSecretAlreadyExistsErrorBuilder{arguments: impl.ErrorArguments{"key": impl.NewErrorArgument(key, "the key of the secret")}}
-}
-
-// NewClientWorkflowSecretAlreadyExistsError creates a new error with the code "workflow_secret_already_exists_error".
-func NewClientWorkflowSecretAlreadyExistsError(key string) Error {
-	return NewClientWorkflowSecretAlreadyExistsErrorBuilder(key).Build()
+// NewClientUserNotAuthorized creates a new error with the code "user_not_authorized".
+func NewClientUserNotAuthorized() Error {
+	return NewClientUserNotAuthorizedBuilder().Build()
 }
 
 // ConfigSection defines a section of errors with the following scope:
