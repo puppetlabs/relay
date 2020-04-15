@@ -45,6 +45,10 @@ func (c *Client) getToken() (*Token, error) {
 }
 
 func (c *Client) storeToken(token *Token) error {
+	if err := os.MkdirAll(c.config.CacheDir, 0750); err != nil {
+		return err
+	}
+
 	f, err := os.OpenFile(c.config.TokenPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
 	if err != nil {
 		return err
@@ -55,6 +59,16 @@ func (c *Client) storeToken(token *Token) error {
 	if _, err := f.Write([]byte(token.String())); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (c *Client) clearToken() error {
+	if err := os.Remove(c.config.TokenPath); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	c.loadedToken = nil
 
 	return nil
 }

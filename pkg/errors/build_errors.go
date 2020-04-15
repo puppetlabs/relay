@@ -25,6 +25,61 @@ var Domain = &impl.ErrorDomain{
 	Title: "Relay CLI",
 }
 
+// AuthSection defines a section of errors with the following scope:
+// Authentication errors
+var AuthSection = &impl.ErrorSection{
+	Key:   "auth",
+	Title: "Authentication errors",
+}
+
+// AuthFailedLoginErrorCode is the code for an instance of "failed_login_error".
+const AuthFailedLoginErrorCode = "rcli_auth_failed_login_error"
+
+// IsAuthFailedLoginError tests whether a given error is an instance of "failed_login_error".
+func IsAuthFailedLoginError(err errawr.Error) bool {
+	return err != nil && err.Is(AuthFailedLoginErrorCode)
+}
+
+// IsAuthFailedLoginError tests whether a given error is an instance of "failed_login_error".
+func (External) IsAuthFailedLoginError(err errawr.Error) bool {
+	return IsAuthFailedLoginError(err)
+}
+
+// AuthFailedLoginErrorBuilder is a builder for "failed_login_error" errors.
+type AuthFailedLoginErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "failed_login_error" from this builder.
+func (b *AuthFailedLoginErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not log in. Please try again.",
+		Technical: "Could not log in. Please try again.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "failed_login_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     AuthSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Failed login error",
+		Version:          1,
+	}
+}
+
+// NewAuthFailedLoginErrorBuilder creates a new error builder for the code "failed_login_error".
+func NewAuthFailedLoginErrorBuilder() *AuthFailedLoginErrorBuilder {
+	return &AuthFailedLoginErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewAuthFailedLoginError creates a new error with the code "failed_login_error".
+func NewAuthFailedLoginError() Error {
+	return NewAuthFailedLoginErrorBuilder().Build()
+}
+
 // ClientSection defines a section of errors with the following scope:
 // Client errors
 var ClientSection = &impl.ErrorSection{

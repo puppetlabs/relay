@@ -79,6 +79,8 @@ github.com/magiconair/properties
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
+# github.com/manifoldco/promptui v0.7.0
+## explicit
 # github.com/mitchellh/mapstructure v1.1.2
 github.com/mitchellh/mapstructure
 # github.com/pelletier/go-toml v1.6.0
@@ -149,6 +151,9 @@ go.mongodb.org/mongo-driver/bson/bsonrw
 go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+# golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
+## explicit
+golang.org/x/crypto/ssh/terminal
 # golang.org/x/mod v0.2.0
 golang.org/x/mod/module
 golang.org/x/mod/semver
@@ -156,6 +161,7 @@ golang.org/x/mod/semver
 golang.org/x/net/idna
 # golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform

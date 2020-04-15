@@ -149,10 +149,10 @@ func userConfigDir() string {
 
 func userCacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
-		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "nebula")
+		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "relay")
 	}
 
-	return filepath.Join(os.Getenv("HOME"), ".cache", "nebula")
+	return filepath.Join(os.Getenv("HOME"), ".cache", "relay")
 }
 
 func readOutput(v *viper.Viper) (OutputType, error) {

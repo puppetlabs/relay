@@ -66,3 +66,9 @@ sections:
       user_not_authenticated:
         title: User not authenticated error
         description: You must be logged in to perform this operation. Try `relay auth login`.
+  auth:
+    title: Authentication errors
+    errors:
+      failed_login_error:
+        title: Failed login error
+        description: Could not log in. Please try again.

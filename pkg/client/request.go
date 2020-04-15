@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 
 	"github.com/puppetlabs/errawr-go/v2/pkg/encoding"
@@ -70,11 +72,15 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 		req.Header.Set(name, value)
 	}
 
+	debug(httputil.DumpRequestOut(req, true))
+
 	resp, resperr := c.httpClient.Do(req)
 
 	if resperr != nil {
 		return errors.NewClientRequestError().WithCause(resperr)
 	}
+
+	debug(httputil.DumpResponse(resp, true))
 
 	defer resp.Body.Close()
 
@@ -98,7 +104,7 @@ type errorEnvelope struct {
 func parseError(resp *http.Response) errors.Error {
 	// Attempt to parse relay api error envelope containing an errawr
 	env := &errorEnvelope{}
-	if err := json.NewDecoder(resp.Body).Decode(env); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(env); err == nil {
 		return env.Error.AsError()
 	}
 
@@ -113,4 +119,12 @@ func parseError(resp *http.Response) errors.Error {
 	}
 
 	return errors.NewClientRequestError()
+}
+
+func debug(data []byte, err error) {
+	if err == nil {
+		fmt.Printf("%s\n\n", data)
+	} else {
+		log.Fatalf("%s\n\n", err)
+	}
 }
