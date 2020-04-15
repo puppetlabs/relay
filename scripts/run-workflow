@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TAG=${TRAVIS_TAG}
+CLI="bin/relay-${TAG}-linux-amd64"
+SHA=$(<"bin/relay-${TAG}-darwin-amd64.sha256")
+
+chmod +x $CLI
+
+echo -n "${RELAY_PASSWORD}" | ${CLI} login -e "${RELAY_EMAIL}" -p\
+
+${CLI} workflow run -n "relay-cli-update-brew" -p tag=${TAG} -p sha=${SHA}
