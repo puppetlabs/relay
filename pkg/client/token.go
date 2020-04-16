@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Token string
@@ -16,6 +17,7 @@ func (t *Token) String() string {
 	return string(*t)
 }
 
+// getToken reads token from client cache or from path specified on config
 func (c *Client) getToken() (*Token, error) {
 	if c.loadedToken == nil {
 		f, err := os.Open(c.config.TokenPath)
@@ -44,8 +46,10 @@ func (c *Client) getToken() (*Token, error) {
 	return c.loadedToken, nil
 }
 
+// storeToken Saves token to the token storage location specified by config,
+// creating directories as needed
 func (c *Client) storeToken(token *Token) error {
-	if err := os.MkdirAll(c.config.CacheDir, 0750); err != nil {
+	if err := os.MkdirAll(filepath.Dir(c.config.TokenPath), 0750); err != nil {
 		return err
 	}
 
@@ -63,6 +67,8 @@ func (c *Client) storeToken(token *Token) error {
 	return nil
 }
 
+// clearToken removes token from local storage and from loadedToken cache on client object.
+// It does not error if the token does not exist.
 func (c *Client) clearToken() error {
 	if err := os.Remove(c.config.TokenPath); err != nil && !os.IsNotExist(err) {
 		return err

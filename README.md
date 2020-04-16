@@ -43,13 +43,33 @@ For more about workflows and further onboarding information, check out the [docu
 
 ## Build
 
-NPM and Go are required to build relay
+To build run
 
 ```bash
+./scripts/generate
 ./scripts/build
 ```
 
-The resulting binary will be in `./bin/relay`.
+The resulting binaries will be in `./bin/relay`.
+
+## Development
+
+The CLI is built entirely using go. You can run locally with
+
+```
+go run ./cmd/relay
+```
+
+### Config
+
+Relay uses [viper](https://github.com/spf13/viper) for customizable config. The following config values may be set in a yaml file at `$HOME/.config/relay/config.yaml` or as environment variables with corresponding names in all caps, prefixed with `RELAY_`:
+* `debug`: Run relay in debug mode. Overrides global `--debug` flag.
+* `out=(text|json)`: Output mode. Overrides global `--out` flag.
+* `api_domain`: Relay api domain to connect to for all api operations.
+* `ui_domain`: Relay ui domain, mainly used in generated links.
+* `web_domain`: Relay web domain, mainly used in generated links.
+* `cache_dir`: Cache directory.
+* `token_path`: Path to token storage location.
 
 ## Getting help
 

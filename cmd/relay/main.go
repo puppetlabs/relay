@@ -21,7 +21,6 @@ func main() {
 to automate common tasks through simple event driven workflows.`,
 	}
 
-	cmd.PersistentFlags().BoolP("verbose", "v", false, "print verbose output")
 	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
 	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
 	// Config flag is hidden for now

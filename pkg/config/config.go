@@ -1,3 +1,4 @@
+// Package config defines global configuration values
 package config
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// OutputType may be either text or json
 type OutputType string
 
 const (
@@ -46,9 +48,6 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 
 	v.SetDefault("debug", false)
 	v.BindPFlag("debug", flags.Lookup("debug"))
-
-	v.SetDefault("verbose", false)
-	v.BindPFlag("verbose", flags.Lookup("verbose"))
 
 	v.SetDefault("out", string(OutputTypeText))
 	v.BindPFlag("out", flags.Lookup("out"))
@@ -89,7 +88,6 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 
 	config := &Config{
 		Debug:     v.GetBool("debug"),
-		Verbose:   v.GetBool("verbose"),
 		Out:       output,
 		APIDomain: apiDomain,
 		UIDomain:  uiDomain,
@@ -101,6 +99,8 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 	return config, nil
 }
 
+// readInConfigFile reads config file location from viper flags, then
+// reads in config from specified location or the default
 func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 	cp, err := flags.GetString("config")
 	if err != nil {
@@ -139,6 +139,7 @@ func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 	return nil
 }
 
+// userConfigDir gets default user config dir
 func userConfigDir() string {
 	if os.Getenv("XDG_CONFIG_HOME") != "" {
 		return filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "relay")
@@ -147,6 +148,7 @@ func userConfigDir() string {
 	return filepath.Join(os.Getenv("HOME"), ".config", "relay")
 }
 
+// userCacheDir gets default user cache dir, used as directory for storing tokens
 func userCacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
 		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "relay")
@@ -155,6 +157,7 @@ func userCacheDir() string {
 	return filepath.Join(os.Getenv("HOME"), ".cache", "relay")
 }
 
+// readOutput reads and validates output config value
 func readOutput(v *viper.Viper) (OutputType, error) {
 	output := OutputType(v.GetString("out"))
 
@@ -165,6 +168,7 @@ func readOutput(v *viper.Viper) (OutputType, error) {
 	return output, nil
 }
 
+// readAPIDomain reads and validates api domain config value
 func readAPIDomain(v *viper.Viper) (*url.URL, error) {
 	urlString := v.GetString("api_domain")
 	url, err := url.Parse(urlString)
@@ -176,6 +180,7 @@ func readAPIDomain(v *viper.Viper) (*url.URL, error) {
 	return url, nil
 }
 
+// readUIDomain reads and validates ui domain config value
 func readUIDomain(v *viper.Viper) (*url.URL, error) {
 	urlString := v.GetString("ui_domain")
 	url, err := url.Parse(urlString)
@@ -187,6 +192,7 @@ func readUIDomain(v *viper.Viper) (*url.URL, error) {
 	return url, nil
 }
 
+// readWebDomain reads and validates web domain config value
 func readWebDomain(v *viper.Viper) (*url.URL, error) {
 	urlString := v.GetString("web_domain")
 	url, err := url.Parse(urlString)

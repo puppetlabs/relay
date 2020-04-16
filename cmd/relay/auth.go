@@ -45,6 +45,8 @@ func NewLoginCommand() *cobra.Command {
 				return lperr
 			}
 
+			fmt.Println("\nLogging in...")
+
 			client := client.NewClient(cfg)
 
 			cterr := client.CreateToken(loginParams.Email, loginParams.Password)
@@ -52,6 +54,8 @@ func NewLoginCommand() *cobra.Command {
 			if cterr != nil {
 				return cterr
 			}
+
+			fmt.Println("Sucessfully logged in!")
 
 			return nil
 		},
@@ -71,6 +75,8 @@ func NewLogoutCommand() *cobra.Command {
 				return cfgerr
 			}
 
+			fmt.Println("Logging out...")
+
 			client := client.NewClient(cfg)
 
 			iterr := client.InvalidateToken()
@@ -78,6 +84,8 @@ func NewLogoutCommand() *cobra.Command {
 			if iterr != nil {
 				return iterr
 			}
+
+			fmt.Println("You have been successfully logged out.")
 
 			return nil
 		},

@@ -4,9 +4,11 @@ go 1.14
 
 require (
 	github.com/go-swagger/go-swagger v0.23.0
+	github.com/inconshreveable/log15 v0.0.0-20200109203555-b30bc20e4fd1 // indirect
 	github.com/manifoldco/promptui v0.7.0 // indirect
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
+	github.com/puppetlabs/horsehead/v2 v2.7.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2

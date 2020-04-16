@@ -72,7 +72,10 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 		req.Header.Set(name, value)
 	}
 
-	debug(httputil.DumpRequestOut(req, true))
+	// temporary but very useful debugging solution until we get real logging in place
+	if c.config.Debug {
+		debug(httputil.DumpRequestOut(req, true))
+	}
 
 	resp, resperr := c.httpClient.Do(req)
 
@@ -80,7 +83,9 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 		return errors.NewClientRequestError().WithCause(resperr)
 	}
 
-	debug(httputil.DumpResponse(resp, true))
+	if c.config.Debug {
+		debug(httputil.DumpResponse(resp, true))
+	}
 
 	defer resp.Body.Close()
 
