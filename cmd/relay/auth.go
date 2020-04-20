@@ -178,6 +178,9 @@ func getLoginParameters(args []string, cmd *cobra.Command) (*loginParameters, er
 		fmt.Println("")
 	}
 
+	// resets to new line after password input
+	fmt.Println("")
+
 	return &loginParameters{
 		Email:    email,
 		Password: strings.TrimSpace(password),

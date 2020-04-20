@@ -34,7 +34,6 @@ to automate common tasks through simple event driven workflows.`,
 
 	cmd.AddCommand(NewAuthCommand())
 
-	// TODO: Errawr formatter.
 	if err := cmd.Execute(); err != nil {
 		error.FormatError(err, cmd)
 
