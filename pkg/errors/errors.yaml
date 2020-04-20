@@ -3,6 +3,12 @@ domain:
   key: rcli
   title: Relay CLI
 sections:
+  general:
+    title: General errors
+    errors:
+      unknown_error:
+        title: Unknown error
+        description: There was a problem executing your request. Please try again.
   config:
     title: CLI Config errors
     errors:
@@ -51,11 +57,11 @@ sections:
       # This error probably means a CLI developer screwed up
       internal_error:
         title: Unknown error
-        description: There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues. 
+        description: There was a problem executing your request.
       # This error means there was a problem executing an http request.  
       request_error:
         title: Request error
-        description: There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.
+        description: There was a problem executing your request, please try again.
       # Generic not found should almost always be replaced with a specific one but it's useful nonetheless
       response_not_found:
         title: Response not found error

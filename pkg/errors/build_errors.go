@@ -108,8 +108,8 @@ type ClientInternalErrorBuilder struct {
 // Build creates the error for the code "internal_error" from this builder.
 func (b *ClientInternalErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
-		Technical: "There was a problem executing your request. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
+		Friendly:  "There was a problem executing your request.",
+		Technical: "There was a problem executing your request.",
 	}
 
 	return &impl.Error{
@@ -156,8 +156,8 @@ type ClientRequestErrorBuilder struct {
 // Build creates the error for the code "request_error" from this builder.
 func (b *ClientRequestErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
-		Technical: "There was a problem executing your request, please try again. If the issue persists you may file an issue report at https://github.com/puppetlabs/relay/issues.",
+		Friendly:  "There was a problem executing your request, please try again.",
+		Technical: "There was a problem executing your request, please try again.",
 	}
 
 	return &impl.Error{
@@ -668,4 +668,59 @@ func NewConfigInvalidWebDomainBuilder(domain string) *ConfigInvalidWebDomainBuil
 // NewConfigInvalidWebDomain creates a new error with the code "invalid_web_domain".
 func NewConfigInvalidWebDomain(domain string) Error {
 	return NewConfigInvalidWebDomainBuilder(domain).Build()
+}
+
+// GeneralSection defines a section of errors with the following scope:
+// General errors
+var GeneralSection = &impl.ErrorSection{
+	Key:   "general",
+	Title: "General errors",
+}
+
+// GeneralUnknownErrorCode is the code for an instance of "unknown_error".
+const GeneralUnknownErrorCode = "rcli_general_unknown_error"
+
+// IsGeneralUnknownError tests whether a given error is an instance of "unknown_error".
+func IsGeneralUnknownError(err errawr.Error) bool {
+	return err != nil && err.Is(GeneralUnknownErrorCode)
+}
+
+// IsGeneralUnknownError tests whether a given error is an instance of "unknown_error".
+func (External) IsGeneralUnknownError(err errawr.Error) bool {
+	return IsGeneralUnknownError(err)
+}
+
+// GeneralUnknownErrorBuilder is a builder for "unknown_error" errors.
+type GeneralUnknownErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unknown_error" from this builder.
+func (b *GeneralUnknownErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "There was a problem executing your request. Please try again.",
+		Technical: "There was a problem executing your request. Please try again.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unknown_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     GeneralSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Unknown error",
+		Version:          1,
+	}
+}
+
+// NewGeneralUnknownErrorBuilder creates a new error builder for the code "unknown_error".
+func NewGeneralUnknownErrorBuilder() *GeneralUnknownErrorBuilder {
+	return &GeneralUnknownErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewGeneralUnknownError creates a new error with the code "unknown_error".
+func NewGeneralUnknownError() Error {
+	return NewGeneralUnknownErrorBuilder().Build()
 }

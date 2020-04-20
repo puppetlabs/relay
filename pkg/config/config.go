@@ -29,13 +29,30 @@ const (
 
 type Config struct {
 	Debug     bool
-	Verbose   bool
 	Out       OutputType
 	APIDomain *url.URL
 	UIDomain  *url.URL
 	WebDomain *url.URL
 	CacheDir  string
 	TokenPath string
+}
+
+// Returns a default config set used for error formatting when the user's config set cannot be read
+func GetDefaultConfig() *Config {
+	// gonna assume that the defaults are valid. Someone can yell at me if they want
+	apiDomain, _ := url.Parse(defaultAPIDomain)
+	uiDomain, _ := url.Parse(defaultUIDomain)
+	webDomain, _ := url.Parse(defaultWebDomain)
+
+	return &Config{
+		Debug:     true,
+		Out:       OutputTypeText,
+		APIDomain: apiDomain,
+		UIDomain:  uiDomain,
+		WebDomain: webDomain,
+		CacheDir:  userCacheDir(),
+		TokenPath: filepath.Join(userCacheDir(), "auth-token"),
+	}
 }
 
 // GetConfig uses viper to read global configuration from persistent flags,
@@ -162,6 +179,7 @@ func readOutput(v *viper.Viper) (OutputType, error) {
 	output := OutputType(v.GetString("out"))
 
 	if output != OutputTypeText && output != OutputTypeJSON {
+
 		return "", errors.NewConfigInvalidOutputFlag(v.GetString("out"))
 	}
 

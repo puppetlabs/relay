@@ -9,6 +9,7 @@ import (
 
 	"github.com/puppetlabs/relay/pkg/client"
 	"github.com/puppetlabs/relay/pkg/config"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
@@ -39,13 +40,15 @@ func NewLoginCommand() *cobra.Command {
 				return cfgerr
 			}
 
+			log := dialog.NewDialog(cfg)
+
 			loginParams, lperr := getLoginParameters(args)
 
 			if lperr != nil {
 				return lperr
 			}
 
-			fmt.Println("\nLogging in...")
+			log.Info("Logging in...")
 
 			client := client.NewClient(cfg)
 
@@ -55,7 +58,7 @@ func NewLoginCommand() *cobra.Command {
 				return cterr
 			}
 
-			fmt.Println("Sucessfully logged in!")
+			log.Info("Sucessfully logged in!")
 
 			return nil
 		},
@@ -75,7 +78,9 @@ func NewLogoutCommand() *cobra.Command {
 				return cfgerr
 			}
 
-			fmt.Println("Logging out...")
+			log := dialog.NewDialog(cfg)
+
+			log.Info("Logging out...")
 
 			client := client.NewClient(cfg)
 
@@ -85,7 +90,7 @@ func NewLogoutCommand() *cobra.Command {
 				return iterr
 			}
 
-			fmt.Println("You have been successfully logged out.")
+			log.Info("You have been sucesfully logged out.")
 
 			return nil
 		},
@@ -126,6 +131,9 @@ func getLoginParameters(args []string) (*loginParameters, errors.Error) {
 	}
 
 	password := strings.TrimSpace(string(passBytes))
+
+	// resets to new line after password input
+	fmt.Println("")
 
 	return &loginParameters{
 		Email:    email,

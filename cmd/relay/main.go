@@ -1,14 +1,11 @@
 package main
 
 import (
-<<<<<<< HEAD
-	"log"
-=======
-	"fmt"
 	"os"
->>>>>>> 62e767f... Refactor config package
 
-	"github.com/puppetlabs/relay/pkg/cmd"
+	"github.com/puppetlabs/relay/pkg/config"
+	"github.com/puppetlabs/relay/pkg/format/error"
+	"github.com/spf13/cobra"
 )
 
 func main() {
@@ -19,6 +16,14 @@ func main() {
 		SilenceErrors: true,
 		Long: `Relay connects your tools, APIs, and infrastructure 
 to automate common tasks through simple event driven workflows.`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			// This turns off usage info in json output mode
+			cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+			if cfgerr == nil && cfg.Out == config.OutputTypeJSON {
+				cmd.SilenceUsage = true
+			}
+		},
 	}
 
 	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
@@ -29,9 +34,9 @@ to automate common tasks through simple event driven workflows.`,
 
 	cmd.AddCommand(NewAuthCommand())
 
-	// TODO: Errawr formatter.
 	if err := cmd.Execute(); err != nil {
-		fmt.Println(err)
+		error.FormatError(err, cmd)
+
 		os.Exit(1)
 	}
 }
