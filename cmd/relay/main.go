@@ -33,6 +33,7 @@ to automate common tasks through simple event driven workflows.`,
 	cmd.PersistentFlags().MarkHidden("config")
 
 	cmd.AddCommand(NewAuthCommand())
+	cmd.AddCommand(NewWorkflowCommand())
 
 	if err := cmd.Execute(); err != nil {
 		error.FormatError(err, cmd)

@@ -2,23 +2,14 @@ package client
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/puppetlabs/relay/pkg/model"
 )
 
-type Token string
-
-func (t *Token) Bearer() string {
-	return fmt.Sprintf("Bearer %s", t)
-}
-
-func (t *Token) String() string {
-	return string(*t)
-}
-
 // getToken reads token from client cache or from path specified on config
-func (c *Client) getToken() (*Token, error) {
+func (c *Client) getToken() (*model.Token, error) {
 	if c.loadedToken == nil {
 		f, err := os.Open(c.config.TokenPath)
 		if err != nil {
@@ -36,7 +27,7 @@ func (c *Client) getToken() (*Token, error) {
 			return nil, err
 		}
 
-		token := Token(buf.String())
+		token := model.Token(buf.String())
 
 		c.loadedToken = &token
 
@@ -48,7 +39,7 @@ func (c *Client) getToken() (*Token, error) {
 
 // storeToken Saves token to the token storage location specified by config,
 // creating directories as needed
-func (c *Client) storeToken(token *Token) error {
+func (c *Client) storeToken(token *model.Token) error {
 	if err := os.MkdirAll(filepath.Dir(c.config.TokenPath), 0750); err != nil {
 		return err
 	}

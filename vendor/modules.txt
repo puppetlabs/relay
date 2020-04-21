@@ -68,8 +68,6 @@ github.com/hashicorp/hcl/hcl/token
 github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
-# github.com/inconshreveable/log15 v0.0.0-20200109203555-b30bc20e4fd1
-## explicit
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
 # github.com/jessevdk/go-flags v1.4.0
@@ -84,8 +82,6 @@ github.com/magiconair/properties
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/manifoldco/promptui v0.7.0
-## explicit
 # github.com/mattn/go-colorable v0.1.4
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.11
@@ -111,8 +107,6 @@ github.com/puppetlabs/errawr-go/v2/pkg/encoding
 github.com/puppetlabs/errawr-go/v2/pkg/errawr
 github.com/puppetlabs/errawr-go/v2/pkg/golang
 github.com/puppetlabs/errawr-go/v2/pkg/impl
-# github.com/puppetlabs/horsehead/v2 v2.7.0
-## explicit
 # github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50
 github.com/reflect/raymond
 github.com/reflect/raymond/ast

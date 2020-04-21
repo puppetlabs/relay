@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/model"
 )
 
 type CreateTokenParameters struct {
@@ -12,7 +13,7 @@ type CreateTokenParameters struct {
 }
 
 type CreateTokenResponse struct {
-	Token *Token `json:"token"`
+	Token *model.Token `json:"token"`
 }
 
 func (c *Client) CreateToken(email string, password string) errors.Error {
