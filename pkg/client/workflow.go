@@ -1,6 +1,9 @@
 package client
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
 )
@@ -18,9 +21,31 @@ func (c *Client) CreateWorkflow(name string) (*model.WorkflowEntity, errors.Erro
 
 	response := &model.WorkflowEntity{}
 
-	if err := c.post("/api/workflows", nil, params, response); err != nil {
+	if err := c.Request(
+		WithMethod(http.MethodPost),
+		WithPath("/api/workflows"),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
 		return nil, err
 	}
 
 	return response, nil
+}
+
+type DeleteWorkflowResponse struct {
+	Success bool `json:"success"`
+}
+
+func (c *Client) DeleteWorkflow(name string) errors.Error {
+	response := &DeleteWorkflowResponse{}
+
+	if err := c.Request(
+		WithMethod(http.MethodDelete),
+		WithPath(fmt.Sprintf("/api/workflows/%v", name))
+	); err != nil {
+		return err
+	}
+
+	return nil
 }

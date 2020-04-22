@@ -95,3 +95,15 @@ sections:
       failed_no_stdin:
         title: Did not receive from stdin error
         description: Did not recieve anything from stdin.
+  workflow:
+    title: Workflow errors
+    errors:
+      workflow_name_read_error:
+        title: Worklflow name read error
+        description: Could not read workflow name. Please try again.
+      workflow_file_read_error:
+        title: Workflow file read error
+        description: Could not read workflow file. Please try again.
+      missing_file_flag_error:
+        title: Missing file flag error
+        description: You must specify a workflow file with the --file flag.
