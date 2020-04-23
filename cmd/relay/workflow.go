@@ -11,6 +11,7 @@ import (
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/util/confirm"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +23,7 @@ func NewWorkflowCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(NewAddWorkflowCommand())
+	cmd.AddCommand(NewDeleteWorkflowCommand())
 
 	return cmd
 }
@@ -29,7 +31,7 @@ func NewWorkflowCommand() *cobra.Command {
 func NewAddWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add [workflow name]",
-		Short: "Add Relay workflow",
+		Short: "Add a relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, cfgerr := config.GetConfig(cmd.Flags())
@@ -73,13 +75,63 @@ func NewAddWorkflowCommand() *cobra.Command {
 			}
 
 			// TODO: JSON and Text formatters for workflow and revision objects
-			log.Info(fmt.Sprint("Successfully created workflow", workflow.Workflow.Name))
+			log.Info(fmt.Sprint("Successfully created workflow ", workflow.Workflow.Name))
 
 			return nil
 		},
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+
+	return cmd
+}
+
+func NewDeleteWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete [workflow name]",
+		Short: "Delete a relay workflow",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+			if cfgerr != nil {
+				return cfgerr
+			}
+
+			workflowName, nerr := getWorkflowName(args)
+
+			if nerr != nil {
+				return nerr
+			}
+
+			proceed, cerr := confirm.Confirm("Are you sure you want to delete this workflow?", cfg)
+
+			if cerr != nil {
+				return cerr
+			}
+
+			if !proceed {
+				return nil
+			}
+
+			log := dialog.NewDialog(cfg)
+
+			log.Info("Deleting workflow...")
+
+			client := client.NewClient(cfg)
+
+			_, err := client.DeleteWorkflow(workflowName)
+
+			if err != nil {
+				return err
+			}
+
+			// TODO: log response object in json mode
+			log.Info("Workflow successfully deleted")
+
+			return nil
+		},
+	}
 
 	return cmd
 }
@@ -96,6 +148,12 @@ func getWorkflowName(args []string) (string, errors.Error) {
 
 	if err != nil {
 		return "", errors.NewWorkflowWorkflowNameReadError().WithCause(err)
+	}
+
+	name := strings.TrimSpace(namePrompt)
+
+	if name == "" {
+		return "", errors.NewWorkflowMissingNameError()
 	}
 
 	return strings.TrimSpace(namePrompt), nil

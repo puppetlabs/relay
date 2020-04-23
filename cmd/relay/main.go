@@ -27,6 +27,7 @@ to automate common tasks through simple event driven workflows.`,
 	}
 
 	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
+	cmd.PersistentFlags().BoolP("yes", "y", false, "skip confirmation prompts")
 	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
 	// Config flag is hidden for now
 	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")

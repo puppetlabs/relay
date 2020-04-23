@@ -107,3 +107,6 @@ sections:
       missing_file_flag_error:
         title: Missing file flag error
         description: You must specify a workflow file with the --file flag.
+      missing_name_error:
+        title: Missing workflow name error
+        description: Please provide a workflow name

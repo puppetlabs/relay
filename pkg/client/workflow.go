@@ -34,18 +34,24 @@ func (c *Client) CreateWorkflow(name string) (*model.WorkflowEntity, errors.Erro
 }
 
 type DeleteWorkflowResponse struct {
-	Success bool `json:"success"`
+	Success    bool   `json:"success"`
+	ResourceId string `json:"resource_id"`
 }
 
-func (c *Client) DeleteWorkflow(name string) errors.Error {
+func (c *Client) DeleteWorkflow(name string) (*DeleteWorkflowResponse, errors.Error) {
 	response := &DeleteWorkflowResponse{}
 
+<<<<<<< HEAD
 	if err := c.Request(
 		WithMethod(http.MethodDelete),
 		WithPath(fmt.Sprintf("/api/workflows/%v", name))
 	); err != nil {
 		return err
+=======
+	if err := c.delete(fmt.Sprintf("/api/workflows/%v", name), nil, response); err != nil {
+		return nil, err
+>>>>>>> 3d03b04... Implement workflow delete command
 	}
 
-	return nil
+	return response, nil
 }

@@ -972,6 +972,54 @@ func NewWorkflowMissingFileFlagError() Error {
 	return NewWorkflowMissingFileFlagErrorBuilder().Build()
 }
 
+// WorkflowMissingNameErrorCode is the code for an instance of "missing_name_error".
+const WorkflowMissingNameErrorCode = "rcli_workflow_missing_name_error"
+
+// IsWorkflowMissingNameError tests whether a given error is an instance of "missing_name_error".
+func IsWorkflowMissingNameError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowMissingNameErrorCode)
+}
+
+// IsWorkflowMissingNameError tests whether a given error is an instance of "missing_name_error".
+func (External) IsWorkflowMissingNameError(err errawr.Error) bool {
+	return IsWorkflowMissingNameError(err)
+}
+
+// WorkflowMissingNameErrorBuilder is a builder for "missing_name_error" errors.
+type WorkflowMissingNameErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_name_error" from this builder.
+func (b *WorkflowMissingNameErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Please provide a workflow name",
+		Technical: "Please provide a workflow name",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_name_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Missing workflow name error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowMissingNameErrorBuilder creates a new error builder for the code "missing_name_error".
+func NewWorkflowMissingNameErrorBuilder() *WorkflowMissingNameErrorBuilder {
+	return &WorkflowMissingNameErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowMissingNameError creates a new error with the code "missing_name_error".
+func NewWorkflowMissingNameError() Error {
+	return NewWorkflowMissingNameErrorBuilder().Build()
+}
+
 // WorkflowWorkflowFileReadErrorCode is the code for an instance of "workflow_file_read_error".
 const WorkflowWorkflowFileReadErrorCode = "rcli_workflow_workflow_file_read_error"
 
