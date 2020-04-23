@@ -23,6 +23,7 @@ func NewWorkflowCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(NewAddWorkflowCommand())
+	cmd.AddCommand(NewReplaceWorkflowCommand())
 	cmd.AddCommand(NewDeleteWorkflowCommand())
 
 	return cmd
@@ -31,7 +32,7 @@ func NewWorkflowCommand() *cobra.Command {
 func NewAddWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add [workflow name]",
-		Short: "Add a relay workflow",
+		Short: "Add a relay workflow from a local file",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, cfgerr := config.GetConfig(cmd.Flags())
@@ -76,6 +77,54 @@ func NewAddWorkflowCommand() *cobra.Command {
 
 			// TODO: JSON and Text formatters for workflow and revision objects
 			log.Info(fmt.Sprint("Successfully created workflow ", workflow.Workflow.Name))
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+
+	return cmd
+}
+
+func NewReplaceWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "replace [workflow name]",
+		Short: "Replace the yaml definition of a relay workflow",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+			if cfgerr != nil {
+				return cfgerr
+			}
+
+			file, ferr := readFile(cmd)
+
+			if ferr != nil {
+				return ferr
+			}
+
+			workflowName, nerr := getWorkflowName(args)
+
+			if nerr != nil {
+				return nerr
+			}
+
+			log := dialog.NewDialog(cfg)
+
+			log.Info(fmt.Sprint("Replacing workflow ", workflowName))
+
+			client := client.NewClient(cfg)
+
+			_, rerr := client.CreateRevision(workflowName, file)
+
+			if rerr != nil {
+				return rerr
+			}
+
+			// TODO: JSON and Text formatters for workflow and revision objects
+			log.Info(fmt.Sprint("Successfully replaced workflow ", workflowName))
 
 			return nil
 		},
