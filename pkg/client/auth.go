@@ -1,6 +1,8 @@
 package client
 
 import (
+	"net/http"
+
 	"github.com/puppetlabs/relay/pkg/errors"
 )
 
@@ -21,8 +23,7 @@ func (c *Client) CreateToken(email string, password string) errors.Error {
 	}
 
 	response := &CreateTokenResponse{}
-
-	if err := c.post("/auth/sessions", nil, params, response); err != nil {
+	if err := c.Request(WithMethod(http.MethodPost), WithPath("/auth/sessions"), WithBody(params), WithResponseInto(response)); err != nil {
 		return err
 	}
 
@@ -39,8 +40,7 @@ func (c *Client) InvalidateToken() errors.Error {
 	}
 
 	dr := &deleteResponse{}
-
-	if err := c.delete("/auth/sessions", nil, dr); err != nil {
+	if err := c.Request(WithMethod(http.MethodDelete), WithPath("/auth/sessions"), WithResponseInto(dr)); err != nil {
 		return err
 	}
 

@@ -15,36 +15,72 @@ import (
 	"github.com/puppetlabs/relay/pkg/errors"
 )
 
-func (c *Client) get(path string, headers map[string]string, responseBody interface{}) errors.Error {
-	return c.request(http.MethodGet, path, headers, nil, responseBody)
+type RequestOptions struct {
+	method       string
+	path         string
+	headers      map[string]string
+	body         interface{}
+	responseBody interface{}
 }
 
-func (c *Client) post(path string, headers map[string]string, body interface{}, responseBody interface{}) errors.Error {
-	return c.request(http.MethodPost, path, headers, body, responseBody)
+type RequestOptionSetter func(*RequestOptions)
+
+func WithMethod(method string) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.method = method
+	}
 }
 
-func (c *Client) put(path string, headers map[string]string, body interface{}, responseBody interface{}) errors.Error {
-	return c.request(http.MethodPut, path, headers, body, responseBody)
+func WithPath(path string) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.path = path
+	}
 }
 
-func (c *Client) delete(path string, headers map[string]string, responseBody interface{}) errors.Error {
-	return c.request(http.MethodDelete, path, headers, nil, responseBody)
+func WithHeaders(headers map[string]string) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.headers = headers
+	}
 }
 
-func (c *Client) request(method string, path string, headers map[string]string, body interface{}, responseBody interface{}) errors.Error {
-	rel := &url.URL{Path: path}
+func WithBody(body interface{}) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.body = body
+	}
+}
+
+func WithResponseInto(responseBody interface{}) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.responseBody = responseBody
+	}
+}
+
+func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
+	const (
+		defaultMethod = http.MethodGet
+	)
+
+	opts := &RequestOptions{
+		method: defaultMethod,
+	}
+
+	for _, setter := range setters {
+		setter(opts)
+	}
+
+	rel := &url.URL{Path: opts.path}
 	u := c.config.APIDomain.ResolveReference(rel)
 
 	var buf io.ReadWriter
-	if body != nil {
+	if opts.body != nil {
 		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(body)
+		err := json.NewEncoder(buf).Encode(opts.body)
 		if err != nil {
 			errors.NewClientInternalError().WithCause(err).Bug()
 		}
 	}
 
-	req, reqerr := http.NewRequest(method, u.String(), buf)
+	req, reqerr := http.NewRequest(opts.method, u.String(), buf)
 
 	if reqerr != nil {
 		return errors.NewClientInternalError().WithCause(reqerr).Bug()
@@ -53,7 +89,7 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 	// defaults
 	req.Header.Set("Accept", fmt.Sprintf("application/vnd.puppet.nebula.%v+json", API_VERSION))
 
-	if body != nil {
+	if opts.body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 
@@ -69,7 +105,7 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 	}
 
 	// overrides
-	for name, value := range headers {
+	for name, value := range opts.headers {
 		req.Header.Set(name, value)
 	}
 
@@ -94,7 +130,7 @@ func (c *Client) request(method string, path string, headers map[string]string, 
 		return parseError(resp)
 	}
 
-	jerr := json.NewDecoder(resp.Body).Decode(responseBody)
+	jerr := json.NewDecoder(resp.Body).Decode(opts.responseBody)
 
 	if jerr != nil {
 		return errors.NewClientInternalError().WithCause(jerr).Bug()
