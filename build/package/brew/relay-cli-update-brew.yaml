@@ -13,7 +13,7 @@ steps:
       tag: !Parameter tag
       sha: !Parameter sha
       result: "will be overridden by 'ni set' from inside the step"
-    inputFile: https://gist.githubusercontent.com/ahpook/5986a8af76036ed0c161a1d8ecec9a2c/raw/edit_and_pr.sh
+    inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
   - name: slack-notify
     image: projectnebula/slack-notification:latest
     spec:
