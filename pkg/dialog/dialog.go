@@ -13,31 +13,43 @@ import (
 	"github.com/puppetlabs/relay/pkg/config"
 )
 
-type Dialog struct {
-	config *config.Config
+type Dialog interface {
+	Info(message string)
+	Warn(message string)
+	Error(message string)
 }
 
-func NewDialog(config *config.Config) *Dialog {
-	return &Dialog{
-		config,
-	}
-}
+type TextDialog struct{}
 
 // Info does not print a prefix
-func (d *Dialog) Info(message string) {
-	if d.config.Out == config.OutputTypeText {
-		fmt.Println(message)
-	}
+func (d *TextDialog) Info(message string) {
+	fmt.Println(message)
 }
 
-func (d *Dialog) Warn(message string) {
-	if d.config.Out == config.OutputTypeText {
-		fmt.Println(color.YellowString("Warning:"), message)
-	}
+func (d *TextDialog) Warn(message string) {
+	fmt.Println(color.YellowString("Warning:"), message)
 }
 
-func (d *Dialog) Error(message string) {
-	if d.config.Out == config.OutputTypeText {
-		fmt.Println(color.RedString("Error:"), message)
+func (d *TextDialog) Error(message string) {
+	fmt.Println(color.RedString("Error:"), message)
+}
+
+type JSONDialog struct{}
+
+// right now json dialog methods do nothing
+func (d *JSONDialog) Info(message string) {
+}
+
+func (d *JSONDialog) Warn(message string) {
+}
+
+func (d *JSONDialog) Error(message string) {
+}
+
+func NewDialog(cfg *config.Config) Dialog {
+	if cfg.Out == config.OutputTypeJSON {
+		return &JSONDialog{}
 	}
+
+	return &TextDialog{}
 }
