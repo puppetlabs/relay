@@ -80,6 +80,150 @@ func NewAuthFailedLoginError() Error {
 	return NewAuthFailedLoginErrorBuilder().Build()
 }
 
+// AuthFailedNoStdinCode is the code for an instance of "failed_no_stdin".
+const AuthFailedNoStdinCode = "rcli_auth_failed_no_stdin"
+
+// IsAuthFailedNoStdin tests whether a given error is an instance of "failed_no_stdin".
+func IsAuthFailedNoStdin(err errawr.Error) bool {
+	return err != nil && err.Is(AuthFailedNoStdinCode)
+}
+
+// IsAuthFailedNoStdin tests whether a given error is an instance of "failed_no_stdin".
+func (External) IsAuthFailedNoStdin(err errawr.Error) bool {
+	return IsAuthFailedNoStdin(err)
+}
+
+// AuthFailedNoStdinBuilder is a builder for "failed_no_stdin" errors.
+type AuthFailedNoStdinBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "failed_no_stdin" from this builder.
+func (b *AuthFailedNoStdinBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Did not recieve anything from stdin.",
+		Technical: "Did not recieve anything from stdin.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "failed_no_stdin",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     AuthSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Did not receive from stdin error",
+		Version:          1,
+	}
+}
+
+// NewAuthFailedNoStdinBuilder creates a new error builder for the code "failed_no_stdin".
+func NewAuthFailedNoStdinBuilder() *AuthFailedNoStdinBuilder {
+	return &AuthFailedNoStdinBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewAuthFailedNoStdin creates a new error with the code "failed_no_stdin".
+func NewAuthFailedNoStdin() Error {
+	return NewAuthFailedNoStdinBuilder().Build()
+}
+
+// AuthFailedPassFromStdinCode is the code for an instance of "failed_pass_from_stdin".
+const AuthFailedPassFromStdinCode = "rcli_auth_failed_pass_from_stdin"
+
+// IsAuthFailedPassFromStdin tests whether a given error is an instance of "failed_pass_from_stdin".
+func IsAuthFailedPassFromStdin(err errawr.Error) bool {
+	return err != nil && err.Is(AuthFailedPassFromStdinCode)
+}
+
+// IsAuthFailedPassFromStdin tests whether a given error is an instance of "failed_pass_from_stdin".
+func (External) IsAuthFailedPassFromStdin(err errawr.Error) bool {
+	return IsAuthFailedPassFromStdin(err)
+}
+
+// AuthFailedPassFromStdinBuilder is a builder for "failed_pass_from_stdin" errors.
+type AuthFailedPassFromStdinBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "failed_pass_from_stdin" from this builder.
+func (b *AuthFailedPassFromStdinBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not read password from stdin.",
+		Technical: "Could not read password from stdin.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "failed_pass_from_stdin",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     AuthSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Failed password from stdin",
+		Version:          1,
+	}
+}
+
+// NewAuthFailedPassFromStdinBuilder creates a new error builder for the code "failed_pass_from_stdin".
+func NewAuthFailedPassFromStdinBuilder() *AuthFailedPassFromStdinBuilder {
+	return &AuthFailedPassFromStdinBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewAuthFailedPassFromStdin creates a new error with the code "failed_pass_from_stdin".
+func NewAuthFailedPassFromStdin() Error {
+	return NewAuthFailedPassFromStdinBuilder().Build()
+}
+
+// AuthMismatchedEmailPassMethodsCode is the code for an instance of "mismatched_email_pass_methods".
+const AuthMismatchedEmailPassMethodsCode = "rcli_auth_mismatched_email_pass_methods"
+
+// IsAuthMismatchedEmailPassMethods tests whether a given error is an instance of "mismatched_email_pass_methods".
+func IsAuthMismatchedEmailPassMethods(err errawr.Error) bool {
+	return err != nil && err.Is(AuthMismatchedEmailPassMethodsCode)
+}
+
+// IsAuthMismatchedEmailPassMethods tests whether a given error is an instance of "mismatched_email_pass_methods".
+func (External) IsAuthMismatchedEmailPassMethods(err errawr.Error) bool {
+	return IsAuthMismatchedEmailPassMethods(err)
+}
+
+// AuthMismatchedEmailPassMethodsBuilder is a builder for "mismatched_email_pass_methods" errors.
+type AuthMismatchedEmailPassMethodsBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "mismatched_email_pass_methods" from this builder.
+func (b *AuthMismatchedEmailPassMethodsBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "If you provide a password via --password-stdin you must provide your email as the first positional argument to `relay auth login`",
+		Technical: "If you provide a password via --password-stdin you must provide your email as the first positional argument to `relay auth login`",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "mismatched_email_pass_methods",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     AuthSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Mismatched email and password passing methods",
+		Version:          1,
+	}
+}
+
+// NewAuthMismatchedEmailPassMethodsBuilder creates a new error builder for the code "mismatched_email_pass_methods".
+func NewAuthMismatchedEmailPassMethodsBuilder() *AuthMismatchedEmailPassMethodsBuilder {
+	return &AuthMismatchedEmailPassMethodsBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewAuthMismatchedEmailPassMethods creates a new error with the code "mismatched_email_pass_methods".
+func NewAuthMismatchedEmailPassMethods() Error {
+	return NewAuthMismatchedEmailPassMethodsBuilder().Build()
+}
+
 // ClientSection defines a section of errors with the following scope:
 // Client errors
 var ClientSection = &impl.ErrorSection{

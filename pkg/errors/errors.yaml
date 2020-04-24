@@ -86,3 +86,12 @@ sections:
       failed_login_error:
         title: Failed login error
         description: Could not log in. Please try again.
+      failed_pass_from_stdin:
+        title: Failed password from stdin
+        description: Could not read password from stdin.
+      mismatched_email_pass_methods:
+        title: Mismatched email and password passing methods
+        description: If you provide a password via --password-stdin you must provide your email as the first positional argument to `relay auth login`
+      failed_no_stdin:
+        title: Did not receive from stdin error
+        description: Did not recieve anything from stdin.
