@@ -87,6 +87,54 @@ var ClientSection = &impl.ErrorSection{
 	Title: "Client errors",
 }
 
+// ClientBadRequestBodyCode is the code for an instance of "bad_request_body".
+const ClientBadRequestBodyCode = "rcli_client_bad_request_body"
+
+// IsClientBadRequestBody tests whether a given error is an instance of "bad_request_body".
+func IsClientBadRequestBody(err errawr.Error) bool {
+	return err != nil && err.Is(ClientBadRequestBodyCode)
+}
+
+// IsClientBadRequestBody tests whether a given error is an instance of "bad_request_body".
+func (External) IsClientBadRequestBody(err errawr.Error) bool {
+	return IsClientBadRequestBody(err)
+}
+
+// ClientBadRequestBodyBuilder is a builder for "bad_request_body" errors.
+type ClientBadRequestBodyBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "bad_request_body" from this builder.
+func (b *ClientBadRequestBodyBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{message}}",
+		Technical: "{{message}}",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "bad_request_body",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityBug,
+		ErrorTitle:       "Bad request error body",
+		Version:          1,
+	}
+}
+
+// NewClientBadRequestBodyBuilder creates a new error builder for the code "bad_request_body".
+func NewClientBadRequestBodyBuilder(message string) *ClientBadRequestBodyBuilder {
+	return &ClientBadRequestBodyBuilder{arguments: impl.ErrorArguments{"message": impl.NewErrorArgument(message, "The response body of the failed client request")}}
+}
+
+// NewClientBadRequestBody creates a new error with the code "bad_request_body".
+func NewClientBadRequestBody(message string) Error {
+	return NewClientBadRequestBodyBuilder(message).Build()
+}
+
 // ClientInternalErrorCode is the code for an instance of "internal_error".
 const ClientInternalErrorCode = "rcli_client_internal_error"
 

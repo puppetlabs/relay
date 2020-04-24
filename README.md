@@ -63,8 +63,8 @@ go run ./cmd/relay
 ### Config
 
 Relay uses [viper](https://github.com/spf13/viper) for customizable config. The following config values may be set in a yaml file at `$HOME/.config/relay/config.yaml` or as environment variables with corresponding names in all caps, prefixed with `RELAY_`:
-* `debug`: Run relay in debug mode. Overrides global `--debug` flag.
-* `out=(text|json)`: Output mode. Overrides global `--out` flag.
+* `debug`: Run relay in debug mode. Overriden by global `--debug` flag.
+* `out=(text|json)`: Output mode. Overriden by global `--out` flag.
 * `api_domain`: Relay api domain to connect to for all api operations.
 * `ui_domain`: Relay ui domain, mainly used in generated links.
 * `web_domain`: Relay web domain, mainly used in generated links.

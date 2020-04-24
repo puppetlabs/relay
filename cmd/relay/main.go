@@ -11,7 +11,7 @@ import (
 func main() {
 	cmd := &cobra.Command{
 		Use:           "relay",
-		Short:         "Relay by Puppet.",
+		Short:         "Relay by Puppet",
 		Args:          cobra.MinimumNArgs(1),
 		SilenceErrors: true,
 		Long: `Relay connects your tools, APIs, and infrastructure 

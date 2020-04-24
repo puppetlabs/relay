@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -107,23 +108,32 @@ type errorEnvelope struct {
 }
 
 func parseError(resp *http.Response) errors.Error {
+	// read body to buffer
+	bytes, berr := ioutil.ReadAll(resp.Body)
+
+	if berr != nil {
+		return errors.NewClientRequestError()
+	}
+
 	// Attempt to parse relay api error envelope containing an errawr
 	env := &errorEnvelope{}
-	if err := json.NewDecoder(resp.Body).Decode(env); err == nil {
+	if err := json.Unmarshal(bytes, env); err == nil {
 		return env.Error.AsError()
 	}
+
+	cause := errors.NewClientBadRequestBody(string(bytes))
 
 	// otherwise return generic errors based on response code
 	switch resp.StatusCode {
 	case http.StatusNotFound:
-		return errors.NewClientResponseNotFound()
+		return errors.NewClientResponseNotFound().WithCause(cause)
 	case http.StatusUnauthorized:
-		return errors.NewClientUserNotAuthenticated()
+		return errors.NewClientUserNotAuthenticated().WithCause(cause)
 	case http.StatusForbidden:
-		return errors.NewClientUserNotAuthorized()
+		return errors.NewClientUserNotAuthorized().WithCause(cause)
 	}
 
-	return errors.NewClientRequestError()
+	return errors.NewClientRequestError().WithCause(cause)
 }
 
 func debug(data []byte, err error) {
