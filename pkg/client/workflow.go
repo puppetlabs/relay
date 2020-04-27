@@ -41,16 +41,12 @@ type DeleteWorkflowResponse struct {
 func (c *Client) DeleteWorkflow(name string) (*DeleteWorkflowResponse, errors.Error) {
 	response := &DeleteWorkflowResponse{}
 
-<<<<<<< HEAD
 	if err := c.Request(
 		WithMethod(http.MethodDelete),
-		WithPath(fmt.Sprintf("/api/workflows/%v", name))
+		WithPath(fmt.Sprintf("/api/workflows/%v", name)),
+		WithResponseInto(response),
 	); err != nil {
-		return err
-=======
-	if err := c.delete(fmt.Sprintf("/api/workflows/%v", name), nil, response); err != nil {
 		return nil, err
->>>>>>> 3d03b04... Implement workflow delete command
 	}
 
 	return response, nil

@@ -16,11 +16,12 @@ import (
 )
 
 type RequestOptions struct {
-	method       string
-	path         string
-	headers      map[string]string
-	body         interface{}
-	responseBody interface{}
+	method           string
+	path             string
+	headers          map[string]string
+	BodyEncodingType BodyEncodingType
+	body             interface{}
+	responseBody     interface{}
 }
 
 type RequestOptionSetter func(*RequestOptions)
@@ -49,19 +50,85 @@ func WithBody(body interface{}) RequestOptionSetter {
 	}
 }
 
+func WithBodyEncodingType(bodyEncodingType BodyEncodingType) RequestOptionSetter {
+	return func(opts *RequestOptions) {
+		opts.BodyEncodingType = bodyEncodingType
+	}
+}
+
 func WithResponseInto(responseBody interface{}) RequestOptionSetter {
 	return func(opts *RequestOptions) {
 		opts.responseBody = responseBody
 	}
 }
 
+type BodyEncoding interface {
+	ContentType() string
+	Encode(interface{}) (io.ReadWriter, errors.Error)
+}
+
+type BodyEncodingType string
+
+const (
+	BodyEncodingTypeJSON BodyEncodingType = "json"
+	BodyEncodingTypeYAML BodyEncodingType = "yaml"
+)
+
+var mapEncodingTypeToEncoding = map[BodyEncodingType]BodyEncoding{
+	BodyEncodingTypeJSON: &JSONBodyEncoding{},
+	BodyEncodingTypeYAML: &YAMLBodyEncoding{},
+}
+
+type JSONBodyEncoding struct{}
+
+func (j *JSONBodyEncoding) ContentType() string {
+	return fmt.Sprintf("application/vnd.puppet.nebula.%v+json", API_VERSION)
+}
+
+func (j *JSONBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error) {
+	var buf io.ReadWriter
+	if body != nil {
+		buf = new(bytes.Buffer)
+		err := json.NewEncoder(buf).Encode(body)
+		if err != nil {
+			return nil, errors.NewClientInternalError().WithCause(err).Bug()
+		}
+	}
+
+	return buf, nil
+}
+
+type YAMLBodyEncoding struct{}
+
+func (y *YAMLBodyEncoding) ContentType() string {
+	return fmt.Sprintf("application/vnd.puppet.nebula.%v+yaml", API_VERSION)
+}
+
+func (y *YAMLBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error) {
+	var buf io.ReadWriter
+
+	bodyString, ok := body.(string)
+
+	if !ok {
+		return nil, errors.NewClientInternalError().Bug()
+	}
+
+	if body != nil {
+		buf = bytes.NewBufferString(bodyString)
+	}
+
+	return buf, nil
+}
+
 func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	const (
-		defaultMethod = http.MethodGet
+		defaultMethod           = http.MethodGet
+		defaultBodyEncodingType = BodyEncodingTypeJSON
 	)
 
 	opts := &RequestOptions{
-		method: defaultMethod,
+		method:           defaultMethod,
+		BodyEncodingType: defaultBodyEncodingType,
 	}
 
 	for _, setter := range setters {
@@ -71,13 +138,16 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	rel := &url.URL{Path: opts.path}
 	u := c.config.APIDomain.ResolveReference(rel)
 
-	var buf io.ReadWriter
-	if opts.body != nil {
-		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(opts.body)
-		if err != nil {
-			errors.NewClientInternalError().WithCause(err).Bug()
-		}
+	encoding, ok := mapEncodingTypeToEncoding[opts.BodyEncodingType]
+
+	if !ok {
+		return errors.NewClientInternalError().Bug()
+	}
+
+	buf, buferr := encoding.Encode(opts.body)
+
+	if buferr != nil {
+		return buferr
 	}
 
 	req, reqerr := http.NewRequest(opts.method, u.String(), buf)
@@ -90,7 +160,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	req.Header.Set("Accept", fmt.Sprintf("application/vnd.puppet.nebula.%v+json", API_VERSION))
 
 	if opts.body != nil {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", encoding.ContentType())
 	}
 
 	// authorization

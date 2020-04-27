@@ -12,15 +12,16 @@ func (c *Client) CreateRevision(workflowName string, YAML string) (*model.Revisi
 	response := &model.RevisionEntity{}
 
 	var headers = map[string]string{
-		"Accept": fmt.Sprintf("application/vnd.puppet.nebula.%v+yaml", API_VERSION),
+		"Content-Type": fmt.Sprintf("application/vnd.puppet.nebula.%v+yaml", API_VERSION),
 	}
 
 	if err := c.Request(
 		WithMethod(http.MethodPost),
 		WithPath(fmt.Sprintf("/api/workflows/%v/revisions", workflowName)),
+		WithBodyEncodingType(BodyEncodingTypeYAML),
 		WithHeaders(headers),
 		WithBody(YAML),
-		WithResponseInto(response)
+		WithResponseInto(response),
 	); err != nil {
 		return nil, err
 	}
