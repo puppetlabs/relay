@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+. scripts/library.sh
+
+RELEASE_PROGRAMS=( $( relay::cli::default_programs ) )
+
+for PROGRAM in "${RELEASE_PROGRAMS[@]}"; do
+  echo "# release (go): ${PROGRAM}"
+  scripts/release "${PROGRAM}"
+done

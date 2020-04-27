@@ -30,3 +30,5 @@ $MKDIR_P "${BIN_DIR}"
 
 set -x
 $GO build -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "${LDFLAGS[*]}" "./cmd/${CLI_NAME}"
+
+relay::cli::sha256sum < "${BIN_DIR}/${CLI_FILE_BIN}" > "${BIN_DIR}/${CLI_FILE_BIN}.sha256"

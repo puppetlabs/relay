@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+
+# all this needs to do is create the sha256 in the right place
+
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-bin}"
+
+#
+#
+#
+
+. scripts/library.sh
+
+[[ "$#" -eq 1 ]] || echo "usage: $0 <program>"
+
+eval "$( relay::cli::cli_vars "$1" )"
+
+for PACKAGE in $( relay::cli::cli_artifacts "$1" "${ARTIFACTS_DIR}" ); do
+  # Get the remaining file path and extension (directory, name and version
+  # truncated) from the package.
+  CLI_PLATFORM_EXT="-$( relay::cli::cli_platform_ext "$1" "${PACKAGE}" )"
+  relay::cli::release "${CLI_NAME}" "${PACKAGE}" "${CLI_PLATFORM_EXT}"
+  relay::cli::release "${CLI_NAME}" "${PACKAGE}.sha256" "${CLI_PLATFORM_EXT}.sha256"
+done

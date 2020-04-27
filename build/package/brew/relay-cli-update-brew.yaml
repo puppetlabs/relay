@@ -1,0 +1,25 @@
+version: v12
+description: This workflow issues a PR against puppetlabs/homebrew-puppet to update the version and sha when a new tag is cut on the puppetlabs/relay CLI.
+parameters:
+  tag:
+    description: version number of the new tagged binary
+  sha:
+    description: sha256 of the macos binary produced by the release build
+steps:
+  - name: clone-and-edit-pr
+    image: projectnebula/core
+    spec:
+      github_token: !Secret github_token
+      tag: !Parameter tag
+      sha: !Parameter sha
+      result: "will be overridden by 'ni set' from inside the step"
+    inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
+  - name: slack-notify
+    image: projectnebula/slack-notification:latest
+    spec:
+      apitoken:
+        $type: Secret 
+        name: slack-token
+      channel: "#nebula-workflows"
+      message: 
+        !Output [clone-and-edit-pr, result]

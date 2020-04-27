@@ -3,9 +3,7 @@ set -euo pipefail
 
 . scripts/library.sh
 
-mkdir -p artifacts
-
-GO_DIST_OS_ARCHES=( linux-amd64 linux-386 linux-arm64 linux-ppc64le linux-s390x windows-amd64 darwin-amd64 )
+GO_DIST_OS_ARCHES=( linux-amd64 windows-amd64 darwin-amd64 )
 
 for OS_ARCH in "${GO_DIST_OS_ARCHES[@]}"; do
   echo "# dist (go): relay ${OS_ARCH}"
