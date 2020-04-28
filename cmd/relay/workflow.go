@@ -11,6 +11,8 @@ import (
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/format"
+	"github.com/puppetlabs/relay/pkg/model"
 	util "github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -65,7 +67,7 @@ func NewAddWorkflowCommand() *cobra.Command {
 				return cwerr
 			}
 
-			_, rerr := client.CreateRevision(workflow.Workflow.Name, file)
+			revision, rerr := client.CreateRevision(workflow.Workflow.Name, file)
 
 			if rerr != nil {
 
@@ -75,8 +77,13 @@ func NewAddWorkflowCommand() *cobra.Command {
 				return rerr
 			}
 
-			// TODO: JSON and Text formatters for workflow and revision objects
-			log.Info(fmt.Sprint("Successfully created workflow ", workflow.Workflow.Name))
+			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+
+			wr.Output(cfg)
+
+			log.Info(fmt.Sprintf(`Successfully created workflow %v
+			
+View more information or update workflow settings at %v`, workflow.Workflow.Name, format.GuiLink(cfg, "/workflow/%v", workflow.Workflow.Name)))
 
 			return nil
 		},
@@ -117,14 +124,25 @@ func NewReplaceWorkflowCommand() *cobra.Command {
 
 			client := client.NewClient(cfg)
 
-			_, rerr := client.CreateRevision(workflowName, file)
+			workflow, werr := client.GetWorkflow(workflowName)
+
+			if werr != nil {
+				return werr
+			}
+
+			revision, rerr := client.CreateRevision(workflowName, file)
 
 			if rerr != nil {
 				return rerr
 			}
 
-			// TODO: JSON and Text formatters for workflow and revision objects
-			log.Info(fmt.Sprint("Successfully replaced workflow ", workflowName))
+			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+
+			wr.Output(cfg)
+
+			log.Info(fmt.Sprintf(`Successfully updated workflow %v
+			
+Updated configuration is visible at %v`, workflowName, format.GuiLink(cfg, "/workflow/%v", workflowName)))
 
 			return nil
 		},
@@ -175,7 +193,6 @@ func NewDeleteWorkflowCommand() *cobra.Command {
 				return err
 			}
 
-			// TODO: log response object in json mode
 			log.Info("Workflow successfully deleted")
 
 			return nil

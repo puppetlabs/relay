@@ -1,6 +1,12 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/puppetlabs/relay/pkg/config"
+)
 
 type WorkflowIdentifier struct {
 	Name string `json:"name"`
@@ -55,4 +61,31 @@ type WorkflowTriggerSourceState struct {
 	Push     *PushWorkflowTriggerSourceState     `json:"push,omitempty"`
 	Schedule *ScheduleWorkflowTriggerSourceState `json:"schedule,omitempty"`
 	Webhook  *WebhookWorkflowTriggerSourceState  `json:"webhook,omitempty"`
+}
+
+// What we call 'workflow' to users is really a combination of these two api types.
+// This is a departure from the api spec but feels justified?
+type WorkflowRevision struct {
+	Workflow *Workflow `json:"workflow"`
+	Revision *Revision `json:"revision"`
+}
+
+func NewWorkflowRevision(workflow *Workflow, revision *Revision) *WorkflowRevision {
+	return &WorkflowRevision{
+		Workflow: workflow,
+		Revision: revision,
+	}
+}
+
+func (w *WorkflowRevision) Output(cfg *config.Config) {
+	if cfg.Out == config.OutputTypeJSON {
+		w.OutputJSON()
+	}
+	// TODO: Text outputter
+}
+
+func (w *WorkflowRevision) OutputJSON() {
+	jsonBytes, _ := json.MarshalIndent(w, "", "  ")
+
+	fmt.Println(string(jsonBytes))
 }

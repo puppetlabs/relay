@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/format/error"
+	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +37,7 @@ to automate common tasks through simple event driven workflows.`,
 	cmd.AddCommand(NewWorkflowCommand())
 
 	if err := cmd.Execute(); err != nil {
-		error.FormatError(err, cmd)
+		format.FormatError(err, cmd)
 
 		os.Exit(1)
 	}

@@ -33,6 +33,19 @@ func (c *Client) CreateWorkflow(name string) (*model.WorkflowEntity, errors.Erro
 	return response, nil
 }
 
+func (c *Client) GetWorkflow(name string) (*model.WorkflowEntity, errors.Error) {
+	response := &model.WorkflowEntity{}
+
+	if err := c.Request(
+		WithPath(fmt.Sprintf("/api/workflows/%v", name)),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
 type DeleteWorkflowResponse struct {
 	Success    bool   `json:"success"`
 	ResourceId string `json:"resource_id"`

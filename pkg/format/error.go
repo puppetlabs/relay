@@ -1,4 +1,4 @@
-package error
+package format
 
 import (
 	"encoding/json"
