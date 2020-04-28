@@ -47,13 +47,13 @@ func (c *Client) InvalidateToken() errors.Error {
 
 	dr := &deleteResponse{}
 
-	if err := c.Request(
+	// Dont propagate error: if existing token is invalid endpoint will 401. Not sure this is
+	// good behavior but it's true nonetheless
+	c.Request(
 		WithMethod(http.MethodDelete),
 		WithPath("/auth/sessions"),
 		WithResponseInto(dr),
-	); err != nil {
-		return err
-	}
+	)
 
 	if err := c.clearToken(); err != nil {
 		return errors.NewClientInternalError().WithCause(err).Bug()
