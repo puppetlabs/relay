@@ -1,4 +1,4 @@
-package confirm
+package util
 
 import (
 	"bufio"

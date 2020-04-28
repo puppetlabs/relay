@@ -11,7 +11,7 @@ import (
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
-	"github.com/puppetlabs/relay/pkg/util/confirm"
+	util "github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 )
 
@@ -153,7 +153,7 @@ func NewDeleteWorkflowCommand() *cobra.Command {
 				return nerr
 			}
 
-			proceed, cerr := confirm.Confirm("Are you sure you want to delete this workflow?", cfg)
+			proceed, cerr := util.Confirm("Are you sure you want to delete this workflow?", cfg)
 
 			if cerr != nil {
 				return cerr

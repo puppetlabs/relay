@@ -1,3 +1,5 @@
+# github.com/PaesslerAG/gval v1.0.2-0.20190803062529-6fceb06ca162
+github.com/PaesslerAG/gval
 # github.com/PuerkitoBio/purell v1.1.1
 github.com/PuerkitoBio/purell
 # github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
@@ -13,6 +15,8 @@ github.com/davecgh/go-spew/spew
 github.com/fatih/color
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
+# github.com/generikvault/gvalstrings v0.0.0-20180926130504-471f38f0112a
+github.com/generikvault/gvalstrings
 # github.com/go-openapi/analysis v0.19.10
 github.com/go-openapi/analysis
 github.com/go-openapi/analysis/internal
@@ -82,8 +86,6 @@ github.com/magiconair/properties
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/manifoldco/promptui v0.7.0
-## explicit
 # github.com/mattn/go-colorable v0.1.4
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.11
@@ -109,6 +111,24 @@ github.com/puppetlabs/errawr-go/v2/pkg/encoding
 github.com/puppetlabs/errawr-go/v2/pkg/errawr
 github.com/puppetlabs/errawr-go/v2/pkg/golang
 github.com/puppetlabs/errawr-go/v2/pkg/impl
+# github.com/puppetlabs/horsehead/v2 v2.7.0
+github.com/puppetlabs/horsehead/v2/datastructure
+github.com/puppetlabs/horsehead/v2/encoding/transfer
+# github.com/puppetlabs/nebula-sdk v1.11.0
+## explicit
+github.com/puppetlabs/nebula-sdk/pkg/outputs
+github.com/puppetlabs/nebula-sdk/pkg/secrets
+github.com/puppetlabs/nebula-sdk/pkg/util/jsonpath
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fn
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fnlib
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/resolve
+github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/serialize
+# github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b
+github.com/puppetlabs/paesslerag-gval
+# github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641
+github.com/puppetlabs/paesslerag-jsonpath
 # github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50
 github.com/reflect/raymond
 github.com/reflect/raymond/ast
@@ -125,7 +145,7 @@ github.com/spf13/afero
 github.com/spf13/afero/mem
 # github.com/spf13/cast v1.3.1
 github.com/spf13/cast
-# github.com/spf13/cobra v0.0.3
+# github.com/spf13/cobra v0.0.5
 ## explicit
 github.com/spf13/cobra
 # github.com/spf13/jwalterweatherman v1.1.0
@@ -144,11 +164,11 @@ github.com/stretchr/testify/require
 github.com/subosito/gotenv
 # github.com/toqueteos/webbrowser v1.2.0
 github.com/toqueteos/webbrowser
-# github.com/xeipuuv/gojsonpointer v0.0.0-20170225233418-6fe8760cad35
+# github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f
 github.com/xeipuuv/gojsonpointer
-# github.com/xeipuuv/gojsonreference v0.0.0-20150808065054-e02fc20de94c
+# github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415
 github.com/xeipuuv/gojsonreference
-# github.com/xeipuuv/gojsonschema v0.0.0-20171025060643-212d8a0df7ac
+# github.com/xeipuuv/gojsonschema v1.2.0
 github.com/xeipuuv/gojsonschema
 # go.mongodb.org/mongo-driver v1.3.1
 go.mongodb.org/mongo-driver/bson
@@ -197,3 +217,5 @@ golang.org/x/xerrors/internal
 gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20191010095647-fc94e3f71652
+gopkg.in/yaml.v3
