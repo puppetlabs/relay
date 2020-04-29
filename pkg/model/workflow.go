@@ -29,8 +29,7 @@ type Workflow struct {
 }
 
 type WorkflowEntity struct {
-	Access   *EntityAccess `json:"access"`
-	Workflow *Workflow     `json:"workflow"`
+	Workflow *Workflow `json:"workflow"`
 }
 
 type WorkflowState struct {

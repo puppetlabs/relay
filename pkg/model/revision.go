@@ -25,8 +25,7 @@ type Revision struct {
 }
 
 type RevisionEntity struct {
-	Access   *EntityAccess `json:"access"`
-	Revision *Revision     `json:"revision"`
+	Revision *Revision `json:"revision"`
 }
 
 type WorkflowParameters map[string]WorkflowParameter
