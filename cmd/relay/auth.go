@@ -41,35 +41,7 @@ func NewLoginCommand() *cobra.Command {
 		Use:   "login [email]",
 		Short: "Log in to Relay",
 		Args:  cobra.MaximumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, cfgerr := config.GetConfig(cmd.Flags())
-
-			if cfgerr != nil {
-				return cfgerr
-			}
-
-			log := dialog.NewDialog(cfg)
-
-			loginParams, lperr := getLoginParameters(args, cmd)
-
-			if lperr != nil {
-				return lperr
-			}
-
-			log.Info("Logging in...")
-
-			client := client.NewClient(cfg)
-
-			cterr := client.CreateToken(loginParams.Email, loginParams.Password)
-
-			if cterr != nil {
-				return cterr
-			}
-
-			log.Info("Sucessfully logged in!")
-
-			return nil
-		},
+		RunE:  login,
 	}
 
 	cmd.Flags().BoolP("password-stdin", "p", false, "accept password from stdin")
@@ -81,32 +53,40 @@ func NewLogoutCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logout",
 		Short: "Log out of Relay",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, cfgerr := config.GetConfig(cmd.Flags())
-
-			if cfgerr != nil {
-				return cfgerr
-			}
-
-			log := dialog.NewDialog(cfg)
-
-			log.Info("Logging out...")
-
-			client := client.NewClient(cfg)
-
-			iterr := client.InvalidateToken()
-
-			if iterr != nil {
-				return iterr
-			}
-
-			log.Info("You have been sucesfully logged out.")
-
-			return nil
-		},
+		RunE:  logout,
 	}
 
 	return cmd
+}
+
+func login(cmd *cobra.Command, args []string) error {
+	cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+	if cfgerr != nil {
+		return cfgerr
+	}
+
+	log := dialog.NewDialog(cfg)
+
+	loginParams, lperr := getLoginParameters(cmd, args)
+
+	if lperr != nil {
+		return lperr
+	}
+
+	log.Info("Logging in...")
+
+	client := client.NewClient(cfg)
+
+	cterr := client.CreateToken(loginParams.Email, loginParams.Password)
+
+	if cterr != nil {
+		return cterr
+	}
+
+	log.Info("Sucessfully logged in!")
+
+	return nil
 }
 
 type loginParameters struct {
@@ -114,11 +94,11 @@ type loginParameters struct {
 	Email    string
 }
 
-func getLoginParameters(args []string, cmd *cobra.Command) (*loginParameters, errors.Error) {
+func getLoginParameters(cmd *cobra.Command, args []string) (*loginParameters, errors.Error) {
 	passFromStdin, perr := cmd.Flags().GetBool("password-stdin")
 
 	if perr != nil {
-		return nil, errors.NewAuthFailedLoginError().WithCause(perr).Bug()
+		return nil, errors.NewAuthFailedLoginError().WithCause(perr)
 	}
 
 	var email string
@@ -178,11 +158,32 @@ func getLoginParameters(args []string, cmd *cobra.Command) (*loginParameters, er
 		fmt.Println("")
 	}
 
-	// resets to new line after password input
-	fmt.Println("")
-
 	return &loginParameters{
 		Email:    email,
 		Password: strings.TrimSpace(password),
 	}, nil
+}
+
+func logout(cmd *cobra.Command, args []string) error {
+	cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+	if cfgerr != nil {
+		return cfgerr
+	}
+
+	log := dialog.NewDialog(cfg)
+
+	log.Info("Logging out...")
+
+	client := client.NewClient(cfg)
+
+	iterr := client.InvalidateToken()
+
+	if iterr != nil {
+		return iterr
+	}
+
+	log.Info("You have been sucesfully logged out.")
+
+	return nil
 }

@@ -34,7 +34,7 @@ func (c *Client) CreateToken(email string, password string) errors.Error {
 	}
 
 	if err := c.storeToken(response.Token); err != nil {
-		return errors.NewClientInternalError().WithCause(err).Bug()
+		return errors.NewClientInternalError().WithCause(err)
 	}
 
 	return nil
@@ -56,7 +56,7 @@ func (c *Client) InvalidateToken() errors.Error {
 	)
 
 	if err := c.clearToken(); err != nil {
-		return errors.NewClientInternalError().WithCause(err).Bug()
+		return errors.NewClientInternalError().WithCause(err)
 	}
 
 	return nil

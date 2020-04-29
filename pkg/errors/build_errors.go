@@ -327,6 +327,54 @@ func NewClientInternalError() Error {
 	return NewClientInternalErrorBuilder().Build()
 }
 
+// ClientInvalidEncodingTypeCode is the code for an instance of "invalid_encoding_type".
+const ClientInvalidEncodingTypeCode = "rcli_client_invalid_encoding_type"
+
+// IsClientInvalidEncodingType tests whether a given error is an instance of "invalid_encoding_type".
+func IsClientInvalidEncodingType(err errawr.Error) bool {
+	return err != nil && err.Is(ClientInvalidEncodingTypeCode)
+}
+
+// IsClientInvalidEncodingType tests whether a given error is an instance of "invalid_encoding_type".
+func (External) IsClientInvalidEncodingType(err errawr.Error) bool {
+	return IsClientInvalidEncodingType(err)
+}
+
+// ClientInvalidEncodingTypeBuilder is a builder for "invalid_encoding_type" errors.
+type ClientInvalidEncodingTypeBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_encoding_type" from this builder.
+func (b *ClientInvalidEncodingTypeBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{encoding}} is not a valid encoding type. Valid options are 'json' and 'yaml'.",
+		Technical: "{{encoding}} is not a valid encoding type. Valid options are 'json' and 'yaml'.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_encoding_type",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityBug,
+		ErrorTitle:       "Bad request error body",
+		Version:          1,
+	}
+}
+
+// NewClientInvalidEncodingTypeBuilder creates a new error builder for the code "invalid_encoding_type".
+func NewClientInvalidEncodingTypeBuilder(encoding string) *ClientInvalidEncodingTypeBuilder {
+	return &ClientInvalidEncodingTypeBuilder{arguments: impl.ErrorArguments{"encoding": impl.NewErrorArgument(encoding, "The provided encoding type")}}
+}
+
+// NewClientInvalidEncodingType creates a new error with the code "invalid_encoding_type".
+func NewClientInvalidEncodingType(encoding string) Error {
+	return NewClientInvalidEncodingTypeBuilder(encoding).Build()
+}
+
 // ClientRequestErrorCode is the code for an instance of "request_error".
 const ClientRequestErrorCode = "rcli_client_request_error"
 

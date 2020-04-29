@@ -91,7 +91,7 @@ func (j *JSONBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error
 		buf = new(bytes.Buffer)
 		err := json.NewEncoder(buf).Encode(body)
 		if err != nil {
-			return nil, errors.NewClientInternalError().WithCause(err).Bug()
+			return nil, errors.NewClientInternalError().WithCause(err)
 		}
 	}
 
@@ -110,7 +110,7 @@ func (y *YAMLBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error
 	bodyString, ok := body.(string)
 
 	if !ok {
-		return nil, errors.NewClientInternalError().Bug()
+		return nil, errors.NewClientInternalError()
 	}
 
 	if body != nil {
@@ -141,7 +141,9 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	encoding, ok := mapEncodingTypeToEncoding[opts.BodyEncodingType]
 
 	if !ok {
-		return errors.NewClientInternalError().Bug()
+		encodingTypeError := errors.NewClientInvalidEncodingType(string(opts.BodyEncodingType))
+
+		return errors.NewClientInternalError().WithCause(encodingTypeError)
 	}
 
 	buf, buferr := encoding.Encode(opts.body)
@@ -153,7 +155,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	req, reqerr := http.NewRequest(opts.method, u.String(), buf)
 
 	if reqerr != nil {
-		return errors.NewClientInternalError().WithCause(reqerr).Bug()
+		return errors.NewClientInternalError().WithCause(reqerr)
 	}
 
 	// defaults
@@ -167,7 +169,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	token, terr := c.getToken()
 
 	if terr != nil {
-		return errors.NewClientInternalError().WithCause(terr).Bug()
+		return errors.NewClientInternalError().WithCause(terr)
 	}
 
 	if token != nil {
@@ -203,7 +205,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	jerr := json.NewDecoder(resp.Body).Decode(opts.responseBody)
 
 	if jerr != nil {
-		return errors.NewClientInternalError().WithCause(jerr).Bug()
+		return errors.NewClientInternalError().WithCause(jerr)
 	}
 
 	return nil
