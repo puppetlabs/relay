@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/model"
 )
 
 type CreateTokenParameters struct {
@@ -12,7 +13,7 @@ type CreateTokenParameters struct {
 }
 
 type CreateTokenResponse struct {
-	Token *Token `json:"token"`
+	Token *model.Token `json:"token"`
 }
 
 func (c *Client) CreateToken(email string, password string) errors.Error {
@@ -23,12 +24,17 @@ func (c *Client) CreateToken(email string, password string) errors.Error {
 	}
 
 	response := &CreateTokenResponse{}
-	if err := c.Request(WithMethod(http.MethodPost), WithPath("/auth/sessions"), WithBody(params), WithResponseInto(response)); err != nil {
+	if err := c.Request(
+		WithMethod(http.MethodPost),
+		WithPath("/auth/sessions"),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
 		return err
 	}
 
 	if err := c.storeToken(response.Token); err != nil {
-		return errors.NewClientInternalError().WithCause(err).Bug()
+		return errors.NewClientInternalError().WithCause(err)
 	}
 
 	return nil
@@ -40,12 +46,17 @@ func (c *Client) InvalidateToken() errors.Error {
 	}
 
 	dr := &deleteResponse{}
-	if err := c.Request(WithMethod(http.MethodDelete), WithPath("/auth/sessions"), WithResponseInto(dr)); err != nil {
-		return err
-	}
+
+	// Dont propagate error: if existing token is invalid endpoint will 401. Not sure this is
+	// good behavior but it's true nonetheless
+	c.Request(
+		WithMethod(http.MethodDelete),
+		WithPath("/auth/sessions"),
+		WithResponseInto(dr),
+	)
 
 	if err := c.clearToken(); err != nil {
-		return errors.NewClientInternalError().WithCause(err).Bug()
+		return errors.NewClientInternalError().WithCause(err)
 	}
 
 	return nil

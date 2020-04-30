@@ -29,6 +29,7 @@ const (
 
 type Config struct {
 	Debug     bool
+	Yes       bool
 	Out       OutputType
 	APIDomain *url.URL
 	UIDomain  *url.URL
@@ -46,6 +47,7 @@ func GetDefaultConfig() *Config {
 
 	return &Config{
 		Debug:     true,
+		Yes:       false,
 		Out:       OutputTypeText,
 		APIDomain: apiDomain,
 		UIDomain:  uiDomain,
@@ -65,6 +67,9 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 
 	v.SetDefault("debug", false)
 	v.BindPFlag("debug", flags.Lookup("debug"))
+
+	v.SetDefault("yes", false)
+	v.BindPFlag("yes", flags.Lookup("yes"))
 
 	v.SetDefault("out", string(OutputTypeText))
 	v.BindPFlag("out", flags.Lookup("out"))
@@ -105,6 +110,7 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 
 	config := &Config{
 		Debug:     v.GetBool("debug"),
+		Yes:       v.GetBool("yes"),
 		Out:       output,
 		APIDomain: apiDomain,
 		UIDomain:  uiDomain,

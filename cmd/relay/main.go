@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/format/error"
+	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/spf13/cobra"
 )
 
@@ -27,15 +27,17 @@ to automate common tasks through simple event driven workflows.`,
 	}
 
 	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
+	cmd.PersistentFlags().BoolP("yes", "y", false, "skip confirmation prompts")
 	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
 	// Config flag is hidden for now
 	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")
 	cmd.PersistentFlags().MarkHidden("config")
 
 	cmd.AddCommand(NewAuthCommand())
+	cmd.AddCommand(NewWorkflowCommand())
 
 	if err := cmd.Execute(); err != nil {
-		error.FormatError(err, cmd)
+		format.FormatError(err, cmd)
 
 		os.Exit(1)
 	}

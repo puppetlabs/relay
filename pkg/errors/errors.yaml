@@ -70,6 +70,14 @@ sections:
         arguments:
           message:
             description: The response body of the failed client request
+      # Used to embed the response body of failed requests. Should always be used as a nested cause
+      invalid_encoding_type:
+        title: Bad request error body
+        sensitivity: "bug"
+        description: "{{encoding}} is not a valid encoding type. Valid options are 'json' and 'yaml'."
+        arguments:
+          encoding:
+            description: The provided encoding type
       # Generic not found should almost always be replaced with a specific one but it's useful nonetheless
       response_not_found:
         title: Response not found error
@@ -95,3 +103,18 @@ sections:
       failed_no_stdin:
         title: Did not receive from stdin error
         description: Did not recieve anything from stdin.
+  workflow:
+    title: Workflow errors
+    errors:
+      workflow_name_read_error:
+        title: Worklflow name read error
+        description: Could not read workflow name. Please try again.
+      workflow_file_read_error:
+        title: Workflow file read error
+        description: Could not read workflow file. Please try again.
+      missing_file_flag_error:
+        title: Missing file flag error
+        description: You must specify a workflow file with the --file flag.
+      missing_name_error:
+        title: Missing workflow name error
+        description: Please provide a workflow name

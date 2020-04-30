@@ -327,6 +327,54 @@ func NewClientInternalError() Error {
 	return NewClientInternalErrorBuilder().Build()
 }
 
+// ClientInvalidEncodingTypeCode is the code for an instance of "invalid_encoding_type".
+const ClientInvalidEncodingTypeCode = "rcli_client_invalid_encoding_type"
+
+// IsClientInvalidEncodingType tests whether a given error is an instance of "invalid_encoding_type".
+func IsClientInvalidEncodingType(err errawr.Error) bool {
+	return err != nil && err.Is(ClientInvalidEncodingTypeCode)
+}
+
+// IsClientInvalidEncodingType tests whether a given error is an instance of "invalid_encoding_type".
+func (External) IsClientInvalidEncodingType(err errawr.Error) bool {
+	return IsClientInvalidEncodingType(err)
+}
+
+// ClientInvalidEncodingTypeBuilder is a builder for "invalid_encoding_type" errors.
+type ClientInvalidEncodingTypeBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "invalid_encoding_type" from this builder.
+func (b *ClientInvalidEncodingTypeBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "{{encoding}} is not a valid encoding type. Valid options are 'json' and 'yaml'.",
+		Technical: "{{encoding}} is not a valid encoding type. Valid options are 'json' and 'yaml'.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "invalid_encoding_type",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityBug,
+		ErrorTitle:       "Bad request error body",
+		Version:          1,
+	}
+}
+
+// NewClientInvalidEncodingTypeBuilder creates a new error builder for the code "invalid_encoding_type".
+func NewClientInvalidEncodingTypeBuilder(encoding string) *ClientInvalidEncodingTypeBuilder {
+	return &ClientInvalidEncodingTypeBuilder{arguments: impl.ErrorArguments{"encoding": impl.NewErrorArgument(encoding, "The provided encoding type")}}
+}
+
+// NewClientInvalidEncodingType creates a new error with the code "invalid_encoding_type".
+func NewClientInvalidEncodingType(encoding string) Error {
+	return NewClientInvalidEncodingTypeBuilder(encoding).Build()
+}
+
 // ClientRequestErrorCode is the code for an instance of "request_error".
 const ClientRequestErrorCode = "rcli_client_request_error"
 
@@ -915,4 +963,203 @@ func NewGeneralUnknownErrorBuilder() *GeneralUnknownErrorBuilder {
 // NewGeneralUnknownError creates a new error with the code "unknown_error".
 func NewGeneralUnknownError() Error {
 	return NewGeneralUnknownErrorBuilder().Build()
+}
+
+// WorkflowSection defines a section of errors with the following scope:
+// Workflow errors
+var WorkflowSection = &impl.ErrorSection{
+	Key:   "workflow",
+	Title: "Workflow errors",
+}
+
+// WorkflowMissingFileFlagErrorCode is the code for an instance of "missing_file_flag_error".
+const WorkflowMissingFileFlagErrorCode = "rcli_workflow_missing_file_flag_error"
+
+// IsWorkflowMissingFileFlagError tests whether a given error is an instance of "missing_file_flag_error".
+func IsWorkflowMissingFileFlagError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowMissingFileFlagErrorCode)
+}
+
+// IsWorkflowMissingFileFlagError tests whether a given error is an instance of "missing_file_flag_error".
+func (External) IsWorkflowMissingFileFlagError(err errawr.Error) bool {
+	return IsWorkflowMissingFileFlagError(err)
+}
+
+// WorkflowMissingFileFlagErrorBuilder is a builder for "missing_file_flag_error" errors.
+type WorkflowMissingFileFlagErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_file_flag_error" from this builder.
+func (b *WorkflowMissingFileFlagErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "You must specify a workflow file with the --file flag.",
+		Technical: "You must specify a workflow file with the --file flag.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_file_flag_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Missing file flag error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowMissingFileFlagErrorBuilder creates a new error builder for the code "missing_file_flag_error".
+func NewWorkflowMissingFileFlagErrorBuilder() *WorkflowMissingFileFlagErrorBuilder {
+	return &WorkflowMissingFileFlagErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowMissingFileFlagError creates a new error with the code "missing_file_flag_error".
+func NewWorkflowMissingFileFlagError() Error {
+	return NewWorkflowMissingFileFlagErrorBuilder().Build()
+}
+
+// WorkflowMissingNameErrorCode is the code for an instance of "missing_name_error".
+const WorkflowMissingNameErrorCode = "rcli_workflow_missing_name_error"
+
+// IsWorkflowMissingNameError tests whether a given error is an instance of "missing_name_error".
+func IsWorkflowMissingNameError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowMissingNameErrorCode)
+}
+
+// IsWorkflowMissingNameError tests whether a given error is an instance of "missing_name_error".
+func (External) IsWorkflowMissingNameError(err errawr.Error) bool {
+	return IsWorkflowMissingNameError(err)
+}
+
+// WorkflowMissingNameErrorBuilder is a builder for "missing_name_error" errors.
+type WorkflowMissingNameErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_name_error" from this builder.
+func (b *WorkflowMissingNameErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Please provide a workflow name",
+		Technical: "Please provide a workflow name",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_name_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Missing workflow name error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowMissingNameErrorBuilder creates a new error builder for the code "missing_name_error".
+func NewWorkflowMissingNameErrorBuilder() *WorkflowMissingNameErrorBuilder {
+	return &WorkflowMissingNameErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowMissingNameError creates a new error with the code "missing_name_error".
+func NewWorkflowMissingNameError() Error {
+	return NewWorkflowMissingNameErrorBuilder().Build()
+}
+
+// WorkflowWorkflowFileReadErrorCode is the code for an instance of "workflow_file_read_error".
+const WorkflowWorkflowFileReadErrorCode = "rcli_workflow_workflow_file_read_error"
+
+// IsWorkflowWorkflowFileReadError tests whether a given error is an instance of "workflow_file_read_error".
+func IsWorkflowWorkflowFileReadError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowWorkflowFileReadErrorCode)
+}
+
+// IsWorkflowWorkflowFileReadError tests whether a given error is an instance of "workflow_file_read_error".
+func (External) IsWorkflowWorkflowFileReadError(err errawr.Error) bool {
+	return IsWorkflowWorkflowFileReadError(err)
+}
+
+// WorkflowWorkflowFileReadErrorBuilder is a builder for "workflow_file_read_error" errors.
+type WorkflowWorkflowFileReadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "workflow_file_read_error" from this builder.
+func (b *WorkflowWorkflowFileReadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not read workflow file. Please try again.",
+		Technical: "Could not read workflow file. Please try again.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "workflow_file_read_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Workflow file read error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowWorkflowFileReadErrorBuilder creates a new error builder for the code "workflow_file_read_error".
+func NewWorkflowWorkflowFileReadErrorBuilder() *WorkflowWorkflowFileReadErrorBuilder {
+	return &WorkflowWorkflowFileReadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowWorkflowFileReadError creates a new error with the code "workflow_file_read_error".
+func NewWorkflowWorkflowFileReadError() Error {
+	return NewWorkflowWorkflowFileReadErrorBuilder().Build()
+}
+
+// WorkflowWorkflowNameReadErrorCode is the code for an instance of "workflow_name_read_error".
+const WorkflowWorkflowNameReadErrorCode = "rcli_workflow_workflow_name_read_error"
+
+// IsWorkflowWorkflowNameReadError tests whether a given error is an instance of "workflow_name_read_error".
+func IsWorkflowWorkflowNameReadError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowWorkflowNameReadErrorCode)
+}
+
+// IsWorkflowWorkflowNameReadError tests whether a given error is an instance of "workflow_name_read_error".
+func (External) IsWorkflowWorkflowNameReadError(err errawr.Error) bool {
+	return IsWorkflowWorkflowNameReadError(err)
+}
+
+// WorkflowWorkflowNameReadErrorBuilder is a builder for "workflow_name_read_error" errors.
+type WorkflowWorkflowNameReadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "workflow_name_read_error" from this builder.
+func (b *WorkflowWorkflowNameReadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not read workflow name. Please try again.",
+		Technical: "Could not read workflow name. Please try again.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "workflow_name_read_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Worklflow name read error",
+		Version:          1,
+	}
+}
+
+// NewWorkflowWorkflowNameReadErrorBuilder creates a new error builder for the code "workflow_name_read_error".
+func NewWorkflowWorkflowNameReadErrorBuilder() *WorkflowWorkflowNameReadErrorBuilder {
+	return &WorkflowWorkflowNameReadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowWorkflowNameReadError creates a new error with the code "workflow_name_read_error".
+func NewWorkflowWorkflowNameReadError() Error {
+	return NewWorkflowWorkflowNameReadErrorBuilder().Build()
 }
