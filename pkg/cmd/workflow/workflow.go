@@ -1,4 +1,4 @@
-package main
+package workflow
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewWorkflowCommand() *cobra.Command {
+func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
 		Short: "Manage your relay workflows",
