@@ -17,6 +17,7 @@ type Dialog interface {
 	Info(message string)
 	Warn(message string)
 	Error(message string)
+	Table() Table
 }
 
 type TextDialog struct{}
@@ -34,6 +35,10 @@ func (d *TextDialog) Error(message string) {
 	fmt.Println(color.RedString("Error:"), message)
 }
 
+func (d *TextDialog) Table() Table {
+	return &textTable{}
+}
+
 type JSONDialog struct{}
 
 // right now json dialog methods do nothing
@@ -46,10 +51,15 @@ func (d *JSONDialog) Warn(message string) {
 func (d *JSONDialog) Error(message string) {
 }
 
-func NewDialog(cfg *config.Config) Dialog {
-	if cfg.Out == config.OutputTypeJSON {
-		return &JSONDialog{}
-	}
+func (d *JSONDialog) Table() Table {
+	return &jsonTable{}
+}
 
-	return &TextDialog{}
+func FromConfig(cfg *config.Config) Dialog {
+	switch cfg.Out {
+	case config.OutputTypeJSON:
+		return &JSONDialog{}
+	default:
+		return &TextDialog{}
+	}
 }

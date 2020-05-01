@@ -14,7 +14,7 @@ import (
 
 func FormatError(err error, cmd *cobra.Command) {
 	// attempt to load config for display options.
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	// if there was a problem loading config use default config
 	if cfgerr != nil {
@@ -50,7 +50,7 @@ func formatJSONError(err errors.Error) {
 }
 
 func formatTextError(err errors.Error, cfg *config.Config) {
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	var out string
 

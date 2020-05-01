@@ -36,8 +36,6 @@ func NewCommand() *cobra.Command {
 	return cmd
 }
 
-
-
 type loginParameters struct {
 	Password string
 	Email    string
@@ -113,15 +111,14 @@ func getLoginParameters(cmd *cobra.Command, args []string) (*loginParameters, er
 	}, nil
 }
 
-
 func doLogin(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	if cfgerr != nil {
 		return cfgerr
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	loginParams, lperr := getLoginParameters(cmd, args)
 
@@ -158,13 +155,13 @@ func NewLoginCommand() *cobra.Command {
 }
 
 func doLogout(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	if cfgerr != nil {
 		return cfgerr
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	log.Info("Logging out...")
 

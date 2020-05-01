@@ -20,7 +20,7 @@ func Execute() {
 to automate common tasks through simple event driven workflows.`,
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// This turns off usage info in json output mode
-			cfg, cfgerr := config.GetConfig(cmd.Flags())
+			cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 			if cfgerr == nil && cfg.Out == config.OutputTypeJSON {
 				cmd.SilenceUsage = true

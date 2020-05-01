@@ -28,12 +28,13 @@ func NewCommand() *cobra.Command {
 	cmd.AddCommand(NewReplaceWorkflowCommand())
 	cmd.AddCommand(NewDeleteWorkflowCommand())
 	cmd.AddCommand(NewRunWorkflowCommand())
+	cmd.AddCommand(NewListWorkflowsCommand())
 
 	return cmd
 }
 
 func doAddWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	if cfgerr != nil {
 		return cfgerr
@@ -51,7 +52,7 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 		return nerr
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	log.Info("Creating your workflow...")
 
@@ -104,7 +105,7 @@ func NewAddWorkflowCommand() *cobra.Command {
 }
 
 func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	if cfgerr != nil {
 		return cfgerr
@@ -122,7 +123,7 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 		return nerr
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	log.Info(fmt.Sprint("Replacing workflow ", workflowName))
 
@@ -160,7 +161,7 @@ Updated configuration is visible at %v`,
 func NewReplaceWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replace [workflow name]",
-		Short: "Replace the yaml definition of a relay workflow",
+		Short: "Replace the configuration of a relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doReplaceWorkflow,
 	}
@@ -171,7 +172,7 @@ func NewReplaceWorkflowCommand() *cobra.Command {
 }
 
 func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	if cfgerr != nil {
 		return cfgerr
@@ -193,7 +194,7 @@ func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	log.Info("Deleting workflow...")
 
@@ -252,11 +253,8 @@ func parseParameters(strs []string) map[string]string {
 }
 
 func doRunWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, err := config.GetConfig(cmd.Flags())
+	cfg, err := config.FromFlags(cmd.Flags())
 
-	// TODO: Check to see what the failure modes for GetConfig are. Could be the
-	// case that we should panic here instead of making the caller handle this
-	// error.
 	if err != nil {
 		return err
 	}
@@ -274,7 +272,7 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log := dialog.NewDialog(cfg)
+	log := dialog.FromConfig(cfg)
 
 	log.Info("Starting your workflow...")
 
@@ -302,7 +300,45 @@ func NewRunWorkflowCommand() *cobra.Command {
 		RunE:  doRunWorkflow,
 	}
 
-	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with.")
+	return cmd
+}
+
+func doListWorkflows(cmd *cobra.Command, args []string) error {
+	cfg, err := config.FromFlags(cmd.Flags())
+
+	if err != nil {
+		return err
+	}
+
+	client := client.NewClient(cfg)
+
+	resp, err := client.ListWorkflows()
+
+	if err != nil {
+		panic(err)
+	}
+
+	log := dialog.FromConfig(cfg)
+	t := log.Table()
+
+	t.Headers([]string{"Name", "Last Run Number"})
+
+	for _, workflow := range resp.Workflows {
+		t.AppendRow([]string{workflow.Name, fmt.Sprintf("%d", workflow.MostRecentRun.RunNumber)})
+	}
+
+	t.WriteTo(os.Stdout)
+
+	return nil
+}
+
+func NewListWorkflowsCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list",
+		Short: "Get a list of all your workflows",
+		Args:  cobra.MaximumNArgs(0),
+		RunE:  doListWorkflows,
+	}
 
 	return cmd
 }
