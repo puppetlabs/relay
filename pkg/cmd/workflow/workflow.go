@@ -27,48 +27,12 @@ func NewCommand() *cobra.Command {
 	cmd.AddCommand(NewAddWorkflowCommand())
 	cmd.AddCommand(NewReplaceWorkflowCommand())
 	cmd.AddCommand(NewDeleteWorkflowCommand())
+	cmd.AddCommand(NewRunWorkflowCommand())
 
 	return cmd
 }
 
-func NewAddWorkflowCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add [workflow name]",
-		Short: "Add a relay workflow from a local file",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  addWorkflow,
-	}
-
-	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
-
-	return cmd
-}
-
-func NewReplaceWorkflowCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "replace [workflow name]",
-		Short: "Replace the yaml definition of a relay workflow",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  replaceWorkflow,
-	}
-
-	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
-
-	return cmd
-}
-
-func NewDeleteWorkflowCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "delete [workflow name]",
-		Short: "Delete a relay workflow",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  deleteWorkflow,
-	}
-
-	return cmd
-}
-
-func addWorkflow(cmd *cobra.Command, args []string) error {
+func doAddWorkflow(cmd *cobra.Command, args []string) error {
 	cfg, cfgerr := config.GetConfig(cmd.Flags())
 
 	if cfgerr != nil {
@@ -126,7 +90,20 @@ View more information or update workflow settings at %v`,
 	return nil
 }
 
-func replaceWorkflow(cmd *cobra.Command, args []string) error {
+func NewAddWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add [workflow name]",
+		Short: "Add a relay workflow from a local file",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doAddWorkflow,
+	}
+
+	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+
+	return cmd
+}
+
+func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 	cfg, cfgerr := config.GetConfig(cmd.Flags())
 
 	if cfgerr != nil {
@@ -180,7 +157,20 @@ Updated configuration is visible at %v`,
 	return nil
 }
 
-func deleteWorkflow(cmd *cobra.Command, args []string) error {
+func NewReplaceWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "replace [workflow name]",
+		Short: "Replace the yaml definition of a relay workflow",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doReplaceWorkflow,
+	}
+
+	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+
+	return cmd
+}
+
+func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
 	cfg, cfgerr := config.GetConfig(cmd.Flags())
 
 	if cfgerr != nil {
@@ -220,6 +210,105 @@ func deleteWorkflow(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+func NewDeleteWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete [workflow name]",
+		Short: "Delete a relay workflow",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doDeleteWorkflow,
+	}
+
+	return cmd
+}
+
+func parseParameter(str string) (key, value string) {
+	idx := strings.Index(str, "=")
+
+	// TODO: This behavior will basically silently discard parameters that are
+	// in the wrong format. Should this, like, panic perhaps? Or notify the user that their
+	// parameters are specified incorrectly?
+	if idx < 0 {
+		return
+	}
+
+	key = str[0:idx]
+	value = str[idx+1:]
+	return
+}
+
+func parseParameters(strs []string) map[string]string {
+	res := make(map[string]string)
+
+	for _, str := range strs {
+		key, val := parseParameter(str)
+
+		// value of empty string could, indeed, be a valid parameter.
+		if key != "" {
+			res[key] = val
+		}
+	}
+
+	return res
+}
+
+func doRunWorkflow(cmd *cobra.Command, args []string) error {
+	cfg, err := config.GetConfig(cmd.Flags())
+
+	// TODO: Check to see what the failure modes for GetConfig are. Could be the
+	// case that we should panic here instead of making the caller handle this
+	// error.
+	if err != nil {
+		return err
+	}
+
+	params, err := cmd.Flags().GetStringArray("parameter")
+
+	if err != nil {
+		panic(err)
+	}
+
+	// TODO: Same here as above. Could really DRY all this up.
+	name, err := getWorkflowName(args)
+
+	if err != nil {
+		return err
+	}
+
+	log := dialog.NewDialog(cfg)
+
+	log.Info("Starting your workflow...")
+
+	client := client.NewClient(cfg)
+
+	resp, err := client.RunWorkflow(name, parseParameters(params))
+
+	if err != nil {
+		// TODO: This error should be translated for the user. Right now it just
+		// says whatever the service says.
+		return err
+	}
+
+	link := format.GuiLink(cfg, "/workflows/ec2-reaper/runs/%d/graph", resp.Run.RunNumber)
+	log.Info(fmt.Sprintf("Your run has started. Monitor it's progress: %s", link))
+
+	return nil
+}
+
+func NewRunWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "run [workflow name]",
+		Short: "Invoke a relay workflow",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doRunWorkflow,
+	}
+
+	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with.")
+
+	return cmd
+}
+
+// getWorkflowName gets the name of the workflow either from arguments or, if
+// none are supplied, reads it from stdin.
 func getWorkflowName(args []string) (string, errors.Error) {
 	if len(args) > 0 {
 		return args[0], nil

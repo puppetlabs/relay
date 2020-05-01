@@ -23,7 +23,7 @@ import (
 // to a remote API server.
 const readLimit = 512
 
-func NewAuthCommand() *cobra.Command {
+func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage your authentication credentials",
@@ -36,58 +36,7 @@ func NewAuthCommand() *cobra.Command {
 	return cmd
 }
 
-func NewLoginCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "login [email]",
-		Short: "Log in to Relay",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  login,
-	}
 
-	cmd.Flags().BoolP("password-stdin", "p", false, "accept password from stdin")
-
-	return cmd
-}
-
-func NewLogoutCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "logout",
-		Short: "Log out of Relay",
-		RunE:  logout,
-	}
-
-	return cmd
-}
-
-func login(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
-
-	if cfgerr != nil {
-		return cfgerr
-	}
-
-	log := dialog.NewDialog(cfg)
-
-	loginParams, lperr := getLoginParameters(cmd, args)
-
-	if lperr != nil {
-		return lperr
-	}
-
-	log.Info("Logging in...")
-
-	client := client.NewClient(cfg)
-
-	cterr := client.CreateToken(loginParams.Email, loginParams.Password)
-
-	if cterr != nil {
-		return cterr
-	}
-
-	log.Info("Sucessfully logged in!")
-
-	return nil
-}
 
 type loginParameters struct {
 	Password string
@@ -164,7 +113,51 @@ func getLoginParameters(cmd *cobra.Command, args []string) (*loginParameters, er
 	}, nil
 }
 
-func logout(cmd *cobra.Command, args []string) error {
+
+func doLogin(cmd *cobra.Command, args []string) error {
+	cfg, cfgerr := config.GetConfig(cmd.Flags())
+
+	if cfgerr != nil {
+		return cfgerr
+	}
+
+	log := dialog.NewDialog(cfg)
+
+	loginParams, lperr := getLoginParameters(cmd, args)
+
+	if lperr != nil {
+		return lperr
+	}
+
+	log.Info("Logging in...")
+
+	client := client.NewClient(cfg)
+
+	cterr := client.CreateToken(loginParams.Email, loginParams.Password)
+
+	if cterr != nil {
+		return cterr
+	}
+
+	log.Info("Sucessfully logged in!")
+
+	return nil
+}
+
+func NewLoginCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "login [email]",
+		Short: "Log in to Relay",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doLogin,
+	}
+
+	cmd.Flags().BoolP("password-stdin", "p", false, "accept password from stdin")
+
+	return cmd
+}
+
+func doLogout(cmd *cobra.Command, args []string) error {
 	cfg, cfgerr := config.GetConfig(cmd.Flags())
 
 	if cfgerr != nil {
@@ -186,4 +179,14 @@ func logout(cmd *cobra.Command, args []string) error {
 	log.Info("You have been sucesfully logged out.")
 
 	return nil
+}
+
+func NewLogoutCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "logout",
+		Short: "Log out of Relay",
+		RunE:  doLogout,
+	}
+
+	return cmd
 }

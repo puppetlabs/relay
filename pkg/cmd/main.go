@@ -35,7 +35,7 @@ to automate common tasks through simple event driven workflows.`,
 	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")
 	cmd.PersistentFlags().MarkHidden("config")
 
-	cmd.AddCommand(auth.NewAuthCommand())
+	cmd.AddCommand(auth.NewCommand())
 	cmd.AddCommand(workflow.NewCommand())
 
 	if err := cmd.Execute(); err != nil {

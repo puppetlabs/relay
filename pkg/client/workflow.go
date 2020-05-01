@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
@@ -63,4 +64,60 @@ func (c *Client) DeleteWorkflow(name string) (*DeleteWorkflowResponse, errors.Er
 	}
 
 	return response, nil
+}
+
+type RunWorkflowRequest struct {
+	Parameters map[string]string `json:"parameters"`
+}
+
+type RunWorkflowWorkflowResponse struct {
+	Name string `json:"name"`
+}
+
+type RunWorkflowParameterValueResponse struct {
+	Value string `json:"value"`
+}
+
+type RunWorkflowRevisionResponse struct {
+	Id string `json:"id"`
+}
+
+type RunWorkflowStateResponse struct {
+	Status    string     `json:"status"`
+	StartedAt *time.Time `json:"started_at"`
+	EndedAt   *time.Time `json:"ended_at"`
+
+	// TODO: Add steps here, in case we really care about that.
+}
+
+type RunWorkflowRunResponse struct {
+	CreatedAt  time.Time                                    `json:"created_at"`
+	RunNumber  int                                          `json:"run_number"`
+	Revision   RunWorkflowRevisionResponse                  `json:"revision"`
+	State      RunWorkflowStateResponse                     `json:"state"`
+	Parameters map[string]RunWorkflowParameterValueResponse `json:"parameters"`
+	Workflow   RunWorkflowWorkflowResponse                  `json:"workflow"`
+}
+
+type RunWorkflowResponse struct {
+	Run RunWorkflowRunResponse `json:"run"`
+}
+
+func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflowResponse, errors.Error) {
+	req := &RunWorkflowRequest{
+		Parameters: params,
+	}
+
+	resp := &RunWorkflowResponse{}
+
+	if err := c.Request(
+		WithMethod(http.MethodPost),
+		WithPath(fmt.Sprintf("/api/workflows/%v/runs", name)),
+		WithBody(req),
+		WithResponseInto(resp),
+	); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
