@@ -5,6 +5,7 @@ import (
 
 	"github.com/puppetlabs/relay/pkg/client"
 	"github.com/puppetlabs/relay/pkg/config"
+	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/spf13/cobra"
@@ -50,7 +51,7 @@ to automate common tasks through simple event driven workflows.`,
 		},
 	}
 
-	cmd.PersistentFlags().BoolP("debug", "d", false, "print debugging information")
+	cmd.PersistentFlags().BoolVarP(&debug.Enabled, "debug", "d", false, "print debugging information")
 	cmd.PersistentFlags().BoolP("yes", "y", false, "skip confirmation prompts")
 	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
 

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
 )
@@ -161,6 +162,7 @@ func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
 	dec, berr := base64.URLEncoding.DecodeString(rev.Revision.Raw)
 
 	if berr != nil {
+		debug.Logf("the workflow body was in the wrong format. %s", berr.Error())
 		return "", errors.NewClientUnkownError().WithCause(berr)
 	}
 
