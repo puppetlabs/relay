@@ -91,7 +91,7 @@ func (d *TextDialog) Progress(msg string) {
 }
 
 func (d *TextDialog) Table() Table {
-	return &textTable{}
+	return &textTable{w: d.w}
 }
 
 type JSONDialog struct {
@@ -123,7 +123,7 @@ func (d *JSONDialog) Errorf(message string, args ...interface{}) {
 }
 
 func (d *JSONDialog) Table() Table {
-	return &jsonTable{}
+	return &jsonTable{w: d.w}
 }
 
 func FromConfig(cfg *config.Config) Dialog {
