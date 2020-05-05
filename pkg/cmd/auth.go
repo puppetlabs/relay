@@ -115,7 +115,7 @@ func doLogin(cmd *cobra.Command, args []string) error {
 		return lperr
 	}
 
-	Dialog.Info("Logging in...")
+	Dialog.Progress("Logging in...")
 
 	cterr := Client.CreateToken(loginParams.Email, loginParams.Password)
 
@@ -142,7 +142,7 @@ func newLoginCommand() *cobra.Command {
 }
 
 func doLogout(cmd *cobra.Command, args []string) error {
-	Dialog.Info("Logging out...")
+	Dialog.Progress("Logging out...")
 
 	iterr := Client.InvalidateToken()
 

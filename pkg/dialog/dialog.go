@@ -18,6 +18,8 @@ import (
 type Dialog interface {
 	WithWriter(io.Writer) Dialog
 
+	Progress(string)
+
 	Info(string)
 	Infof(string, ...interface{})
 
@@ -29,11 +31,12 @@ type Dialog interface {
 }
 
 type TextDialog struct {
+	p *Progress
 	w io.Writer
 }
 
 func (d *TextDialog) WithWriter(w io.Writer) Dialog {
-	return &TextDialog{w}
+	return &TextDialog{w: w}
 }
 
 func withNewLine(str string) string {
@@ -48,22 +51,43 @@ func withNewLine(str string) string {
 	return str
 }
 
-// Info does not print a prefix
+func (d *TextDialog) completeProgress() {
+	if d.p != nil {
+		d.p.Complete()
+		d.p = nil
+	}
+}
+
 func (d *TextDialog) Info(message string) {
+	d.completeProgress()
+
 	fmt.Fprintf(d.w, withNewLine(message))
 }
 
 func (d *TextDialog) Infof(message string, args ...interface{}) {
+	d.completeProgress()
+
 	fmt.Fprintf(d.w, withNewLine(message), args...)
 }
 
 func (d *TextDialog) Error(msg string) {
+	d.completeProgress()
+
 	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), msg)
 }
 
 func (d *TextDialog) Errorf(msg string, args ...interface{}) {
+	d.completeProgress()
+
 	str := fmt.Sprintf(msg, args...)
 	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), str)
+}
+
+func (d *TextDialog) Progress(msg string) {
+	d.completeProgress()
+
+	d.p = NewProgress(d.w, msg)
+	d.p.Start()
 }
 
 func (d *TextDialog) Table() Table {
@@ -76,6 +100,10 @@ type JSONDialog struct {
 
 func (d *JSONDialog) WithWriter(w io.Writer) Dialog {
 	return &JSONDialog{w}
+}
+
+func (d *JSONDialog) Progress(message string) {
+	// noop
 }
 
 func (d *JSONDialog) Info(message string) {
@@ -103,6 +131,6 @@ func FromConfig(cfg *config.Config) Dialog {
 	case config.OutputTypeJSON:
 		return &JSONDialog{os.Stdout}
 	default:
-		return &TextDialog{os.Stdout}
+		return &TextDialog{w: os.Stdout}
 	}
 }

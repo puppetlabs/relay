@@ -43,7 +43,7 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 		return nerr
 	}
 
-	Dialog.Info("Creating your workflow...")
+	Dialog.Progress("Creating your workflow...")
 
 	workflow, cwerr := Client.CreateWorkflow(workflowName)
 
@@ -101,7 +101,7 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	Dialog.Info(fmt.Sprint("Replacing workflow ", workflowName))
+	Dialog.Info("Replacing workflow " + workflowName)
 
 	workflow, werr := Client.GetWorkflow(workflowName)
 
@@ -159,7 +159,7 @@ func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	Dialog.Info("Deleting workflow...")
+	Dialog.Progress("Deleting workflow...")
 
 	_, err := Client.DeleteWorkflow(workflowName)
 
@@ -227,7 +227,7 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	Dialog.Info("Starting your workflow...")
+	Dialog.Progress("Starting your workflow...")
 
 	resp, err := Client.RunWorkflow(name, parseParameters(params))
 
