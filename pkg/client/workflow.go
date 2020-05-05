@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"time"
@@ -134,4 +135,34 @@ func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflo
 	}
 
 	return resp, nil
+}
+
+// DownloadWorkflow gets the latest configuration (as a YAML string) for a
+// given workflow name. This is very purppose-built and likely rather frail. We
+// should probably not be doing this this way.
+func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
+	workflow, err := c.GetWorkflow(name)
+
+	if err != nil {
+		return "", err
+	}
+
+	// TODO: Do we really want this to blow up or...
+	revId := workflow.Workflow.LatestRevision.Id
+	rev := &model.RevisionEntity{}
+
+	if err := c.Request(
+		WithPath(fmt.Sprintf("/api/workflows/%s/revisions/%s", name, revId)),
+		WithResponseInto(rev),
+	); err != nil {
+		return "", err
+	}
+
+	dec, berr := base64.URLEncoding.DecodeString(rev.Revision.Raw)
+
+	if berr != nil {
+		return "", errors.NewClientUnkownError().WithCause(berr)
+	}
+
+	return string(dec), nil
 }

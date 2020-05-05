@@ -26,6 +26,7 @@ func newWorkflowCommand() *cobra.Command {
 	cmd.AddCommand(newDeleteWorkflowCommand())
 	cmd.AddCommand(newRunWorkflowCommand())
 	cmd.AddCommand(newListWorkflowsCommand())
+	cmd.AddCommand(newDownloadWorkflowCommand())
 
 	return cmd
 }
@@ -249,6 +250,38 @@ func newRunWorkflowCommand() *cobra.Command {
 		Short: "Invoke a relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doRunWorkflow,
+	}
+
+	return cmd
+}
+
+func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
+	name, err := getWorkflowName(args)
+
+	if err != nil {
+		return err
+	}
+
+	body, err := Client.DownloadWorkflow(name)
+
+	if err != nil {
+		// TODO: This error should be translated for the user. Right now it just
+		// says whatever the service says.
+		return err
+	}
+
+	// Just plop the whole thing out output.
+	Dialog.WriteString(body)
+
+	return nil
+}
+
+func newDownloadWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "download [workflow name]",
+		Short: "Download a workflow from the service.",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doDownloadWorkflow,
 	}
 
 	return cmd

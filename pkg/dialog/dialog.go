@@ -26,6 +26,8 @@ type Dialog interface {
 	Error(string)
 	Errorf(string, ...interface{})
 
+	WriteString(string) error
+
 	// Table returns a table for formatting for output.
 	Table() Table
 }
@@ -90,6 +92,11 @@ func (d *TextDialog) Progress(msg string) {
 	d.p.Start()
 }
 
+func (d *TextDialog) WriteString(c string) error {
+	_, err := io.WriteString(d.w, c)
+	return err
+}
+
 func (d *TextDialog) Table() Table {
 	return &textTable{w: d.w}
 }
@@ -120,6 +127,11 @@ func (d *JSONDialog) Error(message string) {
 
 func (d *JSONDialog) Errorf(message string, args ...interface{}) {
 	// noop
+}
+
+func (d *JSONDialog) WriteString(string) error {
+	// noop
+	return nil
 }
 
 func (d *JSONDialog) Table() Table {
