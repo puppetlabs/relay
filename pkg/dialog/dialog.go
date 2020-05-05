@@ -8,47 +8,90 @@ package dialog
 
 import (
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/fatih/color"
 	"github.com/puppetlabs/relay/pkg/config"
 )
 
 type Dialog interface {
-	Info(message string)
-	Warn(message string)
-	Error(message string)
+	WithWriter(io.Writer) Dialog
+
+	Info(string)
+	Infof(string, ...interface{})
+
+	Error(string)
+	Errorf(string, ...interface{})
+
+	// Table returns a table for formatting for output.
 	Table() Table
 }
 
-type TextDialog struct{}
+type TextDialog struct {
+	w io.Writer
+}
+
+func (d *TextDialog) WithWriter(w io.Writer) Dialog {
+	return &TextDialog{w}
+}
+
+func withNewLine(str string) string {
+	if len(str) == 0 {
+		return ""
+	}
+
+	if str[len(str)-1] != '\n' {
+		return str + "\n"
+	}
+
+	return str
+}
 
 // Info does not print a prefix
 func (d *TextDialog) Info(message string) {
-	fmt.Println(message)
+	fmt.Fprintf(d.w, withNewLine(message))
 }
 
-func (d *TextDialog) Warn(message string) {
-	fmt.Println(color.YellowString("Warning:"), message)
+func (d *TextDialog) Infof(message string, args ...interface{}) {
+	fmt.Fprintf(d.w, withNewLine(message), args...)
 }
 
-func (d *TextDialog) Error(message string) {
-	fmt.Println(color.RedString("Error:"), message)
+func (d *TextDialog) Error(msg string) {
+	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), msg)
+}
+
+func (d *TextDialog) Errorf(msg string, args ...interface{}) {
+	str := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), str)
 }
 
 func (d *TextDialog) Table() Table {
 	return &textTable{}
 }
 
-type JSONDialog struct{}
-
-// right now json dialog methods do nothing
-func (d *JSONDialog) Info(message string) {
+type JSONDialog struct {
+	w io.Writer
 }
 
-func (d *JSONDialog) Warn(message string) {
+func (d *JSONDialog) WithWriter(w io.Writer) Dialog {
+	return &JSONDialog{w}
+}
+
+func (d *JSONDialog) Info(message string) {
+	// noop
+}
+
+func (d *JSONDialog) Infof(message string, args ...interface{}) {
+	// noop
 }
 
 func (d *JSONDialog) Error(message string) {
+	// noop
+}
+
+func (d *JSONDialog) Errorf(message string, args ...interface{}) {
+	// noop
 }
 
 func (d *JSONDialog) Table() Table {
@@ -58,8 +101,8 @@ func (d *JSONDialog) Table() Table {
 func FromConfig(cfg *config.Config) Dialog {
 	switch cfg.Out {
 	case config.OutputTypeJSON:
-		return &JSONDialog{}
+		return &JSONDialog{os.Stdout}
 	default:
-		return &TextDialog{}
+		return &TextDialog{os.Stdout}
 	}
 }

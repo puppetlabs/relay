@@ -4,6 +4,7 @@ import "io"
 import "github.com/jedib0t/go-pretty/table"
 
 type textTable struct {
+	w       io.Writer
 	headers []string
 	rows    [][]string
 }
@@ -34,9 +35,9 @@ func (t *textTable) AppendRow(row []string) Table {
 	return t
 }
 
-func (t *textTable) WriteTo(w io.Writer) error {
+func (t *textTable) Flush() error {
 	ta := table.NewWriter()
-	ta.SetOutputMirror(w)
+	ta.SetOutputMirror(t.w)
 
 	if t.headers != nil {
 		ta.AppendHeader(stringsToRow(t.headers))

@@ -6,6 +6,7 @@ import (
 )
 
 type jsonTable struct {
+	w       io.Writer
 	headers []string
 	rows    [][]string
 }
@@ -45,6 +46,6 @@ func (t *jsonTable) AppendRow(row []string) Table {
 	return t
 }
 
-func (t *jsonTable) WriteTo(w io.Writer) error {
-	return json.NewEncoder(w).Encode(allStringsToMap(t.headers, t.rows))
+func (t *jsonTable) Flush() error {
+	return json.NewEncoder(t.w).Encode(allStringsToMap(t.headers, t.rows))
 }

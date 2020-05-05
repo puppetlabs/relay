@@ -1,4 +1,4 @@
-package workflow
+package cmd
 
 import (
 	"bufio"
@@ -7,9 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/puppetlabs/relay/pkg/client"
-	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/puppetlabs/relay/pkg/model"
@@ -17,29 +14,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommand() *cobra.Command {
+func newWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
 		Short: "Manage your relay workflows",
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	cmd.AddCommand(NewAddWorkflowCommand())
-	cmd.AddCommand(NewReplaceWorkflowCommand())
-	cmd.AddCommand(NewDeleteWorkflowCommand())
-	cmd.AddCommand(NewRunWorkflowCommand())
-	cmd.AddCommand(NewListWorkflowsCommand())
+	cmd.AddCommand(newAddWorkflowCommand())
+	cmd.AddCommand(newReplaceWorkflowCommand())
+	cmd.AddCommand(newDeleteWorkflowCommand())
+	cmd.AddCommand(newRunWorkflowCommand())
+	cmd.AddCommand(newListWorkflowsCommand())
 
 	return cmd
 }
 
 func doAddWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.FromFlags(cmd.Flags())
-
-	if cfgerr != nil {
-		return cfgerr
-	}
-
 	file, ferr := readFile(cmd)
 
 	if ferr != nil {
@@ -52,46 +43,39 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 		return nerr
 	}
 
-	log := dialog.FromConfig(cfg)
+	Dialog.Info("Creating your workflow...")
 
-	log.Info("Creating your workflow...")
-
-	client := client.NewClient(cfg)
-
-	workflow, cwerr := client.CreateWorkflow(workflowName)
+	workflow, cwerr := Client.CreateWorkflow(workflowName)
 
 	if cwerr != nil {
 		return cwerr
 	}
 
-	revision, rerr := client.CreateRevision(workflow.Workflow.Name, file)
+	revision, rerr := Client.CreateRevision(workflow.Workflow.Name, file)
 
 	if rerr != nil {
 
 		// attempt to revert creation of workflow record
-		client.DeleteWorkflow(workflow.Workflow.Name)
+		Client.DeleteWorkflow(workflow.Workflow.Name)
 
 		return rerr
 	}
 
 	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
 
-	wr.Output(cfg)
+	wr.Output(Config)
 
-	log.Info(
-		fmt.Sprintf(
-			`Successfully created workflow %v
+	Dialog.Infof(`Successfully created workflow %v
 			
 View more information or update workflow settings at %v`,
-			workflow.Workflow.Name,
-			format.GuiLink(cfg, "/workflow/%v", workflow.Workflow.Name),
-		),
+		workflow.Workflow.Name,
+		format.GuiLink(Config, "/workflow/%v", workflow.Workflow.Name),
 	)
 
 	return nil
 }
 
-func NewAddWorkflowCommand() *cobra.Command {
+func newAddWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add [workflow name]",
 		Short: "Add a relay workflow from a local file",
@@ -105,37 +89,27 @@ func NewAddWorkflowCommand() *cobra.Command {
 }
 
 func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.FromFlags(cmd.Flags())
+	file, err := readFile(cmd)
 
-	if cfgerr != nil {
-		return cfgerr
+	if err != nil {
+		return err
 	}
 
-	file, ferr := readFile(cmd)
+	workflowName, err := getWorkflowName(args)
 
-	if ferr != nil {
-		return ferr
+	if err != nil {
+		return err
 	}
 
-	workflowName, nerr := getWorkflowName(args)
+	Dialog.Info(fmt.Sprint("Replacing workflow ", workflowName))
 
-	if nerr != nil {
-		return nerr
-	}
-
-	log := dialog.FromConfig(cfg)
-
-	log.Info(fmt.Sprint("Replacing workflow ", workflowName))
-
-	client := client.NewClient(cfg)
-
-	workflow, werr := client.GetWorkflow(workflowName)
+	workflow, werr := Client.GetWorkflow(workflowName)
 
 	if werr != nil {
 		return werr
 	}
 
-	revision, rerr := client.CreateRevision(workflowName, file)
+	revision, rerr := Client.CreateRevision(workflowName, file)
 
 	if rerr != nil {
 		return rerr
@@ -143,22 +117,19 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 
 	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
 
-	wr.Output(cfg)
+	wr.Output(Config)
 
-	log.Info(
-		fmt.Sprintf(
-			`Successfully updated workflow %v
+	Dialog.Infof(`Successfully updated workflow %v
 			
 Updated configuration is visible at %v`,
-			workflowName,
-			format.GuiLink(cfg, "/workflow/%v", workflowName),
-		),
+		workflowName,
+		format.GuiLink(Config, "/workflow/%v", workflowName),
 	)
 
 	return nil
 }
 
-func NewReplaceWorkflowCommand() *cobra.Command {
+func newReplaceWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replace [workflow name]",
 		Short: "Replace the configuration of a relay workflow",
@@ -172,19 +143,13 @@ func NewReplaceWorkflowCommand() *cobra.Command {
 }
 
 func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.FromFlags(cmd.Flags())
-
-	if cfgerr != nil {
-		return cfgerr
-	}
-
 	workflowName, nerr := getWorkflowName(args)
 
 	if nerr != nil {
 		return nerr
 	}
 
-	proceed, cerr := util.Confirm("Are you sure you want to delete this workflow?", cfg)
+	proceed, cerr := util.Confirm("Are you sure you want to delete this workflow?", Config)
 
 	if cerr != nil {
 		return cerr
@@ -194,24 +159,20 @@ func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	log := dialog.FromConfig(cfg)
+	Dialog.Info("Deleting workflow...")
 
-	log.Info("Deleting workflow...")
-
-	client := client.NewClient(cfg)
-
-	_, err := client.DeleteWorkflow(workflowName)
+	_, err := Client.DeleteWorkflow(workflowName)
 
 	if err != nil {
 		return err
 	}
 
-	log.Info("Workflow successfully deleted")
+	Dialog.Info("Workflow successfully deleted")
 
 	return nil
 }
 
-func NewDeleteWorkflowCommand() *cobra.Command {
+func newDeleteWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [workflow name]",
 		Short: "Delete a relay workflow",
@@ -253,12 +214,6 @@ func parseParameters(strs []string) map[string]string {
 }
 
 func doRunWorkflow(cmd *cobra.Command, args []string) error {
-	cfg, err := config.FromFlags(cmd.Flags())
-
-	if err != nil {
-		return err
-	}
-
 	params, err := cmd.Flags().GetStringArray("parameter")
 
 	if err != nil {
@@ -272,13 +227,9 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log := dialog.FromConfig(cfg)
+	Dialog.Info("Starting your workflow...")
 
-	log.Info("Starting your workflow...")
-
-	client := client.NewClient(cfg)
-
-	resp, err := client.RunWorkflow(name, parseParameters(params))
+	resp, err := Client.RunWorkflow(name, parseParameters(params))
 
 	if err != nil {
 		// TODO: This error should be translated for the user. Right now it just
@@ -286,13 +237,13 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	link := format.GuiLink(cfg, "/workflows/ec2-reaper/runs/%d/graph", resp.Run.RunNumber)
-	log.Info(fmt.Sprintf("Your run has started. Monitor it's progress: %s", link))
+	link := format.GuiLink(Config, "/workflows/ec2-reaper/runs/%d/graph", resp.Run.RunNumber)
+	Dialog.Info(fmt.Sprintf("Your run has started. Monitor it's progress: %s", link))
 
 	return nil
 }
 
-func NewRunWorkflowCommand() *cobra.Command {
+func newRunWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "run [workflow name]",
 		Short: "Invoke a relay workflow",
@@ -304,22 +255,13 @@ func NewRunWorkflowCommand() *cobra.Command {
 }
 
 func doListWorkflows(cmd *cobra.Command, args []string) error {
-	cfg, err := config.FromFlags(cmd.Flags())
-
-	if err != nil {
-		return err
-	}
-
-	client := client.NewClient(cfg)
-
-	resp, err := client.ListWorkflows()
+	resp, err := Client.ListWorkflows()
 
 	if err != nil {
 		panic(err)
 	}
 
-	log := dialog.FromConfig(cfg)
-	t := log.Table()
+	t := Dialog.Table()
 
 	t.Headers([]string{"Name", "Last Run Number"})
 
@@ -327,12 +269,12 @@ func doListWorkflows(cmd *cobra.Command, args []string) error {
 		t.AppendRow([]string{workflow.Name, fmt.Sprintf("%d", workflow.MostRecentRun.RunNumber)})
 	}
 
-	t.WriteTo(os.Stdout)
+	t.Flush()
 
 	return nil
 }
 
-func NewListWorkflowsCommand() *cobra.Command {
+func newListWorkflowsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "Get a list of all your workflows",
