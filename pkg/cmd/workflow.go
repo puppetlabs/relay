@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/puppetlabs/relay/pkg/model"
@@ -185,18 +186,14 @@ func newDeleteWorkflowCommand() *cobra.Command {
 }
 
 func parseParameter(str string) (key, value string) {
-	idx := strings.Index(str, "=")
+	strs := strings.SplitN(str, "=", 2)
 
-	// TODO: This behavior will basically silently discard parameters that are
-	// in the wrong format. Should this, like, panic perhaps? Or notify the user that their
-	// parameters are specified incorrectly?
-	if idx < 0 {
-		return
+	if len(strs) == 2 {
+		return strs[0], strs[1]
 	}
 
-	key = str[0:idx]
-	value = str[idx+1:]
-	return
+	debug.Logf("invalid parameter: %s", str)
+	return "", ""
 }
 
 func parseParameters(strs []string) map[string]string {
@@ -218,7 +215,8 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 	params, err := cmd.Flags().GetStringArray("parameter")
 
 	if err != nil {
-		panic(err)
+		debug.Log("the parameters flag is missing on the Cobra command configuration")
+		return errors.NewGeneralUnknownError().WithCause(err).Bug()
 	}
 
 	// TODO: Same here as above. Could really DRY all this up.
@@ -291,7 +289,8 @@ func doListWorkflows(cmd *cobra.Command, args []string) error {
 	resp, err := Client.ListWorkflows()
 
 	if err != nil {
-		panic(err)
+		debug.Logf("failed to list workflows: %s", err.Error())
+		return err
 	}
 
 	t := Dialog.Table()
