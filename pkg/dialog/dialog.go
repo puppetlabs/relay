@@ -16,7 +16,8 @@ import (
 )
 
 type Dialog interface {
-	WithWriter(io.Writer) Dialog
+	WithStdout(io.Writer) Dialog
+	WithStderr(io.Writer) Dialog
 
 	Progress(string)
 
@@ -33,12 +34,17 @@ type Dialog interface {
 }
 
 type TextDialog struct {
-	p *Progress
-	w io.Writer
+	p      *Progress
+	stdout io.Writer
+	stderr io.Writer
 }
 
-func (d *TextDialog) WithWriter(w io.Writer) Dialog {
-	return &TextDialog{w: w}
+func (d *TextDialog) WithStdout(w io.Writer) Dialog {
+	return &TextDialog{stdout: w, stderr: d.stderr, p: d.p}
+}
+
+func (d *TextDialog) WithStderr(w io.Writer) Dialog {
+	return &TextDialog{stdout: d.stdout, stderr: w, p: d.p}
 }
 
 func withNewLine(str string) string {
@@ -63,50 +69,54 @@ func (d *TextDialog) completeProgress() {
 func (d *TextDialog) Info(message string) {
 	d.completeProgress()
 
-	fmt.Fprintf(d.w, withNewLine(message))
+	fmt.Fprintf(d.stdout, withNewLine(message))
 }
 
 func (d *TextDialog) Infof(message string, args ...interface{}) {
 	d.completeProgress()
 
-	fmt.Fprintf(d.w, withNewLine(message), args...)
+	fmt.Fprintf(d.stdout, withNewLine(message), args...)
 }
 
 func (d *TextDialog) Error(msg string) {
 	d.completeProgress()
 
-	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), msg)
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), msg)
 }
 
 func (d *TextDialog) Errorf(msg string, args ...interface{}) {
 	d.completeProgress()
 
 	str := fmt.Sprintf(msg, args...)
-	fmt.Fprintf(d.w, "%s%s", color.RedString("Error:"), str)
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), str)
 }
 
 func (d *TextDialog) Progress(msg string) {
 	d.completeProgress()
 
-	d.p = NewProgress(d.w, msg)
+	d.p = NewProgress(d.stdout, msg)
 	d.p.Start()
 }
 
 func (d *TextDialog) WriteString(c string) error {
-	_, err := io.WriteString(d.w, c)
+	_, err := io.WriteString(d.stdout, c)
 	return err
 }
 
 func (d *TextDialog) Table() Table {
-	return &textTable{w: d.w}
+	return &textTable{w: d.stdout}
 }
 
 type JSONDialog struct {
-	w io.Writer
+	stdout, stderr io.Writer
 }
 
-func (d *JSONDialog) WithWriter(w io.Writer) Dialog {
-	return &JSONDialog{w}
+func (d *JSONDialog) WithStdout(w io.Writer) Dialog {
+	return &JSONDialog{stdout: w, stderr: d.stderr}
+}
+
+func (d *JSONDialog) WithStderr(w io.Writer) Dialog {
+	return &JSONDialog{stdout: d.stdout, stderr: w}
 }
 
 func (d *JSONDialog) Progress(message string) {
@@ -121,12 +131,13 @@ func (d *JSONDialog) Infof(message string, args ...interface{}) {
 	// noop
 }
 
-func (d *JSONDialog) Error(message string) {
-	// noop
+func (d *JSONDialog) Error(msg string) {
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), msg)
 }
 
-func (d *JSONDialog) Errorf(message string, args ...interface{}) {
-	// noop
+func (d *JSONDialog) Errorf(msg string, args ...interface{}) {
+	str := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), str)
 }
 
 func (d *JSONDialog) WriteString(string) error {
@@ -135,14 +146,14 @@ func (d *JSONDialog) WriteString(string) error {
 }
 
 func (d *JSONDialog) Table() Table {
-	return &jsonTable{w: d.w}
+	return &jsonTable{w: d.stdout}
 }
 
 func FromConfig(cfg *config.Config) Dialog {
 	switch cfg.Out {
 	case config.OutputTypeJSON:
-		return &JSONDialog{os.Stdout}
+		return &JSONDialog{stdout: os.Stdout, stderr: os.Stderr}
 	default:
-		return &TextDialog{w: os.Stdout}
+		return &TextDialog{stdout: os.Stdout, stderr: os.Stderr}
 	}
 }
