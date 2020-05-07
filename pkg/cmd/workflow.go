@@ -233,8 +233,6 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 	resp, err := Client.RunWorkflow(name, parseParameters(params))
 
 	if err != nil {
-		// TODO: This error should be translated for the user. Right now it just
-		// says whatever the service says.
 		return err
 	}
 
