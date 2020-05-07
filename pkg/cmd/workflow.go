@@ -252,6 +252,8 @@ func newRunWorkflowCommand() *cobra.Command {
 		RunE:  doRunWorkflow,
 	}
 
+	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with.")
+
 	return cmd
 }
 
