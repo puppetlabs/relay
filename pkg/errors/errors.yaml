@@ -54,6 +54,9 @@ sections:
   client:
     title: Client errors
     errors:
+      unkown_error:
+        title: Unknown error
+        description: An unknown error has occured.
       # This error probably means a CLI developer screwed up
       internal_error:
         title: Unknown error

@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"bufio"
@@ -9,9 +9,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/puppetlabs/relay/pkg/client"
-	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
@@ -23,70 +20,17 @@ import (
 // to a remote API server.
 const readLimit = 512
 
-func NewAuthCommand() *cobra.Command {
+func newAuthCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage your authentication credentials",
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	cmd.AddCommand(NewLoginCommand())
-	cmd.AddCommand(NewLogoutCommand())
+	cmd.AddCommand(newLoginCommand())
+	cmd.AddCommand(newLogoutCommand())
 
 	return cmd
-}
-
-func NewLoginCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "login [email]",
-		Short: "Log in to Relay",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  login,
-	}
-
-	cmd.Flags().BoolP("password-stdin", "p", false, "accept password from stdin")
-
-	return cmd
-}
-
-func NewLogoutCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "logout",
-		Short: "Log out of Relay",
-		RunE:  logout,
-	}
-
-	return cmd
-}
-
-func login(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
-
-	if cfgerr != nil {
-		return cfgerr
-	}
-
-	log := dialog.NewDialog(cfg)
-
-	loginParams, lperr := getLoginParameters(cmd, args)
-
-	if lperr != nil {
-		return lperr
-	}
-
-	log.Info("Logging in...")
-
-	client := client.NewClient(cfg)
-
-	cterr := client.CreateToken(loginParams.Email, loginParams.Password)
-
-	if cterr != nil {
-		return cterr
-	}
-
-	log.Info("Sucessfully logged in!")
-
-	return nil
 }
 
 type loginParameters struct {
@@ -95,10 +39,10 @@ type loginParameters struct {
 }
 
 func getLoginParameters(cmd *cobra.Command, args []string) (*loginParameters, errors.Error) {
-	passFromStdin, perr := cmd.Flags().GetBool("password-stdin")
+	passFromStdin, err := cmd.Flags().GetBool("password-stdin")
 
-	if perr != nil {
-		return nil, errors.NewAuthFailedLoginError().WithCause(perr)
+	if err != nil {
+		return nil, errors.NewAuthFailedLoginError().WithCause(err)
 	}
 
 	var email string
@@ -164,26 +108,59 @@ func getLoginParameters(cmd *cobra.Command, args []string) (*loginParameters, er
 	}, nil
 }
 
-func logout(cmd *cobra.Command, args []string) error {
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+func doLogin(cmd *cobra.Command, args []string) error {
+	loginParams, lperr := getLoginParameters(cmd, args)
 
-	if cfgerr != nil {
-		return cfgerr
+	if lperr != nil {
+		return lperr
 	}
 
-	log := dialog.NewDialog(cfg)
+	Dialog.Progress("Logging in...")
 
-	log.Info("Logging out...")
+	cterr := Client.CreateToken(loginParams.Email, loginParams.Password)
 
-	client := client.NewClient(cfg)
+	if cterr != nil {
+		return cterr
+	}
 
-	iterr := client.InvalidateToken()
+	Dialog.Info("Sucessfully logged in!")
+
+	return nil
+}
+
+func newLoginCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "login [email]",
+		Short: "Log in to Relay",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doLogin,
+	}
+
+	cmd.Flags().BoolP("password-stdin", "p", false, "accept password from stdin")
+
+	return cmd
+}
+
+func doLogout(cmd *cobra.Command, args []string) error {
+	Dialog.Progress("Logging out...")
+
+	iterr := Client.InvalidateToken()
 
 	if iterr != nil {
 		return iterr
 	}
 
-	log.Info("You have been sucesfully logged out.")
+	Dialog.Info("You have been sucesfully logged out.")
 
 	return nil
+}
+
+func newLogoutCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "logout",
+		Short: "Log out of Relay",
+		RunE:  doLogout,
+	}
+
+	return cmd
 }

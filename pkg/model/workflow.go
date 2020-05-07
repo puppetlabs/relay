@@ -25,7 +25,14 @@ type Workflow struct {
 	UpdatedAt      *time.Time       `json:"updated_at"`
 	LatestRevision *RevisionSummary `json:"latest_revision"`
 	State          *WorkflowState   `json:"state,omitempty"`
-	// TODO: last run
+	MostRecentRun  WorkflowRun      `json:"most_recent_run"`
+}
+
+type WorkflowRun struct {
+	Revision  RevisionSummary `json:"revision"`
+	RunNumber uint            `json:"run_number"`
+
+	// TODO: There's a lot of fields here that are missing. Do we want to backfill them?
 }
 
 type WorkflowEntity struct {

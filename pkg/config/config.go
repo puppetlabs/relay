@@ -57,9 +57,9 @@ func GetDefaultConfig() *Config {
 	}
 }
 
-// GetConfig uses viper to read global configuration from persistent flags,
+// FromFlags uses viper to read global configuration from persistent flags,
 // environment variables, and / or yaml config read from $HOME/.config/relay
-func GetConfig(flags *pflag.FlagSet) (*Config, error) {
+func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	v := viper.New()
 
 	v.SetEnvPrefix("relay")
@@ -84,28 +84,28 @@ func GetConfig(flags *pflag.FlagSet) (*Config, error) {
 		return nil, err
 	}
 
-	output, oerr := readOutput(v)
+	output, err := readOutput(v)
 
-	if oerr != nil {
-		return nil, oerr
+	if err != nil {
+		return nil, err
 	}
 
-	apiDomain, aderr := readAPIDomain(v)
+	apiDomain, err := readAPIDomain(v)
 
-	if aderr != nil {
-		return nil, aderr
+	if err != nil {
+		return nil, err
 	}
 
-	uiDomain, uderr := readUIDomain(v)
+	uiDomain, err := readUIDomain(v)
 
-	if uderr != nil {
-		return nil, uderr
+	if err != nil {
+		return nil, err
 	}
 
-	webDomain, wderr := readWebDomain(v)
+	webDomain, err := readWebDomain(v)
 
-	if wderr != nil {
-		return nil, wderr
+	if err != nil {
+		return nil, err
 	}
 
 	config := &Config{
