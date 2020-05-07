@@ -70,7 +70,7 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 			
 View more information or update workflow settings at %v`,
 		workflow.Workflow.Name,
-		format.GuiLink(Config, "/workflow/%v", workflow.Workflow.Name),
+		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
 
 	return nil
@@ -124,7 +124,7 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 			
 Updated configuration is visible at %v`,
 		workflowName,
-		format.GuiLink(Config, "/workflow/%v", workflowName),
+		format.GuiLink(Config, "/workflows/%v", workflowName),
 	)
 
 	return nil
@@ -238,7 +238,7 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	link := format.GuiLink(Config, "/workflows/ec2-reaper/runs/%d/graph", resp.Run.RunNumber)
+	link := format.GuiLink(Config, "/workflows/%s/runs/%d/graph", name, resp.Run.RunNumber)
 	Dialog.Info(fmt.Sprintf("Your run has started. Monitor it's progress: %s", link))
 
 	return nil
