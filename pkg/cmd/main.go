@@ -31,6 +31,7 @@ func getCmd() *cobra.Command {
 		Short:         "Relay by Puppet",
 		Args:          cobra.MinimumNArgs(1),
 		SilenceErrors: true,
+		SilenceUsage:  true,
 		Long: `Relay connects your tools, APIs, and infrastructure 
 to automate common tasks through simple event driven workflows.`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

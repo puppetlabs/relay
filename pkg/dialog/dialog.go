@@ -81,14 +81,14 @@ func (d *TextDialog) Infof(message string, args ...interface{}) {
 func (d *TextDialog) Error(msg string) {
 	d.completeProgress()
 
-	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), msg)
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), withNewLine(msg))
 }
 
 func (d *TextDialog) Errorf(msg string, args ...interface{}) {
 	d.completeProgress()
 
 	str := fmt.Sprintf(msg, args...)
-	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), str)
+	fmt.Fprintf(d.stderr, "%s%s", color.RedString("Error:"), withNewLine(str))
 }
 
 func (d *TextDialog) Progress(msg string) {
