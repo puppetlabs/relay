@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const CommandName = "relay"
+
 // Config is the configuration that our commands should use. We can assume that
 // it's been configured accordingly by the time that a command executres.
 var Config *config.Config
@@ -23,9 +25,9 @@ var Client *client.Client
 // Dialog is the UI to use derrived from the current configuration.
 var Dialog dialog.Dialog
 
-func Execute() {
+func getCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "relay",
+		Use:           CommandName,
 		Short:         "Relay by Puppet",
 		Args:          cobra.MinimumNArgs(1),
 		SilenceErrors: true,
@@ -62,6 +64,12 @@ to automate common tasks through simple event driven workflows.`,
 
 	cmd.AddCommand(newAuthCommand())
 	cmd.AddCommand(newWorkflowCommand())
+
+	return cmd
+}
+
+func Execute() {
+	cmd := getCmd()
 
 	if err := cmd.Execute(); err != nil {
 		Dialog.Error(format.Error(err, cmd))
