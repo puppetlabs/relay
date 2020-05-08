@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/relay_logotype.png" alt="Relay by Puppet" width="50%">
+  <img src="docs/relay-logo.svg" alt="Relay by Puppet" width="50%">
 </p>
 
 Relay is a service that lets you connect tools, APIs, and infrastructure to automate common tasks through simpler, smarter workflows. It links infrastructure events to workflow execution, so that for example, when a new JIRA ticket or Github issue comes in, your workflow can trigger deployments or send notifications.
