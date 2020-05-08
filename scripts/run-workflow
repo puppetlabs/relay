@@ -6,6 +6,6 @@ SHA=$(<"bin/relay-${TAG}-darwin-amd64.sha256")
 
 chmod +x $CLI
 
-echo -n "${RELAY_PASSWORD}" | ${CLI} login -e "${RELAY_EMAIL}" -p\
+echo -n "${RELAY_PASSWORD}" | ${CLI} auth login "${RELAY_EMAIL}" -p\
 
-${CLI} workflow run -n "relay-cli-update-brew" -p tag=${TAG} -p sha=${SHA}
+${CLI} workflow run --parameter tag=${TAG} --parameter sha=${SHA} relay-cli-update-brew
