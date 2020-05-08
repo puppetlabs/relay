@@ -15,15 +15,15 @@ const CommandName = "relay"
 
 // Config is the configuration that our commands should use. We can assume that
 // it's been configured accordingly by the time that a command executres.
-var Config *config.Config
+var Config = config.GetDefaultConfig()
 
 // Client is the client that we should use based on the configuration. If the
 // configuration can't be loaded then we can't assume that the client is
 // loaded.
-var Client *client.Client
+var Client = client.NewClient(Config)
 
 // Dialog is the UI to use derrived from the current configuration.
-var Dialog dialog.Dialog
+var Dialog = dialog.FromConfig(Config)
 
 func getCmd() *cobra.Command {
 	cmd := &cobra.Command{
