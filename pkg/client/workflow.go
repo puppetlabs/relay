@@ -82,8 +82,12 @@ func (c *Client) DeleteWorkflow(name string) (*DeleteWorkflowResponse, errors.Er
 	return response, nil
 }
 
+type RunWorkflowParameterValueRequest struct {
+	Value string `json:"value"`
+}
+
 type RunWorkflowRequest struct {
-	Parameters map[string]string `json:"parameters"`
+	Parameters map[string]RunWorkflowParameterValueRequest `json:"parameters"`
 }
 
 type RunWorkflowWorkflowResponse struct {
@@ -119,9 +123,19 @@ type RunWorkflowResponse struct {
 	Run RunWorkflowRunResponse `json:"run"`
 }
 
+func setupParams(params map[string]string) map[string]RunWorkflowParameterValueRequest {
+	res := make(map[string]RunWorkflowParameterValueRequest, len(params))
+
+	for key, val := range params {
+		res[key] = RunWorkflowParameterValueRequest{val}
+	}
+
+	return res
+}
+
 func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflowResponse, errors.Error) {
 	req := &RunWorkflowRequest{
-		Parameters: params,
+		Parameters: setupParams(params),
 	}
 
 	resp := &RunWorkflowResponse{}
