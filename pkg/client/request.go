@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 
 	"github.com/puppetlabs/errawr-go/v2/pkg/encoding"
+	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 )
 
@@ -182,9 +182,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	}
 
 	// temporary but very useful debugging solution until we get real logging in place
-	if c.config.Debug {
-		debug(httputil.DumpRequestOut(req, true))
-	}
+	debug.LogDump(httputil.DumpRequestOut(req, true))
 
 	resp, resperr := c.httpClient.Do(req)
 
@@ -192,9 +190,8 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 		return errors.NewClientRequestError().WithCause(resperr)
 	}
 
-	if c.config.Debug {
-		debug(httputil.DumpResponse(resp, true))
-	}
+	// temporary but very useful debugging solution until we get real logging in place
+	debug.LogDump(httputil.DumpResponse(resp, true))
 
 	defer resp.Body.Close()
 
@@ -242,12 +239,4 @@ func parseError(resp *http.Response) errors.Error {
 	}
 
 	return errors.NewClientRequestError().WithCause(cause)
-}
-
-func debug(data []byte, err error) {
-	if err == nil {
-		fmt.Printf("%s\n\n", data)
-	} else {
-		log.Fatalf("%s\n\n", err)
-	}
 }

@@ -1,3 +1,6 @@
+*.sw[onp]
+*.code-workspace
+/relay
 /.depend/
 /artifacts/
 /bin/

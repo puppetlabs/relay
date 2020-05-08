@@ -7,14 +7,13 @@ import (
 
 	"github.com/puppetlabs/errawr-go/v2/pkg/encoding"
 	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-func FormatError(err error, cmd *cobra.Command) {
+func Error(err error, cmd *cobra.Command) string {
 	// attempt to load config for display options.
-	cfg, cfgerr := config.GetConfig(cmd.Flags())
+	cfg, cfgerr := config.FromFlags(cmd.Flags())
 
 	// if there was a problem loading config use default config
 	if cfgerr != nil {
@@ -22,9 +21,9 @@ func FormatError(err error, cmd *cobra.Command) {
 	}
 
 	if cfg.Out == config.OutputTypeJSON {
-		formatJSONError(coerceErrawr(err))
+		return formatJSONError(coerceErrawr(err))
 	} else {
-		formatTextError(coerceErrawr(err), cfg)
+		return formatTextError(coerceErrawr(err), cfg)
 	}
 }
 
@@ -42,16 +41,18 @@ func coerceErrawr(err error) errors.Error {
 // formatJSONError uses errawr envelope encoding to generate a json display of an error
 // We could make a condensed json representation but it is very useful to use
 // the one we already have for now
-func formatJSONError(err errors.Error) {
+func formatJSONError(err errors.Error) string {
 	display := encoding.ForDisplay(err)
-	jsonBytes, _ := json.MarshalIndent(display, "", "  ")
+	buf, jerr := json.MarshalIndent(display, "", "  ")
 
-	fmt.Println(string(jsonBytes))
+	if jerr != nil {
+		panic(jerr)
+	}
+
+	return string(buf)
 }
 
-func formatTextError(err errors.Error, cfg *config.Config) {
-	log := dialog.NewDialog(cfg)
-
+func formatTextError(err errors.Error, cfg *config.Config) string {
 	var out string
 
 	appendError(err, cfg, &out, 0, "")
@@ -62,7 +63,7 @@ func formatTextError(err errors.Error, cfg *config.Config) {
 You have recieved an error in debug mode. If the error persists you may file a bug report at https://github.com/puppetlabs/relay/issues`)
 	}
 
-	log.Error(out)
+	return out
 }
 
 // appendError recursively prints errawr causes and items, progressively indented

@@ -471,6 +471,54 @@ func NewClientResponseNotFound() Error {
 	return NewClientResponseNotFoundBuilder().Build()
 }
 
+// ClientUnkownErrorCode is the code for an instance of "unkown_error".
+const ClientUnkownErrorCode = "rcli_client_unkown_error"
+
+// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
+func IsClientUnkownError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUnkownErrorCode)
+}
+
+// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
+func (External) IsClientUnkownError(err errawr.Error) bool {
+	return IsClientUnkownError(err)
+}
+
+// ClientUnkownErrorBuilder is a builder for "unkown_error" errors.
+type ClientUnkownErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "unkown_error" from this builder.
+func (b *ClientUnkownErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "An unknown error has occured.",
+		Technical: "An unknown error has occured.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "unkown_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Unknown error",
+		Version:          1,
+	}
+}
+
+// NewClientUnkownErrorBuilder creates a new error builder for the code "unkown_error".
+func NewClientUnkownErrorBuilder() *ClientUnkownErrorBuilder {
+	return &ClientUnkownErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewClientUnkownError creates a new error with the code "unkown_error".
+func NewClientUnkownError() Error {
+	return NewClientUnkownErrorBuilder().Build()
+}
+
 // ClientUserNotAuthenticatedCode is the code for an instance of "user_not_authenticated".
 const ClientUserNotAuthenticatedCode = "rcli_client_user_not_authenticated"
 
