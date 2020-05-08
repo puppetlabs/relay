@@ -18,7 +18,7 @@ import (
 func newWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
-		Short: "Manage your relay workflows",
+		Short: "Manage your Relay workflows",
 		Args:  cobra.MinimumNArgs(1),
 	}
 
@@ -69,7 +69,7 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 
 	Dialog.Infof(`Successfully created workflow %v
 			
-View more information or update workflow settings at %v`,
+View more information or update workflow settings at: %v`,
 		workflow.Workflow.Name,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
@@ -80,12 +80,12 @@ View more information or update workflow settings at %v`,
 func newAddWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add [workflow name]",
-		Short: "Add a relay workflow from a local file",
+		Short: "Add a Relay workflow from a local file",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doAddWorkflow,
 	}
 
-	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
 
 	return cmd
 }
@@ -123,7 +123,7 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 
 	Dialog.Infof(`Successfully updated workflow %v
 			
-Updated configuration is visible at %v`,
+Updated version is visible at: %v`,
 		workflowName,
 		format.GuiLink(Config, "/workflows/%v", workflowName),
 	)
@@ -134,12 +134,12 @@ Updated configuration is visible at %v`,
 func newReplaceWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replace [workflow name]",
-		Short: "Replace the configuration of a relay workflow",
+		Short: "Replace an existing Relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doReplaceWorkflow,
 	}
 
-	cmd.Flags().StringP("file", "f", "", "Path to relay workflow file.")
+	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
 
 	return cmd
 }
@@ -177,7 +177,7 @@ func doDeleteWorkflow(cmd *cobra.Command, args []string) error {
 func newDeleteWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [workflow name]",
-		Short: "Delete a relay workflow",
+		Short: "Delete a Relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doDeleteWorkflow,
 	}
@@ -215,7 +215,7 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 	params, err := cmd.Flags().GetStringArray("parameter")
 
 	if err != nil {
-		debug.Log("the parameters flag is missing on the Cobra command configuration")
+		debug.Log("The parameters flag is missing on the Cobra command configuration")
 		return errors.NewGeneralUnknownError().WithCause(err).Bug()
 	}
 
@@ -235,7 +235,7 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 	}
 
 	link := format.GuiLink(Config, "/workflows/%s/runs/%d/graph", name, resp.Run.RunNumber)
-	Dialog.Info(fmt.Sprintf("Your run has started. Monitor it's progress: %s", link))
+	Dialog.Info(fmt.Sprintf("Your run has started. Monitor its progress here: %s", link))
 
 	return nil
 }
@@ -243,12 +243,12 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 func newRunWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "run [workflow name]",
-		Short: "Invoke a relay workflow",
+		Short: "Invoke a Relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doRunWorkflow,
 	}
 
-	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with.")
+	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with")
 
 	return cmd
 }
@@ -277,7 +277,7 @@ func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
 func newDownloadWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "download [workflow name]",
-		Short: "Download a workflow from the service.",
+		Short: "Download a workflow from the service",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doDownloadWorkflow,
 	}

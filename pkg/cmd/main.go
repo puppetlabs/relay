@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// CommandName is the top level command that we're building
 const CommandName = "relay"
 
 // Config is the configuration that our commands should use. We can assume that
@@ -32,8 +33,18 @@ func getCmd() *cobra.Command {
 		Args:          cobra.MinimumNArgs(1),
 		SilenceErrors: true,
 		SilenceUsage:  true,
-		Long: `Relay connects your tools, APIs, and infrastructure 
-to automate common tasks through simple event driven workflows.`,
+		Long: `Relay connects your tools, APIs, and infrastructure
+to automate common tasks through simple, event-driven workflows.
+
+To get started, you'll need a relay.sh account - sign up for free
+by following this link: 🔗 https://relay.sh/
+
+Once you've signed up, run this to log in:
+▶️   relay auth login
+
+Use the 'workflow' subcommand to interact with workflows:
+▶️   relay workflow
+`,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// This turns off usage info in json output mode
 			cfg, err := config.FromFlags(cmd.Flags())
@@ -69,6 +80,7 @@ to automate common tasks through simple event driven workflows.`,
 	return cmd
 }
 
+// Execute is here so the cmd builder can be called from the go test harness
 func Execute() {
 	cmd := getCmd()
 

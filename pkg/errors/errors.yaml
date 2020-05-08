@@ -8,7 +8,7 @@ sections:
     errors:
       unknown_error:
         title: Unknown error
-        description: There was a problem executing your request. Please try again.
+        description: There was a problem executing your request. Rerun with --debug to see more information
   config:
     title: CLI Config errors
     errors:
@@ -35,13 +35,13 @@ sections:
             description: User provided output type
       invalid_api_domain:
         title: Invalid API Domain
-        description: Provided UI Domain {{ domain }} is not a valid url.
+        description: Provided API Domain {{ domain }} is not a valid url.
         arguments:
           domain:
             description: User provided api domain
       invalid_ui_domain:
         title: Invalid UI Domain
-        description: Provided API Domain {{ domain }} is not a valid url.
+        description: Provided UI Domain {{ domain }} is not a valid url.
         arguments:
           domain:
             description: User provided ui domain      
@@ -56,7 +56,7 @@ sections:
     errors:
       unkown_error:
         title: Unknown error
-        description: An unknown error has occured.
+        description: An unknown error has occured. Rerun with --debug to troubleshoot.
       # This error probably means a CLI developer screwed up
       internal_error:
         title: Unknown error
@@ -87,7 +87,7 @@ sections:
         description: Response not found.
       user_not_authorized:
         title: User not authorized error
-        description: You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.
+        description: You are not authorized to perform this operation. If you believe this is a mistake, please contact your Relay administrator.
       user_not_authenticated:
         title: User not authenticated error
         description: You must be logged in to perform this operation. Try `relay auth login`.
@@ -96,7 +96,7 @@ sections:
     errors:
       failed_login_error:
         title: Failed login error
-        description: Could not log in. Please try again.
+        description: Could not log in. Double-check username and password and try again.
       failed_pass_from_stdin:
         title: Failed password from stdin
         description: Could not read password from stdin.
@@ -110,14 +110,14 @@ sections:
     title: Workflow errors
     errors:
       workflow_name_read_error:
-        title: Worklflow name read error
-        description: Could not read workflow name. Please try again.
+        title: Workflow name read error
+        description: Could not read workflow name. Please supply a valid name.
       workflow_file_read_error:
         title: Workflow file read error
-        description: Could not read workflow file. Please try again.
+        description: Could not read workflow file. Check the path to the workflow file.
       missing_file_flag_error:
         title: Missing file flag error
         description: You must specify a workflow file with the --file flag.
       missing_name_error:
         title: Missing workflow name error
-        description: Please provide a workflow name
+        description: Please provide a workflow name.
