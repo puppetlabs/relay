@@ -53,8 +53,8 @@ type AuthFailedLoginErrorBuilder struct {
 // Build creates the error for the code "failed_login_error" from this builder.
 func (b *AuthFailedLoginErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Could not log in. Please try again.",
-		Technical: "Could not log in. Please try again.",
+		Friendly:  "Could not log in. Double-check username and password and try again.",
+		Technical: "Could not log in. Double-check username and password and try again.",
 	}
 
 	return &impl.Error{
@@ -492,8 +492,8 @@ type ClientUnkownErrorBuilder struct {
 // Build creates the error for the code "unkown_error" from this builder.
 func (b *ClientUnkownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "An unknown error has occured.",
-		Technical: "An unknown error has occured.",
+		Friendly:  "An unknown error has occured. Rerun with --debug to troubleshoot.",
+		Technical: "An unknown error has occured. Rerun with --debug to troubleshoot.",
 	}
 
 	return &impl.Error{
@@ -588,8 +588,8 @@ type ClientUserNotAuthorizedBuilder struct {
 // Build creates the error for the code "user_not_authorized" from this builder.
 func (b *ClientUserNotAuthorizedBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.",
-		Technical: "You are not authorized to perform this operation. If you believe this is a mistake, please contact your relay administrator.",
+		Friendly:  "You are not authorized to perform this operation. If you believe this is a mistake, please contact your Relay administrator.",
+		Technical: "You are not authorized to perform this operation. If you believe this is a mistake, please contact your Relay administrator.",
 	}
 
 	return &impl.Error{
@@ -691,8 +691,8 @@ type ConfigInvalidAPIDomainBuilder struct {
 // Build creates the error for the code "invalid_api_domain" from this builder.
 func (b *ConfigInvalidAPIDomainBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Provided UI Domain {{ domain }} is not a valid url.",
-		Technical: "Provided UI Domain {{ domain }} is not a valid url.",
+		Friendly:  "Provided API Domain {{ domain }} is not a valid url.",
+		Technical: "Provided API Domain {{ domain }} is not a valid url.",
 	}
 
 	return &impl.Error{
@@ -883,8 +883,8 @@ type ConfigInvalidUIDomainBuilder struct {
 // Build creates the error for the code "invalid_ui_domain" from this builder.
 func (b *ConfigInvalidUIDomainBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Provided API Domain {{ domain }} is not a valid url.",
-		Technical: "Provided API Domain {{ domain }} is not a valid url.",
+		Friendly:  "Provided UI Domain {{ domain }} is not a valid url.",
+		Technical: "Provided UI Domain {{ domain }} is not a valid url.",
 	}
 
 	return &impl.Error{
@@ -986,8 +986,8 @@ type GeneralUnknownErrorBuilder struct {
 // Build creates the error for the code "unknown_error" from this builder.
 func (b *GeneralUnknownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "There was a problem executing your request. Please try again.",
-		Technical: "There was a problem executing your request. Please try again.",
+		Friendly:  "There was a problem executing your request. Rerun with --debug to see more information",
+		Technical: "There was a problem executing your request. Rerun with --debug to see more information",
 	}
 
 	return &impl.Error{
@@ -1089,8 +1089,8 @@ type WorkflowMissingNameErrorBuilder struct {
 // Build creates the error for the code "missing_name_error" from this builder.
 func (b *WorkflowMissingNameErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Please provide a workflow name",
-		Technical: "Please provide a workflow name",
+		Friendly:  "Please provide a workflow name.",
+		Technical: "Please provide a workflow name.",
 	}
 
 	return &impl.Error{
@@ -1137,8 +1137,8 @@ type WorkflowWorkflowFileReadErrorBuilder struct {
 // Build creates the error for the code "workflow_file_read_error" from this builder.
 func (b *WorkflowWorkflowFileReadErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Could not read workflow file. Please try again.",
-		Technical: "Could not read workflow file. Please try again.",
+		Friendly:  "Could not read workflow file. Check the path to the workflow file.",
+		Technical: "Could not read workflow file. Check the path to the workflow file.",
 	}
 
 	return &impl.Error{
@@ -1185,8 +1185,8 @@ type WorkflowWorkflowNameReadErrorBuilder struct {
 // Build creates the error for the code "workflow_name_read_error" from this builder.
 func (b *WorkflowWorkflowNameReadErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Could not read workflow name. Please try again.",
-		Technical: "Could not read workflow name. Please try again.",
+		Friendly:  "Could not read workflow name. Please supply a valid name.",
+		Technical: "Could not read workflow name. Please supply a valid name.",
 	}
 
 	return &impl.Error{
@@ -1197,7 +1197,7 @@ func (b *WorkflowWorkflowNameReadErrorBuilder) Build() Error {
 		ErrorMetadata:    &impl.ErrorMetadata{},
 		ErrorSection:     WorkflowSection,
 		ErrorSensitivity: errawr.ErrorSensitivityNone,
-		ErrorTitle:       "Worklflow name read error",
+		ErrorTitle:       "Workflow name read error",
 		Version:          1,
 	}
 }
