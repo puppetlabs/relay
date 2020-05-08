@@ -1,3 +1,13 @@
+# [4.0.1](https://github.com/puppetlabs/relay/compare/v4.0.0...v4.0.1) (2020-05-08)
+
+
+### Fix
+
+* Bug in the automated release process, specifically when releasing new
+  versions to Homebrew.
+* When there are issues loading the configuration file, the CLI will 
+  no longer panic.
+
 # [4.0.0](https://github.com/puppetlabs/relay/compare/v3.5.4...v4.0.0) (2020-05-08)
 
 
