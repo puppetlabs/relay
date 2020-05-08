@@ -1,3 +1,69 @@
+# [4.0.0](https://github.com/puppetlabs/relay/compare/v3.5.4...v4.0.0) (2020-05-08)
+
+
+### Update
+
+* More complete support for JSON output using `-o json`
+* Introduces more verbose debug logging.
+
+### New
+
+* Introduces the `workflow` namespace with commands for creating, updating,
+  deleting, and invoking workflows in Relay.
+
+### Fix
+
+* Workflow links emitted by the CLI now point to the correct URL.
+
+# [3.5.4](https://github.com/puppetlabs/relay/compare/v3.5.3...v3.5.4) (2020-04-30)
+
+
+### Update
+
+* Minor configuration change to build system. Probably doesn't even need to be
+  a release.
+
+# [3.5.3](https://github.com/puppetlabs/relay/compare/v3.5.2...v3.5.3) (2020-04-30)
+
+
+### Update
+
+* Minor configuration change to build system. Probably doesn't even need to be
+  a release.
+
+# [3.5.2](https://github.com/puppetlabs/relay/compare/v3.5.1...v3.5.2) (2020-04-30)
+
+
+### Update
+
+* Minor configuration change to build system. Probably doesn't even need to be
+  a release.
+
+# [3.5.1](https://github.com/puppetlabs/relay/compare/v3.5.0...v3.5.1) (2020-04-30)
+
+
+### Update
+
+* Minor configuration change to build system. Probably doesn't even need to be
+  a release.
+
+# [3.5.0](https://github.com/puppetlabs/relay/compare/v3.4.0...v3.5.0) (2020-04-27)
+
+
+### Update
+
+* Due to an in-progress refactor, many of the commands were removed. The
+  `login` and `logout` commands were migrated to an `auth` namespace.
+
+### New
+
+* Relay is now automatically published to Homebrew.
+
+### Upgrade
+
+* The Relay CLI is now requires golang 1.14.x for development.
+* The build system has been overhauled.
+
 # [3.4.0](https://github.com/puppetlabs/relay/compare/v3.3.0...v3.4.0) (2020-04-01)
 
 
