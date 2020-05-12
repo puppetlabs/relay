@@ -153,7 +153,7 @@ func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflo
 }
 
 // DownloadWorkflow gets the latest configuration (as a YAML string) for a
-// given workflow name. This is very purppose-built and likely rather frail. We
+// given workflow name. This is very purpose-built and likely rather frail. We
 // should probably not be doing this this way.
 func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
 	workflow, err := c.GetWorkflow(name)

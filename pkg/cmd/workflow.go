@@ -248,7 +248,7 @@ func newRunWorkflowCommand() *cobra.Command {
 		RunE:  doRunWorkflow,
 	}
 
-	cmd.Flags().StringArray("parameter", []string{}, "Parameters to invoke this workflow run with")
+	cmd.Flags().StringArrayP("parameter", "p", []string{}, "Parameters to invoke this workflow run with")
 
 	return cmd
 }
@@ -263,13 +263,23 @@ func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
 	body, err := Client.DownloadWorkflow(name)
 
 	if err != nil {
-		// TODO: This error should be translated for the user. Right now it just
-		// says whatever the service says.
 		return err
 	}
 
-	// Just plop the whole thing out output.
-	Dialog.WriteString(body)
+	filepath, nil := cmd.Flags().GetString("file")
+
+	if filepath == "" {
+		// Just plop the whole thing out output.
+		Dialog.WriteString(body)
+	} else {
+		// make a byte array out of the body to feed to the writer
+		contents := []byte(body)
+		err := ioutil.WriteFile(filepath, contents, 0644)
+		if err != nil {
+			debug.Logf("failed to write to file %s: %s", filepath, err.Error())
+			return err
+		}
+	}
 
 	return nil
 }
@@ -281,6 +291,8 @@ func newDownloadWorkflowCommand() *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doDownloadWorkflow,
 	}
+
+	cmd.Flags().StringP("file", "f", "", "Filename to write workflow, relative to current working dir")
 
 	return cmd
 }
