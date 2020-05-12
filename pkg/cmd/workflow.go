@@ -269,13 +269,9 @@ func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
 	filepath, nil := cmd.Flags().GetString("file")
 
 	if filepath == "" {
-		// Just plop the whole thing out output.
 		Dialog.WriteString(body)
 	} else {
-		// make a byte array out of the body to feed to the writer
-		contents := []byte(body)
-		err := ioutil.WriteFile(filepath, contents, 0644)
-		if err != nil {
+		if err := ioutil.WriteFile(filepath, []byte(body), 0644); err != nil {
 			debug.Logf("failed to write to file %s: %s", filepath, err.Error())
 			return err
 		}
