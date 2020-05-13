@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://nebula.puppet.com/schemas/container/v1/StepContainerTemplate.json",
+  "description": "A step container template",
+  "allOf": [
+    {"$ref": "http://nebula.puppet.com/schemas/container/v1/StepContainer-common.json#"},
+    {
+      "type": "object",
+      "required": [
+        "apiVersion",
+        "kind"
+      ],
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "enum": ["container/v1"]
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["StepContainerTemplate"]
+        }
+      }
+    }
+  ]
+}

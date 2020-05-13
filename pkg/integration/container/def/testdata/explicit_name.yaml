@@ -1,0 +1,7 @@
+apiVersion: container/v1
+kind: StepContainer
+inherit: {from: sdk, name: bash.v1}
+name: jira-resolve
+title: Jira resolve
+description: >
+  A task that can update the state of a Jira ticket.

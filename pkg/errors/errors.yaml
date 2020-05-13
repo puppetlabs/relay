@@ -121,3 +121,9 @@ sections:
       missing_name_error:
         title: Missing workflow name error
         description: Please provide a workflow name.
+  integration:
+    title: Integration errors
+    errors:
+      file_not_found:
+        title: Integration file not found.
+        description: The integration directory must contain an `integration.yaml` file.

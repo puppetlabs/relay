@@ -1,0 +1,22 @@
+apiVersion: container/v1
+kind: StepContainerTemplate
+sdkVersion: v1
+images:
+  base:
+    template: Dockerfile.tpl
+settings:
+  CommandPath:
+    description: The path to the Python script to run
+    value: step.py
+  Image:
+    description: The Alpine Linux-based image to use
+    value: python:3-alpine
+  AdditionalAlpinePackages:
+    description: Additional APK packages to install
+    value: []
+  AdditionalPythonPackages:
+    description: Additional Python packages to install
+    value: []
+  AdditionalCommands:
+    description: Additional Bash commands to run
+    value: []

@@ -1013,6 +1013,61 @@ func NewGeneralUnknownError() Error {
 	return NewGeneralUnknownErrorBuilder().Build()
 }
 
+// IntegrationSection defines a section of errors with the following scope:
+// Integration errors
+var IntegrationSection = &impl.ErrorSection{
+	Key:   "integration",
+	Title: "Integration errors",
+}
+
+// IntegrationFileNotFoundCode is the code for an instance of "file_not_found".
+const IntegrationFileNotFoundCode = "rcli_integration_file_not_found"
+
+// IsIntegrationFileNotFound tests whether a given error is an instance of "file_not_found".
+func IsIntegrationFileNotFound(err errawr.Error) bool {
+	return err != nil && err.Is(IntegrationFileNotFoundCode)
+}
+
+// IsIntegrationFileNotFound tests whether a given error is an instance of "file_not_found".
+func (External) IsIntegrationFileNotFound(err errawr.Error) bool {
+	return IsIntegrationFileNotFound(err)
+}
+
+// IntegrationFileNotFoundBuilder is a builder for "file_not_found" errors.
+type IntegrationFileNotFoundBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "file_not_found" from this builder.
+func (b *IntegrationFileNotFoundBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The integration directory must contain an `integration.yaml` file.",
+		Technical: "The integration directory must contain an `integration.yaml` file.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "file_not_found",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     IntegrationSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Integration file not found.",
+		Version:          1,
+	}
+}
+
+// NewIntegrationFileNotFoundBuilder creates a new error builder for the code "file_not_found".
+func NewIntegrationFileNotFoundBuilder() *IntegrationFileNotFoundBuilder {
+	return &IntegrationFileNotFoundBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewIntegrationFileNotFound creates a new error with the code "file_not_found".
+func NewIntegrationFileNotFound() Error {
+	return NewIntegrationFileNotFoundBuilder().Build()
+}
+
 // WorkflowSection defines a section of errors with the following scope:
 // Workflow errors
 var WorkflowSection = &impl.ErrorSection{

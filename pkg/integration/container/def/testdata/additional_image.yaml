@@ -1,0 +1,14 @@
+apiVersion: container/v1
+kind: StepContainer
+inherit: {from: sdk, name: bash.v1}
+sdkVersion: v1
+title: Jira resolve
+description: >
+  A task that can update the state of a Jira ticket.
+images:
+  bonus:
+    template: Dockerfile.bonus.tpl
+    dependsOn:
+    - base
+settings:
+  Image: test:1-alpine

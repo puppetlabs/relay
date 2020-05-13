@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://nebula.puppet.com/schemas/container/v1/StepContainer-common.json",
+  "description": "Shared properties of a step container and step container template",
+  "type": "object",
+  "properties": {
+    "inherit": {"$ref": "#/definitions/FileRef"},
+    "sdkVersion": {
+      "type": "string",
+      "pattern": "^v[1-9][0-9]*$"
+    },
+    "images": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Image"}
+      },
+      "additionalProperties": false
+    },
+    "settings": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Setting"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "FileRef": {
+      "anyOf": [
+        {"type": "string"},
+        {
+          "type": "object",
+          "required": ["from", "name"],
+          "properties": {
+            "from": {"type": "string"},
+            "name": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "Image": {
+      "type": "object",
+      "required": ["template"],
+      "properties": {
+        "template": {"$ref": "#/definitions/FileRef"},
+        "dependsOn": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/definitions/ImageDependsOn"}
+        }
+      }
+    },
+    "ImageDependsOn": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+    },
+    "Setting": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "description": {"type": "string"},
+            "value": {}
+          }
+        },
+        {}
+      ]
+    }
+  }
+}
