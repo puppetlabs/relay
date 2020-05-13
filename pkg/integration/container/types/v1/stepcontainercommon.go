@@ -28,11 +28,13 @@ func (fr *FileRef) UnmarshalYAML(value *yaml.Node) error {
 		return err
 	}
 
-	// Now we try to decode into a struct instead.
+	// If this isn't a string then it can be a struct with more complicated
+	// information on where this content comes from.
 	var pm struct {
 		From FileSource `yaml:"from"`
 		Name string     `yaml:"name"`
 	}
+
 	if err := value.Decode(&pm); err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/puppetlabs/relay/pkg/integration/container/asset"
+	"github.com/puppetlabs/relay/pkg/integration/container/sdk"
 )
 
 // Resolver allows the generator to load dependent resources.
@@ -78,7 +78,7 @@ func (r *Resolver) String() string {
 var (
 	DefaultResolver = &Resolver{}
 	SDKResolver     = &Resolver{
-		FileSystem:       asset.FileSystem,
-		WorkingDirectory: "templates",
+		FileSystem:       sdk.NewFileSystem(),
+		WorkingDirectory: "defs",
 	}
 )
