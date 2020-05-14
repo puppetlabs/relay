@@ -20,6 +20,7 @@ type Dialog interface {
 	WithStderr(io.Writer) Dialog
 
 	Progress(string)
+	Progressf(string, ...interface{})
 
 	Info(string)
 	Infof(string, ...interface{})
@@ -98,6 +99,13 @@ func (d *TextDialog) Progress(msg string) {
 	d.p.Start()
 }
 
+func (d *TextDialog) Progressf(msg string, args ...interface{}) {
+	d.completeProgress()
+
+	d.p = NewProgress(d.stdout, fmt.Sprintf(msg, args...))
+	d.p.Start()
+}
+
 func (d *TextDialog) WriteString(c string) error {
 	_, err := io.WriteString(d.stdout, c)
 	return err
@@ -119,15 +127,19 @@ func (d *JSONDialog) WithStderr(w io.Writer) Dialog {
 	return &JSONDialog{stdout: d.stdout, stderr: w}
 }
 
-func (d *JSONDialog) Progress(message string) {
+func (d *JSONDialog) Progress(string) {
 	// noop
 }
 
-func (d *JSONDialog) Info(message string) {
+func (d *JSONDialog) Progressf(string, ...interface{}) {
 	// noop
 }
 
-func (d *JSONDialog) Infof(message string, args ...interface{}) {
+func (d *JSONDialog) Info(string) {
+	// noop
+}
+
+func (d *JSONDialog) Infof(string, ...interface{}) {
 	// noop
 }
 

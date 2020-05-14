@@ -1,12 +1,14 @@
 package integration
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/debug"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/integration/container/def"
 	"github.com/puppetlabs/relay/pkg/integration/container/generator"
 )
@@ -71,10 +73,6 @@ func buildContainer(dir, path string) error {
 	gen := generator.New(
 		containerDef.Container,
 		generator.WithFilesRelativeTo(def.NewFileRef(dir)),
-
-		// TODO: This should come from the configuration and default to
-		// "puppetlabs" as far as I can tell.
-		generator.WithRepoNameBase("puppetlabs"),
 	)
 
 	files, err := gen.Files()
@@ -98,7 +96,7 @@ func buildContainer(dir, path string) error {
 	}
 
 	cmd := exec.Command("docker", "build", "--file", dockerfile, dir)
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = debug.Writer()
 
 	if err := cmd.Run(); err != nil {
 		debug.Logf("failed to get start docker build command: %v", err)
@@ -108,7 +106,9 @@ func buildContainer(dir, path string) error {
 	return nil
 }
 
-func Build(path string) error {
+func Build(ctx context.Context, path string) error {
+	dialog := dialog.FromContext(ctx)
+
 	f, err := os.Open(path)
 
 	if err != nil {
@@ -128,6 +128,8 @@ func Build(path string) error {
 
 		// TODO: add support for building triggers?
 		err = forEachContainer(stepsdir, func(context, containerYaml string) error {
+			dialog.Progressf("Building %s ...", containerYaml)
+
 			if err := buildContainer(context, containerYaml); err != nil {
 				debug.Logf("error: %v", err)
 			}

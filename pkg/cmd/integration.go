@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/debug"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/integration"
 
@@ -65,7 +66,10 @@ func doBuildIntegration(cmd *cobra.Command, args []string) error {
 		return errors.NewGeneralUnknownError().WithCause(err)
 	}
 
-	if err := integration.Build(file); err != nil {
+	ctx := cmd.Context()
+	ctx = dialog.NewContext(ctx, Dialog)
+
+	if err := integration.Build(ctx, file); err != nil {
 		debug.Logf("an error occured while building `%s`: %v", file, err)
 		return errors.NewGeneralUnknownError().WithCause(err)
 	}
