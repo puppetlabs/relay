@@ -3,6 +3,7 @@ package integration
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/debug"
@@ -59,7 +60,7 @@ func forEachContainer(path string, cb stepBuildFunc) error {
 	return nil
 }
 
-func buildContainer(path, dir string) error {
+func buildContainer(dir, path string) error {
 	// TODO: We should pull much of this out of Spindle/Nebula SDK.
 	containerDef, err := def.NewFromFilePath(path)
 
@@ -71,7 +72,8 @@ func buildContainer(path, dir string) error {
 		containerDef.Container,
 		generator.WithFilesRelativeTo(def.NewFileRef(dir)),
 
-		// TODO: This should come from the configuration
+		// TODO: This should come from the configuration and default to
+		// "puppetlabs" as far as I can tell.
 		generator.WithRepoNameBase("puppetlabs"),
 	)
 
@@ -82,8 +84,26 @@ func buildContainer(path, dir string) error {
 		return err
 	}
 
-	// We really just want the Dockerfile out of this thing...
-	debug.Logf("Content: %s", files[1].Content)
+	tmpdir, err := ioutil.TempDir("", "relay-integration-build")
+
+	if err != nil {
+		debug.Logf("failed to create a tempdir: %v", err)
+		return err
+	}
+
+	dockerfile := filepath.Join(tmpdir, "Dockerfile")
+	if err := ioutil.WriteFile(dockerfile, []byte(files[1].Content), 0644); err != nil {
+		debug.Logf("failed to write Dockerfile to %s: %v", path, err)
+		return err
+	}
+
+	cmd := exec.Command("docker", "build", "--file", dockerfile, dir)
+	cmd.Stdout = os.Stdout
+
+	if err := cmd.Run(); err != nil {
+		debug.Logf("failed to get start docker build command: %v", err)
+		return err
+	}
 
 	return nil
 }
