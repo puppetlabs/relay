@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"os"
+	"bytes"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 )
 
 func newDocCommand() *cobra.Command {
@@ -22,42 +21,102 @@ func newDocCommand() *cobra.Command {
 func newGenerateCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "generate",
-		Short: "Generate documentation",
+		Short: "Generate markdown documentation to stdout",
 		Args:  cobra.NoArgs,
 		RunE:  genDocs,
 	}
 
-	cmd.Flags().StringP("format", "f", "markdown", "format of output docs: man or markdown")
-	cmd.Flags().StringP("target", "t", "./docs/md", "target directory for output")
-
 	return cmd
 }
 
-func genDocs(cmd *cobra.Command, args []string) error {
-	docFormat, nil := cmd.Flags().GetString("format")
-	targetDir, nil := cmd.Flags().GetString("target")
+// genOverviewMarkdown makes a single-page 'man' style document
+// Much of this is copypasta from doc.GenMarkdownCustom, because
+// cobra/doc doesn't provide real formatting customization
+func genOverviewMarkdown() (md string, err error) {
+	buf := new(bytes.Buffer)
+	cmd := getCmd()
 
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		Dialog.Errorf(`Failed to create target directory %s: %s`, targetDir, err.Error())
-		return err
+	// this is from doc.GenMarkdownCustom
+	cmd.InitDefaultHelpCmd()
+	cmd.InitDefaultHelpFlag()
+
+	name := cmd.CommandPath()
+
+	short := cmd.Short
+	long := cmd.Long
+
+	buf.WriteString("## " + name + "\n\n" + short + "\n\n")
+	buf.WriteString("### Synopsis\n\n" + long + "\n\n")
+	buf.WriteString("### Subcommand Usage\n\n")
+
+	children := cmd.Commands()
+
+	if err := testChildren(children, buf); err != nil {
+		return buf.String(), err
 	}
 
-	rootcmd := getCmd()
+	buf.WriteString("### Global flags\n```\n")
+	flags := cmd.PersistentFlags()
+	buf.WriteString(flags.FlagUsages() + "\n```\n")
 
-	if docFormat == "markdown" {
-		doc.GenMarkdownTree(rootcmd, targetDir)
-		Dialog.Infof(`Generated markdown tree in %s`, targetDir)
-	} else if docFormat == "man" {
-		header := &doc.GenManHeader{
-			Title:   "relay",
-			Section: "1",
+	markdown := buf.String()
+
+	return markdown, err
+
+}
+
+// testChildren determines whether this command ought to be documented.
+// For brevity, we only want to generate docs for 'leaf' commands, i.e.
+// only "relay workflow add", not "relay workflow"
+func testChildren(children []*cobra.Command, buf *bytes.Buffer) error {
+
+	for _, child := range children {
+		if !child.IsAvailableCommand() || child.IsAdditionalHelpTopicCommand() {
+			continue
 		}
-		doc.GenManTree(rootcmd, header, targetDir)
-		Dialog.Infof(`Generated man pages in %s`, targetDir)
-	} else {
-		Dialog.Errorf(`Unknown documentation format %s specified`, docFormat)
-		return nil
+		if err := genChildMarkdown(child, buf); err != nil {
+			return err
+		}
 	}
+
+	return nil
+
+}
+
+func genChildMarkdown(cmd *cobra.Command, buf *bytes.Buffer) error {
+	if cmd.Runnable() {
+		usage := cmd.UseLine()
+		buf.WriteString("**`" + usage + "`** -- " + cmd.Short + "\n")
+		long := cmd.Long
+		if len(long) > 0 {
+			buf.WriteString("  " + cmd.Long + "\n")
+		}
+		flags := cmd.NonInheritedFlags()
+		if flags.HasAvailableFlags() {
+			buf.WriteString("```\n")
+			flags.SetOutput(buf)
+			flags.PrintDefaults()
+			buf.WriteString("```\n")
+		}
+		buf.WriteString("\n")
+	}
+
+	// Because commands can be nested arbitrarily deep, this recurses into
+	// the current command's children and tests them for runnability
+	children := cmd.Commands()
+	testChildren(children, buf)
+
+	return nil
+
+}
+
+func genDocs(cmd *cobra.Command, args []string) error {
+
+	markdown, err := genOverviewMarkdown()
+	if err != nil {
+		Dialog.Errorf("problem generating markdown: %s", err.Error)
+	}
+	Dialog.WriteString(markdown)
 
 	return nil
 
