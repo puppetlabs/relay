@@ -26,7 +26,10 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay auth logout`** -- Log out of Relay
 
-**`relay doc generate`** -- Generate markdown documentation to stdout
+**`relay doc generate [flags]`** -- Generate markdown documentation to stdout
+```
+  -f, --file string   The path to a file to write the documentation to
+```
 
 **`relay workflow add [workflow name] [flags]`** -- Add a Relay workflow from a local file
 ```

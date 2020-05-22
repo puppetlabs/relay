@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"bytes"
+	"io/ioutil"
 
+	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +27,8 @@ func newGenerateCommand() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  genDocs,
 	}
+
+	cmd.Flags().StringP("file", "f", "", "The path to a file to write the documentation to")
 
 	return cmd
 }
@@ -116,7 +120,18 @@ func genDocs(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		Dialog.Errorf("problem generating markdown: %s", err.Error)
 	}
-	Dialog.WriteString(markdown)
+
+	file, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return err
+	}
+
+	if file == "" {
+		Dialog.WriteString(markdown)
+	} else if err := ioutil.WriteFile(file, []byte(markdown), 0644); err != nil {
+		debug.Logf("failed to write to file %s: %s", file, err.Error())
+		return err
+	}
 
 	return nil
 
