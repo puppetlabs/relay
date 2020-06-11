@@ -20,8 +20,8 @@ const (
 )
 
 const (
-	defaultAPIDomain  = "https://api.nebula.puppet.com"
-	defaultUIDomain   = "https://nebula.puppet.com"
+	defaultAPIDomain  = "https://api.relay.sh"
+	defaultUIDomain   = "https://app.relay.sh"
 	defaultWebDomain  = "https://relay.sh"
 	defaultConfigName = "config"
 	defaultConfigType = "yaml"
@@ -38,7 +38,7 @@ type Config struct {
 	TokenPath string
 }
 
-// Returns a default config set used for error formatting when the user's config set cannot be read
+// GetDefaultConfig returns a config set used for error formatting when the user's config set cannot be read
 func GetDefaultConfig() *Config {
 	// gonna assume that the defaults are valid. Someone can yell at me if they want
 	apiDomain, _ := url.Parse(defaultAPIDomain)

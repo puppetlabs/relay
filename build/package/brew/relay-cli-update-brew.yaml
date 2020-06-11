@@ -7,7 +7,7 @@ parameters:
     description: sha256 of the macos binary produced by the release build
 steps:
   - name: clone-and-edit-pr
-    image: projectnebula/core
+    image: relaysh/core:latest
     spec:
       github_token: !Secret github_token
       tag: !Parameter tag
@@ -15,7 +15,7 @@ steps:
       result: "will be overridden by 'ni set' from inside the step"
     inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
   - name: slack-notify
-    image: projectnebula/slack-notification:latest
+    image: relaysh/slack-step-message-send:latest
     spec:
       apitoken:
         $type: Secret 
