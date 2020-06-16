@@ -82,7 +82,7 @@ var mapEncodingTypeToEncoding = map[BodyEncodingType]BodyEncoding{
 type JSONBodyEncoding struct{}
 
 func (j *JSONBodyEncoding) ContentType() string {
-	return fmt.Sprintf("application/vnd.puppet.relay.%v+json", API_VERSION)
+	return fmt.Sprintf("application/vnd.puppet.relay.%s+json", APIVersion)
 }
 
 func (j *JSONBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error) {
@@ -101,7 +101,7 @@ func (j *JSONBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error
 type YAMLBodyEncoding struct{}
 
 func (y *YAMLBodyEncoding) ContentType() string {
-	return fmt.Sprintf("application/vnd.puppet.relay.%v+yaml", API_VERSION)
+	return fmt.Sprintf("application/vnd.puppet.relay.%s+yaml", APIVersion)
 }
 
 func (y *YAMLBodyEncoding) Encode(body interface{}) (io.ReadWriter, errors.Error) {
@@ -159,7 +159,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	}
 
 	// defaults
-	req.Header.Set("Accept", fmt.Sprintf("application/vnd.puppet.relay.%v+json", API_VERSION))
+	req.Header.Set("Accept", fmt.Sprintf("application/vnd.puppet.relay.%s+json", APIVersion))
 
 	if opts.body != nil {
 		req.Header.Set("Content-Type", encoding.ContentType())

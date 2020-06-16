@@ -7,7 +7,7 @@ import (
 	"github.com/puppetlabs/relay/pkg/model"
 )
 
-const API_VERSION = "v20200131"
+const APIVersion = "v20200615"
 
 type Client struct {
 	config      *config.Config

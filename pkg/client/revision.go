@@ -12,12 +12,12 @@ func (c *Client) CreateRevision(workflowName string, YAML string) (*model.Revisi
 	response := &model.RevisionEntity{}
 
 	var headers = map[string]string{
-		"Content-Type": fmt.Sprintf("application/vnd.puppet.relay.%v+yaml", API_VERSION),
+		"Content-Type": fmt.Sprintf("application/vnd.puppet.relay.%s+yaml", APIVersion),
 	}
 
 	if err := c.Request(
 		WithMethod(http.MethodPost),
-		WithPath(fmt.Sprintf("/api/workflows/%v/revisions", workflowName)),
+		WithPath(fmt.Sprintf("/api/workflows/%s/revisions", workflowName)),
 		WithBodyEncodingType(BodyEncodingTypeYAML),
 		WithHeaders(headers),
 		WithBody(YAML),
