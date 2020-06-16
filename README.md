@@ -4,13 +4,11 @@
 
 Relay is a service that lets you connect tools, APIs, and infrastructure to automate common tasks through simpler, smarter workflows. It links infrastructure events to workflow execution, so that for example, when a new JIRA ticket or Github issue comes in, your workflow can trigger deployments or send notifications.
 
-This repo contains the source for the CLI tool which interacts with the Relay service and also provides the issue tracker for the product as a whole. 
+This repo contains the source for the CLI tool which interacts with the Relay service and also provides the issue tracker for the product as a whole.
 
 ## Installation
 
-Relay evolved from an incubation project at Puppet called Project Nebula, and some of the tooling and documentation still say "Nebula" while we get everything switched over.
-
-You'll need an account on the service to use this tool. [Sign up here](https://puppet.com/products/project-nebula#nebula-form)!
+You'll need an account on the service to use this tool. [Sign up here](https://app.relay.sh/signup). There's a [Getting Started guide](https://relay.sh/docs/getting-started/) to familiarize yourself with Relay concepts.
 
 Once you're up and running, you can install the CLI a couple of different ways:
 
@@ -24,10 +22,10 @@ For other platforms, install directly via Github Releases:
 
 [Get the latest version](https://github.com/puppetlabs/relay/releases)
 
-The program is just a single binary, so you can simply download the one that matches your architecture and copy it to a location in your `$PATH`. Note these binaries are named 'nebula', for the time being simply rename it for consistency:
+The program is just a single binary, so you can simply download the one that matches your architecture and copy it to a location in your `$PATH`.
 
 ```bash
-mv ./nebula-v3.4.0-linux-arm64 /usr/local/bin/relay
+mv ./relay-v4*-linux-arm64 /usr/local/bin/relay
 ```
 
 ## Getting started
@@ -39,7 +37,7 @@ relay login
 relay workflow list
 ```
 
-For more about workflows and further onboarding information, check out the [documentation website](https://puppet.com/docs/nebula/beta/overview.html)
+For more about workflows, check out the [Using Workflows](https://relay.sh/docs/using-workflows/) documentation.
 
 ## Build
 
@@ -50,7 +48,7 @@ To build run
 ./scripts/build
 ```
 
-The resulting binaries will be in `./bin/relay`.
+The resulting binaries will be in `./bin/relay-[version]-[architecture]`.
 
 ## Development
 
@@ -73,4 +71,4 @@ Relay uses [viper](https://github.com/spf13/viper) for customizable config. The 
 
 ## Getting help
 
-If you have questions about Relay, you can [file a github issue](https://github.com/puppetlabs/relay/issues) or join us on the [Puppet community slack](https://slack.puppet.com) in #relay. 
+If you have questions about Relay, you can [file a github issue](https://github.com/puppetlabs/relay/issues) or join us on the [Puppet community slack](https://slack.puppet.com) in #relay.

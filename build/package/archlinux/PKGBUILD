@@ -1,6 +1,6 @@
 # Maintainer: Kyle Terry <kyle.terry@puppet.com>
 pkgname=puppet-relay
-pkgver=3.4.0
+pkgver=4.1.0
 pkgrel=1
 pkgdesc="CLI for Puppet's Relay workflow service"
 arch=('x86_64')
@@ -13,7 +13,7 @@ sha512sums=('8b57b37675d33852e7d7f6414887c1ce8859b133f1982cc5015755f6e30e38e7da7
 
 build() {
     cd "relay-$pkgver"
-    go build -mod=vendor -o relay ./cmd/nebula
+    go build -mod=vendor -o relay ./cmd/relay
 }
 
 package() {

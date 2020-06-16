@@ -12,7 +12,7 @@ func (c *Client) CreateRevision(workflowName string, YAML string) (*model.Revisi
 	response := &model.RevisionEntity{}
 
 	var headers = map[string]string{
-		"Content-Type": fmt.Sprintf("application/vnd.puppet.nebula.%v+yaml", API_VERSION),
+		"Content-Type": fmt.Sprintf("application/vnd.puppet.relay.%v+yaml", API_VERSION),
 	}
 
 	if err := c.Request(
