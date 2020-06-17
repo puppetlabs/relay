@@ -20,6 +20,6 @@ steps:
       apitoken:
         $type: Secret 
         name: slack-token
-      channel: "#nebula-workflows"
+      channel: "#prog-relay-testing"
       message: 
         !Output [clone-and-edit-pr, result]
