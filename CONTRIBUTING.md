@@ -29,7 +29,7 @@ To make it easier to contribute while still staying in the good graces of our (s
   * To quickly create a topic branch based on `main`, run `git checkout -b fix/my_fix origin/main`.
 * Make commits of logical and atomic units.
 * Check for unnecessary whitespace with `git diff --check` before committing. 
-* Make sure your commit messages are in the proper format. We (try to!) follow the [codelikeagirl guidelines](https://code.likeagirl.io/useful-tips-for-writing-better-git-commit-messages-808770609503) for writing good commit messages: format for short lines, use the imperative mood ("Add X to Y"), describe before and after state in the commit message body. Remember to add the `-s` flag to commits to DCO-sign them!
+* Make sure your commit messages are in the proper format. We (try to!) follow [Tim Pope's guidelines](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for writing good commit messages: format for short lines, use the imperative mood ("Add X to Y"), describe before and after state in the commit message body. Remember to add the `-s` flag to commits to DCO-sign them!
 * Make sure you have added the necessary tests for your changes.
 * Submit a pull request per the usual github PR process.
 
