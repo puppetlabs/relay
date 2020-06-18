@@ -1,167 +1,43 @@
-# How to contribute
+# Contributing to Relay
 
-Third-party patches are essential for keeping Puppet great. We simply can't
-access the huge number of platforms and myriad configurations for running
-Puppet. We want to keep it as easy as possible to contribute changes that
-get things working in your environment. There are a few guidelines that we
-need contributors to follow so that we can have a chance of keeping on
-top of things.
+Relay welcomes contributions! Read on if you're interested in getting involved with the project.
 
-## Puppet Core vs Modules
+## Where to Contribute
 
-New functionality is typically directed toward modules to provide a slimmer
-Puppet Core, reducing its surface area, and to allow greater freedom for
-module maintainers to ship releases at their own cadence, rather than
-being held to the cadence of Puppet releases. With Puppet 4's "all in one"
-packaging, a list of modules at specific versions will be packaged with the
-core so that popular types and providers will still be available as part of
-the "out of the box" experience.
+There are several routes to contribution in and around Relay.
 
-Generally, new types and new OS-specific providers for existing types should
-be added in modules. Exceptions would be things like new cross-OS providers
-and updates to existing core types.
+* The [Relay Workflows](https://github.com/puppetlabs/relay-workflows) repository has a collection of useful workflows written by the Relay team. We welcome any improvements or bug fixes to them, and if you write something that could be of use to others, send in a pull request! 
+* Add steps and triggers to existing integrations XXX
+* If you want to create a Relay integration with a new service or tool, there's an [Integration developer guide](https://relay.sh/docs/integrating-with-relay/) to walk you through it. (Make sure there's not one [already in the works](https://github.com/relay-integrations/) first though!)
+* The [Relay CLI](https://github.com/puppetlabs/relay) and related workflow development tools are great targets for contributors comfortable with the Go Language.
+* Our [documentation site](https://github.com/puppetlabs/relay-docs) is open source and can always use improvement. Fixing anything in the docs from typos to better examples can be a great way to get involved with the project.
+* For the brave of heart, the [core of the workflow execution system](https://github.com/puppetlabs/relay-core) is also open source.
 
-If you are unsure of whether your contribution should be implemented as a
-module or part of Puppet Core, you may visit [#puppet-dev on slack](https://puppetcommunity.slack.com/), or ask on
-the [puppet-dev mailing list](https://groups.google.com/forum/#!forum/puppet-dev) for advice.
+## Guidelines for contributions
 
-## Getting Started
+All interactions between Puppet employees, contributors, and community members on Relay-related projects are subject to [Puppet Community Code of Conduct](https://puppet.com/community/community-guidelines/).
 
-* Make sure you have a [Jira account](https://tickets.puppetlabs.com).
-* Make sure you have a [GitHub account](https://github.com/signup/free).
-* Submit a Jira ticket for your issue if one does not already exist.
-  * Clearly describe the issue including steps to reproduce when it is a bug.
-  * Make sure you fill in the earliest version that you know has the issue.
-  * A ticket is not necessary for [trivial changes](https://puppet.com/community/trivial-patch-exemption-policy)
-* Fork the repository on GitHub.
+Make sure there's not some existing code or a discussion that covers the change you want to make by searching existing Github issues. However, since much of Relay's development history happened prior to its public launch,  it's safest to [file a Github issue in the Relay project](https://github.com/puppetlabs/relay/issues) to chat with the team before starting any complex work.
+
+To make it easier to contribute while still staying in the good graces of our (super wonderful!) Legal department, we require a [Developer Certificate of Origin](https://developercertificate.org/) sign-off on contributions. See [this explanation](https://helm.sh/blog/helm-dco/) from the Helm project to understand the rationale behind the DCO.As a practical matter, this means adding the `-s | --signoff` flag to your commits.
+
 
 ## Making Changes
 
+* Clone the repository into your own namespace
 * Create a topic branch from where you want to base your work.
-  * This is usually the master branch.
-  * Only target release branches if you are certain your fix must be on that
-    branch.
-  * To quickly create a topic branch based on master, run `git checkout -b
-    fix/master/my_contribution master`. Please avoid working directly on the
-    `master` branch.
+  * To quickly create a topic branch based on `main`, run `git checkout -b fix/my_fix origin/main`.
 * Make commits of logical and atomic units.
-* Check for unnecessary whitespace with `git diff --check` before committing.
-* Make sure your commit messages are in the proper format. If the commit
-  addresses an issue filed in the
-  [Puppet Jira project](https://tickets.puppetlabs.com/browse/PUP), start
-  the first line of the commit with the issue number in parentheses.
-
-  ```
-      (PUP-1234) Make the example in CONTRIBUTING imperative and concrete
-
-      Without this patch applied the example commit message in the CONTRIBUTING
-      document is not a concrete example. This is a problem because the
-      contributor is left to imagine what the commit message should look like
-      based on a description rather than an example. This patch fixes the
-      problem by making the example concrete and imperative.
-
-      The first line is a real-life imperative statement with a ticket number
-      from our issue tracker. The body describes the behavior without the patch,
-      why this is a problem, and how the patch fixes the problem when applied.
-  ```
+* Check for unnecessary whitespace with `git diff --check` before committing. 
+* Make sure your commit messages are in the proper format. We (try to!) follow the [codelikeagirl guidelines](https://code.likeagirl.io/useful-tips-for-writing-better-git-commit-messages-808770609503) for writing good commit messages: format for short lines, use the imperative mood ("Add X to Y"), describe before and after state in the commit message body. Remember to add the `-s` flag to commits to DCO-sign them!
 * Make sure you have added the necessary tests for your changes.
-* For details on how to run tests, please see [the quickstart guide](https://github.com/puppetlabs/puppet/blob/master/docs/quickstart.md)
+* Submit a pull request per the usual github PR process.
 
-## Writing Translatable Code
-
-We use [gettext tooling](https://github.com/puppetlabs/gettext-setup-gem) to
-extract user-facing strings and pull in translations based on the user's locale
-at runtime. In order for this tooling to work, all user-facing strings must be
-wrapped in the `_()` translation function, so they can be extracted into files
-for the translators.
-
-When adding user-facing strings to your work, follow these guidelines:
-
-* Use full sentences. Strings built up out of concatenated bits are hard to translate.
-* Use string formatting instead of interpolation. Use the hash format and give good names to the placeholder values that can be used by translators to understand the meaning of the formatted values.
-  For example: `_('Creating new user %{name}.') % { name: user.name }`
-* Use `n_()` for pluralization. (see gettext gem docs linked above for details)
-
-It is the responsibility of contributors and code reviewers to ensure that all
-user-facing strings are marked in new PRs before merging.
-
-## Making Trivial Changes
-
-For [changes of a trivial nature](https://puppet.com/community/trivial-patch-exemption-policy), it is not always necessary to create a new
-ticket in Jira. In this case, it is appropriate to start the first line of a
-commit with one of  `(docs)`, `(maint)`, or `(packaging)` instead of a ticket
-number.
-
-If a Jira ticket exists for the documentation commit, you can include it
-after the `(docs)` token.
-
-```
-    (docs)(DOCUMENT-000) Add docs commit example to CONTRIBUTING
-
-    There is no example for contributing a documentation commit
-    to the Puppet repository. This is a problem because the contributor
-    is left to assume how a commit of this nature may appear.
-
-    The first line is a real-life imperative statement with '(docs)' in
-    place of what would have been the PUP project ticket number in a
-    non-documentation related commit. The body describes the nature of
-    the new documentation or comments added.
-```
-
-For commits that address trivial repository maintenance tasks or packaging
-issues, start the first line of the commit with `(maint)` or `(packaging)`,
-respectively.
-
-## Submitting Changes
-
-* Sign the [Contributor License Agreement](http://cla.puppet.com/).
-* Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository in the puppetlabs organization.
-* Update your Jira ticket to mark that you have submitted code and are ready
-  for it to be reviewed (Status: Ready for Merge).
-  * Include a link to the pull request in the ticket.
-* The core team looks at Pull Requests on a regular basis in a weekly triage
-  meeting that we hold in a public Google Hangout. The hangout is announced in
-  the weekly status updates that are sent to the puppet-dev list. Notes are
-  posted to the [Puppet Community community-triage
-  repo](https://github.com/puppet-community/community-triage/tree/master/core/notes)
-  and include a link to a YouTube recording of the hangout.
-* After feedback has been given we expect responses within two weeks. After two
-  weeks we may close the pull request if it isn't showing any activity.
-
-## Revert Policy
-
-By running tests in advance and by engaging with peer review for prospective
-changes, your contributions have a high probability of becoming long lived
-parts of the the project. After being merged, the code will run through a
-series of testing pipelines on a large number of operating system
-environments. These pipelines can reveal incompatibilities that are difficult
-to detect in advance.
-
-If the code change results in a test failure, we will make our best effort to
-correct the error. If a fix cannot be determined and committed within 24 hours
-of its discovery, the commit(s) responsible _may_ be reverted, at the
-discretion of the committer and Puppet maintainers. This action would be taken
-to help maintain passing states in our testing pipelines.
-
-The original contributor will be notified of the revert in the Jira ticket
-associated with the change. A reference to the test(s) and operating system(s)
-that failed as a result of the code change will also be added to the Jira
-ticket. This test(s) should be used to check future submissions of the code to
-ensure the issue has been resolved.
-
-### Summary
-
-* Changes resulting in test pipeline failures will be reverted if they cannot
-  be resolved within one business day.
 
 ## Additional Resources
 
 * [Puppet community guidelines](https://puppet.com/community/community-guidelines)
-* [Bug tracker (Jira)](https://tickets.puppetlabs.com)
-* [Contributor License Agreement](http://cla.puppet.com/)
+* [Puppet community slack](https://slack.puppet.com)
+* [Relay issue tracker](https://github.com/puppetlabs/relay/issues)
 * [General GitHub documentation](https://help.github.com/)
 * [GitHub pull request documentation](https://help.github.com/articles/creating-a-pull-request/)
-* #puppet-dev IRC channel on freenode.org ([Archive](https://botbot.me/freenode/puppet-dev/))
-* [puppet-dev mailing list](https://groups.google.com/forum/#!forum/puppet-dev)
-* [Community PR Triage notes](https://github.com/puppet-community/community-triage/tree/master/core/notes)
