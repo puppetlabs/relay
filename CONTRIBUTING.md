@@ -6,7 +6,7 @@ Relay welcomes contributions! Read on if you're interested in getting involved w
 
 There are several routes to contribution in and around Relay.
 
-* The [Relay Workflows](https://github.com/puppetlabs/relay-workflows) repository has a collection of useful workflows written by the Relay team. We welcome any improvements or bug fixes to them, and if you write something that could be of use to others, send in a pull request! 
+* The [Relay Workflows](https://github.com/puppetlabs/relay-workflows) repository has a collection of useful workflows written by the Relay team. We welcome any improvements or bug fixes to them, and if you write something that could be of use to others, send in a pull request!
 * Add steps and triggers to existing integrations XXX
 * If you want to create a Relay integration with a new service or tool, there's an [Integration developer guide](https://relay.sh/docs/integrating-with-relay/) to walk you through it. (Make sure there's not one [already in the works](https://github.com/relay-integrations/) first though!)
 * The [Relay CLI](https://github.com/puppetlabs/relay) and related workflow development tools are great targets for contributors comfortable with the Go Language.
@@ -28,7 +28,7 @@ To make it easier to contribute while still staying in the good graces of our (s
 * Create a topic branch from where you want to base your work.
   * To quickly create a topic branch based on `main`, run `git checkout -b fix/my_fix origin/main`.
 * Make commits of logical and atomic units.
-* Check for unnecessary whitespace with `git diff --check` before committing. 
+* Check for unnecessary whitespace with `git diff --check` before committing.
 * Make sure your commit messages are in the proper format. We (try to!) follow [Tim Pope's guidelines](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for writing good commit messages: format for short lines, use the imperative mood ("Add X to Y"), describe before and after state in the commit message body. Remember to add the `-s` flag to commits to DCO-sign them!
 * Make sure you have added the necessary tests for your changes.
 * Submit a pull request per the usual github PR process.
