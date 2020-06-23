@@ -2,7 +2,7 @@
   <img src="docs/relay-logo.svg" alt="Relay by Puppet" width="50%">
 </p>
 
-Relay is a service that lets you connect tools, APIs, and infrastructure to automate common tasks through simpler, smarter workflows. It links infrastructure events to workflow execution, so that for example, when a new JIRA ticket or Github issue comes in, your workflow can trigger deployments or send notifications.
+Relay is a service that lets you connect tools, APIs, and infrastructure to automate common tasks through simpler, smarter workflows. It links infrastructure events to workflow execution, so that for example, when a new JIRA ticket or GitHub issue comes in, your workflow can trigger deployments or send notifications.
 
 This repo contains the source for the CLI tool which interacts with the Relay service and also provides the issue tracker for the product as a whole.
 
@@ -18,7 +18,7 @@ For Macs, install via homebrew:
 brew install puppetlabs/puppet/relay
 ```
 
-For other platforms, install directly via Github Releases:
+For other platforms, install directly via GitHub Releases:
 
 [Get the latest version](https://github.com/puppetlabs/relay/releases)
 
@@ -61,14 +61,15 @@ go run ./cmd/relay
 ### Config
 
 Relay uses [viper](https://github.com/spf13/viper) for customizable config. The following config values may be set in a yaml file at `$HOME/.config/relay/config.yaml` or as environment variables with corresponding names in all caps, prefixed with `RELAY_`:
-* `debug`: Run relay in debug mode. Overriden by global `--debug` flag.
-* `out=(text|json)`: Output mode. Overriden by global `--out` flag.
-* `api_domain`: Relay api domain to connect to for all api operations.
-* `ui_domain`: Relay ui domain, mainly used in generated links.
-* `web_domain`: Relay web domain, mainly used in generated links.
-* `cache_dir`: Cache directory.
-* `token_path`: Path to token storage location.
+
+- `debug`: Run relay in debug mode. Overriden by global `--debug` flag.
+- `out=(text|json)`: Output mode. Overriden by global `--out` flag.
+- `api_domain`: Relay api domain to connect to for all api operations.
+- `ui_domain`: Relay ui domain, mainly used in generated links.
+- `web_domain`: Relay web domain, mainly used in generated links.
+- `cache_dir`: Cache directory.
+- `token_path`: Path to token storage location.
 
 ## Getting help
 
-If you have questions about Relay, you can [file a github issue](https://github.com/puppetlabs/relay/issues) or join us on the [Puppet community slack](https://slack.puppet.com) in #relay.
+If you have questions about Relay, you can [file a GitHub issue](https://github.com/puppetlabs/relay/issues) or join us on Slack in the [Puppet Community #relay channel](https://puppetcommunity.slack.com/archives/CMKBMAW2K).
