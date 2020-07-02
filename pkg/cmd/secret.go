@@ -25,10 +25,7 @@ func newSecretCommand() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	// TODO Do we want just set, or add/update?
 	cmd.AddCommand(newSetSecretCommand())
-	//cmd.AddCommand(newAddSecretCommand())
-	//cmd.AddCommand(newUpdateSecretCommand())
 	cmd.AddCommand(newListSecretsCommand())
 	cmd.AddCommand(newDeleteSecretCommand())
 
@@ -93,96 +90,6 @@ func doSetSecret(cmd *cobra.Command, args []string) error {
 	}
 
 	Dialog.Infof(`Successfully set secret %v on workflow %v
-
-View more information or update workflow settings at: %v`,
-		secret.Secret.Name,
-		workflowName,
-		format.GuiLink(Config, "/workflows/%v", workflowName),
-	)
-
-	return nil
-}
-
-func newAddSecretCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add [workflow-name] [secret name]",
-		Short: "Add a Relay workflow secret",
-		Args:  cobra.MaximumNArgs(2),
-		RunE:  doAddSecret,
-	}
-
-	cmd.Flags().Bool("value-stdin", false, "accept secret value from stdin")
-
-	return cmd
-}
-
-func doAddSecret(cmd *cobra.Command, args []string) error {
-	workflowName, err := getWorkflowName(args)
-	if err != nil {
-		return err
-	}
-	secretName, err := getSecretName(args)
-	if err != nil {
-		return err
-	}
-	secretValue, err := getSecretValue(cmd)
-	if err != nil {
-		return err
-	}
-
-	Dialog.Progress("Adding your secret...")
-
-	secret, err := Client.CreateWorkflowSecret(workflowName, secretName, secretValue)
-	if err != nil {
-		return err
-	}
-
-	Dialog.Infof(`Successfully added secret %v on workflow %v
-
-View more information or update workflow settings at: %v`,
-		secret.Secret.Name,
-		workflowName,
-		format.GuiLink(Config, "/workflows/%v", workflowName),
-	)
-
-	return nil
-}
-
-func newUpdateSecretCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "update [workflow-name] [secret name]",
-		Short: "Update a Relay workflow secret",
-		Args:  cobra.MaximumNArgs(2),
-		RunE:  doUpdateSecret,
-	}
-
-	cmd.Flags().Bool("value-stdin", false, "accept secret value from stdin")
-
-	return cmd
-}
-
-func doUpdateSecret(cmd *cobra.Command, args []string) error {
-	workflowName, err := getWorkflowName(args)
-	if err != nil {
-		return err
-	}
-	secretName, err := getSecretName(args)
-	if err != nil {
-		return err
-	}
-	secretValue, err := getSecretValue(cmd)
-	if err != nil {
-		return err
-	}
-
-	Dialog.Progress("Updating your secret...")
-
-	secret, err := Client.UpdateWorkflowSecret(workflowName, secretName, secretValue)
-	if err != nil {
-		return err
-	}
-
-	Dialog.Infof(`Successfully updated secret %v on workflow %v
 
 View more information or update workflow settings at: %v`,
 		secret.Secret.Name,
