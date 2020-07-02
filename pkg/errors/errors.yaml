@@ -44,13 +44,13 @@ sections:
         description: Provided UI Domain {{ domain }} is not a valid url.
         arguments:
           domain:
-            description: User provided ui domain      
+            description: User provided ui domain
       invalid_web_domain:
         title: Invalid Web Domain
         description: Provided Web Domain {{ domain }} is not a valid url.
         arguments:
           domain:
-            description: User provided web domain  
+            description: User provided web domain
   client:
     title: Client errors
     errors:
@@ -61,7 +61,7 @@ sections:
       internal_error:
         title: Unknown error
         description: There was a problem executing your request.
-      # This error means there was a problem executing an http request.  
+      # This error means there was a problem executing an http request.
       request_error:
         title: Request error
         description: There was a problem executing your request, please try again.
@@ -121,3 +121,18 @@ sections:
       missing_name_error:
         title: Missing workflow name error
         description: Please provide a workflow name.
+  secret:
+    title: Secret errors
+    errors:
+      name_read_error:
+        title: Secret name read error
+        description: Could not read secret name. Please supply a valid name.
+      missing_name_error:
+        title: Missing workflow name error
+        description: Please provide a workflow name.
+      failed_value_from_stdin:
+        title: Failed value from stdin
+        description: Could not read secret value from stdin.
+      failed_no_stdin:
+        title: Did not receive from stdin error
+        description: Did not recieve anything from stdin.

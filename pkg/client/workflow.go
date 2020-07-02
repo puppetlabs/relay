@@ -6,10 +6,94 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
 )
+
+type ListWorkflowSecretsResponse struct {
+	WorkflowSecrets []model.WorkflowSecretSummary `json:"secrets"`
+}
+
+func (c *Client) ListWorkflowSecrets(workflow string) (*ListWorkflowSecretsResponse, errors.Error) {
+	resp := &ListWorkflowSecretsResponse{}
+
+	if err := c.Request(
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets", workflow)),
+		WithResponseInto(&resp)); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+type CreateWorkflowSecretParameters struct {
+	Name  string                 `json:"name"`
+	Value transfer.JSONInterface `json:"value"`
+}
+
+func (c *Client) CreateWorkflowSecret(workflow, secret, value string) (*model.WorkflowSecretEntity, errors.Error) {
+	params := &CreateWorkflowSecretParameters{
+		Name:  secret,
+		Value: transfer.JSONInterface{Data: value},
+	}
+
+	response := &model.WorkflowSecretEntity{}
+
+	if err := c.Request(
+		WithMethod(http.MethodPost),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets", workflow)),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type UpdateWorkflowSecretParameters struct {
+	Value transfer.JSONInterface `json:"value"`
+}
+
+func (c *Client) UpdateWorkflowSecret(workflow, secret, value string) (*model.WorkflowSecretEntity, errors.Error) {
+	params := &UpdateWorkflowSecretParameters{
+		Value: transfer.JSONInterface{Data: value},
+	}
+
+	response := &model.WorkflowSecretEntity{}
+
+	if err := c.Request(
+		WithMethod(http.MethodPut),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets/%v", workflow, secret)),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type DeleteWorkflowSecretResponse struct {
+	Success    bool   `json:"success"`
+	ResourceId string `json:"resource_id"`
+}
+
+func (c *Client) DeleteWorkflowSecret(workflow, secret string) (*DeleteWorkflowSecretResponse, errors.Error) {
+	response := &DeleteWorkflowSecretResponse{}
+
+	if err := c.Request(
+		WithMethod(http.MethodDelete),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets/%v", workflow, secret)),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
 
 type CreateWorkflowParameters struct {
 	Name        string `json:"name"`
