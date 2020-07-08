@@ -244,7 +244,7 @@ func getSecretValue(cmd *cobra.Command) (string, errors.Error) {
 		}
 	} else {
 		fmt.Print("Value: ")
-		valueBytes, err := terminal.ReadPassword(syscall.Stdin)
+		valueBytes, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return "", errors.NewSecretFailedValueFromStdin().WithCause(err)
 		}
