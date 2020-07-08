@@ -101,8 +101,8 @@ type AuthFailedNoStdinBuilder struct {
 // Build creates the error for the code "failed_no_stdin" from this builder.
 func (b *AuthFailedNoStdinBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Did not recieve anything from stdin.",
-		Technical: "Did not recieve anything from stdin.",
+		Friendly:  "Did not receive anything from stdin.",
+		Technical: "Did not receive anything from stdin.",
 	}
 
 	return &impl.Error{
@@ -471,26 +471,26 @@ func NewClientResponseNotFound() Error {
 	return NewClientResponseNotFoundBuilder().Build()
 }
 
-// ClientUnkownErrorCode is the code for an instance of "unkown_error".
-const ClientUnkownErrorCode = "rcli_client_unkown_error"
+// ClientUnknownErrorCode is the code for an instance of "unknown_error".
+const ClientUnknownErrorCode = "rcli_client_unknown_error"
 
-// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
-func IsClientUnkownError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientUnkownErrorCode)
+// IsClientUnknownError tests whether a given error is an instance of "unknown_error".
+func IsClientUnknownError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUnknownErrorCode)
 }
 
-// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
-func (External) IsClientUnkownError(err errawr.Error) bool {
-	return IsClientUnkownError(err)
+// IsClientUnknownError tests whether a given error is an instance of "unknown_error".
+func (External) IsClientUnknownError(err errawr.Error) bool {
+	return IsClientUnknownError(err)
 }
 
-// ClientUnkownErrorBuilder is a builder for "unkown_error" errors.
-type ClientUnkownErrorBuilder struct {
+// ClientUnknownErrorBuilder is a builder for "unknown_error" errors.
+type ClientUnknownErrorBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "unkown_error" from this builder.
-func (b *ClientUnkownErrorBuilder) Build() Error {
+// Build creates the error for the code "unknown_error" from this builder.
+func (b *ClientUnknownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
 		Friendly:  "An unknown error has occured. Rerun with --debug to troubleshoot.",
 		Technical: "An unknown error has occured. Rerun with --debug to troubleshoot.",
@@ -498,7 +498,7 @@ func (b *ClientUnkownErrorBuilder) Build() Error {
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "unkown_error",
+		ErrorCode:        "unknown_error",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
@@ -509,14 +509,14 @@ func (b *ClientUnkownErrorBuilder) Build() Error {
 	}
 }
 
-// NewClientUnkownErrorBuilder creates a new error builder for the code "unkown_error".
-func NewClientUnkownErrorBuilder() *ClientUnkownErrorBuilder {
-	return &ClientUnkownErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientUnknownErrorBuilder creates a new error builder for the code "unknown_error".
+func NewClientUnknownErrorBuilder() *ClientUnknownErrorBuilder {
+	return &ClientUnknownErrorBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientUnkownError creates a new error with the code "unkown_error".
-func NewClientUnkownError() Error {
-	return NewClientUnkownErrorBuilder().Build()
+// NewClientUnknownError creates a new error with the code "unknown_error".
+func NewClientUnknownError() Error {
+	return NewClientUnknownErrorBuilder().Build()
 }
 
 // ClientUserNotAuthenticatedCode is the code for an instance of "user_not_authenticated".
@@ -1041,8 +1041,8 @@ type SecretFailedNoStdinBuilder struct {
 // Build creates the error for the code "failed_no_stdin" from this builder.
 func (b *SecretFailedNoStdinBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Did not recieve anything from stdin.",
-		Technical: "Did not recieve anything from stdin.",
+		Friendly:  "Did not receive anything from stdin.",
+		Technical: "Did not receive anything from stdin.",
 	}
 
 	return &impl.Error{

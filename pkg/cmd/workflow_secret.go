@@ -34,7 +34,7 @@ func newSecretCommand() *cobra.Command {
 
 func newSetSecretCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set [workflow-name] [secret name]",
+		Use:   "set [workflow name] [secret name]",
 		Short: "Set a Relay workflow secret",
 		Args:  cobra.MaximumNArgs(2),
 		RunE:  doSetSecret,
@@ -89,6 +89,15 @@ func doSetSecret(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	rev, err := Client.GetLatestRevision(workflowName)
+	if err != nil && !errors.IsClientResponseNotFound(err) {
+		Dialog.Errorf(`Could not retrieve the latest revision for this workflow to check secret usage.
+
+%s`, format.Error(err, cmd))
+	} else if !secretUsed(rev, secretName) {
+		Dialog.Info(`🚩 This secret isn't used by your workflow yet. Don't forget to update your workflow code to use it!`)
+	}
+
 	Dialog.Infof(`Successfully set secret %v on workflow %v
 
 View more information or update workflow settings at: %v`,
@@ -102,7 +111,7 @@ View more information or update workflow settings at: %v`,
 
 func newDeleteSecretCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete [workflow-name] [secret name]",
+		Use:   "delete [workflow name] [secret name]",
 		Short: "Delete a Relay workflow",
 		Args:  cobra.MaximumNArgs(2),
 		RunE:  doDeleteSecret,
@@ -246,4 +255,25 @@ func getSecretValue(cmd *cobra.Command) (string, errors.Error) {
 	}
 
 	return value, nil
+}
+
+func secretUsed(rev *model.RevisionEntity, name string) bool {
+	if rev == nil || rev.Revision == nil {
+		return false
+	}
+
+	for _, step := range rev.Revision.Steps {
+		if step.References == nil {
+			// Possibly non-container step type.
+			continue
+		}
+
+		for _, secret := range step.References.Secrets {
+			if secret.Name == name {
+				return true
+			}
+		}
+	}
+
+	return false
 }

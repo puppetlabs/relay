@@ -54,7 +54,7 @@ sections:
   client:
     title: Client errors
     errors:
-      unkown_error:
+      unknown_error:
         title: Unknown error
         description: An unknown error has occured. Rerun with --debug to troubleshoot.
       # This error probably means a CLI developer screwed up
@@ -105,7 +105,7 @@ sections:
         description: If you provide a password via --password-stdin you must provide your email as the first positional argument to `relay auth login`
       failed_no_stdin:
         title: Did not receive from stdin error
-        description: Did not recieve anything from stdin.
+        description: Did not receive anything from stdin.
   workflow:
     title: Workflow errors
     errors:
@@ -135,4 +135,4 @@ sections:
         description: Could not read secret value from stdin.
       failed_no_stdin:
         title: Did not receive from stdin error
-        description: Did not recieve anything from stdin.
+        description: Did not receive anything from stdin.

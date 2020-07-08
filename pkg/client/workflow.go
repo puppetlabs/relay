@@ -237,23 +237,10 @@ func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflo
 }
 
 // DownloadWorkflow gets the latest configuration (as a YAML string) for a
-// given workflow name. This is very purpose-built and likely rather frail. We
-// should probably not be doing this this way.
+// given workflow name.
 func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
-	workflow, err := c.GetWorkflow(name)
-
+	rev, err := c.GetLatestRevision(name)
 	if err != nil {
-		return "", err
-	}
-
-	// TODO: Do we really want this to blow up or...
-	revId := workflow.Workflow.LatestRevision.Id
-	rev := &model.RevisionEntity{}
-
-	if err := c.Request(
-		WithPath(fmt.Sprintf("/api/workflows/%s/revisions/%s", name, revId)),
-		WithResponseInto(rev),
-	); err != nil {
 		return "", err
 	}
 
@@ -261,7 +248,7 @@ func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
 
 	if berr != nil {
 		debug.Logf("the workflow body was in the wrong format. %s", berr.Error())
-		return "", errors.NewClientUnkownError().WithCause(berr)
+		return "", errors.NewClientUnknownError().WithCause(berr)
 	}
 
 	return string(dec), nil

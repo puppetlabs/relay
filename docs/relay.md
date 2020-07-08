@@ -31,15 +31,6 @@ Use the 'workflow' subcommand to interact with workflows:
   -f, --file string   The path to a file to write the documentation to
 ```
 
-**`relay secret delete [workflow-name] [secret name]`** -- Delete a Relay workflow
-
-**`relay secret list [workflow name]`** -- List Relay workflow secrets
-
-**`relay secret set [workflow-name] [secret name] [flags]`** -- Set a Relay workflow secret
-```
-      --value-stdin   accept secret value from stdin
-```
-
 **`relay workflow add [workflow name] [flags]`** -- Add a Relay workflow from a local file
 ```
   -f, --file string   Path to Relay workflow file
@@ -62,6 +53,15 @@ Use the 'workflow' subcommand to interact with workflows:
 **`relay workflow run [workflow name] [flags]`** -- Invoke a Relay workflow
 ```
   -p, --parameter stringArray   Parameters to invoke this workflow run with
+```
+
+**`relay workflow secret delete [workflow name] [secret name]`** -- Delete a Relay workflow
+
+**`relay workflow secret list [workflow name]`** -- List Relay workflow secrets
+
+**`relay workflow secret set [workflow name] [secret name] [flags]`** -- Set a Relay workflow secret
+```
+      --value-stdin   accept secret value from stdin
 ```
 
 ### Global flags
