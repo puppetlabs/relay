@@ -101,8 +101,8 @@ type AuthFailedNoStdinBuilder struct {
 // Build creates the error for the code "failed_no_stdin" from this builder.
 func (b *AuthFailedNoStdinBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "Did not recieve anything from stdin.",
-		Technical: "Did not recieve anything from stdin.",
+		Friendly:  "Did not receive anything from stdin.",
+		Technical: "Did not receive anything from stdin.",
 	}
 
 	return &impl.Error{
@@ -471,26 +471,26 @@ func NewClientResponseNotFound() Error {
 	return NewClientResponseNotFoundBuilder().Build()
 }
 
-// ClientUnkownErrorCode is the code for an instance of "unkown_error".
-const ClientUnkownErrorCode = "rcli_client_unkown_error"
+// ClientUnknownErrorCode is the code for an instance of "unknown_error".
+const ClientUnknownErrorCode = "rcli_client_unknown_error"
 
-// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
-func IsClientUnkownError(err errawr.Error) bool {
-	return err != nil && err.Is(ClientUnkownErrorCode)
+// IsClientUnknownError tests whether a given error is an instance of "unknown_error".
+func IsClientUnknownError(err errawr.Error) bool {
+	return err != nil && err.Is(ClientUnknownErrorCode)
 }
 
-// IsClientUnkownError tests whether a given error is an instance of "unkown_error".
-func (External) IsClientUnkownError(err errawr.Error) bool {
-	return IsClientUnkownError(err)
+// IsClientUnknownError tests whether a given error is an instance of "unknown_error".
+func (External) IsClientUnknownError(err errawr.Error) bool {
+	return IsClientUnknownError(err)
 }
 
-// ClientUnkownErrorBuilder is a builder for "unkown_error" errors.
-type ClientUnkownErrorBuilder struct {
+// ClientUnknownErrorBuilder is a builder for "unknown_error" errors.
+type ClientUnknownErrorBuilder struct {
 	arguments impl.ErrorArguments
 }
 
-// Build creates the error for the code "unkown_error" from this builder.
-func (b *ClientUnkownErrorBuilder) Build() Error {
+// Build creates the error for the code "unknown_error" from this builder.
+func (b *ClientUnknownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
 		Friendly:  "An unknown error has occured. Rerun with --debug to troubleshoot.",
 		Technical: "An unknown error has occured. Rerun with --debug to troubleshoot.",
@@ -498,7 +498,7 @@ func (b *ClientUnkownErrorBuilder) Build() Error {
 
 	return &impl.Error{
 		ErrorArguments:   b.arguments,
-		ErrorCode:        "unkown_error",
+		ErrorCode:        "unknown_error",
 		ErrorDescription: description,
 		ErrorDomain:      Domain,
 		ErrorMetadata:    &impl.ErrorMetadata{},
@@ -509,14 +509,14 @@ func (b *ClientUnkownErrorBuilder) Build() Error {
 	}
 }
 
-// NewClientUnkownErrorBuilder creates a new error builder for the code "unkown_error".
-func NewClientUnkownErrorBuilder() *ClientUnkownErrorBuilder {
-	return &ClientUnkownErrorBuilder{arguments: impl.ErrorArguments{}}
+// NewClientUnknownErrorBuilder creates a new error builder for the code "unknown_error".
+func NewClientUnknownErrorBuilder() *ClientUnknownErrorBuilder {
+	return &ClientUnknownErrorBuilder{arguments: impl.ErrorArguments{}}
 }
 
-// NewClientUnkownError creates a new error with the code "unkown_error".
-func NewClientUnkownError() Error {
-	return NewClientUnkownErrorBuilder().Build()
+// NewClientUnknownError creates a new error with the code "unknown_error".
+func NewClientUnknownError() Error {
+	return NewClientUnknownErrorBuilder().Build()
 }
 
 // ClientUserNotAuthenticatedCode is the code for an instance of "user_not_authenticated".
@@ -1011,6 +1011,205 @@ func NewGeneralUnknownErrorBuilder() *GeneralUnknownErrorBuilder {
 // NewGeneralUnknownError creates a new error with the code "unknown_error".
 func NewGeneralUnknownError() Error {
 	return NewGeneralUnknownErrorBuilder().Build()
+}
+
+// SecretSection defines a section of errors with the following scope:
+// Secret errors
+var SecretSection = &impl.ErrorSection{
+	Key:   "secret",
+	Title: "Secret errors",
+}
+
+// SecretFailedNoStdinCode is the code for an instance of "failed_no_stdin".
+const SecretFailedNoStdinCode = "rcli_secret_failed_no_stdin"
+
+// IsSecretFailedNoStdin tests whether a given error is an instance of "failed_no_stdin".
+func IsSecretFailedNoStdin(err errawr.Error) bool {
+	return err != nil && err.Is(SecretFailedNoStdinCode)
+}
+
+// IsSecretFailedNoStdin tests whether a given error is an instance of "failed_no_stdin".
+func (External) IsSecretFailedNoStdin(err errawr.Error) bool {
+	return IsSecretFailedNoStdin(err)
+}
+
+// SecretFailedNoStdinBuilder is a builder for "failed_no_stdin" errors.
+type SecretFailedNoStdinBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "failed_no_stdin" from this builder.
+func (b *SecretFailedNoStdinBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Did not receive anything from stdin.",
+		Technical: "Did not receive anything from stdin.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "failed_no_stdin",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     SecretSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Did not receive from stdin error",
+		Version:          1,
+	}
+}
+
+// NewSecretFailedNoStdinBuilder creates a new error builder for the code "failed_no_stdin".
+func NewSecretFailedNoStdinBuilder() *SecretFailedNoStdinBuilder {
+	return &SecretFailedNoStdinBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewSecretFailedNoStdin creates a new error with the code "failed_no_stdin".
+func NewSecretFailedNoStdin() Error {
+	return NewSecretFailedNoStdinBuilder().Build()
+}
+
+// SecretFailedValueFromStdinCode is the code for an instance of "failed_value_from_stdin".
+const SecretFailedValueFromStdinCode = "rcli_secret_failed_value_from_stdin"
+
+// IsSecretFailedValueFromStdin tests whether a given error is an instance of "failed_value_from_stdin".
+func IsSecretFailedValueFromStdin(err errawr.Error) bool {
+	return err != nil && err.Is(SecretFailedValueFromStdinCode)
+}
+
+// IsSecretFailedValueFromStdin tests whether a given error is an instance of "failed_value_from_stdin".
+func (External) IsSecretFailedValueFromStdin(err errawr.Error) bool {
+	return IsSecretFailedValueFromStdin(err)
+}
+
+// SecretFailedValueFromStdinBuilder is a builder for "failed_value_from_stdin" errors.
+type SecretFailedValueFromStdinBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "failed_value_from_stdin" from this builder.
+func (b *SecretFailedValueFromStdinBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not read secret value from stdin.",
+		Technical: "Could not read secret value from stdin.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "failed_value_from_stdin",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     SecretSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Failed value from stdin",
+		Version:          1,
+	}
+}
+
+// NewSecretFailedValueFromStdinBuilder creates a new error builder for the code "failed_value_from_stdin".
+func NewSecretFailedValueFromStdinBuilder() *SecretFailedValueFromStdinBuilder {
+	return &SecretFailedValueFromStdinBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewSecretFailedValueFromStdin creates a new error with the code "failed_value_from_stdin".
+func NewSecretFailedValueFromStdin() Error {
+	return NewSecretFailedValueFromStdinBuilder().Build()
+}
+
+// SecretMissingNameErrorCode is the code for an instance of "missing_name_error".
+const SecretMissingNameErrorCode = "rcli_secret_missing_name_error"
+
+// IsSecretMissingNameError tests whether a given error is an instance of "missing_name_error".
+func IsSecretMissingNameError(err errawr.Error) bool {
+	return err != nil && err.Is(SecretMissingNameErrorCode)
+}
+
+// IsSecretMissingNameError tests whether a given error is an instance of "missing_name_error".
+func (External) IsSecretMissingNameError(err errawr.Error) bool {
+	return IsSecretMissingNameError(err)
+}
+
+// SecretMissingNameErrorBuilder is a builder for "missing_name_error" errors.
+type SecretMissingNameErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "missing_name_error" from this builder.
+func (b *SecretMissingNameErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Please provide a workflow name.",
+		Technical: "Please provide a workflow name.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "missing_name_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     SecretSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Missing workflow name error",
+		Version:          1,
+	}
+}
+
+// NewSecretMissingNameErrorBuilder creates a new error builder for the code "missing_name_error".
+func NewSecretMissingNameErrorBuilder() *SecretMissingNameErrorBuilder {
+	return &SecretMissingNameErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewSecretMissingNameError creates a new error with the code "missing_name_error".
+func NewSecretMissingNameError() Error {
+	return NewSecretMissingNameErrorBuilder().Build()
+}
+
+// SecretNameReadErrorCode is the code for an instance of "name_read_error".
+const SecretNameReadErrorCode = "rcli_secret_name_read_error"
+
+// IsSecretNameReadError tests whether a given error is an instance of "name_read_error".
+func IsSecretNameReadError(err errawr.Error) bool {
+	return err != nil && err.Is(SecretNameReadErrorCode)
+}
+
+// IsSecretNameReadError tests whether a given error is an instance of "name_read_error".
+func (External) IsSecretNameReadError(err errawr.Error) bool {
+	return IsSecretNameReadError(err)
+}
+
+// SecretNameReadErrorBuilder is a builder for "name_read_error" errors.
+type SecretNameReadErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "name_read_error" from this builder.
+func (b *SecretNameReadErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "Could not read secret name. Please supply a valid name.",
+		Technical: "Could not read secret name. Please supply a valid name.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "name_read_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     SecretSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Secret name read error",
+		Version:          1,
+	}
+}
+
+// NewSecretNameReadErrorBuilder creates a new error builder for the code "name_read_error".
+func NewSecretNameReadErrorBuilder() *SecretNameReadErrorBuilder {
+	return &SecretNameReadErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewSecretNameReadError creates a new error with the code "name_read_error".
+func NewSecretNameReadError() Error {
+	return NewSecretNameReadErrorBuilder().Build()
 }
 
 // WorkflowSection defines a section of errors with the following scope:

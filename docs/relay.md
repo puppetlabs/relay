@@ -55,6 +55,15 @@ Use the 'workflow' subcommand to interact with workflows:
   -p, --parameter stringArray   Parameters to invoke this workflow run with
 ```
 
+**`relay workflow secret delete [workflow name] [secret name]`** -- Delete a Relay workflow secret
+
+**`relay workflow secret list [workflow name]`** -- List Relay workflow secrets
+
+**`relay workflow secret set [workflow name] [secret name] [flags]`** -- Set a Relay workflow secret
+```
+      --value-stdin   accept secret value from stdin
+```
+
 ### Global flags
 ```
   -d, --debug        print debugging information

@@ -28,6 +28,7 @@ func newWorkflowCommand() *cobra.Command {
 	cmd.AddCommand(newRunWorkflowCommand())
 	cmd.AddCommand(newListWorkflowsCommand())
 	cmd.AddCommand(newDownloadWorkflowCommand())
+	cmd.AddCommand(newSecretCommand())
 
 	return cmd
 }

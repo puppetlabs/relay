@@ -8,6 +8,10 @@ import (
 	"github.com/puppetlabs/relay/pkg/config"
 )
 
+type WorkflowSecretEntity struct {
+	Secret *WorkflowSecretSummary `json:"secret"`
+}
+
 type WorkflowIdentifier struct {
 	Name string `json:"name"`
 }

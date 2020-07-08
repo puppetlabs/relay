@@ -7,7 +7,7 @@ import (
 )
 
 type RevisionIdentifier struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type RevisionSummary struct {

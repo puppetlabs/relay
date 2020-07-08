@@ -6,10 +6,94 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
 )
+
+type ListWorkflowSecretsResponse struct {
+	WorkflowSecrets []model.WorkflowSecretSummary `json:"secrets"`
+}
+
+func (c *Client) ListWorkflowSecrets(workflow string) (*ListWorkflowSecretsResponse, errors.Error) {
+	resp := &ListWorkflowSecretsResponse{}
+
+	if err := c.Request(
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets", workflow)),
+		WithResponseInto(&resp)); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+type CreateWorkflowSecretParameters struct {
+	Name  string                 `json:"name"`
+	Value transfer.JSONInterface `json:"value"`
+}
+
+func (c *Client) CreateWorkflowSecret(workflow, secret, value string) (*model.WorkflowSecretEntity, errors.Error) {
+	params := &CreateWorkflowSecretParameters{
+		Name:  secret,
+		Value: transfer.JSONInterface{Data: value},
+	}
+
+	response := &model.WorkflowSecretEntity{}
+
+	if err := c.Request(
+		WithMethod(http.MethodPost),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets", workflow)),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type UpdateWorkflowSecretParameters struct {
+	Value transfer.JSONInterface `json:"value"`
+}
+
+func (c *Client) UpdateWorkflowSecret(workflow, secret, value string) (*model.WorkflowSecretEntity, errors.Error) {
+	params := &UpdateWorkflowSecretParameters{
+		Value: transfer.JSONInterface{Data: value},
+	}
+
+	response := &model.WorkflowSecretEntity{}
+
+	if err := c.Request(
+		WithMethod(http.MethodPut),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets/%v", workflow, secret)),
+		WithBody(params),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+type DeleteWorkflowSecretResponse struct {
+	Success    bool   `json:"success"`
+	ResourceId string `json:"resource_id"`
+}
+
+func (c *Client) DeleteWorkflowSecret(workflow, secret string) (*DeleteWorkflowSecretResponse, errors.Error) {
+	response := &DeleteWorkflowSecretResponse{}
+
+	if err := c.Request(
+		WithMethod(http.MethodDelete),
+		WithPath(fmt.Sprintf("/api/workflows/%v/secrets/%v", workflow, secret)),
+		WithResponseInto(response),
+	); err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
 
 type CreateWorkflowParameters struct {
 	Name        string `json:"name"`
@@ -153,23 +237,10 @@ func (c *Client) RunWorkflow(name string, params map[string]string) (*RunWorkflo
 }
 
 // DownloadWorkflow gets the latest configuration (as a YAML string) for a
-// given workflow name. This is very purpose-built and likely rather frail. We
-// should probably not be doing this this way.
+// given workflow name.
 func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
-	workflow, err := c.GetWorkflow(name)
-
+	rev, err := c.GetLatestRevision(name)
 	if err != nil {
-		return "", err
-	}
-
-	// TODO: Do we really want this to blow up or...
-	revId := workflow.Workflow.LatestRevision.Id
-	rev := &model.RevisionEntity{}
-
-	if err := c.Request(
-		WithPath(fmt.Sprintf("/api/workflows/%s/revisions/%s", name, revId)),
-		WithResponseInto(rev),
-	); err != nil {
 		return "", err
 	}
 
@@ -177,7 +248,7 @@ func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
 
 	if berr != nil {
 		debug.Logf("the workflow body was in the wrong format. %s", berr.Error())
-		return "", errors.NewClientUnkownError().WithCause(berr)
+		return "", errors.NewClientUnknownError().WithCause(berr)
 	}
 
 	return string(dec), nil
