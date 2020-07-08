@@ -112,7 +112,7 @@ View more information or update workflow settings at: %v`,
 func newDeleteSecretCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [workflow name] [secret name]",
-		Short: "Delete a Relay workflow",
+		Short: "Delete a Relay workflow secret",
 		Args:  cobra.MaximumNArgs(2),
 		RunE:  doDeleteSecret,
 	}
