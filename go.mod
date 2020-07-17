@@ -10,7 +10,8 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.7.0
 	github.com/puppetlabs/nebula-sdk v1.11.0
-	github.com/spf13/cobra v0.0.5
+	github.com/rancher/k3d/v3 v3.0.0
+	github.com/spf13/cobra v1.0.1-0.20200629195214-2c5a0d300f8b
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.4.0
