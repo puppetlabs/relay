@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"path/filepath"
+
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/spf13/cobra"
 )
@@ -31,8 +33,12 @@ func newStartClusterCommand() *cobra.Command {
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
+	opts := cluster.ClusterOptions{
+		DataDir: filepath.Join(Config.DataDir, "cluster"),
+	}
+
 	if _, err := cluster.GetCluster(ctx); err != nil {
-		if err := cluster.CreateCluster(ctx); err != nil {
+		if err := cluster.CreateCluster(ctx, opts); err != nil {
 			return err
 		}
 	} else {
