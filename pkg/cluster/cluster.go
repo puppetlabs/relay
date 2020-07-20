@@ -26,11 +26,18 @@ func CreateCluster(ctx context.Context, opts ClusterOptions) error {
 	rt := runtimes.SelectedRuntime
 	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, DefaultK3sVersion)
 
+	exposeAPI := types.ExposeAPI{
+		Host:   types.DefaultAPIHost,
+		HostIP: types.DefaultAPIHost,
+		Port:   types.DefaultAPIPort,
+	}
+
 	serverNode := &types.Node{
 		Role:  types.ServerRole,
 		Image: k3sImage,
 		ServerOpts: types.ServerOpts{
-			IsInit: true,
+			IsInit:    true,
+			ExposeAPI: exposeAPI,
 		},
 	}
 
@@ -50,14 +57,6 @@ func CreateCluster(ctx context.Context, opts ClusterOptions) error {
 	network := types.ClusterNetwork{
 		Name: DefaultNetworkName,
 	}
-
-	exposeAPI := types.ExposeAPI{
-		Host:   types.DefaultAPIHost,
-		HostIP: types.DefaultAPIHost,
-		Port:   types.DefaultAPIPort,
-	}
-
-	serverNode.ServerOpts.ExposeAPI = exposeAPI
 
 	clusterConfig := &types.Cluster{
 		Name:               DefaultClusterName,
