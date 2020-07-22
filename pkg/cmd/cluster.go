@@ -16,6 +16,7 @@ func newClusterCommand() *cobra.Command {
 
 	cmd.AddCommand(newStartClusterCommand())
 	cmd.AddCommand(newStopClusterCommand())
+	cmd.AddCommand(newDeleteClusterCommand())
 
 	return cmd
 }
@@ -62,4 +63,20 @@ func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
 	return cluster.StopCluster(ctx)
+}
+
+func newDeleteClusterCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "Delete the local cluster",
+		RunE:  doDeleteCluster,
+	}
+
+	return cmd
+}
+
+func doDeleteCluster(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
+
+	return cluster.DeleteCluster(ctx)
 }

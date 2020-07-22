@@ -36,7 +36,6 @@ func CreateCluster(ctx context.Context, opts ClusterOptions) error {
 		Role:  types.ServerRole,
 		Image: k3sImage,
 		ServerOpts: types.ServerOpts{
-			IsInit:    true,
 			ExposeAPI: exposeAPI,
 		},
 	}
@@ -61,11 +60,12 @@ func CreateCluster(ctx context.Context, opts ClusterOptions) error {
 	clusterConfig := &types.Cluster{
 		Name:               DefaultClusterName,
 		ServerLoadBalancer: &types.Node{Role: types.LoadBalancerRole},
-		InitNode:           serverNode,
 		Nodes:              nodes,
-		CreateClusterOpts:  &types.ClusterCreateOpts{},
-		Network:            network,
-		ExposeAPI:          exposeAPI,
+		CreateClusterOpts: &types.ClusterCreateOpts{
+			WaitForServer: true,
+		},
+		Network:   network,
+		ExposeAPI: exposeAPI,
 	}
 
 	if err := k3dcluster.ClusterCreate(ctx, rt, clusterConfig); err != nil {
@@ -129,4 +129,18 @@ func StopCluster(ctx context.Context) error {
 	}
 
 	return k3dcluster.ClusterStop(ctx, rt, clusterConfig)
+}
+
+func DeleteCluster(ctx context.Context) error {
+	rt := runtimes.SelectedRuntime
+	clusterConfig := &types.Cluster{
+		Name: DefaultClusterName,
+	}
+
+	clusterConfig, err := GetCluster(ctx)
+	if err != nil {
+		return err
+	}
+
+	return k3dcluster.ClusterDelete(ctx, rt, clusterConfig)
 }
