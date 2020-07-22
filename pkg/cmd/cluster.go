@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"path/filepath"
-
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/spf13/cobra"
 )
@@ -33,17 +31,14 @@ func newStartClusterCommand() *cobra.Command {
 
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
+	cm := cluster.NewManager(Config)
 
-	opts := cluster.ClusterOptions{
-		DataDir: filepath.Join(Config.DataDir, "cluster"),
-	}
-
-	if _, err := cluster.GetCluster(ctx); err != nil {
-		if err := cluster.CreateCluster(ctx, opts); err != nil {
+	if _, err := cm.Exists(ctx); err != nil {
+		if err := cm.Create(ctx); err != nil {
 			return err
 		}
 	} else {
-		return cluster.StartCluster(ctx)
+		return cm.Start(ctx)
 	}
 
 	return nil
@@ -61,8 +56,9 @@ func newStopClusterCommand() *cobra.Command {
 
 func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
+	cm := cluster.NewManager(Config)
 
-	return cluster.StopCluster(ctx)
+	return cm.Stop(ctx)
 }
 
 func newDeleteClusterCommand() *cobra.Command {
@@ -77,6 +73,7 @@ func newDeleteClusterCommand() *cobra.Command {
 
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
+	cm := cluster.NewManager(Config)
 
-	return cluster.DeleteCluster(ctx)
+	return cm.Delete(ctx)
 }
