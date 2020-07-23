@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"path/filepath"
+
 	"github.com/puppetlabs/relay/pkg/cluster"
+	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
 )
 
@@ -31,10 +34,19 @@ func newStartClusterCommand() *cobra.Command {
 
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(Config)
+	cm := cluster.NewManager()
+	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
 	if _, err := cm.Exists(ctx); err != nil {
 		if err := cm.Create(ctx); err != nil {
+			return err
+		}
+
+		if err := dm.WriteKubeconfig(ctx); err != nil {
+			return err
+		}
+
+		if err := dm.ApplyCoreResources(ctx); err != nil {
 			return err
 		}
 	} else {
@@ -56,7 +68,7 @@ func newStopClusterCommand() *cobra.Command {
 
 func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(Config)
+	cm := cluster.NewManager()
 
 	return cm.Stop(ctx)
 }
@@ -73,7 +85,7 @@ func newDeleteClusterCommand() *cobra.Command {
 
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(Config)
+	cm := cluster.NewManager()
 
 	return cm.Delete(ctx)
 }

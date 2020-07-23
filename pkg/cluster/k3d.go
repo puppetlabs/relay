@@ -142,21 +142,41 @@ func (m *K3dClusterManager) Delete(ctx context.Context) error {
 	return k3dcluster.ClusterDelete(ctx, rt, clusterConfig)
 }
 
+// GetKubeconfig returns a k8s client-go config for the cluster's context. This can be
+// be used to generate the yaml that is often seen on disk and used with kubectl. Attempting
+// to get a kubeconfig for a cluster that doesn't exist results in an error.
+func (m *K3dClusterManager) GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error) {
+	rt := runtimes.SelectedRuntime
+
+	clusterConfig, err := m.get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return k3dcluster.KubeconfigGet(ctx, rt, clusterConfig)
+}
+
+// WriteKubeconfig takes a path and writes the cluster's kubeconfig file to it. Attempting
+// to write a kubeconfig for a cluster that doesn't exist results in an error.
+func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) error {
+	apiConfig, err := m.GetKubeconfig(ctx)
+	if err != nil {
+		return err
+	}
+
+	return k3dcluster.KubeconfigWriteToPath(ctx, apiConfig, path)
+}
+
 func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 	rt := runtimes.SelectedRuntime
 	clusterConfig := &types.Cluster{
-		Name: DefaultClusterName,
+		Name: ClusterName,
 	}
 
 	return k3dcluster.ClusterGet(ctx, rt, clusterConfig)
 }
 
-func NewK3dClusterManager(cfg *config.Config) *K3dClusterManager {
-	opts := Options{
-		DataDir: filepath.Join(cfg.DataDir, "cluster"),
-	}
-
-	return &K3dClusterManager{
-		opts: opts,
-	}
+// NewK3dClusterManager returns a new K3dClusterManager.
+func NewK3dClusterManager() *K3dClusterManager {
+	return &K3dClusterManager{}
 }

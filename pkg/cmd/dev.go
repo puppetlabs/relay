@@ -10,6 +10,7 @@ func newDevCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(newClusterCommand())
+	cmd.AddCommand(newKubectlCommand())
 
 	return cmd
 }
