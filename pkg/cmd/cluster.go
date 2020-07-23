@@ -38,14 +38,17 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
 	if _, err := cm.Exists(ctx); err != nil {
+		Dialog.Info("Creating a new dev cluster")
 		if err := cm.Create(ctx); err != nil {
 			return err
 		}
 
+		Dialog.Info("Writing kubeconfig")
 		if err := dm.WriteKubeconfig(ctx); err != nil {
 			return err
 		}
 
+		Dialog.Info("Applying core Relay resources")
 		if err := dm.ApplyCoreResources(ctx); err != nil {
 			return err
 		}

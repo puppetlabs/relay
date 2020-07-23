@@ -49,7 +49,22 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 }
 
 func (m *Manager) ApplyCoreResources(ctx context.Context) error {
-	return nil
+	if err := m.kubectlExec("apply", "-f", tektonResourceURL); err != nil {
+		return err
+	}
+
+	return m.kubectlExec("apply", "-f", relayCoreResourceURL)
+}
+
+func (m *Manager) kubectlExec(args ...string) error {
+	kubectl, err := m.KubectlCommand()
+	if err != nil {
+		return err
+	}
+
+	kubectl.SetArgs(args)
+
+	return kubectl.Execute()
 }
 
 func NewManager(cm cluster.Manager, opts Options) *Manager {
