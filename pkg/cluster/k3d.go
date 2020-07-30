@@ -7,7 +7,9 @@ import (
 	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
 	"github.com/rancher/k3d/v3/pkg/runtimes"
 	"github.com/rancher/k3d/v3/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -159,6 +161,28 @@ func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) er
 	}
 
 	return k3dcluster.KubeconfigWriteToPath(ctx, apiConfig, path)
+}
+
+func (m *K3dClusterManager) GetClient(ctx context.Context) (client.Client, error) {
+	apiConfig, err := m.GetKubeconfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	overrides := &clientcmd.ConfigOverrides{}
+	clientConfig := clientcmd.NewDefaultClientConfig(*apiConfig, overrides)
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := client.New(restConfig, client.Options{})
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -21,6 +22,7 @@ type Manager interface {
 	Delete(ctx context.Context) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
 	WriteKubeconfig(ctx context.Context, path string) error
+	GetClient(ctx context.Context) (client.Client, error)
 }
 
 // NewManager returns a new selected Manager. Since k3d is

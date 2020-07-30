@@ -7,15 +7,13 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/cluster"
+	"github.com/puppetlabs/relay/pkg/dev/manifests"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"k8s.io/apimachinery/pkg/runtime"
 	utilflag "k8s.io/component-base/cli/flag"
 	kctlcmd "k8s.io/kubernetes/pkg/kubectl/cmd"
-)
-
-const (
-	tektonResourceURL    = "https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.12.0/release.yaml"
-	relayCoreResourceURL = "https://raw.githubusercontent.com/puppetlabs/relay-core/master/manifests/resources/nebula.puppet.com_workflowruns.yaml"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Options struct {
@@ -49,11 +47,52 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 }
 
 func (m *Manager) ApplyCoreResources(ctx context.Context) error {
-	if err := m.kubectlExec("apply", "-f", tektonResourceURL); err != nil {
+	cl, err := m.cm.GetClient(ctx)
+	if err != nil {
 		return err
 	}
 
-	return m.kubectlExec("apply", "-f", relayCoreResourceURL)
+	nm := newNamespaceManager(cl)
+	cm := newCAManager(cl, nm.objectNamespacePatcher("system"))
+
+	if err := nm.create(ctx); err != nil {
+		return err
+	}
+
+	if err := cm.create(ctx); err != nil {
+		return err
+	}
+
+	files, err := manifests.AssetListDir()
+	if err != nil {
+		return err
+	}
+
+	manifest := manifests.MustAsset(files[0])
+
+	objs, err := parseManifest(manifest)
+	if err != nil {
+		return err
+	}
+
+	systemPatcher := nm.objectNamespacePatcher("system")
+
+	for _, obj := range objs {
+		systemPatcher(obj)
+		if err := m.apply(ctx, cl, obj); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Manager) apply(ctx context.Context, cl client.Client, obj runtime.Object) error {
+	return cl.Patch(ctx, obj, client.Apply)
+}
+
+func (m *Manager) DeleteDataDir() error {
+	return os.RemoveAll(m.opts.DataDir)
 }
 
 func (m *Manager) kubectlExec(args ...string) error {
@@ -73,3 +112,5 @@ func NewManager(cm cluster.Manager, opts Options) *Manager {
 		opts: opts,
 	}
 }
+
+type objectPatcherFunc func(runtime.Object)

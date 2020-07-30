@@ -89,6 +89,11 @@ func newDeleteClusterCommand() *cobra.Command {
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager()
+	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
-	return cm.Delete(ctx)
+	if err := cm.Delete(ctx); err != nil {
+		return err
+	}
+
+	return dm.DeleteDataDir()
 }
