@@ -1,3 +1,184 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  creationTimestamp: null
+  name: workflowruns.nebula.puppet.com
+spec:
+  group: nebula.puppet.com
+  names:
+    kind: WorkflowRun
+    listKind: WorkflowRunList
+    plural: workflowruns
+    singular: workflowrun
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: WorkflowRun is the root type for a workflow run.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            name:
+              type: string
+            parameters:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              type: object
+            workflow:
+              properties:
+                name:
+                  type: string
+                parameters:
+                  additionalProperties:
+                    description: Unstructured is arbitrary JSON data, which may also
+                      include base64-encoded binary data.
+                    x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                steps:
+                  items:
+                    properties:
+                      args:
+                        items:
+                          type: string
+                        type: array
+                      command:
+                        type: string
+                      depends_on:
+                        items:
+                          type: string
+                        type: array
+                      image:
+                        type: string
+                      input:
+                        items:
+                          type: string
+                        type: array
+                      name:
+                        type: string
+                      spec:
+                        additionalProperties:
+                          description: Unstructured is arbitrary JSON data, which
+                            may also include base64-encoded binary data.
+                          x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      when:
+                        description: Unstructured is arbitrary JSON data, which may
+                          also include base64-encoded binary data.
+                        x-kubernetes-preserve-unknown-fields: true
+                    required:
+                    - name
+                    type: object
+                  type: array
+              required:
+              - name
+              - steps
+              type: object
+          required:
+          - name
+          - workflow
+          type: object
+        state:
+          properties:
+            steps:
+              additionalProperties:
+                additionalProperties:
+                  description: Unstructured is arbitrary JSON data, which may also
+                    include base64-encoded binary data.
+                  x-kubernetes-preserve-unknown-fields: true
+                type: object
+              type: object
+            workflow:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              type: object
+          type: object
+        status:
+          properties:
+            completionTime:
+              format: date-time
+              type: string
+            conditions:
+              additionalProperties:
+                properties:
+                  completionTime:
+                    format: date-time
+                    type: string
+                  logKey:
+                    type: string
+                  name:
+                    type: string
+                  startTime:
+                    format: date-time
+                    type: string
+                  status:
+                    type: string
+                required:
+                - name
+                - status
+                type: object
+              type: object
+            startTime:
+              format: date-time
+              type: string
+            status:
+              type: string
+            steps:
+              additionalProperties:
+                properties:
+                  completionTime:
+                    format: date-time
+                    type: string
+                  logKey:
+                    type: string
+                  name:
+                    type: string
+                  startTime:
+                    format: date-time
+                    type: string
+                  status:
+                    type: string
+                required:
+                - name
+                - status
+                type: object
+              type: object
+          required:
+          - status
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1
+  versions:
+  - name: v1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
 ---
 # Source: nebula-system/charts/metadata-api/templates/vault-agent-configmap.yaml
 apiVersion: v1
