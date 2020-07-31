@@ -10,7 +10,7 @@ import (
 const (
 	ClusterName = "relay-workflows"
 	NetworkName = "relay-workflows-net"
-	WorkerCount = 3
+	WorkerCount = 2
 )
 
 type ClientOptions struct {
