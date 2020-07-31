@@ -3,17 +3,35 @@ package dev
 import (
 	"context"
 	goflag "flag"
+	"fmt"
 	"os"
 	"path/filepath"
 
+	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
 	utilflag "k8s.io/component-base/cli/flag"
 	kctlcmd "k8s.io/kubernetes/pkg/kubectl/cmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+var (
+	scheme        = runtime.NewScheme()
+	schemeBuilder = runtime.NewSchemeBuilder(
+		kubernetesscheme.AddToScheme,
+		metav1.AddMetaToScheme,
+		dependency.AddToScheme,
+		certmanagerv1beta1.AddToScheme,
+		apiextensionsv1beta1.AddToScheme,
+	)
+	_ = schemeBuilder.AddToScheme(scheme)
 )
 
 type Options struct {
@@ -47,7 +65,9 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 }
 
 func (m *Manager) ApplyCoreResources(ctx context.Context) error {
-	cl, err := m.cm.GetClient(ctx)
+	cl, err := m.cm.GetClient(ctx, cluster.ClientOptions{
+		Scheme: scheme,
+	})
 	if err != nil {
 		return err
 	}
@@ -80,15 +100,15 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 	for _, obj := range objs {
 		systemPatcher(obj)
 		if err := m.apply(ctx, cl, obj); err != nil {
-			return err
+			return fmt.Errorf("failed to apply object '%s': %w", obj.GetObjectKind().GroupVersionKind().String(), err)
 		}
 	}
 
 	return nil
 }
 
-func (m *Manager) apply(ctx context.Context, cl client.Client, obj runtime.Object) error {
-	return cl.Patch(ctx, obj, client.Apply)
+func (m *Manager) apply(ctx context.Context, cl *cluster.Client, obj runtime.Object) error {
+	return cl.APIClient.Patch(ctx, obj, client.Apply, client.FieldOwner("relay-e2e"))
 }
 
 func (m *Manager) DeleteDataDir() error {

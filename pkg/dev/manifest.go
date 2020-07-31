@@ -5,22 +5,9 @@ import (
 	"bytes"
 	"io"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
-	"github.com/puppetlabs/relay-core/pkg/dependency"
-	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/runtime/serializer/streaming"
-)
-
-var (
-	scheme        = runtime.NewScheme()
-	schemeBuilder = runtime.NewSchemeBuilder(
-		dependency.AddToScheme,
-		certmanagerv1beta1.AddToScheme,
-		apiextensionsv1beta1.AddToScheme,
-	)
-	_ = schemeBuilder.AddToScheme(scheme)
 )
 
 // multiDocDecoder basically does the same thing as yaml.NewDocumentDecoder,

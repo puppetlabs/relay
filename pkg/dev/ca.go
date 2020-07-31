@@ -12,9 +12,13 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	caSecretName = "relay-ca"
 )
 
 type caPair struct {
@@ -23,7 +27,7 @@ type caPair struct {
 }
 
 type caManager struct {
-	cl client.Client
+	cl *cluster.Client
 
 	patchers []objectPatcherFunc
 }
@@ -36,7 +40,7 @@ func (m *caManager) create(ctx context.Context) error {
 
 	caSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: relayCASecretName,
+			Name: caSecretName,
 		},
 		StringData: map[string]string{
 			"tls.crt": base64.StdEncoding.EncodeToString(pair.certificate),
@@ -48,7 +52,7 @@ func (m *caManager) create(ctx context.Context) error {
 		patcher(caSecret)
 	}
 
-	if err := m.cl.Create(ctx, caSecret); err != nil {
+	if err := m.cl.APIClient.Create(ctx, caSecret); err != nil {
 		return err
 	}
 
@@ -100,7 +104,7 @@ func (m *caManager) generateCA() (*caPair, error) {
 	}, nil
 }
 
-func newCAManager(cl client.Client, patchers ...objectPatcherFunc) *caManager {
+func newCAManager(cl *cluster.Client, patchers ...objectPatcherFunc) *caManager {
 	return &caManager{
 		cl:       cl,
 		patchers: patchers,

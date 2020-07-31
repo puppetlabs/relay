@@ -3,11 +3,12 @@ package dev
 import (
 	"context"
 
+	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 )
 
 type namespaceManager struct {
-	cl client.Client
+	cl *cluster.Client
 }
 
 func (m *namespaceManager) create(ctx context.Context) error {
@@ -32,36 +33,58 @@ func (m *namespaceManager) create(ctx context.Context) error {
 		},
 	}
 
-	if err := m.cl.Create(ctx, sn); err != nil {
+	if err := m.cl.APIClient.Create(ctx, sn); err != nil {
 		return err
 	}
 
-	if err := m.cl.Create(ctx, wn); err != nil {
+	if err := m.cl.APIClient.Create(ctx, wn); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func (m *namespaceManager) getByID(id string) string {
+	switch id {
+	case "system":
+		return systemNamespace
+	case "workflows":
+		return workflowsNamespace
+	}
+
+	return "default"
+}
+
 func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
 	return func(obj runtime.Object) {
-		_ := obj.GetObjectKind().GroupVersionKind()
+		var gvk schema.GroupVersionKind
+
+		gvks, _, err := scheme.ObjectKinds(obj)
+		if err != nil {
+			return
+		}
+
+		if len(gvks) > 1 {
+			return
+		}
+
+		gvk = gvks[0]
+
+		mapping, err := m.cl.Mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+		if err != nil {
+			return
+		}
 
 		a, err := meta.Accessor(obj)
 		if err != nil {
 			return
 		}
 
-		var ns string
-
-		switch id {
-		case "system":
-			ns = systemNamespace
-		case "workflows":
-			ns = workflowsNamespace
-		default:
+		if mapping.Scope.Name() != meta.RESTScopeNameNamespace {
 			return
 		}
+
+		ns := m.getByID(id)
 
 		if a.GetNamespace() == "" {
 			a.SetNamespace(ns)
@@ -69,6 +92,6 @@ func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
 	}
 }
 
-func newNamespaceManager(cl client.Client) *namespaceManager {
+func newNamespaceManager(cl *cluster.Client) *namespaceManager {
 	return &namespaceManager{cl: cl}
 }

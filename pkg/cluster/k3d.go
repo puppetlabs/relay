@@ -7,14 +7,21 @@ import (
 	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
 	"github.com/rancher/k3d/v3/pkg/runtimes"
 	"github.com/rancher/k3d/v3/pkg/types"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 const (
 	K3sVersion = "v1.18.6-k3s1"
 )
+
+type Client struct {
+	APIClient client.Client
+	Mapper    meta.RESTMapper
+}
 
 // K3dClusterManager wraps rancher's k3d to manage the lifecycle
 // of a kubernetes cluster running in docker.
@@ -163,7 +170,8 @@ func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) er
 	return k3dcluster.KubeconfigWriteToPath(ctx, apiConfig, path)
 }
 
-func (m *K3dClusterManager) GetClient(ctx context.Context) (client.Client, error) {
+// GetClient returns a new Client configured with a RESTMapper and k8s api client.
+func (m *K3dClusterManager) GetClient(ctx context.Context, opts ClientOptions) (*Client, error) {
 	apiConfig, err := m.GetKubeconfig(ctx)
 	if err != nil {
 		return nil, err
@@ -177,12 +185,22 @@ func (m *K3dClusterManager) GetClient(ctx context.Context) (client.Client, error
 		return nil, err
 	}
 
-	c, err := client.New(restConfig, client.Options{})
+	c, err := client.New(restConfig, client.Options{
+		Scheme: opts.Scheme,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return c, nil
+	mapper, err := apiutil.NewDynamicRESTMapper(restConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		APIClient: c,
+		Mapper:    mapper,
+	}, nil
 }
 
 func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
