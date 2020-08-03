@@ -2,7 +2,6 @@ package dev
 
 import (
 	"bytes"
-	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -12,13 +11,11 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
+	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
-const (
-	caSecretName = "relay-ca"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type caPair struct {
@@ -26,37 +23,43 @@ type caPair struct {
 	privateKey  []byte
 }
 
-type caManager struct {
-	cl *cluster.Client
+type caManager struct{}
 
-	patchers []objectPatcherFunc
+func (m *caManager) secretPatcher(target string, pair *caPair) objectPatcherFunc {
+	return func(obj runtime.Object) {
+		switch t := obj.(type) {
+		case *corev1.Secret:
+			if t.GetName() == target {
+				t.StringData = map[string]string{
+					"tls.crt": base64.StdEncoding.EncodeToString(pair.certificate),
+					"tls.key": base64.StdEncoding.EncodeToString(pair.privateKey),
+				}
+			}
+		}
+	}
 }
 
-func (m *caManager) create(ctx context.Context) error {
-	pair, err := m.generateCA()
-	if err != nil {
-		return err
+func (m *caManager) certificatePatcher(issuerRef string) objectPatcherFunc {
+	return func(obj runtime.Object) {
+		switch t := obj.(type) {
+		case *certmanagerv1beta1.Certificate:
+			t.Spec.IssuerRef = certmanagermetav1.ObjectReference{
+				Name: issuerRef,
+				Kind: "ClusterIssuer",
+			}
+		}
 	}
+}
 
-	caSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: caSecretName,
-		},
-		StringData: map[string]string{
-			"tls.crt": base64.StdEncoding.EncodeToString(pair.certificate),
-			"tls.key": base64.StdEncoding.EncodeToString(pair.privateKey),
-		},
+func (m *caManager) admissionPatcher(pair *caPair) objectPatcherFunc {
+	return func(obj runtime.Object) {
+		switch t := obj.(type) {
+		case *admissionregistrationv1beta1.MutatingWebhookConfiguration:
+			for i := range t.Webhooks {
+				t.Webhooks[i].ClientConfig.CABundle = []byte(base64.StdEncoding.EncodeToString(pair.certificate))
+			}
+		}
 	}
-
-	for _, patcher := range m.patchers {
-		patcher(caSecret)
-	}
-
-	if err := m.cl.APIClient.Create(ctx, caSecret); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (m *caManager) generateCA() (*caPair, error) {
@@ -104,9 +107,6 @@ func (m *caManager) generateCA() (*caPair, error) {
 	}, nil
 }
 
-func newCAManager(cl *cluster.Client, patchers ...objectPatcherFunc) *caManager {
-	return &caManager{
-		cl:       cl,
-		patchers: patchers,
-	}
+func newCAManager() *caManager {
+	return &caManager{}
 }

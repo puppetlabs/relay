@@ -10,6 +10,7 @@ require (
 	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
+	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.9.0
 	github.com/go-logr/zapr v0.1.1 // indirect
 	github.com/go-swagger/go-swagger v0.23.0
@@ -28,8 +29,10 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.10.0
 	github.com/puppetlabs/relay-core v0.0.0-20200721182257-edf0186ad6ed
+	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.0
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.1-0.20200629195214-2c5a0d300f8b
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
