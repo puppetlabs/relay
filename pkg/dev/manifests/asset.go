@@ -3,6 +3,7 @@ package manifests
 import (
 	"io"
 	"io/ioutil"
+	"path/filepath"
 )
 
 func Asset(name string) (io.ReadCloser, error) {
@@ -24,8 +25,8 @@ func AssetString(name string) (string, error) {
 	return string(b), nil
 }
 
-func AssetListDir() ([]string, error) {
-	dir, err := assets.Open("/")
+func AssetListDir(path string) ([]string, error) {
+	dir, err := assets.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func AssetListDir() ([]string, error) {
 	names := []string{}
 
 	for _, fi := range files {
-		names = append(names, fi.Name())
+		names = append(names, filepath.Join(path, fi.Name()))
 	}
 
 	return names, nil
@@ -60,4 +61,13 @@ func MustAssetString(name string) string {
 	}
 
 	return data
+}
+
+func MustAssetListDir(path string) []string {
+	files, err := AssetListDir(path)
+	if err != nil {
+		panic(err)
+	}
+
+	return files
 }

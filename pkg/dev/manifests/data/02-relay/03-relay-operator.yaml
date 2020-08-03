@@ -3,7 +3,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.2.8
-  creationTimestamp: null
   name: workflowruns.nebula.puppet.com
 spec:
   group: nebula.puppet.com
@@ -185,7 +184,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: release-name-metadata-api-vault-agent
-  namespace: default
 data:
   agent.hcl: |-
     auto_auth {
@@ -217,7 +215,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: release-name-tasks-vault-agent
-  namespace: default
 data:
   agent.hcl: |-
     auto_auth {
@@ -250,12 +247,10 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: release-name-metadata-api
-  namespace: default
   labels:
     app.kubernetes.io/name: metadata-api
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metadata-api-1.0.0
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -284,8 +279,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: release-name-metadata-api
-  namespace: default
-
+  namespace: relay-system
 ---
 # Source: nebula-system/charts/metadata-api/templates/vault-agent-serviceaccount.yaml
 
@@ -293,13 +287,11 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: release-name-metadata-api-vault
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metadata-api-1.0.0
 ---
 apiVersion: v1
@@ -317,12 +309,10 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: release-name-metrics
-  namespace: default
   labels:
     app.kubernetes.io/name: metrics
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metrics-1.0.0
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -345,8 +335,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: release-name-metrics
-  namespace: default
-
+  namespace: relay-system
 ---
 # Source: nebula-system/charts/tasks/templates/serviceaccount.yaml
 
@@ -354,12 +343,10 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: release-name-tasks
-  namespace: default
   labels:
     app.kubernetes.io/name: tasks
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -373,8 +360,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: release-name-tasks
-  namespace: default
-
+  namespace: relay-system
 ---
 # Source: nebula-system/charts/tasks/templates/vault-agent-serviceaccount.yaml
 
@@ -382,13 +368,11 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: release-name-tasks-vault
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 ---
 apiVersion: v1
@@ -424,7 +408,8 @@ rules:
 - apiGroups: ["serving.knative.dev"]
   resources: ["services"]
   verbs: ["create", "update", "patch", "delete"]
----apiVersion: rbac.authorization.k8s.io/v1
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: release-name-tasks-controller
@@ -460,7 +445,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: release-name-metadata-api
-  namespace: default
   annotations:
     external-dns.alpha.kubernetes.io/hostname: "metadata.relay-system.local"
   labels:
@@ -468,7 +452,6 @@ metadata:
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metadata-api-1.0.0
 spec:
   # Normally we'd make this customizable, but the security surface of this
@@ -490,13 +473,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: release-name-tasks-webhook
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 spec:
   type: ClusterIP
@@ -516,7 +497,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: release-name-metadata-api
-  namespace: default
   annotations:
     secret.reloader.stakater.com/reload: "release-name-metadata-api-tls-crt"
   labels:
@@ -524,7 +504,6 @@ metadata:
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metadata-api-1.0.0
 spec:
   replicas: 3
@@ -540,7 +519,6 @@ spec:
         app.kubernetes.io/component: metadata-api
         app.kubernetes.io/version: "latest"
         app.kubernetes.io/instance: release-name
-        app.kubernetes.io/managed-by: Tiller
         helm.sh/chart: metadata-api-1.0.0
       annotations:
         checksum/vault-agent-config: 9536035bee1d5ff639c0baab1e62b65708a5cc128f49805f539f76d669a14d27
@@ -655,13 +633,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: release-name-metrics
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metrics
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metrics-1.0.0
 spec:
   replicas: 1
@@ -678,7 +654,6 @@ spec:
         app.kubernetes.io/component: metrics
         app.kubernetes.io/version: "latest"
         app.kubernetes.io/instance: release-name
-        app.kubernetes.io/managed-by: Tiller
         helm.sh/chart: metrics-1.0.0
     spec:
       serviceAccountName: release-name-metrics
@@ -709,13 +684,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: release-name-tasks
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 spec:
   replicas: 1
@@ -732,7 +705,6 @@ spec:
         app.kubernetes.io/component: tasks
         app.kubernetes.io/version: "latest"
         app.kubernetes.io/instance: release-name
-        app.kubernetes.io/managed-by: Tiller
         helm.sh/chart: tasks-1.0.0
     spec:
       serviceAccountName: release-name-tasks
@@ -815,12 +787,10 @@ apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: release-name-metadata-api
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: metadata-api-1.0.0
 spec:
   scaleTargetRef:
@@ -841,11 +811,10 @@ spec:
 
 ---
 # Source: nebula-system/charts/metadata-api/templates/certificate.yaml
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1beta1
 kind: Certificate
 metadata:
   name: release-name-metadata-api
-  namespace: default
 spec:
   secretName: release-name-metadata-api-tls-crt
   commonName: "metadata.relay-system.local"
@@ -853,21 +822,18 @@ spec:
   - "metadata.relay-system.local"
   issuerRef:
     kind: ClusterIssuer
-    name: 
-
+    name: relay-cluster-issuer
 ---
 # Source: nebula-system/charts/tasks/templates/certificate.yaml
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1beta1
 kind: Certificate
 metadata:
   name: release-name-tasks-webhook
-  namespace: default
   labels:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 spec:
   secretName: release-name-tasks-webhook-tls-crt
@@ -877,7 +843,7 @@ spec:
   - "release-name-tasks-webhook.default.svc.cluster.local"
   issuerRef:
     kind: ClusterIssuer
-    name: 
+    name: relay-cluster-issuer
 
 ---
 # Source: nebula-system/charts/tasks/templates/mutatingwebhookconfiguration.yaml
@@ -890,16 +856,14 @@ metadata:
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 webhooks:
 - name: release-name-tasks-pod-enforcement.admission.controller.relay.sh
   clientConfig:
     service:
-      namespace: default
       name: release-name-tasks-webhook
+      namespace: "relay-system"
       path: /mutate/pod-enforcement
-    caBundle: 
   rules:
   - apiGroups: [""]
     apiVersions: ["v1"]
@@ -923,14 +887,13 @@ metadata:
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: release-name
-    app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: tasks-1.0.0
 rbacBindings:
 - name: release-name-tasks-delegate
   subjects:
   - kind: ServiceAccount
-    namespace: default
     name: release-name-tasks
+  clusterRoleBindings: []
   roleBindings:
   - clusterRole: release-name-tasks-delegate
     namespaceSelector:
