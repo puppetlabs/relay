@@ -179,18 +179,304 @@ status:
   conditions: []
   storedVersions: []
 ---
-# Source: nebula-system/charts/metadata-api/templates/vault-agent-configmap.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  creationTimestamp: null
+  name: tenants.relay.sh
+spec:
+  group: relay.sh
+  names:
+    kind: Tenant
+    listKind: TenantList
+    plural: tenants
+    singular: tenant
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Tenant represents a scoping mechanism for runs and triggers.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            namespaceTemplate:
+              description: NamespaceTemplate defines a template for a namespace that
+                will be created for this scope. If not specified, resources are created
+                in the namespace of this resource.
+              properties:
+                metadata:
+                  description: "Metadata is the metadata to associate with the namespace
+                    to create, such as a name and list of labels. If not specified,
+                    values are automatically generated. \n Labels from the tenant
+                    are automatically propagated onto the created namespace."
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              type: object
+            triggerEventSink:
+              description: TriggerEventSink represents the destination for events
+                received as part of trigger processing. If not specified, events will
+                be logged and discarded.
+              properties:
+                api:
+                  description: API is an event sink for the propretiary Relay API.
+                  properties:
+                    token:
+                      description: Token is the API token to use.
+                      type: string
+                    tokenFrom:
+                      description: TokenFrom allows the API token to be provided by
+                        another resource.
+                      properties:
+                        secretKeyRef:
+                          description: SecretKeyRef selects an API token by looking
+                            up the value in a secret.
+                          properties:
+                            key:
+                              description: Key is the key from the secret to use.
+                              type: string
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                TODO: Add other useful fields. apiVersion, kind, uid?'
+                              type: string
+                          required:
+                          - key
+                          type: object
+                      type: object
+                    url:
+                      type: string
+                  required:
+                  - url
+                  type: object
+              type: object
+          type: object
+        status:
+          properties:
+            conditions:
+              description: Conditions are the observations of this resource's state.
+              items:
+                properties:
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    description: Message is a human-readable description of the given
+                      status.
+                    type: string
+                  reason:
+                    description: Reason identifies the cause of the given status using
+                      an API-locked camel-case identifier.
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: Type is the identifier for this condition.
+                    enum:
+                    - NamespaceReady
+                    - EventSinkReady
+                    - Ready
+                    type: string
+                required:
+                - lastTransitionTime
+                - status
+                - type
+                type: object
+              type: array
+              x-kubernetes-list-map-keys:
+              - type
+              x-kubernetes-list-type: map
+            namespace:
+              description: Namespace is the namespace managed by this tenant or the
+                namespace of the tenant if it is unmanaged.
+              type: string
+            observedGeneration:
+              description: ObservedGeneration is the generation of the resource specification
+                that this status matches.
+              format: int64
+              type: integer
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  creationTimestamp: null
+  name: webhooktriggers.relay.sh
+spec:
+  group: relay.sh
+  names:
+    kind: WebhookTrigger
+    listKind: WebhookTriggerList
+    plural: webhooktriggers
+    singular: webhooktrigger
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: WebhookTrigger represents a definition of a webhook to receive
+        events.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            args:
+              description: Args are the command arguments.
+              items:
+                type: string
+              type: array
+            command:
+              description: Command is the path to the executable to run when the container
+                starts.
+              type: string
+            image:
+              description: Image is the Docker image to run when this webhook receives
+                an event.
+              type: string
+            input:
+              description: Input is the input script to provide to the container.
+              items:
+                type: string
+              type: array
+            name:
+              description: Name is a friendly name for this webhook trigger used for
+                authentication and reporting.
+              type: string
+            spec:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              description: Spec is the Relay specification to be provided to the container
+                image.
+              type: object
+            tenantRef:
+              description: TenantRef selects the tenant to apply this trigger to.
+              properties:
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+              type: object
+          required:
+          - image
+          - tenantRef
+          type: object
+        status:
+          properties:
+            conditions:
+              description: Conditions are the observations of this resource's tate.
+              items:
+                properties:
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    description: Message is a human-readable description of the given
+                      status.
+                    type: string
+                  reason:
+                    description: Reason identifies the cause of the given status using
+                      an API-locked camel-case identifier.
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: Type is the identifier for this condition.
+                    enum:
+                    - ServiceReady
+                    - Ready
+                    type: string
+                required:
+                - lastTransitionTime
+                - status
+                - type
+                type: object
+              type: array
+              x-kubernetes-list-map-keys:
+              - type
+              x-kubernetes-list-type: map
+            namespace:
+              description: Namespace is the Kubernetes namespace containing the target
+                resources of this webhook trigger.
+              type: string
+            observedGeneration:
+              description: ObservedGeneration is the generation of the resource specification
+                that this status matches.
+              format: int64
+              type: integer
+            url:
+              description: URL is the endpoint for the webhook once provisioned.
+              type: string
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: release-name-metadata-api-vault-agent
+  name: relay-metadata-api-vault-agent
 data:
   agent.hcl: |-
     auto_auth {
       method "kubernetes" {
         mount_path = "auth/kubernetes"
         config     = {
-          role       = "release-name-metadata-api"
+          role       = "relay-metadata-api"
           token_path = "/var/run/secrets/kubernetes.io/serviceaccount@vault/token"
         }
       }
@@ -210,18 +496,17 @@ data:
     }
 
 ---
-# Source: nebula-system/charts/tasks/templates/vault-agent-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: release-name-tasks-vault-agent
+  name: relay-tasks-vault-agent
 data:
   agent.hcl: |-
     auto_auth {
       method "kubernetes" {
         mount_path = "auth/kubernetes"
         config     = {
-          role       = "release-name-tasks"
+          role       = "relay-tasks"
           token_path = "/var/run/secrets/kubernetes.io/serviceaccount@vault/token"
         }
       }
@@ -241,22 +526,20 @@ data:
     }
 
 ---
-# Source: nebula-system/charts/metadata-api/templates/serviceaccount.yaml
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
   labels:
     app.kubernetes.io/name: metadata-api
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     app.kubernetes.io/version: "latest"
     helm.sh/chart: metadata-api-1.0.0
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
 rules:
 - apiGroups: [""]
   resources: ["namespaces"]
@@ -271,124 +554,83 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: release-name-metadata-api
+  name: relay-metadata-api
 subjects:
 - kind: ServiceAccount
-  name: release-name-metadata-api
+  name: relay-metadata-api
   namespace: relay-system
 ---
-# Source: nebula-system/charts/metadata-api/templates/vault-agent-serviceaccount.yaml
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: release-name-metadata-api-vault
+  name: relay-metadata-api-vault
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: metadata-api-1.0.0
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: release-name-metadata-api-vault-agent-token
+  name: relay-metadata-api-vault-agent-token
   annotations:
-    kubernetes.io/service-account.name: release-name-metadata-api-vault
+    kubernetes.io/service-account.name: relay-metadata-api-vault
 type: kubernetes.io/service-account-token
 
 ---
-# Source: nebula-system/charts/metrics/templates/serviceaccount.yaml
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: release-name-metrics
-  labels:
-    app.kubernetes.io/name: metrics
-    app.kubernetes.io/instance: release-name
-    app.kubernetes.io/version: "latest"
-    helm.sh/chart: metrics-1.0.0
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: release-name-metrics
-rules:
-- apiGroups: ["nebula.puppet.com"]
-  resources: ["workflowruns"]
-  verbs: ["list"]
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: release-name-metrics-metrics
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: release-name-metrics
-subjects:
-- kind: ServiceAccount
-  name: release-name-metrics
-  namespace: relay-system
----
-# Source: nebula-system/charts/tasks/templates/serviceaccount.yaml
-
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: release-name-tasks
+  name: relay-tasks
   labels:
     app.kubernetes.io/name: tasks
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     app.kubernetes.io/version: "latest"
     helm.sh/chart: tasks-1.0.0
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: release-name-tasks-controller
+  name: relay-tasks-controller
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: release-name-tasks-controller
+  name: relay-tasks-controller
 subjects:
 - kind: ServiceAccount
-  name: release-name-tasks
+  name: relay-tasks
   namespace: relay-system
 ---
-# Source: nebula-system/charts/tasks/templates/vault-agent-serviceaccount.yaml
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: release-name-tasks-vault
+  name: relay-tasks-vault
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: release-name-tasks-vault-agent-token
+  name: relay-tasks-vault-agent-token
   annotations:
-    kubernetes.io/service-account.name: release-name-tasks-vault
+    kubernetes.io/service-account.name: relay-tasks-vault
 type: kubernetes.io/service-account-token
 
 ---
-# Source: nebula-system/charts/tasks/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: release-name-tasks-delegate
+  name: relay-tasks-delegate
 rules:
 - apiGroups: [""]
   resources: ["pods/log"]
@@ -412,7 +654,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: release-name-tasks-controller
+  name: relay-tasks-controller
 rules:
 - apiGroups: [""]
   resources: ["namespaces"]
@@ -440,18 +682,17 @@ rules:
   verbs: ["get", "list", "watch"]
 
 ---
-# Source: nebula-system/charts/metadata-api/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
   annotations:
     external-dns.alpha.kubernetes.io/hostname: "metadata.relay-system.local"
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: metadata-api-1.0.0
 spec:
   # Normally we'd make this customizable, but the security surface of this
@@ -463,21 +704,20 @@ spec:
     protocol: TCP
     name: https
   selector:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: metadata-api
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
 
 ---
-# Source: nebula-system/charts/tasks/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: release-name-tasks-webhook
+  name: relay-tasks-webhook
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 spec:
   type: ClusterIP
@@ -487,82 +727,66 @@ spec:
     protocol: TCP
     name: webhook
   selector:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
 
 ---
-# Source: nebula-system/charts/metadata-api/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
   annotations:
-    secret.reloader.stakater.com/reload: "release-name-metadata-api-tls-crt"
+    secret.reloader.stakater.com/reload: "relay-metadata-api-tls-crt"
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: metadata-api-1.0.0
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: nebula-system
+      app.kubernetes.io/name: relay-system
       app.kubernetes.io/component: metadata-api
-      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/instance: relay
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: nebula-system
+        app.kubernetes.io/name: relay-system
         app.kubernetes.io/component: metadata-api
         app.kubernetes.io/version: "latest"
-        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/instance: relay
         helm.sh/chart: metadata-api-1.0.0
       annotations:
         checksum/vault-agent-config: 9536035bee1d5ff639c0baab1e62b65708a5cc128f49805f539f76d669a14d27
     spec:
-      
-      serviceAccountName: release-name-metadata-api
+      serviceAccountName: relay-metadata-api
       affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-              - key: nebula.puppet.com/scheduling.preemptible
-                operator: In
-                values:
-                - 'true'
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 50
             podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app.kubernetes.io/name: nebula-system
+                  app.kubernetes.io/name: relay-system
                   app.kubernetes.io/component: metadata-api
                   app.kubernetes.io/version: "latest"
-                  app.kubernetes.io/instance: release-name
+                  app.kubernetes.io/instance: relay
               topologyKey: kubernetes.io/hostname
           - weight: 40
             podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app.kubernetes.io/name: nebula-system
+                  app.kubernetes.io/name: relay-system
                   app.kubernetes.io/component: metadata-api
                   app.kubernetes.io/version: "latest"
-                  app.kubernetes.io/instance: release-name
+                  app.kubernetes.io/instance: relay
               topologyKey: failure-domain.beta.kubernetes.io/zone
-      tolerations:
-      - key: nebula.puppet.com/scheduling.preemptible
-        operator: Equal
-        value: 'true'
-        effect: NoSchedule
       containers:
       - name: metadata-api
-        image: "gcr.io/nebula-235818/relay-metadata-api:latest"
+        image: "relaysh/relay-metadata-api:latest"
         imagePullPolicy: IfNotPresent
         ports:
         - name: https
@@ -620,108 +844,56 @@ spec:
       volumes:
       - name: tls-crt
         secret:
-          secretName: release-name-metadata-api-tls-crt
+          secretName: relay-metadata-api-tls-crt
       - name: vault-agent-sa-token
         secret:
-          secretName: release-name-metadata-api-vault-agent-token
+          secretName: relay-metadata-api-vault-agent-token
       - name: vault-agent-conf
         configMap:
-          name: release-name-metadata-api-vault-agent
+          name: relay-metadata-api-vault-agent
 ---
-# Source: nebula-system/charts/metrics/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: release-name-metrics
+  name: relay-tasks
   labels:
-    app.kubernetes.io/name: nebula-system
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
-    helm.sh/chart: metrics-1.0.0
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: nebula-system
-      app.kubernetes.io/component: metrics
-      app.kubernetes.io/instance: release-name
-  template:
-    metadata:
-      name: relay-metrics
-      labels:
-        app.kubernetes.io/name: nebula-system
-        app.kubernetes.io/component: metrics
-        app.kubernetes.io/version: "latest"
-        app.kubernetes.io/instance: release-name
-        helm.sh/chart: metrics-1.0.0
-    spec:
-      serviceAccountName: release-name-metrics
-      containers:
-      - name: metrics
-        image: "gcr.io/nebula-235818/relay-metrics:latest"
-        imagePullPolicy: IfNotPresent
-        command:
-        - relay-metrics
-        - -publish
-        - -environment
-        - ""
-        env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/run/secrets/google/key.json
-        volumeMounts:
-        - name: google-application-credentials
-          mountPath: "/var/run/secrets/google"
-          readOnly: true
-      volumes:
-      - name: google-application-credentials
-        secret:
-          secretName: relay-ca
-
----
-# Source: nebula-system/charts/tasks/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: release-name-tasks
-  labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: nebula-system
+      app.kubernetes.io/name: relay-system
       app.kubernetes.io/component: tasks
-      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/instance: relay
   template:
     metadata:
       name: relay-operator
       labels:
-        app.kubernetes.io/name: nebula-system
+        app.kubernetes.io/name: relay-system
         app.kubernetes.io/component: tasks
         app.kubernetes.io/version: "latest"
-        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/instance: relay
         helm.sh/chart: tasks-1.0.0
     spec:
-      serviceAccountName: release-name-tasks
+      serviceAccountName: relay-tasks
       containers:
       - name: tasks
-        image: "gcr.io/nebula-235818/relay-operator:latest"
+        image: "relaysh/relay-operator:latest"
         imagePullPolicy: IfNotPresent
         command:
         - relay-operator
         - -environment
         - dev
         - -storage-addr
-        - "file:///storage"
+        - "file:///tmp"
         - -num-workers
         - "2"
         - -jwt-signing-key-file
-        - "/var/run/secrets/puppet/relay/jwt/key.pem"
+        - "/var/run/secrets/puppet/relay/tls/tls.key"
         - -vault-transit-path
         - transit
         - -vault-transit-key
@@ -729,11 +901,9 @@ spec:
         - -metadata-api-url
         - "https://metadata.relay-system.local"
         - -webhook-server-key-dir
-        - /var/run/secrets/puppet/relay/webhook-tls
+        - /var/run/secrets/puppet/relay/tls
         - -dynamic-rbac-binding
         env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/run/secrets/google/key.json
         - name: VAULT_ADDR
           value: http://localhost:8200
         ports:
@@ -741,14 +911,8 @@ spec:
           containerPort: 443
           protocol: TCP
         volumeMounts:
-        - name: google-application-credentials
-          mountPath: "/var/run/secrets/google"
-          readOnly: true
-        - name: jwt-signing-key
-          mountPath: /var/run/secrets/puppet/relay/jwt
-          readOnly: true
         - name: webhook-tls
-          mountPath: /var/run/secrets/puppet/relay/webhook-tls
+          mountPath: /var/run/secrets/puppet/relay/tls
           readyOnly: true
       - name: vault
         image: "vault:1.1.3"
@@ -765,58 +929,22 @@ spec:
           mountPath: "/var/run/vault/config"
           readOnly: true
       volumes:
-      - name: jwt-signing-key
-        secret:
-          secretName: relay-ca
       - name: webhook-tls
         secret:
-          secretName: release-name-tasks-webhook-tls-crt
-      - name: google-application-credentials
-        secret:
-          secretName: relay-ca
+          secretName: relay-cert-manager-ca
       - name: vault-agent-sa-token
         secret:
-          secretName: release-name-tasks-vault-agent-token
+          secretName: relay-tasks-vault-agent-token
       - name: vault-agent-conf
         configMap:
-          name: release-name-tasks-vault-agent
-
+          name: relay-tasks-vault-agent
 ---
-# Source: nebula-system/charts/metadata-api/templates/horizontalpodautoscaler.yaml
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: release-name-metadata-api
-  labels:
-    app.kubernetes.io/name: nebula-system
-    app.kubernetes.io/component: metadata-api
-    app.kubernetes.io/instance: release-name
-    helm.sh/chart: metadata-api-1.0.0
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: release-name-metadata-api
-  minReplicas: 3
-  maxReplicas: 9
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      targetAverageUtilization: 75
-  - type: Resource
-    resource:
-      name: memory
-      targetAverageUtilization: 75
-
----
-# Source: nebula-system/charts/metadata-api/templates/certificate.yaml
 apiVersion: cert-manager.io/v1beta1
 kind: Certificate
 metadata:
-  name: release-name-metadata-api
+  name: relay-metadata-api
 spec:
-  secretName: release-name-metadata-api-tls-crt
+  secretName: relay-metadata-api-tls-crt
   commonName: "metadata.relay-system.local"
   dnsNames:
   - "metadata.relay-system.local"
@@ -824,44 +952,42 @@ spec:
     kind: ClusterIssuer
     name: relay-cluster-issuer
 ---
-# Source: nebula-system/charts/tasks/templates/certificate.yaml
 apiVersion: cert-manager.io/v1beta1
 kind: Certificate
 metadata:
-  name: release-name-tasks-webhook
+  name: relay-tasks-webhook
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 spec:
-  secretName: release-name-tasks-webhook-tls-crt
-  commonName: "release-name-tasks-webhook.default.svc"
+  secretName: relay-tasks-webhook-tls-crt
+  commonName: "relay-tasks-webhook.default.svc"
   dnsNames:
-  - "release-name-tasks-webhook.default.svc"
-  - "release-name-tasks-webhook.default.svc.cluster.local"
+  - "relay-tasks-webhook.default.svc"
+  - "relay-tasks-webhook.default.svc.cluster.local"
   issuerRef:
     kind: ClusterIssuer
     name: relay-cluster-issuer
 
 ---
-# Source: nebula-system/charts/tasks/templates/mutatingwebhookconfiguration.yaml
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: release-name-tasks-pod-enforcement
+  name: relay-tasks-pod-enforcement
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 webhooks:
-- name: release-name-tasks-pod-enforcement.admission.controller.relay.sh
+- name: relay-tasks-pod-enforcement.admission.controller.relay.sh
   clientConfig:
     service:
-      name: release-name-tasks-webhook
+      name: relay-tasks-webhook
       namespace: "relay-system"
       path: /mutate/pod-enforcement
   rules:
@@ -877,25 +1003,25 @@ webhooks:
       controller.relay.sh/tenant-workload: "true"
 
 ---
-# Source: nebula-system/charts/tasks/templates/rbacdefinition.yaml
 apiVersion: rbacmanager.reactiveops.io/v1beta1
 kind: RBACDefinition
 metadata:
-  name: release-name-tasks
+  name: relay-tasks
   labels:
-    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: relay
     helm.sh/chart: tasks-1.0.0
 rbacBindings:
-- name: release-name-tasks-delegate
+- name: relay-tasks-delegate
   subjects:
   - kind: ServiceAccount
-    name: release-name-tasks
+    name: relay-tasks
+    namespace: relay-system
   clusterRoleBindings: []
   roleBindings:
-  - clusterRole: release-name-tasks-delegate
+  - clusterRole: relay-tasks-delegate
     namespaceSelector:
       matchLabels:
         controller.relay.sh/tenant-workload: "true"

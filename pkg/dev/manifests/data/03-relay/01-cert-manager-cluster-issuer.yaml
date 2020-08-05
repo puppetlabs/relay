@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: relay-cert-manager-ca
-  namespace: cert-manager
+type: "kubernetes.io/tls"
 data:
   tls.crt: ""
   tls.key: ""
@@ -11,7 +11,6 @@ apiVersion: cert-manager.io/v1beta1
 kind: ClusterIssuer
 metadata:
   name: relay-cluster-issuer
-  namespace: cert-manager
 spec:
   selfSigned: {}
   # ca:
