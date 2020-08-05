@@ -30,6 +30,11 @@ func (m *namespaceManager) create(ctx context.Context) error {
 	wn := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: workflowsNamespace,
+			Labels: map[string]string{
+				"app.kubernetes.io/managed-by":              "nebula",
+				"nebula.puppet.com/network-policy.customer": "true",
+				"controller.relay.sh/tenant-workload":       "true",
+			},
 		},
 	}
 

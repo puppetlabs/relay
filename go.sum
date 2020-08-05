@@ -433,6 +433,7 @@ github.com/go-logr/logr v0.2.0 h1:QvGt2nLcHH0WK9orKa+ppBPAxREcH364nPUedEpK0TY=
 github.com/go-logr/logr v0.2.0/go.mod h1:z6/tIYblkpsD+a4lm/fGIIU9mZ+XfAiaFtq7xTgseGU=
 github.com/go-logr/zapr v0.1.0 h1:h+WVe9j6HAA01niTJPA/kKH0i7e0rLZBCwauQFcRE54=
 github.com/go-logr/zapr v0.1.0/go.mod h1:tabnROwaDl0UNxkVeFRbY8bwB37GwRv0P8lg6aAiEnk=
+github.com/go-logr/zapr v0.1.1 h1:qXBXPDdNncunGs7XeEpsJt8wCjYBygluzfdLO0G5baE=
 github.com/go-logr/zapr v0.1.1/go.mod h1:tabnROwaDl0UNxkVeFRbY8bwB37GwRv0P8lg6aAiEnk=
 github.com/go-logr/zapr v0.2.0 h1:v6Ji8yBW77pva6NkJKQdHLAJKrIJKRHz0RXwPqCHSR4=
 github.com/go-logr/zapr v0.2.0/go.mod h1:qhKdvif7YF5GI9NWEpyxTSSBdGmzkNguibrdCNVPunU=
@@ -1248,6 +1249,7 @@ github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b h1:L3
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b/go.mod h1:+fTpFaf5D42b+LP12OkDl9tYbLdn36H+fvBauW4KIR4=
 github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e h1:fWEPaND52rBrkqNIwEcNEdIE9Z42tPqrMaMdxM74QEM=
 github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e/go.mod h1:fU2lLssuZDiOPlZS0sPObg4WPO1Cg1QSGJD3QTbjH7g=
+github.com/puppetlabs/relay-api v0.1.1 h1:tFR1rr2Aw3XSWL7tJr8XtXbjYMTvxys0t4Ue+JV7QCo=
 github.com/puppetlabs/relay-core v0.0.0-20200721182257-edf0186ad6ed h1:Zlq/yaykwcLWo0IS4S3X+V0NMfbCVZxfQK0VkSxaYWk=
 github.com/puppetlabs/relay-core v0.0.0-20200721182257-edf0186ad6ed/go.mod h1:pO0Nk9m19xHXb4YIOJnb5LGhGnMVkvSvvXEtUnO/Swg=
 github.com/quasilyte/go-consistent v0.0.0-20190521200055-c6f3937de18c/go.mod h1:5STLWrekHfjyYwxBRVRXNOSewLJ3PWfDJd1VyTS21fI=

@@ -135,7 +135,7 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 		}
 	}
 
-	relayManifests := manifests.MustAssetListDir("/02-relay")
+	relayManifests := manifests.MustAssetListDir("/03-relay")
 	relayObjects := []runtime.Object{}
 
 	for _, f := range relayManifests {

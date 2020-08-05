@@ -30,9 +30,9 @@ func (m *caManager) secretPatcher(target string, pair *caPair) objectPatcherFunc
 		switch t := obj.(type) {
 		case *corev1.Secret:
 			if t.GetName() == target {
-				t.StringData = map[string]string{
-					"tls.crt": base64.StdEncoding.EncodeToString(pair.certificate),
-					"tls.key": base64.StdEncoding.EncodeToString(pair.privateKey),
+				t.Data = map[string][]byte{
+					"tls.crt": pair.certificate,
+					"tls.key": pair.privateKey,
 				}
 			}
 		}
