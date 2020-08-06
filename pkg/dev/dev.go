@@ -91,10 +91,6 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 	patchers := []objectPatcherFunc{
 		nm.objectNamespacePatcher("system"),
 		missingProtocolPatcher,
-		cam.admissionPatcher(client.ObjectKey{
-			Name:      "relay-cert-ca-tls",
-			Namespace: nm.getByID("system"),
-		}),
 	}
 
 	// Manifests are split into diffent directories because some managers
@@ -156,6 +152,20 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 	if err := m.waitForCertificates(ctx, cl, nm.getByID("system")); err != nil {
 		return err
 	}
+
+	// get the CA secret so we can pass the cert into things that need it.
+	caSecretKey := client.ObjectKey{
+		Name:      "relay-cert-ca-tls",
+		Namespace: nm.getByID("system"),
+	}
+
+	tlsSecret := &corev1.Secret{}
+
+	if err := cl.APIClient.Get(ctx, caSecretKey, tlsSecret); err != nil {
+		return err
+	}
+
+	patchers = append(patchers, cam.admissionPatcher(tlsSecret.Data["ca.crt"]))
 
 	relayManifests := manifests.MustAssetListDir("/03-relay")
 	relayObjects := []runtime.Object{}

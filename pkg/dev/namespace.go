@@ -24,6 +24,9 @@ func (m *namespaceManager) create(ctx context.Context) error {
 	sn := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: systemNamespace,
+			Labels: map[string]string{
+				"nebula.puppet.com/network-policy.tasks": "true",
+			},
 		},
 	}
 
