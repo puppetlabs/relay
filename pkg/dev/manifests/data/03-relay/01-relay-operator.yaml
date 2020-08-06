@@ -680,16 +680,15 @@ rules:
 - apiGroups: ["serving.knative.dev"]
   resources: ["services"]
   verbs: ["get", "list", "watch"]
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: relay-metadata-api
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: "metadata.relay-system.local"
+    external-dns.alpha.kubernetes.io/hostname: "relay-metadata-api.relay-system.svc"
   labels:
-    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: relay
@@ -707,7 +706,6 @@ spec:
     app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/instance: relay
-
 ---
 apiVersion: v1
 kind: Service
@@ -730,7 +728,6 @@ spec:
     app.kubernetes.io/name: relay-system
     app.kubernetes.io/component: tasks
     app.kubernetes.io/instance: relay
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -739,7 +736,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "relay-metadata-api-tls-crt"
   labels:
-    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metadata-api
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/instance: relay
@@ -899,7 +896,7 @@ spec:
         - -vault-transit-key
         - metadata-api
         - -metadata-api-url
-        - "https://metadata.relay-system.local"
+        - "https://relay-metadata-api.relay-system.svc"
         - -webhook-server-key-dir
         - /var/run/secrets/puppet/relay/tls
         - -dynamic-rbac-binding
@@ -931,47 +928,13 @@ spec:
       volumes:
       - name: webhook-tls
         secret:
-          secretName: relay-cert-manager-ca
+          secretName: relay-tasks-webhook-tls-crt
       - name: vault-agent-sa-token
         secret:
           secretName: relay-tasks-vault-agent-token
       - name: vault-agent-conf
         configMap:
           name: relay-tasks-vault-agent
----
-apiVersion: cert-manager.io/v1beta1
-kind: Certificate
-metadata:
-  name: relay-metadata-api
-spec:
-  secretName: relay-metadata-api-tls-crt
-  commonName: "metadata.relay-system.local"
-  dnsNames:
-  - "metadata.relay-system.local"
-  issuerRef:
-    kind: ClusterIssuer
-    name: relay-cluster-issuer
----
-apiVersion: cert-manager.io/v1beta1
-kind: Certificate
-metadata:
-  name: relay-tasks-webhook
-  labels:
-    app.kubernetes.io/name: relay-system
-    app.kubernetes.io/component: tasks
-    app.kubernetes.io/version: "latest"
-    app.kubernetes.io/instance: relay
-    helm.sh/chart: tasks-1.0.0
-spec:
-  secretName: relay-tasks-webhook-tls-crt
-  commonName: "relay-tasks-webhook.default.svc"
-  dnsNames:
-  - "relay-tasks-webhook.default.svc"
-  - "relay-tasks-webhook.default.svc.cluster.local"
-  issuerRef:
-    kind: ClusterIssuer
-    name: relay-cluster-issuer
-
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration

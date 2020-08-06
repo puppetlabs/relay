@@ -10,6 +10,7 @@ import (
 
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	"github.com/puppetlabs/relay/pkg/cluster"
@@ -81,23 +82,19 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 	}
 
 	nm := newNamespaceManager(cl)
-	cam := newCAManager()
+	cam := newCAManager(cl)
 
 	if err := nm.create(ctx); err != nil {
-		return err
-	}
-
-	caPair, err := cam.generateCA()
-	if err != nil {
 		return err
 	}
 
 	patchers := []objectPatcherFunc{
 		nm.objectNamespacePatcher("system"),
 		missingProtocolPatcher,
-		cam.secretPatcher("relay-cert-manager-ca", caPair),
-		cam.certificatePatcher("relay-cluster-issuer"),
-		cam.admissionPatcher(caPair),
+		cam.admissionPatcher(client.ObjectKey{
+			Name:      "relay-cert-ca-tls",
+			Namespace: nm.getByID("system"),
+		}),
 	}
 
 	// Manifests are split into diffent directories because some managers
@@ -133,6 +130,31 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 		if err := m.waitForServices(ctx, cl, ns); err != nil {
 			return err
 		}
+	}
+
+	secretManifests := manifests.MustAssetListDir("/02-secrets")
+	secretObjects := []runtime.Object{}
+
+	for _, f := range secretManifests {
+		manifest := manifests.MustAsset(f)
+
+		log.Infof("parsing manifest %s", f)
+
+		objs, err := parseManifest(manifest)
+		if err != nil {
+			return err
+		}
+
+		secretObjects = append(secretObjects, objs...)
+	}
+
+	log.Info("applying secret objects")
+	if err := m.applyAllWithPatchers(ctx, cl, patchers, secretObjects); err != nil {
+		return err
+	}
+
+	if err := m.waitForCertificates(ctx, cl, nm.getByID("system")); err != nil {
+		return err
 	}
 
 	relayManifests := manifests.MustAssetListDir("/03-relay")
@@ -180,6 +202,40 @@ func (m *Manager) waitForServices(ctx context.Context, cl *cluster.Client, names
 				if len(subset.Addresses) == 0 {
 					return retry.RetryTransient(fmt.Errorf("waiting for pod assignment"))
 				}
+			}
+		}
+
+		return retry.RetryPermanent(nil)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Manager) waitForCertificates(ctx context.Context, cl *cluster.Client, namespace string) error {
+	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+		certs := &certmanagerv1beta1.CertificateList{}
+		if err := cl.APIClient.List(ctx, certs, client.InNamespace(namespace)); err != nil {
+			return retry.RetryPermanent(err)
+		}
+
+		if len(certs.Items) == 0 {
+			return retry.RetryTransient(fmt.Errorf("waiting for certificates"))
+		}
+
+		for _, cert := range certs.Items {
+			var isReady bool
+
+			for _, cond := range cert.Status.Conditions {
+				if cond.Type == certmanagerv1beta1.CertificateConditionReady {
+					isReady = cond.Status == certmanagermetav1.ConditionTrue
+				}
+			}
+
+			if !isReady {
+				return retry.RetryTransient(fmt.Errorf("waiting for certificates to be ready"))
 			}
 		}
 
