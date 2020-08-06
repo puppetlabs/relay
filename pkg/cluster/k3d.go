@@ -54,9 +54,6 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		ServerOpts: types.ServerOpts{
 			ExposeAPI: exposeAPI,
 		},
-		Labels: map[string]string{
-			"nebula.puppet.com/scheduling.customer-ready": "true",
-		},
 	}
 
 	nodes := []*types.Node{
@@ -67,9 +64,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		node := &types.Node{
 			Role:  types.AgentRole,
 			Image: k3sImage,
-			Labels: map[string]string{
-				"nebula.puppet.com/scheduling.customer-ready": "true",
-			},
+			Args:  agentArgs,
 		}
 
 		nodes = append(nodes, node)

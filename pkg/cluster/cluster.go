@@ -13,6 +13,10 @@ const (
 	WorkerCount = 2
 )
 
+var agentArgs = []string{
+	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
+}
+
 type ClientOptions struct {
 	Scheme *runtime.Scheme
 }
