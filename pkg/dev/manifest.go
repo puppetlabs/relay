@@ -111,7 +111,7 @@ func parseManifest(r io.ReadCloser, patchers ...objectPatcherFunc) ([]runtime.Ob
 	defer r.Close()
 
 	yamldecoder := newMultiDocDecoder(r)
-	ud := serializer.NewCodecFactory(scheme).UniversalDeserializer()
+	ud := serializer.NewCodecFactory(DefaultScheme).UniversalDeserializer()
 	sd := streaming.NewDecoder(yamldecoder, ud)
 
 	var objs []runtime.Object

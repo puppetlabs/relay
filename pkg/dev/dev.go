@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
@@ -30,7 +31,7 @@ import (
 )
 
 var (
-	scheme        = runtime.NewScheme()
+	DefaultScheme = runtime.NewScheme()
 	schemeBuilder = runtime.NewSchemeBuilder(
 		kubernetesscheme.AddToScheme,
 		metav1.AddMetaToScheme,
@@ -40,7 +41,11 @@ var (
 		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
 	)
-	_ = schemeBuilder.AddToScheme(scheme)
+	_          = schemeBuilder.AddToScheme(DefaultScheme)
+	coreImages = []string{
+		"relaysh/relay-operator:latest",
+		"relaysh/relay-metadata-api:latest",
+	}
 )
 
 type Options struct {
@@ -49,6 +54,7 @@ type Options struct {
 
 type Manager struct {
 	cm   cluster.Manager
+	cl   *cluster.Client
 	opts Options
 }
 
@@ -73,16 +79,21 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.opts.DataDir, "kubeconfig"))
 }
 
-func (m *Manager) ApplyCoreResources(ctx context.Context) error {
-	cl, err := m.cm.GetClient(ctx, cluster.ClientOptions{
-		Scheme: scheme,
-	})
-	if err != nil {
+func (m *Manager) DeleteDataDir() error {
+	return os.RemoveAll(m.opts.DataDir)
+}
+
+func (m *Manager) InitializeRelayCore(ctx context.Context) error {
+	nm := newNamespaceManager(m.cl)
+	cam := newCAManager(m.cl)
+
+	// attempting to import host images in the container runtime allows us to
+	// quickly bootstrap cluster with custom relay-core builds. if no such
+	// images exist, then they will be pulled from the remote by the cluster.
+	log.Info("importing locally cached core image")
+	if err := m.importInitialImages(ctx); err != nil {
 		return err
 	}
-
-	nm := newNamespaceManager(cl)
-	cam := newCAManager(cl)
 
 	if err := nm.create(ctx); err != nil {
 		return err
@@ -98,58 +109,37 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 	// create or apply a ClusterIssuer unless the cert-manager webhook service
 	// is Ready. This means we will just wait for all services across all created
 	// namespaces to be ready before moving to the next phase of applying manifests.
-	initManifests := manifests.MustAssetListDir("/01-init")
-	initObjects := []runtime.Object{}
-	// TODO: dynamically generate this list as we proccess the manifests
-	initNamespaces := []string{"cert-manager", "tekton-pipelines"}
-
-	for _, f := range initManifests {
-		manifest := manifests.MustAsset(f)
-
-		log.Infof("parsing manifest %s", f)
-
-		objs, err := parseManifest(manifest)
-		if err != nil {
-			return err
-		}
-
-		initObjects = append(initObjects, objs...)
+	initObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/01-init")...)
+	if err != nil {
+		return err
 	}
 
 	log.Info("applying init objects")
-	if err := m.applyAllWithPatchers(ctx, cl, patchers, initObjects); err != nil {
+	if err := m.applyAllWithPatchers(ctx, patchers, initObjects); err != nil {
 		return err
 	}
+
+	// TODO: dynamically generate this list as we proccess the manifests
+	initNamespaces := []string{"cert-manager", "tekton-pipelines"}
 
 	for _, ns := range initNamespaces {
 		log.Infof("waiting for services in: %s", ns)
-		if err := m.waitForServices(ctx, cl, ns); err != nil {
+		if err := m.waitForServices(ctx, ns); err != nil {
 			return err
 		}
 	}
 
-	secretManifests := manifests.MustAssetListDir("/02-secrets")
-	secretObjects := []runtime.Object{}
-
-	for _, f := range secretManifests {
-		manifest := manifests.MustAsset(f)
-
-		log.Infof("parsing manifest %s", f)
-
-		objs, err := parseManifest(manifest)
-		if err != nil {
-			return err
-		}
-
-		secretObjects = append(secretObjects, objs...)
-	}
-
-	log.Info("applying secret objects")
-	if err := m.applyAllWithPatchers(ctx, cl, patchers, secretObjects); err != nil {
+	secretObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/02-secrets")...)
+	if err != nil {
 		return err
 	}
 
-	if err := m.waitForCertificates(ctx, cl, nm.getByID("system")); err != nil {
+	log.Info("applying secret objects")
+	if err := m.applyAllWithPatchers(ctx, patchers, secretObjects); err != nil {
+		return err
+	}
+
+	if err := m.waitForCertificates(ctx, nm.getByID("system")); err != nil {
 		return err
 	}
 
@@ -161,40 +151,63 @@ func (m *Manager) ApplyCoreResources(ctx context.Context) error {
 
 	tlsSecret := &corev1.Secret{}
 
-	if err := cl.APIClient.Get(ctx, caSecretKey, tlsSecret); err != nil {
+	if err := m.cl.APIClient.Get(ctx, caSecretKey, tlsSecret); err != nil {
 		return err
 	}
 
 	patchers = append(patchers, cam.admissionPatcher(tlsSecret.Data["ca.crt"]))
 
-	relayManifests := manifests.MustAssetListDir("/03-relay")
-	relayObjects := []runtime.Object{}
-
-	for _, f := range relayManifests {
-		manifest := manifests.MustAsset(f)
-
-		log.Infof("parsing manifest %s", f)
-
-		objs, err := parseManifest(manifest)
-		if err != nil {
-			return err
-		}
-
-		relayObjects = append(relayObjects, objs...)
+	relayObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/03-relay")...)
+	if err != nil {
+		return err
 	}
 
 	log.Info("applying relay objects")
-	if err := m.applyAllWithPatchers(ctx, cl, patchers, relayObjects); err != nil {
+	if err := m.applyAllWithPatchers(ctx, patchers, relayObjects); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *Manager) waitForServices(ctx context.Context, cl *cluster.Client, namespace string) error {
+func (m *Manager) importInitialImages(ctx context.Context) error {
+	for _, image := range coreImages {
+		if err := m.cm.ImportImage(ctx, image); err != nil {
+			// ignores not found errors
+			if strings.Contains(err.Error(), "No valid images specified") {
+				continue
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {
+	objects := []runtime.Object{}
+
+	for _, f := range files {
+		manifest := manifests.MustAsset(f)
+
+		log.Infof("parsing manifest %s", f)
+
+		manifestObjects, err := parseManifest(manifest)
+		if err != nil {
+			return nil, err
+		}
+
+		objects = append(objects, manifestObjects...)
+	}
+
+	return objects, nil
+}
+
+func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
 	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
 		eps := &corev1.EndpointsList{}
-		if err := cl.APIClient.List(ctx, eps, client.InNamespace(namespace)); err != nil {
+		if err := m.cl.APIClient.List(ctx, eps, client.InNamespace(namespace)); err != nil {
 			return retry.RetryPermanent(err)
 		}
 
@@ -224,10 +237,10 @@ func (m *Manager) waitForServices(ctx context.Context, cl *cluster.Client, names
 	return nil
 }
 
-func (m *Manager) waitForCertificates(ctx context.Context, cl *cluster.Client, namespace string) error {
+func (m *Manager) waitForCertificates(ctx context.Context, namespace string) error {
 	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
 		certs := &certmanagerv1beta1.CertificateList{}
-		if err := cl.APIClient.List(ctx, certs, client.InNamespace(namespace)); err != nil {
+		if err := m.cl.APIClient.List(ctx, certs, client.InNamespace(namespace)); err != nil {
 			return retry.RetryPermanent(err)
 		}
 
@@ -258,30 +271,26 @@ func (m *Manager) waitForCertificates(ctx context.Context, cl *cluster.Client, n
 	return nil
 }
 
-func (m *Manager) apply(ctx context.Context, cl *cluster.Client, obj runtime.Object) error {
-	if err := cl.APIClient.Patch(ctx, obj, client.Apply, client.ForceOwnership, client.FieldOwner("relay-e2e")); err != nil {
+func (m *Manager) apply(ctx context.Context, obj runtime.Object) error {
+	if err := m.cl.APIClient.Patch(ctx, obj, client.Apply, client.ForceOwnership, client.FieldOwner("relay-e2e")); err != nil {
 		return fmt.Errorf("failed to apply object '%s': %w", obj.GetObjectKind().GroupVersionKind().String(), err)
 	}
 
 	return nil
 }
 
-func (m *Manager) applyAllWithPatchers(ctx context.Context, cl *cluster.Client, patchers []objectPatcherFunc, objs []runtime.Object) error {
+func (m *Manager) applyAllWithPatchers(ctx context.Context, patchers []objectPatcherFunc, objs []runtime.Object) error {
 	for _, obj := range objs {
 		for _, patcher := range patchers {
 			patcher(obj)
 		}
 
-		if err := m.apply(ctx, cl, obj); err != nil {
+		if err := m.apply(ctx, obj); err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-func (m *Manager) DeleteDataDir() error {
-	return os.RemoveAll(m.opts.DataDir)
 }
 
 func (m *Manager) kubectlExec(args ...string) error {
@@ -295,9 +304,10 @@ func (m *Manager) kubectlExec(args ...string) error {
 	return kubectl.Execute()
 }
 
-func NewManager(cm cluster.Manager, opts Options) *Manager {
+func NewManager(cm cluster.Manager, cl *cluster.Client, opts Options) *Manager {
 	return &Manager{
 		cm:   cm,
+		cl:   cl,
 		opts: opts,
 	}
 }

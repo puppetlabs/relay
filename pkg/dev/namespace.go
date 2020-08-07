@@ -67,7 +67,7 @@ func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
 	return func(obj runtime.Object) {
 		var gvk schema.GroupVersionKind
 
-		gvks, _, err := scheme.ObjectKinds(obj)
+		gvks, _, err := DefaultScheme.ObjectKinds(obj)
 		if err != nil {
 			return
 		}

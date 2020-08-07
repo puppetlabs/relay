@@ -28,6 +28,7 @@ type Manager interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 	Delete(ctx context.Context) error
+	ImportImage(ctx context.Context, image string) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
 	WriteKubeconfig(ctx context.Context, path string) error
 	GetClient(ctx context.Context, opts ClientOptions) (*Client, error)

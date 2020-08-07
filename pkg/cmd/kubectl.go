@@ -23,8 +23,10 @@ func newKubectlCommand() *cobra.Command {
 }
 
 func doRunKubectl(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
 	cm := cluster.NewManager()
-	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
 	newcmd, err := dm.KubectlCommand()
 	if err != nil {

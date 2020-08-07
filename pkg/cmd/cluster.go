@@ -35,7 +35,6 @@ func newStartClusterCommand() *cobra.Command {
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager()
-	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
 	if _, err := cm.Exists(ctx); err != nil {
 		Dialog.Info("Creating a new dev cluster")
@@ -43,13 +42,20 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
+		cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+		if err != nil {
+			return err
+		}
+
+		dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+
 		Dialog.Info("Writing kubeconfig")
 		if err := dm.WriteKubeconfig(ctx); err != nil {
 			return err
 		}
 
-		Dialog.Info("Applying core Relay resources")
-		if err := dm.ApplyCoreResources(ctx); err != nil {
+		Dialog.Info("Initializing relay-core")
+		if err := dm.InitializeRelayCore(ctx); err != nil {
 			return err
 		}
 	} else {
@@ -89,7 +95,13 @@ func newDeleteClusterCommand() *cobra.Command {
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager()
-	dm := dev.NewManager(cm, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+
+	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	if err != nil {
+		return err
+	}
+
+	dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
 
 	if err := cm.Delete(ctx); err != nil {
 		return err

@@ -6,6 +6,7 @@ import (
 
 	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
 	"github.com/rancher/k3d/v3/pkg/runtimes"
+	"github.com/rancher/k3d/v3/pkg/tools"
 	"github.com/rancher/k3d/v3/pkg/types"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
@@ -25,7 +26,9 @@ type Client struct {
 
 // K3dClusterManager wraps rancher's k3d to manage the lifecycle
 // of a kubernetes cluster running in docker.
-type K3dClusterManager struct{}
+type K3dClusterManager struct {
+	runtime runtimes.Runtime
+}
 
 // Exists checks and reports back if the cluster exists.
 func (m *K3dClusterManager) Exists(ctx context.Context) (bool, error) {
@@ -39,7 +42,6 @@ func (m *K3dClusterManager) Exists(ctx context.Context) (bool, error) {
 // Create uses opinionated configuration constants to create a kubernetes cluster
 // running inside docker.
 func (m *K3dClusterManager) Create(ctx context.Context) error {
-	rt := runtimes.SelectedRuntime
 	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, K3sVersion)
 
 	exposeAPI := types.ExposeAPI{
@@ -85,7 +87,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		ExposeAPI: exposeAPI,
 	}
 
-	if err := k3dcluster.ClusterCreate(ctx, rt, clusterConfig); err != nil {
+	if err := k3dcluster.ClusterCreate(ctx, m.runtime, clusterConfig); err != nil {
 		return err
 	}
 
@@ -101,7 +103,6 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 // In order to make the `relay dev cluster start` command more idempotent, this
 // bug will need to be fixed or worked around.
 func (m *K3dClusterManager) Start(ctx context.Context) error {
-	rt := runtimes.SelectedRuntime
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
 	}
@@ -111,13 +112,12 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 		return err
 	}
 
-	return k3dcluster.ClusterStart(ctx, rt, clusterConfig, types.ClusterStartOpts{})
+	return k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, types.ClusterStartOpts{})
 }
 
 // Stop stops the cluster. Attempting to stop a cluster that doesn't exist
 // results in an error.
 func (m *K3dClusterManager) Stop(ctx context.Context) error {
-	rt := runtimes.SelectedRuntime
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
 	}
@@ -127,13 +127,12 @@ func (m *K3dClusterManager) Stop(ctx context.Context) error {
 		return err
 	}
 
-	return k3dcluster.ClusterStop(ctx, rt, clusterConfig)
+	return k3dcluster.ClusterStop(ctx, m.runtime, clusterConfig)
 }
 
 // Delete deletes the cluster and all its resources (docker network and volumes included).
 // Attempting to delete a cluster that doesn't exist results in an error.
 func (m *K3dClusterManager) Delete(ctx context.Context) error {
-	rt := runtimes.SelectedRuntime
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
 	}
@@ -143,21 +142,35 @@ func (m *K3dClusterManager) Delete(ctx context.Context) error {
 		return err
 	}
 
-	return k3dcluster.ClusterDelete(ctx, rt, clusterConfig)
+	return k3dcluster.ClusterDelete(ctx, m.runtime, clusterConfig)
+}
+
+// ImportImage import's a given image from the local container runtime into
+// every node in the cluster. It's useful for making sure custom built images
+// on the local host machine take priority over remote images in a registry.
+func (m *K3dClusterManager) ImportImage(ctx context.Context, image string) error {
+	clusterConfig, err := m.get(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to lookup cluster: %w", err)
+	}
+
+	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, []string{image}, clusterConfig, types.ImageImportOpts{}); err != nil {
+		return fmt.Errorf("failed to import image: %w", err)
+	}
+
+	return nil
 }
 
 // GetKubeconfig returns a k8s client-go config for the cluster's context. This can be
 // be used to generate the yaml that is often seen on disk and used with kubectl. Attempting
 // to get a kubeconfig for a cluster that doesn't exist results in an error.
 func (m *K3dClusterManager) GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error) {
-	rt := runtimes.SelectedRuntime
-
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return k3dcluster.KubeconfigGet(ctx, rt, clusterConfig)
+	return k3dcluster.KubeconfigGet(ctx, m.runtime, clusterConfig)
 }
 
 // WriteKubeconfig takes a path and writes the cluster's kubeconfig file to it. Attempting
@@ -205,15 +218,16 @@ func (m *K3dClusterManager) GetClient(ctx context.Context, opts ClientOptions) (
 }
 
 func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
-	rt := runtimes.SelectedRuntime
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
 	}
 
-	return k3dcluster.ClusterGet(ctx, rt, clusterConfig)
+	return k3dcluster.ClusterGet(ctx, m.runtime, clusterConfig)
 }
 
 // NewK3dClusterManager returns a new K3dClusterManager.
 func NewK3dClusterManager() *K3dClusterManager {
-	return &K3dClusterManager{}
+	return &K3dClusterManager{
+		runtime: runtimes.SelectedRuntime,
+	}
 }
