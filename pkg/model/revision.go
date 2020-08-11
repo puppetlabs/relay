@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/serialize"
+	"github.com/puppetlabs/relay-core/pkg/expr/serialize"
 )
 
 type RevisionIdentifier struct {

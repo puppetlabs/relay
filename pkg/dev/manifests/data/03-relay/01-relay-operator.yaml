@@ -1,0 +1,969 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  name: workflowruns.nebula.puppet.com
+spec:
+  group: nebula.puppet.com
+  names:
+    kind: WorkflowRun
+    listKind: WorkflowRunList
+    plural: workflowruns
+    singular: workflowrun
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: WorkflowRun is the root type for a workflow run.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            name:
+              type: string
+            parameters:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              type: object
+            workflow:
+              properties:
+                name:
+                  type: string
+                parameters:
+                  additionalProperties:
+                    description: Unstructured is arbitrary JSON data, which may also
+                      include base64-encoded binary data.
+                    x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                steps:
+                  items:
+                    properties:
+                      args:
+                        items:
+                          type: string
+                        type: array
+                      command:
+                        type: string
+                      depends_on:
+                        items:
+                          type: string
+                        type: array
+                      image:
+                        type: string
+                      input:
+                        items:
+                          type: string
+                        type: array
+                      name:
+                        type: string
+                      spec:
+                        additionalProperties:
+                          description: Unstructured is arbitrary JSON data, which
+                            may also include base64-encoded binary data.
+                          x-kubernetes-preserve-unknown-fields: true
+                        type: object
+                      when:
+                        description: Unstructured is arbitrary JSON data, which may
+                          also include base64-encoded binary data.
+                        x-kubernetes-preserve-unknown-fields: true
+                    required:
+                    - name
+                    type: object
+                  type: array
+              required:
+              - name
+              - steps
+              type: object
+          required:
+          - name
+          - workflow
+          type: object
+        state:
+          properties:
+            steps:
+              additionalProperties:
+                additionalProperties:
+                  description: Unstructured is arbitrary JSON data, which may also
+                    include base64-encoded binary data.
+                  x-kubernetes-preserve-unknown-fields: true
+                type: object
+              type: object
+            workflow:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              type: object
+          type: object
+        status:
+          properties:
+            completionTime:
+              format: date-time
+              type: string
+            conditions:
+              additionalProperties:
+                properties:
+                  completionTime:
+                    format: date-time
+                    type: string
+                  logKey:
+                    type: string
+                  name:
+                    type: string
+                  startTime:
+                    format: date-time
+                    type: string
+                  status:
+                    type: string
+                required:
+                - name
+                - status
+                type: object
+              type: object
+            startTime:
+              format: date-time
+              type: string
+            status:
+              type: string
+            steps:
+              additionalProperties:
+                properties:
+                  completionTime:
+                    format: date-time
+                    type: string
+                  logKey:
+                    type: string
+                  name:
+                    type: string
+                  startTime:
+                    format: date-time
+                    type: string
+                  status:
+                    type: string
+                required:
+                - name
+                - status
+                type: object
+              type: object
+          required:
+          - status
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1
+  versions:
+  - name: v1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  creationTimestamp: null
+  name: tenants.relay.sh
+spec:
+  group: relay.sh
+  names:
+    kind: Tenant
+    listKind: TenantList
+    plural: tenants
+    singular: tenant
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Tenant represents a scoping mechanism for runs and triggers.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            namespaceTemplate:
+              description: NamespaceTemplate defines a template for a namespace that
+                will be created for this scope. If not specified, resources are created
+                in the namespace of this resource.
+              properties:
+                metadata:
+                  description: "Metadata is the metadata to associate with the namespace
+                    to create, such as a name and list of labels. If not specified,
+                    values are automatically generated. \n Labels from the tenant
+                    are automatically propagated onto the created namespace."
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              type: object
+            triggerEventSink:
+              description: TriggerEventSink represents the destination for events
+                received as part of trigger processing. If not specified, events will
+                be logged and discarded.
+              properties:
+                api:
+                  description: API is an event sink for the propretiary Relay API.
+                  properties:
+                    token:
+                      description: Token is the API token to use.
+                      type: string
+                    tokenFrom:
+                      description: TokenFrom allows the API token to be provided by
+                        another resource.
+                      properties:
+                        secretKeyRef:
+                          description: SecretKeyRef selects an API token by looking
+                            up the value in a secret.
+                          properties:
+                            key:
+                              description: Key is the key from the secret to use.
+                              type: string
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                TODO: Add other useful fields. apiVersion, kind, uid?'
+                              type: string
+                          required:
+                          - key
+                          type: object
+                      type: object
+                    url:
+                      type: string
+                  required:
+                  - url
+                  type: object
+              type: object
+          type: object
+        status:
+          properties:
+            conditions:
+              description: Conditions are the observations of this resource's state.
+              items:
+                properties:
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    description: Message is a human-readable description of the given
+                      status.
+                    type: string
+                  reason:
+                    description: Reason identifies the cause of the given status using
+                      an API-locked camel-case identifier.
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: Type is the identifier for this condition.
+                    enum:
+                    - NamespaceReady
+                    - EventSinkReady
+                    - Ready
+                    type: string
+                required:
+                - lastTransitionTime
+                - status
+                - type
+                type: object
+              type: array
+              x-kubernetes-list-map-keys:
+              - type
+              x-kubernetes-list-type: map
+            namespace:
+              description: Namespace is the namespace managed by this tenant or the
+                namespace of the tenant if it is unmanaged.
+              type: string
+            observedGeneration:
+              description: ObservedGeneration is the generation of the resource specification
+                that this status matches.
+              format: int64
+              type: integer
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.8
+  creationTimestamp: null
+  name: webhooktriggers.relay.sh
+spec:
+  group: relay.sh
+  names:
+    kind: WebhookTrigger
+    listKind: WebhookTriggerList
+    plural: webhooktriggers
+    singular: webhooktrigger
+  preserveUnknownFields: false
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: WebhookTrigger represents a definition of a webhook to receive
+        events.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            args:
+              description: Args are the command arguments.
+              items:
+                type: string
+              type: array
+            command:
+              description: Command is the path to the executable to run when the container
+                starts.
+              type: string
+            image:
+              description: Image is the Docker image to run when this webhook receives
+                an event.
+              type: string
+            input:
+              description: Input is the input script to provide to the container.
+              items:
+                type: string
+              type: array
+            name:
+              description: Name is a friendly name for this webhook trigger used for
+                authentication and reporting.
+              type: string
+            spec:
+              additionalProperties:
+                description: Unstructured is arbitrary JSON data, which may also include
+                  base64-encoded binary data.
+                x-kubernetes-preserve-unknown-fields: true
+              description: Spec is the Relay specification to be provided to the container
+                image.
+              type: object
+            tenantRef:
+              description: TenantRef selects the tenant to apply this trigger to.
+              properties:
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+              type: object
+          required:
+          - image
+          - tenantRef
+          type: object
+        status:
+          properties:
+            conditions:
+              description: Conditions are the observations of this resource's tate.
+              items:
+                properties:
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    description: Message is a human-readable description of the given
+                      status.
+                    type: string
+                  reason:
+                    description: Reason identifies the cause of the given status using
+                      an API-locked camel-case identifier.
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    description: Type is the identifier for this condition.
+                    enum:
+                    - ServiceReady
+                    - Ready
+                    type: string
+                required:
+                - lastTransitionTime
+                - status
+                - type
+                type: object
+              type: array
+              x-kubernetes-list-map-keys:
+              - type
+              x-kubernetes-list-type: map
+            namespace:
+              description: Namespace is the Kubernetes namespace containing the target
+                resources of this webhook trigger.
+              type: string
+            observedGeneration:
+              description: ObservedGeneration is the generation of the resource specification
+                that this status matches.
+              format: int64
+              type: integer
+            url:
+              description: URL is the endpoint for the webhook once provisioned.
+              type: string
+          type: object
+      required:
+      - spec
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relay-metadata-api-vault-agent
+data:
+  agent.hcl: |-
+    auto_auth {
+      method "kubernetes" {
+        mount_path = "auth/kubernetes"
+        config     = {
+          role       = "relay-metadata-api"
+          token_path = "/var/run/secrets/kubernetes.io/serviceaccount@vault/token"
+        }
+      }
+    }
+
+    cache {
+      use_auto_auth_token = true
+    }
+
+    listener "tcp" {
+      address     = "127.0.0.1:8200"
+      tls_disable = true
+    }
+
+    vault {
+      address = "http://localhost:8200"
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: relay-tasks-vault-agent
+data:
+  agent.hcl: |-
+    auto_auth {
+      method "kubernetes" {
+        mount_path = "auth/kubernetes"
+        config     = {
+          role       = "relay-tasks"
+          token_path = "/var/run/secrets/kubernetes.io/serviceaccount@vault/token"
+        }
+      }
+    }
+
+    cache {
+      use_auto_auth_token = true
+    }
+
+    listener "tcp" {
+      address     = "127.0.0.1:8200"
+      tls_disable = true
+    }
+
+    vault {
+      address = "http://localhost:8200"
+    }
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay-metadata-api
+  labels:
+    app.kubernetes.io/name: metadata-api
+    app.kubernetes.io/instance: relay
+    app.kubernetes.io/version: "latest"
+    helm.sh/chart: metadata-api-1.0.0
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: relay-metadata-api
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: ["tekton.dev"]
+  resources: ["conditions"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: relay-metadata-api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: relay-metadata-api
+subjects:
+- kind: ServiceAccount
+  name: relay-metadata-api
+  namespace: relay-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay-metadata-api-vault
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: metadata-api
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: metadata-api-1.0.0
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relay-metadata-api-vault-agent-token
+  annotations:
+    kubernetes.io/service-account.name: relay-metadata-api-vault
+type: kubernetes.io/service-account-token
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay-tasks
+  labels:
+    app.kubernetes.io/name: tasks
+    app.kubernetes.io/instance: relay
+    app.kubernetes.io/version: "latest"
+    helm.sh/chart: tasks-1.0.0
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: relay-tasks-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: relay-tasks-controller
+subjects:
+- kind: ServiceAccount
+  name: relay-tasks
+  namespace: relay-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: relay-tasks-vault
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: tasks-1.0.0
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: relay-tasks-vault-agent-token
+  annotations:
+    kubernetes.io/service-account.name: relay-tasks-vault
+type: kubernetes.io/service-account-token
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: relay-tasks-delegate
+rules:
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps", "serviceaccounts", "secrets", "limitranges"]
+  verbs: ["create", "update", "patch", "delete"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings"]
+  verbs: ["create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["create", "update", "patch", "delete"]
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "taskruns", "pipelines", "tasks", "conditions"]
+  verbs: ["create", "update", "patch", "delete"]
+- apiGroups: ["serving.knative.dev"]
+  resources: ["services"]
+  verbs: ["create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: relay-tasks-controller
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["configmaps", "pods", "serviceaccounts", "secrets", "limitranges"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["roles", "rolebindings"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "taskruns", "pipelines", "tasks", "conditions"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["nebula.puppet.com"]
+  resources: ["workflowruns", "workflowruns/status"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["relay.sh"]
+  resources: ["tenants", "tenants/status", "webhooktriggers", "webhooktriggers/status"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["serving.knative.dev"]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay-metadata-api
+  labels:
+    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/component: metadata-api
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: metadata-api-1.0.0
+spec:
+  # Normally we'd make this customizable, but the security surface of this
+  # system limits our options here.
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: https
+    protocol: TCP
+    name: https
+  selector:
+    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/component: metadata-api
+    app.kubernetes.io/instance: relay
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay-tasks-webhook
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: tasks-1.0.0
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: webhook
+    protocol: TCP
+    name: webhook
+  selector:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/instance: relay
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay-metadata-api
+  annotations:
+    secret.reloader.stakater.com/reload: "relay-metadata-api-tls-crt"
+  labels:
+    app.kubernetes.io/name: nebula-system
+    app.kubernetes.io/component: metadata-api
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: metadata-api-1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nebula-system
+      app.kubernetes.io/component: metadata-api
+      app.kubernetes.io/instance: relay
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nebula-system
+        app.kubernetes.io/component: metadata-api
+        app.kubernetes.io/version: "latest"
+        app.kubernetes.io/instance: relay
+        helm.sh/chart: metadata-api-1.0.0
+      annotations:
+        checksum/vault-agent-config: 9536035bee1d5ff639c0baab1e62b65708a5cc128f49805f539f76d669a14d27
+    spec:
+      serviceAccountName: relay-metadata-api
+      containers:
+      - name: metadata-api
+        image: "relaysh/relay-metadata-api:latest"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: https
+          containerPort: 7000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: https
+            scheme: HTTPS
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: https
+            scheme: HTTPS
+        resources:
+            {}
+        env:
+        - name: VAULT_ADDR
+          value: http://localhost:8200
+        - name: RELAY_METADATA_API_ENVIRONMENT
+          value: dev
+        - name: RELAY_METADATA_API_TLS_KEY_FILE
+          value: /var/run/secrets/puppet/relay/tls/tls.key
+        - name: RELAY_METADATA_API_TLS_CERTIFICATE_FILE
+          value: /var/run/secrets/puppet/relay/tls/tls.crt
+        - name: RELAY_METADATA_API_VAULT_TRANSIT_PATH
+          value: transit
+        - name: RELAY_METADATA_API_VAULT_TRANSIT_KEY
+          value: metadata-api
+        - name: RELAY_METADATA_API_VAULT_AUTH_PATH
+          value: auth/jwt
+        - name: RELAY_METADATA_API_VAULT_AUTH_ROLE
+          value: tenant
+        volumeMounts:
+        - name: tls-crt
+          mountPath: /var/run/secrets/puppet/relay/tls
+          readOnly: true
+      - name: vault
+        image: "vault:1.1.3"
+        imagePullPolicy: IfNotPresent
+        command:
+        - vault
+        - agent
+        - -config=/var/run/vault/config/agent.hcl
+        volumeMounts:
+        - name: vault-agent-sa-token
+          mountPath: "/var/run/secrets/kubernetes.io/serviceaccount@vault"
+          readOnly: true
+        - name: vault-agent-conf
+          mountPath: "/var/run/vault/config"
+          readOnly: true
+        resources:
+            {}
+      volumes:
+      - name: tls-crt
+        secret:
+          secretName: relay-metadata-api-tls-crt
+      - name: vault-agent-sa-token
+        secret:
+          secretName: relay-metadata-api-vault-agent-token
+      - name: vault-agent-conf
+        configMap:
+          name: relay-metadata-api-vault-agent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay-tasks
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: tasks-1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: relay-system
+      app.kubernetes.io/component: tasks
+      app.kubernetes.io/instance: relay
+  template:
+    metadata:
+      name: relay-operator
+      labels:
+        app.kubernetes.io/name: relay-system
+        app.kubernetes.io/component: tasks
+        app.kubernetes.io/version: "latest"
+        app.kubernetes.io/instance: relay
+        helm.sh/chart: tasks-1.0.0
+    spec:
+      serviceAccountName: relay-tasks
+      containers:
+      - name: tasks
+        image: "relaysh/relay-operator:latest"
+        imagePullPolicy: IfNotPresent
+        command:
+        - relay-operator
+        - -standalone
+        - -environment
+        - dev
+        - -storage-addr
+        - "file:///tmp"
+        - -num-workers
+        - "2"
+        - -jwt-signing-key-file
+        - "/var/run/secrets/puppet/relay/tls/tls.key"
+        - -vault-transit-path
+        - transit
+        - -vault-transit-key
+        - metadata-api
+        - -metadata-api-url
+        - "https://relay-metadata-api.relay-system.svc.cluster.local"
+        - -webhook-server-key-dir
+        - /var/run/secrets/puppet/relay/tls
+        - -dynamic-rbac-binding
+        env:
+        - name: VAULT_ADDR
+          value: http://localhost:8200
+        ports:
+        - name: webhook
+          containerPort: 443
+          protocol: TCP
+        volumeMounts:
+        - name: webhook-tls
+          mountPath: /var/run/secrets/puppet/relay/tls
+          readyOnly: true
+      - name: vault
+        image: "vault:1.1.3"
+        imagePullPolicy: IfNotPresent
+        command:
+        - vault
+        - agent
+        - -config=/var/run/vault/config/agent.hcl
+        volumeMounts:
+        - name: vault-agent-sa-token
+          mountPath: "/var/run/secrets/kubernetes.io/serviceaccount@vault"
+          readOnly: true
+        - name: vault-agent-conf
+          mountPath: "/var/run/vault/config"
+          readOnly: true
+      volumes:
+      - name: webhook-tls
+        secret:
+          secretName: relay-tasks-webhook-tls-crt
+      - name: vault-agent-sa-token
+        secret:
+          secretName: relay-tasks-vault-agent-token
+      - name: vault-agent-conf
+        configMap:
+          name: relay-tasks-vault-agent
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: relay-tasks-pod-enforcement
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: tasks-1.0.0
+webhooks:
+- name: relay-tasks-pod-enforcement.admission.controller.relay.sh
+  clientConfig:
+    service:
+      name: relay-tasks-webhook
+      namespace: "relay-system"
+      path: /mutate/pod-enforcement
+  rules:
+  - apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+    operations: ["CREATE", "UPDATE"]
+  failurePolicy: Fail
+  sideEffects: None
+  reinvocationPolicy: IfNeeded
+  namespaceSelector:
+    matchLabels:
+      controller.relay.sh/tenant-workload: "true"
+
+---
+apiVersion: rbacmanager.reactiveops.io/v1beta1
+kind: RBACDefinition
+metadata:
+  name: relay-tasks
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/instance: relay
+    helm.sh/chart: tasks-1.0.0
+rbacBindings:
+- name: relay-tasks-delegate
+  subjects:
+  - kind: ServiceAccount
+    name: relay-tasks
+    namespace: relay-system
+  clusterRoleBindings: []
+  roleBindings:
+  - clusterRole: relay-tasks-delegate
+    namespaceSelector:
+      matchLabels:
+        controller.relay.sh/tenant-workload: "true"
+
