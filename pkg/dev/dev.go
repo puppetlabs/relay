@@ -4,6 +4,7 @@ import (
 	"context"
 	goflag "flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,9 +86,10 @@ func (m *Manager) DeleteDataDir() error {
 	return os.RemoveAll(m.opts.DataDir)
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, content []byte) error {
-	decoder := v1.YAMLDecoder{}
-	wd, err := decoder.Decode(ctx, content)
+func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) error {
+	decoder := v1.NewDocumentStreamingDecoder(r, &v1.YAMLDecoder{})
+
+	wd, err := decoder.DecodeStream(ctx)
 	if err != nil {
 		return err
 	}

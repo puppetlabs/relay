@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/cluster"
@@ -34,14 +35,20 @@ func newDevWorkflowRunCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
+	cmd.MarkFlagRequired("file")
 
 	return cmd
 }
 
 func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
-	file, ferr := readFile(cmd)
-	if ferr != nil {
-		return ferr
+	fp, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(fp)
+	if err != nil {
+		return err
 	}
 
 	ctx := cmd.Context()
@@ -56,5 +63,5 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 
 	Dialog.Info("Running workflow")
 
-	return dm.RunWorkflow(ctx, []byte(file))
+	return dm.RunWorkflow(ctx, file)
 }
