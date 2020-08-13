@@ -14,6 +14,8 @@ import (
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
+	"github.com/puppetlabs/relay-core/pkg/workflow"
+	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
@@ -81,6 +83,35 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 
 func (m *Manager) DeleteDataDir() error {
 	return os.RemoveAll(m.opts.DataDir)
+}
+
+func (m *Manager) RunWorkflow(ctx context.Context, content []byte) error {
+	decoder := v1.YAMLDecoder{}
+	wd, err := decoder.Decode(ctx, content)
+	if err != nil {
+		return err
+	}
+
+	mapper := workflow.NewDefaultRunEngineMapper(
+		workflow.WithNamespace("test-workflow"),
+		workflow.WithWorkflowName("test-workflow"),
+		workflow.WithWorkflowRunName("test-workflow-run"),
+	)
+
+	manifest, err := mapper.ToRuntimeObjectsManifest(wd)
+	if err != nil {
+		return err
+	}
+
+	if err := m.cl.APIClient.Create(ctx, manifest.Namespace); err != nil {
+		return err
+	}
+
+	if err := m.cl.APIClient.Create(ctx, manifest.WorkflowRun); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *Manager) InitializeRelayCore(ctx context.Context) error {

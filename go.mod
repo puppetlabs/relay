@@ -12,7 +12,6 @@ require (
 	github.com/containerd/typeurl v1.0.1 // indirect
 	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.9.0
-	github.com/go-logr/zapr v0.1.1 // indirect
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/gogo/googleapis v1.4.0 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
@@ -21,14 +20,13 @@ require (
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
-	github.com/kr/pretty v0.2.0
 	github.com/moby/sys/mountinfo v0.1.3 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/prometheus/client_golang v1.7.1 // indirect
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.10.0
-	github.com/puppetlabs/relay-core v0.0.0-20200721182257-edf0186ad6ed
+	github.com/puppetlabs/relay-core v0.0.0-20200813002633-847d560f9ce3
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.0
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
@@ -48,13 +46,11 @@ require (
 	k8s.io/apimachinery v0.18.5
 	k8s.io/client-go v1.5.1
 	k8s.io/component-base v0.18.5
-	k8s.io/klog v1.0.0
 	k8s.io/klog/v2 v2.1.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29 // indirect
 	k8s.io/kubernetes v1.17.2
 	k8s.io/utils v0.0.0-20200724153422-f32512634ab7 // indirect
 	sigs.k8s.io/controller-runtime v0.5.2
-	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 replace (
