@@ -60,7 +60,7 @@ func formatTextError(err errors.Error, cfg *config.Config) string {
 	if cfg.Debug {
 		out += fmt.Sprintf(`
 
-You have recieved an error in debug mode. If the error persists you may file a bug report at https://github.com/puppetlabs/relay/issues`)
+You have received an error in debug mode. If the error persists you may file a bug report at https://github.com/puppetlabs/relay/issues`)
 	}
 
 	return out

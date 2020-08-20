@@ -123,7 +123,7 @@ func doLogin(cmd *cobra.Command, args []string) error {
 		return cterr
 	}
 
-	Dialog.Info("Sucessfully logged in!")
+	Dialog.Info("Successfully logged in!")
 
 	return nil
 }
@@ -150,7 +150,7 @@ func doLogout(cmd *cobra.Command, args []string) error {
 		return iterr
 	}
 
-	Dialog.Info("You have been sucesfully logged out.")
+	Dialog.Info("You have been successfully logged out.")
 
 	return nil
 }
