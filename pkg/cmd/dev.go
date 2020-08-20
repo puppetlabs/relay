@@ -9,9 +9,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var DevConfig = dev.Config{}
+
 func newDevCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dev",
+		Use: "dev",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			root := cmd.Root()
+
+			err := root.PersistentPreRunE(cmd, args)
+			if err != nil {
+				return err
+			}
+
+			DevConfig = dev.Config{
+				DataDir: filepath.Join(Config.DataDir, "dev"),
+			}
+
+			return nil
+		},
 		Short: "Manage the local development environment",
 		Args:  cobra.MinimumNArgs(1),
 	}
@@ -52,16 +68,23 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := cmd.Context()
-	cm := cluster.NewManager()
+	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
 	if err != nil {
 		return err
 	}
 
-	dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+	dm := dev.NewManager(cm, cl, DevConfig)
 
 	Dialog.Info("Running workflow")
 
-	return dm.RunWorkflow(ctx, file)
+	ws, err := dm.RunWorkflow(ctx, file)
+	if err != nil {
+		return err
+	}
+
+	Dialog.Infof("Monitor step progress with: relay dev kubectl -n %s get pods --watch", ws.WorkflowIdentifier.Name)
+
+	return nil
 }

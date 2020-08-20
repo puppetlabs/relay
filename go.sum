@@ -1258,6 +1258,10 @@ github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e h
 github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e/go.mod h1:fU2lLssuZDiOPlZS0sPObg4WPO1Cg1QSGJD3QTbjH7g=
 github.com/puppetlabs/relay-core v0.0.0-20200813002633-847d560f9ce3 h1:eN3fpz4PXzeIrV3zCdtJ2CyO3shzDcUzKunlrgKf0e0=
 github.com/puppetlabs/relay-core v0.0.0-20200813002633-847d560f9ce3/go.mod h1:z48JY485Nx1idVJ8GbkjwWdEv2VEqYe+EALPIQOClqQ=
+github.com/puppetlabs/relay-core v0.0.0-20200813170451-27a9c53d601a h1:8p4o9CrFb0TlYYvCQqSbnAWnzfmWxKk39RFCjtmhTBY=
+github.com/puppetlabs/relay-core v0.0.0-20200813170451-27a9c53d601a/go.mod h1:pO0Nk9m19xHXb4YIOJnb5LGhGnMVkvSvvXEtUnO/Swg=
+github.com/puppetlabs/relay-core v0.0.0-20200813191104-861c7124b64d h1:DAA2CeiwUfqfFH4wRW7mD+/RY6OIZrPgUGKGi+yVZmA=
+github.com/puppetlabs/relay-core v0.0.0-20200813191104-861c7124b64d/go.mod h1:z48JY485Nx1idVJ8GbkjwWdEv2VEqYe+EALPIQOClqQ=
 github.com/quasilyte/go-consistent v0.0.0-20190521200055-c6f3937de18c/go.mod h1:5STLWrekHfjyYwxBRVRXNOSewLJ3PWfDJd1VyTS21fI=
 github.com/quobyte/api v0.1.2/go.mod h1:jL7lIHrmqQ7yh05OJ+eEEdHr0u/kmT1Ff9iHd+4H6VI=
 github.com/rancher/helm-controller v0.6.3 h1:tsqSXndQ7Ms8S0mBd2zWOcTV1tiZ4BUYkemYnijNXio=

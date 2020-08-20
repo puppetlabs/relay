@@ -1,10 +1,10 @@
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
-  name: vault-server
+  name: vault
   namespace: kube-system
 spec:
   chart: vault
   targetNamespace: relay-system
   repo: https://helm.releases.hashicorp.com
-  version: 0.5.0
+  version: 0.6.0
