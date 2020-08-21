@@ -22,6 +22,10 @@ const (
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
 
+var agentArgs = []string{
+	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
+}
+
 type Client struct {
 	APIClient client.Client
 	Mapper    meta.RESTMapper
@@ -50,7 +54,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 
 	hostStoragePath := filepath.Join(m.cfg.DataDir, HostStorageName)
 	if err := os.MkdirAll(hostStoragePath, 0700); err != nil {
-		return err
+		return fmt.Errorf("failed to make the host storage directory: %w", err)
 	}
 
 	localStorage := fmt.Sprintf("%s:%s",
@@ -106,7 +110,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 	}
 
 	if err := k3dcluster.ClusterCreate(ctx, m.runtime, clusterConfig); err != nil {
-		return err
+		return fmt.Errorf("failed to create cluster: %w", err)
 	}
 
 	return nil
@@ -114,12 +118,6 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 
 // Start starts the cluster. Attempting to start a cluster that doesn't exist
 // results in an error.
-//
-// Note: There is currently a bug in k3d that causes ClusterStart to hang
-// while waiting for the serverlb node if the cluster is already started.
-// I filed a ticker here: https://github.com/rancher/k3d/issues/310
-// In order to make the `relay dev cluster start` command more idempotent, this
-// bug will need to be fixed or worked around.
 func (m *K3dClusterManager) Start(ctx context.Context) error {
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
@@ -127,10 +125,15 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get cluster config: %w", err)
 	}
 
-	return k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, types.ClusterStartOpts{})
+	opts := types.ClusterStartOpts{WaitForServer: true}
+	if err := k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, opts); err != nil {
+		return fmt.Errorf("failed to start cluster: %w", err)
+	}
+
+	return nil
 }
 
 // Stop stops the cluster. Attempting to stop a cluster that doesn't exist

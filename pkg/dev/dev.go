@@ -15,7 +15,6 @@ import (
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
-	"github.com/puppetlabs/relay-core/pkg/workflow"
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
@@ -98,10 +97,10 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.Work
 		name = defaultWorkflowName
 	}
 
-	mapper := workflow.NewDefaultRunEngineMapper(
-		workflow.WithNamespace(name),
-		workflow.WithWorkflowName(name),
-		workflow.WithWorkflowRunName(name),
+	mapper := v1.NewDefaultRunEngineMapper(
+		v1.WithNamespaceRunOption(name),
+		v1.WithWorkflowNameRunOption(name),
+		v1.WithWorkflowRunNameRunOption(name),
 	)
 
 	manifest, err := mapper.ToRuntimeObjectsManifest(wd)

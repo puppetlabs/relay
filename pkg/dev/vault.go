@@ -412,7 +412,8 @@ func waitForJobToComplete(ctx context.Context, cl *cluster.Client, job *batchv1.
 }
 
 // runJobAndWait runs a given job and then watches its conditions for
-// completion and returns
+// completion and returns. successful jobs are removed after it completes and
+// failed jobs will remain.
 //
 // TODO move this to a common package or file if we end up using more batch
 // jobs.
@@ -421,5 +422,9 @@ func runJobAndWait(ctx context.Context, cl *cluster.Client, job *batchv1.Job) er
 		return err
 	}
 
-	return waitForJobToComplete(ctx, cl, job)
+	if err := waitForJobToComplete(ctx, cl, job); err != nil {
+		return err
+	}
+
+	return cl.APIClient.Delete(ctx, job, client.PropagationPolicy(metav1.DeletePropagationBackground))
 }
