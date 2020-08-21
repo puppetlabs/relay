@@ -3,6 +3,8 @@ package cluster
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
 	"github.com/rancher/k3d/v3/pkg/runtimes"
@@ -16,8 +18,13 @@ import (
 )
 
 const (
-	K3sVersion = "v1.18.6-k3s1"
+	k3sVersion          = "v1.18.6-k3s1"
+	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
+
+var agentArgs = []string{
+	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
+}
 
 type Client struct {
 	APIClient client.Client
@@ -28,6 +35,7 @@ type Client struct {
 // of a kubernetes cluster running in docker.
 type K3dClusterManager struct {
 	runtime runtimes.Runtime
+	cfg     Config
 }
 
 // Exists checks and reports back if the cluster exists.
@@ -42,7 +50,19 @@ func (m *K3dClusterManager) Exists(ctx context.Context) (bool, error) {
 // Create uses opinionated configuration constants to create a kubernetes cluster
 // running inside docker.
 func (m *K3dClusterManager) Create(ctx context.Context) error {
-	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, K3sVersion)
+	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, k3sVersion)
+
+	hostStoragePath := filepath.Join(m.cfg.DataDir, HostStorageName)
+	if err := os.MkdirAll(hostStoragePath, 0700); err != nil {
+		return fmt.Errorf("failed to make the host storage directory: %w", err)
+	}
+
+	localStorage := fmt.Sprintf("%s:%s",
+		hostStoragePath,
+		k3sLocalStoragePath)
+	volumes := []string{
+		localStorage,
+	}
 
 	exposeAPI := types.ExposeAPI{
 		Host:   types.DefaultAPIHost,
@@ -56,6 +76,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		ServerOpts: types.ServerOpts{
 			ExposeAPI: exposeAPI,
 		},
+		Volumes: volumes,
 	}
 
 	nodes := []*types.Node{
@@ -64,9 +85,10 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 
 	for i := 0; i < WorkerCount; i++ {
 		node := &types.Node{
-			Role:  types.AgentRole,
-			Image: k3sImage,
-			Args:  agentArgs,
+			Role:    types.AgentRole,
+			Image:   k3sImage,
+			Args:    agentArgs,
+			Volumes: volumes,
 		}
 
 		nodes = append(nodes, node)
@@ -88,7 +110,7 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 	}
 
 	if err := k3dcluster.ClusterCreate(ctx, m.runtime, clusterConfig); err != nil {
-		return err
+		return fmt.Errorf("failed to create cluster: %w", err)
 	}
 
 	return nil
@@ -96,12 +118,6 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 
 // Start starts the cluster. Attempting to start a cluster that doesn't exist
 // results in an error.
-//
-// Note: There is currently a bug in k3d that causes ClusterStart to hang
-// while waiting for the serverlb node if the cluster is already started.
-// I filed a ticker here: https://github.com/rancher/k3d/issues/310
-// In order to make the `relay dev cluster start` command more idempotent, this
-// bug will need to be fixed or worked around.
 func (m *K3dClusterManager) Start(ctx context.Context) error {
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
@@ -109,10 +125,15 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get cluster config: %w", err)
 	}
 
-	return k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, types.ClusterStartOpts{})
+	opts := types.ClusterStartOpts{WaitForServer: true}
+	if err := k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, opts); err != nil {
+		return fmt.Errorf("failed to start cluster: %w", err)
+	}
+
+	return nil
 }
 
 // Stop stops the cluster. Attempting to stop a cluster that doesn't exist
@@ -145,16 +166,17 @@ func (m *K3dClusterManager) Delete(ctx context.Context) error {
 	return k3dcluster.ClusterDelete(ctx, m.runtime, clusterConfig)
 }
 
-// ImportImage import's a given image from the local container runtime into
-// every node in the cluster. It's useful for making sure custom built images
-// on the local host machine take priority over remote images in a registry.
-func (m *K3dClusterManager) ImportImage(ctx context.Context, image string) error {
+// ImportImages import's a given image or images from the local container
+// runtime into every node in the cluster. It's useful for making sure custom
+// built images on the local host machine take priority over remote images in a
+// registry.
+func (m *K3dClusterManager) ImportImages(ctx context.Context, images ...string) error {
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to lookup cluster: %w", err)
 	}
 
-	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, []string{image}, clusterConfig, types.ImageImportOpts{}); err != nil {
+	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{}); err != nil {
 		return fmt.Errorf("failed to import image: %w", err)
 	}
 
@@ -226,8 +248,9 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 }
 
 // NewK3dClusterManager returns a new K3dClusterManager.
-func NewK3dClusterManager() *K3dClusterManager {
+func NewK3dClusterManager(cfg Config) *K3dClusterManager {
 	return &K3dClusterManager{
 		runtime: runtimes.SelectedRuntime,
+		cfg:     cfg,
 	}
 }

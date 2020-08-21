@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"path/filepath"
+	"os"
 
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev"
@@ -34,7 +34,12 @@ func newStartClusterCommand() *cobra.Command {
 
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager()
+
+	if err := os.MkdirAll(DevConfig.DataDir, 0700); err != nil {
+		return err
+	}
+
+	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 
 	if _, err := cm.Exists(ctx); err != nil {
 		Dialog.Info("Creating a new dev cluster")
@@ -47,7 +52,7 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+		dm := dev.NewManager(cm, cl, DevConfig)
 
 		Dialog.Info("Writing kubeconfig")
 		if err := dm.WriteKubeconfig(ctx); err != nil {
@@ -59,8 +64,26 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		return cm.Start(ctx)
+		if err := cm.Start(ctx); err != nil {
+			return err
+		}
+
+		cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+		if err != nil {
+			return err
+		}
+
+		// dev manager depends on a kubernetes client, which we can't get if a
+		// cluster doesn't exist, so we can't create one at the top of this
+		// function.
+		dm := dev.NewManager(cm, cl, DevConfig)
+
+		if err := dm.StartRelayCore(ctx); err != nil {
+			return err
+		}
 	}
+
+	Dialog.Info("Relay dev cluster is ready to use")
 
 	return nil
 }
@@ -77,7 +100,7 @@ func newStopClusterCommand() *cobra.Command {
 
 func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager()
+	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 
 	return cm.Stop(ctx)
 }
@@ -94,14 +117,14 @@ func newDeleteClusterCommand() *cobra.Command {
 
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager()
+	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
 	if err != nil {
 		return err
 	}
 
-	dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+	dm := dev.NewManager(cm, cl, DevConfig)
 
 	if err := cm.Delete(ctx); err != nil {
 		return err

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"path/filepath"
-
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
@@ -11,7 +9,7 @@ import (
 func newKubectlCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kubectl",
-		Short: "",
+		Short: "Run kubectl commands against the dev cluster",
 		FParseErrWhitelist: cobra.FParseErrWhitelist{
 			UnknownFlags: true,
 		},
@@ -24,9 +22,9 @@ func newKubectlCommand() *cobra.Command {
 
 func doRunKubectl(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager()
+	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
-	dm := dev.NewManager(cm, cl, dev.Options{DataDir: filepath.Join(Config.DataDir, "dev")})
+	dm := dev.NewManager(cm, cl, DevConfig)
 
 	newcmd, err := dm.KubectlCommand()
 	if err != nil {

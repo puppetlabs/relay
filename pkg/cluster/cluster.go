@@ -8,17 +8,18 @@ import (
 )
 
 const (
-	ClusterName = "relay-workflows"
-	NetworkName = "relay-workflows-net"
-	WorkerCount = 2
+	ClusterName     = "relay-workflows"
+	NetworkName     = "relay-workflows-net"
+	WorkerCount     = 2
+	HostStorageName = "local-storage"
 )
-
-var agentArgs = []string{
-	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
-}
 
 type ClientOptions struct {
 	Scheme *runtime.Scheme
+}
+
+type Config struct {
+	DataDir string
 }
 
 // Manager provides methods to manage the lifecycle of a cluster.
@@ -28,7 +29,7 @@ type Manager interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 	Delete(ctx context.Context) error
-	ImportImage(ctx context.Context, image string) error
+	ImportImages(ctx context.Context, images ...string) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
 	WriteKubeconfig(ctx context.Context, path string) error
 	GetClient(ctx context.Context, opts ClientOptions) (*Client, error)
@@ -38,6 +39,6 @@ type Manager interface {
 // the only one supported right now, we just return a manager
 // that one. Using this function ensures the delegate manager
 // always satisfies the Manager interface.
-func NewManager() Manager {
-	return NewK3dClusterManager()
+func NewManager(cfg Config) Manager {
+	return NewK3dClusterManager(cfg)
 }

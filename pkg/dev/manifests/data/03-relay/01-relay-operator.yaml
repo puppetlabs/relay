@@ -492,7 +492,7 @@ data:
     }
 
     vault {
-      address = "http://localhost:8200"
+      address = "http://vault:8200"
     }
 
 ---
@@ -522,7 +522,7 @@ data:
     }
 
     vault {
-      address = "http://localhost:8200"
+      address = "http://vault:8200"
     }
 
 ---
@@ -696,10 +696,10 @@ spec:
   # system limits our options here.
   type: ClusterIP
   ports:
-  - port: 443
-    targetPort: https
+  - port: 80
+    targetPort: http
     protocol: TCP
-    name: https
+    name: http
   selector:
     app.kubernetes.io/name: nebula-system
     app.kubernetes.io/component: metadata-api
@@ -763,19 +763,19 @@ spec:
         image: "relaysh/relay-metadata-api:latest"
         imagePullPolicy: IfNotPresent
         ports:
-        - name: https
+        - name: http
           containerPort: 7000
           protocol: TCP
         livenessProbe:
           httpGet:
             path: /healthz
-            port: https
-            scheme: HTTPS
+            port: http
+            scheme: HTTP
         readinessProbe:
           httpGet:
             path: /healthz
-            port: https
-            scheme: HTTPS
+            port: http
+            scheme: HTTP
         resources:
             {}
         env:
@@ -783,22 +783,14 @@ spec:
           value: http://localhost:8200
         - name: RELAY_METADATA_API_ENVIRONMENT
           value: dev
-        - name: RELAY_METADATA_API_TLS_KEY_FILE
-          value: /var/run/secrets/puppet/relay/tls/tls.key
-        - name: RELAY_METADATA_API_TLS_CERTIFICATE_FILE
-          value: /var/run/secrets/puppet/relay/tls/tls.crt
         - name: RELAY_METADATA_API_VAULT_TRANSIT_PATH
-          value: transit
+          value: transit-tenants
         - name: RELAY_METADATA_API_VAULT_TRANSIT_KEY
           value: metadata-api
         - name: RELAY_METADATA_API_VAULT_AUTH_PATH
-          value: auth/jwt
+          value: auth/jwt-tenants
         - name: RELAY_METADATA_API_VAULT_AUTH_ROLE
           value: tenant
-        volumeMounts:
-        - name: tls-crt
-          mountPath: /var/run/secrets/puppet/relay/tls
-          readOnly: true
       - name: vault
         image: "vault:1.1.3"
         imagePullPolicy: IfNotPresent
@@ -816,9 +808,6 @@ spec:
         resources:
             {}
       volumes:
-      - name: tls-crt
-        secret:
-          secretName: relay-metadata-api-tls-crt
       - name: vault-agent-sa-token
         secret:
           secretName: relay-metadata-api-vault-agent-token
@@ -868,13 +857,13 @@ spec:
         - -num-workers
         - "2"
         - -jwt-signing-key-file
-        - "/var/run/secrets/puppet/relay/tls/tls.key"
+        - "/var/run/secrets/puppet/relay/jwt/private-key.pem"
         - -vault-transit-path
-        - transit
+        - transit-tenants
         - -vault-transit-key
         - metadata-api
         - -metadata-api-url
-        - "https://relay-metadata-api.relay-system.svc.cluster.local"
+        - "http://relay-metadata-api.relay-system.svc.cluster.local"
         - -webhook-server-key-dir
         - /var/run/secrets/puppet/relay/tls
         - -dynamic-rbac-binding
@@ -886,6 +875,9 @@ spec:
           containerPort: 443
           protocol: TCP
         volumeMounts:
+        - name: jwt-signing-key
+          mountPath: /var/run/secrets/puppet/relay/jwt
+          readOnly: true
         - name: webhook-tls
           mountPath: /var/run/secrets/puppet/relay/tls
           readyOnly: true
@@ -904,6 +896,9 @@ spec:
           mountPath: "/var/run/vault/config"
           readOnly: true
       volumes:
+      - name: jwt-signing-key
+        secret:
+          secretName: jwt-signing-keys
       - name: webhook-tls
         secret:
           secretName: relay-tasks-webhook-tls-crt

@@ -4,6 +4,7 @@ import (
 	"context"
 	goflag "flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,8 +15,10 @@ import (
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
+	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
+	"github.com/puppetlabs/relay/pkg/model"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -48,18 +51,20 @@ var (
 	}
 )
 
-type Options struct {
+const defaultWorkflowName = "relay-workflow"
+
+type Config struct {
 	DataDir string
 }
 
 type Manager struct {
-	cm   cluster.Manager
-	cl   *cluster.Client
-	opts Options
+	cm  cluster.Manager
+	cl  *cluster.Client
+	cfg Config
 }
 
 func (m *Manager) KubectlCommand() (*cobra.Command, error) {
-	if err := os.Setenv("KUBECONFIG", filepath.Join(m.opts.DataDir, "kubeconfig")); err != nil {
+	if err := os.Setenv("KUBECONFIG", filepath.Join(m.cfg.DataDir, "kubeconfig")); err != nil {
 		return nil, err
 	}
 
@@ -72,20 +77,59 @@ func (m *Manager) KubectlCommand() (*cobra.Command, error) {
 }
 
 func (m *Manager) WriteKubeconfig(ctx context.Context) error {
-	if err := os.MkdirAll(m.opts.DataDir, 0700); err != nil {
-		return err
-	}
-
-	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.opts.DataDir, "kubeconfig"))
+	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.cfg.DataDir, "kubeconfig"))
 }
 
 func (m *Manager) DeleteDataDir() error {
-	return os.RemoveAll(m.opts.DataDir)
+	return os.RemoveAll(m.cfg.DataDir)
+}
+
+func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.WorkflowSummary, error) {
+	decoder := v1.NewDocumentStreamingDecoder(r, &v1.YAMLDecoder{})
+
+	wd, err := decoder.DecodeStream(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	name := wd.Name
+	if name == "" {
+		name = defaultWorkflowName
+	}
+
+	mapper := v1.NewDefaultRunEngineMapper(
+		v1.WithNamespaceRunOption(name),
+		v1.WithWorkflowNameRunOption(name),
+		v1.WithWorkflowRunNameRunOption(name),
+	)
+
+	manifest, err := mapper.ToRuntimeObjectsManifest(wd)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := m.cl.APIClient.Create(ctx, manifest.Namespace); err != nil {
+		return nil, err
+	}
+
+	if err := m.cl.APIClient.Create(ctx, manifest.WorkflowRun); err != nil {
+		return nil, err
+	}
+
+	ws := &model.WorkflowSummary{
+		WorkflowIdentifier: &model.WorkflowIdentifier{
+			Name: name,
+		},
+		Description: wd.Description,
+	}
+
+	return ws, nil
 }
 
 func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 	nm := newNamespaceManager(m.cl)
 	cam := newCAManager(m.cl)
+	vm := newVaultManager(m.cl, m.cfg)
 
 	// attempting to import host images in the container runtime allows us to
 	// quickly bootstrap cluster with custom relay-core builds. if no such
@@ -120,13 +164,18 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 	}
 
 	// TODO: dynamically generate this list as we proccess the manifests
-	initNamespaces := []string{"cert-manager", "tekton-pipelines"}
+	initNamespaces := []string{"cert-manager", "tekton-pipelines", "relay-system"}
 
 	for _, ns := range initNamespaces {
 		log.Infof("waiting for services in: %s", ns)
 		if err := m.waitForServices(ctx, ns); err != nil {
 			return err
 		}
+	}
+
+	log.Info("generating signing keys")
+	if _, err := cam.createSigningKeys(ctx); err != nil {
+		return err
 	}
 
 	secretObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/02-secrets")...)
@@ -140,6 +189,11 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 	}
 
 	if err := m.waitForCertificates(ctx, nm.getByID("system")); err != nil {
+		return err
+	}
+
+	log.Info("initializing vault")
+	if err := vm.init(ctx); err != nil {
 		return err
 	}
 
@@ -167,17 +221,29 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 		return err
 	}
 
+	log.Infof("waiting for services in: %s", "relay-system")
+	if err := m.waitForServices(ctx, "relay-system"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (m *Manager) importInitialImages(ctx context.Context) error {
-	for _, image := range coreImages {
-		if err := m.cm.ImportImage(ctx, image); err != nil {
-			// ignores not found errors
-			if strings.Contains(err.Error(), "No valid images specified") {
-				continue
-			}
+func (m *Manager) StartRelayCore(ctx context.Context) error {
+	vm := newVaultManager(m.cl, m.cfg)
 
+	log.Infof("waiting for services in: %s", "relay-system")
+	if err := m.waitForServices(ctx, "relay-system"); err != nil {
+		return err
+	}
+
+	return vm.unseal(ctx)
+}
+
+func (m *Manager) importInitialImages(ctx context.Context) error {
+	if err := m.cm.ImportImages(ctx, coreImages...); err != nil {
+		// ignores not found errors
+		if !strings.Contains(err.Error(), "No valid images specified") {
 			return err
 		}
 	}
@@ -216,7 +282,6 @@ func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
 		}
 
 		for _, ep := range eps.Items {
-			log.Infof("checking service %s", ep.Name)
 			if len(ep.Subsets) == 0 {
 				return retry.RetryTransient(fmt.Errorf("waiting for subsets"))
 			}
@@ -304,10 +369,10 @@ func (m *Manager) kubectlExec(args ...string) error {
 	return kubectl.Execute()
 }
 
-func NewManager(cm cluster.Manager, cl *cluster.Client, opts Options) *Manager {
+func NewManager(cm cluster.Manager, cl *cluster.Client, cfg Config) *Manager {
 	return &Manager{
-		cm:   cm,
-		cl:   cl,
-		opts: opts,
+		cm:  cm,
+		cl:  cl,
+		cfg: cfg,
 	}
 }
