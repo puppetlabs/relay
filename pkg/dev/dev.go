@@ -80,8 +80,39 @@ func (m *Manager) WriteKubeconfig(ctx context.Context) error {
 	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.cfg.DataDir, "kubeconfig"))
 }
 
-func (m *Manager) DeleteDataDir() error {
-	return os.RemoveAll(m.cfg.DataDir)
+func (m *Manager) Delete(ctx context.Context) error {
+	// TODO fix hack: deletes the PVCs because dirs inside are often created as root
+	// and we don't want relay running like that on the host to rm the data dir.
+	nm := newNamespaceManager(m.cl)
+	if err := nm.delete(ctx, systemNamespace); err != nil {
+		return err
+	}
+
+	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+		pvcs := &corev1.PersistentVolumeClaimList{}
+		if err := m.cl.APIClient.List(ctx, pvcs, client.InNamespace(systemNamespace)); err != nil {
+			return retry.RetryPermanent(err)
+		}
+
+		if len(pvcs.Items) != 0 {
+			return retry.RetryTransient(fmt.Errorf("waiting for pvcs to be deleted"))
+		}
+
+		return retry.RetryPermanent(nil)
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := m.cm.Delete(ctx); err != nil {
+		return err
+	}
+
+	if err := os.RemoveAll(m.cfg.DataDir); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.WorkflowSummary, error) {

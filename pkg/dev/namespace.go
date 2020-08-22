@@ -9,11 +9,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	systemNamespace    = "relay-system"
-	workflowsNamespace = "relay-workflows"
+	systemNamespace = "relay-system"
 )
 
 type namespaceManager struct {
@@ -30,22 +30,7 @@ func (m *namespaceManager) create(ctx context.Context) error {
 		},
 	}
 
-	wn := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: workflowsNamespace,
-			Labels: map[string]string{
-				"app.kubernetes.io/managed-by":              "nebula",
-				"nebula.puppet.com/network-policy.customer": "true",
-				"controller.relay.sh/tenant-workload":       "true",
-			},
-		},
-	}
-
 	if err := m.cl.APIClient.Create(ctx, sn); err != nil {
-		return err
-	}
-
-	if err := m.cl.APIClient.Create(ctx, wn); err != nil {
 		return err
 	}
 
@@ -56,8 +41,6 @@ func (m *namespaceManager) getByID(id string) string {
 	switch id {
 	case "system":
 		return systemNamespace
-	case "workflows":
-		return workflowsNamespace
 	}
 
 	return "default"
@@ -98,6 +81,16 @@ func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
 			a.SetNamespace(ns)
 		}
 	}
+}
+
+func (m *namespaceManager) delete(ctx context.Context, ns string) error {
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: ns,
+		},
+	}
+
+	return m.cl.APIClient.Delete(ctx, namespace, client.PropagationPolicy(metav1.DeletePropagationBackground))
 }
 
 func newNamespaceManager(cl *cluster.Client) *namespaceManager {

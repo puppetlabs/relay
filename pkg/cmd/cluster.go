@@ -119,6 +119,8 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
 
+	Dialog.Info("Deleting cluster")
+
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
 	if err != nil {
 		return err
@@ -126,9 +128,5 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 
 	dm := dev.NewManager(cm, cl, DevConfig)
 
-	if err := cm.Delete(ctx); err != nil {
-		return err
-	}
-
-	return dm.DeleteDataDir()
+	return dm.Delete(ctx)
 }
