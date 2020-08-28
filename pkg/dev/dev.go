@@ -120,7 +120,7 @@ func (m *Manager) Delete(ctx context.Context) error {
 	return nil
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.WorkflowSummary, error) {
+func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[string]string) (*model.WorkflowSummary, error) {
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 
@@ -147,12 +147,21 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.Work
 		return nil, err
 	}
 
+	runParams := v1.WorkflowRunParameters{}
+
+	for k, v := range params {
+		runParams[k] = &v1.WorkflowRunParameter{
+			Value: v,
+		}
+	}
+
 	mapper := v1.NewDefaultRunEngineMapper(
 		v1.WithDomainIDRunOption(name),
 		v1.WithNamespaceRunOption(name),
 		v1.WithWorkflowNameRunOption(name),
 		v1.WithWorkflowRunNameRunOption(runID),
 		v1.WithVaultEngineMountRunOption("customers"),
+		v1.WithRunParametersRunOption(runParams),
 	)
 
 	manifest, err := mapper.ToRuntimeObjectsManifest(wd)

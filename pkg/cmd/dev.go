@@ -81,6 +81,8 @@ func newDevWorkflowRunCommand() *cobra.Command {
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
 	cmd.MarkFlagRequired("file")
 
+	cmd.Flags().StringArrayP("parameter", "p", []string{}, "Parameters to invoke this workflow run with")
+
 	return cmd
 }
 
@@ -91,6 +93,11 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 	}
 
 	file, err := os.Open(fp)
+	if err != nil {
+		return err
+	}
+
+	params, err := cmd.Flags().GetStringArray("parameter")
 	if err != nil {
 		return err
 	}
@@ -107,7 +114,7 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 
 	Dialog.Info("Running workflow")
 
-	ws, err := dm.RunWorkflow(ctx, file)
+	ws, err := dm.RunWorkflow(ctx, file, parseParameters(params))
 	if err != nil {
 		return err
 	}
