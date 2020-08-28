@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
@@ -29,21 +27,24 @@ func newStartClusterCommand() *cobra.Command {
 		RunE:  doStartCluster,
 	}
 
+	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
+
 	return cmd
 }
 
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
-	if err := os.MkdirAll(DevConfig.DataDir, 0700); err != nil {
+	lbHostPort, err := cmd.Flags().GetInt("load-balancer-port")
+	if err != nil {
 		return err
 	}
 
-	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
+	cm := cluster.NewManager(ClusterConfig)
 
 	if _, err := cm.Exists(ctx); err != nil {
 		Dialog.Info("Creating a new dev cluster")
-		if err := cm.Create(ctx); err != nil {
+		if err := cm.Create(ctx, cluster.CreateOptions{LoadBalancerHostPort: lbHostPort}); err != nil {
 			return err
 		}
 
@@ -59,10 +60,12 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		Dialog.Info("Initializing relay-core")
+		Dialog.Info("Initializing relay-core; this might take a couple minutes...")
 		if err := dm.InitializeRelayCore(ctx); err != nil {
 			return err
 		}
+
+		Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
 	} else {
 		if err := cm.Start(ctx); err != nil {
 			return err
@@ -100,7 +103,7 @@ func newStopClusterCommand() *cobra.Command {
 
 func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
+	cm := cluster.NewManager(ClusterConfig)
 
 	return cm.Stop(ctx)
 }
@@ -117,7 +120,9 @@ func newDeleteClusterCommand() *cobra.Command {
 
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
+	cm := cluster.NewManager(ClusterConfig)
+
+	Dialog.Progress("Deleting cluster; this may take a minute...")
 
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
 	if err != nil {
@@ -126,9 +131,5 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 
 	dm := dev.NewManager(cm, cl, DevConfig)
 
-	if err := cm.Delete(ctx); err != nil {
-		return err
-	}
-
-	return dm.DeleteDataDir()
+	return dm.Delete(ctx)
 }

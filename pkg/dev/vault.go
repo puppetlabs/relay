@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
@@ -24,6 +25,7 @@ const (
 	vaultInitJobName            = "vault-init"
 	vaultUnsealJobName          = "vault-unseal"
 	vaultConfigureJobName       = "vault-configure"
+	vaultWriteValuesJobName     = "vault-write-values"
 	vaultCredentialsStorageName = "vault-credential-storage"
 	vaultInitMountPath          = "/vault-init"
 	vaultInitDataFile           = "init-data.json"
@@ -36,8 +38,7 @@ type vaultKeys struct {
 }
 
 type vaultManager struct {
-	cl        *cluster.Client
-	namespace string
+	cl *cluster.Client
 
 	cfg Config
 }
@@ -92,7 +93,7 @@ func (m *vaultManager) init(ctx context.Context) error {
 	}
 
 	localInitDataPath := filepath.Join(
-		m.cfg.DataDir,
+		m.cfg.WorkDir.Path,
 		cluster.HostStorageName,
 		pvc.Spec.VolumeName,
 		vaultInitDataFile)
@@ -173,6 +174,33 @@ EOT
 vault policy write relay/tasks - <<EOT
 path "transit-tenants/encrypt/metadata-api" {
   capabilities = ["update"]
+}
+path "sys/mounts" {
+  capabilities = ["read"]
+}
+
+path "customers/data/workflows/*" {
+  capabilities = ["create", "update"]
+}
+
+path "customers/data/connections/*" {
+  capabilities = ["create", "update"]
+}
+
+path "customers/metadata/workflows/*" {
+  capabilities = ["list", "delete"]
+}
+
+path "customers/metadata/connections/*" {
+  capabilities = ["list", "delete"]
+}
+
+path "oauth/+/config/auth_code_url" {
+  capabilities = ["update"]
+}
+
+path "oauth/+/creds/*" {
+  capabilities = ["read", "create", "update", "delete"]
 }
 EOT
 vault write auth/kubernetes/role/relay-metadata-api \
@@ -267,6 +295,25 @@ func (m *vaultManager) unseal(ctx context.Context) error {
 		"vault operator unseal ${VAULT_UNSEAL_KEY}",
 	}
 	job := vaultOperatorJobWithAuth(key, cmds)
+
+	return runJobAndWait(ctx, m.cl, job)
+}
+
+func (m *vaultManager) writeSecrets(ctx context.Context, vals map[string]string) error {
+	key := client.ObjectKey{
+		Name:      vaultWriteValuesJobName,
+		Namespace: "relay-system",
+	}
+
+	cmds := []string{}
+
+	for k, v := range vals {
+		cmds = append(cmds, fmt.Sprintf("vault kv put %s value='%s'", k, v))
+	}
+
+	script := strings.Join(cmds, "; ")
+
+	job := vaultOperatorJobWithAuth(key, []string{"/bin/sh", "-c", script})
 
 	return runJobAndWait(ctx, m.cl, job)
 }

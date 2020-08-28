@@ -15,10 +15,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// readLimit is the max bytes allowed from stdin (512 bytes being well above a reasonable
-// password length) to avoid reading massive byte arrays into memory and sending them
-// to a remote API server.
-const readLimit = 512
+// readLimit is set to 10kb to support RSA key files and the like.
+const readLimit = 10 * 1024
 
 func newAuthCommand() *cobra.Command {
 	cmd := &cobra.Command{

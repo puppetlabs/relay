@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -13,18 +14,21 @@ import (
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	"github.com/puppetlabs/horsehead/v2/workdir"
 	"github.com/puppetlabs/relay-core/pkg/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/model"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/teris-io/shortid"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
@@ -54,7 +58,8 @@ var (
 const defaultWorkflowName = "relay-workflow"
 
 type Config struct {
-	DataDir string
+	WorkDir *workdir.WorkDir
+	Dialog  dialog.Dialog
 }
 
 type Manager struct {
@@ -64,7 +69,7 @@ type Manager struct {
 }
 
 func (m *Manager) KubectlCommand() (*cobra.Command, error) {
-	if err := os.Setenv("KUBECONFIG", filepath.Join(m.cfg.DataDir, "kubeconfig")); err != nil {
+	if err := os.Setenv("KUBECONFIG", filepath.Join(m.cfg.WorkDir.Path, "kubeconfig")); err != nil {
 		return nil, err
 	}
 
@@ -77,14 +82,48 @@ func (m *Manager) KubectlCommand() (*cobra.Command, error) {
 }
 
 func (m *Manager) WriteKubeconfig(ctx context.Context) error {
-	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.cfg.DataDir, "kubeconfig"))
+	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.cfg.WorkDir.Path, "kubeconfig"))
 }
 
-func (m *Manager) DeleteDataDir() error {
-	return os.RemoveAll(m.cfg.DataDir)
+func (m *Manager) Delete(ctx context.Context) error {
+	// TODO fix hack: deletes the PVCs because dirs inside are often created as root
+	// and we don't want relay running like that on the host to rm the data dir.
+	nm := newNamespaceManager(m.cl)
+	if err := nm.delete(ctx, systemNamespace); err != nil {
+		return err
+	}
+
+	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+		pvcs := &corev1.PersistentVolumeClaimList{}
+		if err := m.cl.APIClient.List(ctx, pvcs, client.InNamespace(systemNamespace)); err != nil {
+			return retry.RetryPermanent(err)
+		}
+
+		if len(pvcs.Items) != 0 {
+			return retry.RetryTransient(fmt.Errorf("waiting for pvcs to be deleted"))
+		}
+
+		return retry.RetryPermanent(nil)
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := m.cm.Delete(ctx); err != nil {
+		return err
+	}
+
+	if err := m.cfg.WorkDir.Cleanup(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.WorkflowSummary, error) {
+func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[string]string) (*model.WorkflowSummary, error) {
+	vm := newVaultManager(m.cl, m.cfg)
+	am := newAdminManager(m.cl, vm)
+
 	decoder := v1.NewDocumentStreamingDecoder(r, &v1.YAMLDecoder{})
 
 	wd, err := decoder.DecodeStream(ctx)
@@ -97,10 +136,32 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.Work
 		name = defaultWorkflowName
 	}
 
+	sid, err := shortid.Generate()
+	if err != nil {
+		return nil, err
+	}
+
+	runID := fmt.Sprintf("%s-%s", name, strings.ToLower(sid))
+
+	if err := am.addConnectionForWorkflow(ctx, name); err != nil {
+		return nil, err
+	}
+
+	runParams := v1.WorkflowRunParameters{}
+
+	for k, v := range params {
+		runParams[k] = &v1.WorkflowRunParameter{
+			Value: v,
+		}
+	}
+
 	mapper := v1.NewDefaultRunEngineMapper(
+		v1.WithDomainIDRunOption(name),
 		v1.WithNamespaceRunOption(name),
 		v1.WithWorkflowNameRunOption(name),
-		v1.WithWorkflowRunNameRunOption(name),
+		v1.WithWorkflowRunNameRunOption(runID),
+		v1.WithVaultEngineMountRunOption("customers"),
+		v1.WithRunParametersRunOption(runParams),
 	)
 
 	manifest, err := mapper.ToRuntimeObjectsManifest(wd)
@@ -109,7 +170,9 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.Work
 	}
 
 	if err := m.cl.APIClient.Create(ctx, manifest.Namespace); err != nil {
-		return nil, err
+		if !apierrors.IsAlreadyExists(err) {
+			return nil, err
+		}
 	}
 
 	if err := m.cl.APIClient.Create(ctx, manifest.WorkflowRun); err != nil {
@@ -126,10 +189,21 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser) (*model.Work
 	return ws, nil
 }
 
+func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value string) error {
+	vm := newVaultManager(m.cl, m.cfg)
+	secret := map[string]string{
+		path.Join("customers", "workflows", workflow, key): value,
+	}
+
+	return vm.writeSecrets(ctx, secret)
+}
+
 func (m *Manager) InitializeRelayCore(ctx context.Context) error {
+	log := m.cfg.Dialog
 	nm := newNamespaceManager(m.cl)
 	cam := newCAManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
+	am := newAdminManager(m.cl, vm)
 
 	// attempting to import host images in the container runtime allows us to
 	// quickly bootstrap cluster with custom relay-core builds. if no such
@@ -140,6 +214,10 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 	}
 
 	if err := nm.create(ctx); err != nil {
+		return err
+	}
+
+	if err := am.createServiceAccount(ctx); err != nil {
 		return err
 	}
 
@@ -230,6 +308,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 }
 
 func (m *Manager) StartRelayCore(ctx context.Context) error {
+	log := m.cfg.Dialog
 	vm := newVaultManager(m.cl, m.cfg)
 
 	log.Infof("waiting for services in: %s", "relay-system")
@@ -252,6 +331,7 @@ func (m *Manager) importInitialImages(ctx context.Context) error {
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {
+	log := m.cfg.Dialog
 	objects := []runtime.Object{}
 
 	for _, f := range files {

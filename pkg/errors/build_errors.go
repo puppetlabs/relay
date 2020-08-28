@@ -279,6 +279,54 @@ func NewClientBadRequestBody(message string) Error {
 	return NewClientBadRequestBodyBuilder(message).Build()
 }
 
+// ClientCommandUnavailableInClientCode is the code for an instance of "command_unavailable_in_client".
+const ClientCommandUnavailableInClientCode = "rcli_client_command_unavailable_in_client"
+
+// IsClientCommandUnavailableInClient tests whether a given error is an instance of "command_unavailable_in_client".
+func IsClientCommandUnavailableInClient(err errawr.Error) bool {
+	return err != nil && err.Is(ClientCommandUnavailableInClientCode)
+}
+
+// IsClientCommandUnavailableInClient tests whether a given error is an instance of "command_unavailable_in_client".
+func (External) IsClientCommandUnavailableInClient(err errawr.Error) bool {
+	return IsClientCommandUnavailableInClient(err)
+}
+
+// ClientCommandUnavailableInClientBuilder is a builder for "command_unavailable_in_client" errors.
+type ClientCommandUnavailableInClientBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "command_unavailable_in_client" from this builder.
+func (b *ClientCommandUnavailableInClientBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "The command {{command}} is not available in this client. You must use a config context that uses a cluster that supports this command.",
+		Technical: "The command {{command}} is not available in this client. You must use a config context that uses a cluster that supports this command.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "command_unavailable_in_client",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     ClientSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Command unavailable in client",
+		Version:          1,
+	}
+}
+
+// NewClientCommandUnavailableInClientBuilder creates a new error builder for the code "command_unavailable_in_client".
+func NewClientCommandUnavailableInClientBuilder(command string) *ClientCommandUnavailableInClientBuilder {
+	return &ClientCommandUnavailableInClientBuilder{arguments: impl.ErrorArguments{"command": impl.NewErrorArgument(command, "The command that is unavailable")}}
+}
+
+// NewClientCommandUnavailableInClient creates a new error with the code "command_unavailable_in_client".
+func NewClientCommandUnavailableInClient(command string) Error {
+	return NewClientCommandUnavailableInClientBuilder(command).Build()
+}
+
 // ClientInternalErrorCode is the code for an instance of "internal_error".
 const ClientInternalErrorCode = "rcli_client_internal_error"
 

@@ -3,6 +3,8 @@ package cluster
 import (
 	"context"
 
+	"github.com/puppetlabs/horsehead/v2/workdir"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -12,6 +14,9 @@ const (
 	NetworkName     = "relay-workflows-net"
 	WorkerCount     = 2
 	HostStorageName = "local-storage"
+
+	DefaultLoadBalancerHostPort = 8080
+	DefaultLoadBalancerNodePort = 80
 )
 
 type ClientOptions struct {
@@ -19,13 +24,20 @@ type ClientOptions struct {
 }
 
 type Config struct {
-	DataDir string
+	WorkDir *workdir.WorkDir
+	dialog.Dialog
+}
+
+type CreateOptions struct {
+	// LoadBalancerHostPort is the port on the host to bind to when mapping
+	// between the host machine and the service load balancer node.
+	LoadBalancerHostPort int
 }
 
 // Manager provides methods to manage the lifecycle of a cluster.
 type Manager interface {
 	Exists(ctx context.Context) (bool, error)
-	Create(ctx context.Context) error
+	Create(ctx context.Context, opts CreateOptions) error
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 	Delete(ctx context.Context) error

@@ -30,7 +30,7 @@ func newImageImportCommand() *cobra.Command {
 
 func doImageImport(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	cm := cluster.NewManager(cluster.Config{DataDir: DevConfig.DataDir})
+	cm := cluster.NewManager(ClusterConfig)
 
 	return cm.ImportImages(ctx, args[0])
 }

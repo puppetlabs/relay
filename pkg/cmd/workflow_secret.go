@@ -46,22 +46,14 @@ func newSetSecretCommand() *cobra.Command {
 }
 
 func doSetSecret(cmd *cobra.Command, args []string) error {
-	workflowName, err := getWorkflowName(args)
-	if err != nil {
-		return err
-	}
-	secretName, err := getSecretName(args)
-	if err != nil {
-		return err
-	}
-	secretValue, err := getSecretValue(cmd)
+	sc, err := getSecretValues(cmd, args)
 	if err != nil {
 		return err
 	}
 
 	Dialog.Progress("Setting your secret...")
 
-	resp, err := Client.ListWorkflowSecrets(workflowName)
+	resp, err := Client.ListWorkflowSecrets(sc.workflowName)
 	if err != nil {
 		debug.Logf("failed to list workflow secrets: %s", err.Error())
 		return err
@@ -69,7 +61,7 @@ func doSetSecret(cmd *cobra.Command, args []string) error {
 
 	exists := func() bool {
 		for i := range resp.WorkflowSecrets {
-			if resp.WorkflowSecrets[i].Name == secretName {
+			if resp.WorkflowSecrets[i].Name == sc.name {
 				return true
 			}
 		}
@@ -78,23 +70,23 @@ func doSetSecret(cmd *cobra.Command, args []string) error {
 
 	var secret *model.WorkflowSecretEntity
 	if exists {
-		secret, err = Client.UpdateWorkflowSecret(workflowName, secretName, secretValue)
+		secret, err = Client.UpdateWorkflowSecret(sc.workflowName, sc.name, sc.value)
 		if err != nil {
 			return err
 		}
 	} else {
-		secret, err = Client.CreateWorkflowSecret(workflowName, secretName, secretValue)
+		secret, err = Client.CreateWorkflowSecret(sc.workflowName, sc.name, sc.value)
 		if err != nil {
 			return err
 		}
 	}
 
-	rev, err := Client.GetLatestRevision(workflowName)
+	rev, err := Client.GetLatestRevision(sc.workflowName)
 	if err != nil && !errors.IsClientResponseNotFound(err) {
 		Dialog.Errorf(`Could not retrieve the latest revision for this workflow to check secret usage.
 
 %s`, format.Error(err, cmd))
-	} else if !secretUsed(rev, secretName) {
+	} else if !secretUsed(rev, sc.name) {
 		Dialog.Info(`🚩 This secret isn't used by your workflow yet. Don't forget to update your workflow code to use it!`)
 	}
 
@@ -102,8 +94,8 @@ func doSetSecret(cmd *cobra.Command, args []string) error {
 
 View more information or update workflow settings at: %v`,
 		secret.Secret.Name,
-		workflowName,
-		format.GuiLink(Config, "/workflows/%v", workflowName),
+		sc.workflowName,
+		format.GuiLink(Config, "/workflows/%v", sc.workflowName),
 	)
 
 	return nil
@@ -184,6 +176,35 @@ func doListSecrets(cmd *cobra.Command, args []string) error {
 
 	return nil
 
+}
+
+type secretValues struct {
+	workflowName string
+	name         string
+	value        string
+}
+
+func getSecretValues(cmd *cobra.Command, args []string) (*secretValues, errors.Error) {
+	workflowName, err := getWorkflowName(args)
+	if err != nil {
+		return nil, err
+	}
+
+	secretName, err := getSecretName(args)
+	if err != nil {
+		return nil, err
+	}
+
+	secretValue, err := getSecretValue(cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return &secretValues{
+		workflowName: workflowName,
+		name:         secretName,
+		value:        secretValue,
+	}, nil
 }
 
 // getSecretName gets the name of the secret from the second argument. If

@@ -6,10 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/puppetlabs/relay/pkg/dialog"
 	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
 	"github.com/rancher/k3d/v3/pkg/runtimes"
 	"github.com/rancher/k3d/v3/pkg/tools"
 	"github.com/rancher/k3d/v3/pkg/types"
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -49,10 +51,10 @@ func (m *K3dClusterManager) Exists(ctx context.Context) (bool, error) {
 
 // Create uses opinionated configuration constants to create a kubernetes cluster
 // running inside docker.
-func (m *K3dClusterManager) Create(ctx context.Context) error {
+func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) error {
 	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, k3sVersion)
 
-	hostStoragePath := filepath.Join(m.cfg.DataDir, HostStorageName)
+	hostStoragePath := filepath.Join(m.cfg.WorkDir.Path, HostStorageName)
 	if err := os.MkdirAll(hostStoragePath, 0700); err != nil {
 		return fmt.Errorf("failed to make the host storage directory: %w", err)
 	}
@@ -62,6 +64,12 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		k3sLocalStoragePath)
 	volumes := []string{
 		localStorage,
+	}
+
+	// If /dev/mapper exists, we'll automatically map it into the cluster
+	// controller.
+	if _, err := os.Stat("/dev/mapper"); !os.IsNotExist(err) {
+		volumes = append(volumes, "/dev/mapper:/dev/mapper:ro")
 	}
 
 	exposeAPI := types.ExposeAPI{
@@ -98,10 +106,20 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		Name: NetworkName,
 	}
 
+	lbHostPort := DefaultLoadBalancerHostPort
+	if opts.LoadBalancerHostPort != 0 {
+		lbHostPort = opts.LoadBalancerHostPort
+	}
+
+	lbPortMapping := fmt.Sprintf("%d:%d", lbHostPort, DefaultLoadBalancerNodePort)
+
 	clusterConfig := &types.Cluster{
-		Name:               ClusterName,
-		ServerLoadBalancer: &types.Node{Role: types.LoadBalancerRole},
-		Nodes:              nodes,
+		Name: ClusterName,
+		ServerLoadBalancer: &types.Node{
+			Role:  types.LoadBalancerRole,
+			Ports: []string{lbPortMapping},
+		},
+		Nodes: nodes,
 		CreateClusterOpts: &types.ClusterCreateOpts{
 			WaitForServer: true,
 		},
@@ -176,7 +194,7 @@ func (m *K3dClusterManager) ImportImages(ctx context.Context, images ...string) 
 		return fmt.Errorf("failed to lookup cluster: %w", err)
 	}
 
-	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{}); err != nil {
+	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{KeepTar: true}); err != nil {
 		return fmt.Errorf("failed to import image: %w", err)
 	}
 
@@ -249,8 +267,27 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 
 // NewK3dClusterManager returns a new K3dClusterManager.
 func NewK3dClusterManager(cfg Config) *K3dClusterManager {
+	log.SetFormatter(&logrusToDialogFormatter{
+		dialog: cfg.Dialog,
+	})
+
 	return &K3dClusterManager{
 		runtime: runtimes.SelectedRuntime,
 		cfg:     cfg,
 	}
+}
+
+type logrusToDialogFormatter struct {
+	dialog dialog.Dialog
+}
+
+func (f *logrusToDialogFormatter) Format(e *log.Entry) ([]byte, error) {
+	switch e.Level {
+	case log.DebugLevel, log.InfoLevel, log.WarnLevel:
+		f.dialog.Info(e.Message)
+	case log.ErrorLevel:
+		f.dialog.Error(e.Message)
+	}
+
+	return nil, nil
 }
