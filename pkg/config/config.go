@@ -20,42 +20,60 @@ const (
 )
 
 const (
-	defaultAPIDomain  = "https://api.relay.sh"
-	defaultUIDomain   = "https://app.relay.sh"
-	defaultWebDomain  = "https://relay.sh"
-	defaultConfigName = "config"
-	defaultConfigType = "yaml"
+	defaultConfigName     = "config"
+	defaultConfigType     = "yaml"
+	defaultCurrentContext = "relaysh"
 )
 
-type Config struct {
-	Debug     bool
-	Yes       bool
-	Out       OutputType
+var (
+	defaultAPIURL = &url.URL{Scheme: "https", Host: "api.relay.sh"}
+	defaultUIURL  = &url.URL{Scheme: "https", Host: "app.relay.sh"}
+	defaultWebURL = &url.URL{Scheme: "https", Host: "relay.sh"}
+)
+
+var defaultContexts = map[string]APIContext{
+	"relaysh": {
+		Name:      "relaysh",
+		APIDomain: defaultAPIURL,
+		UIDomain:  defaultUIURL,
+		WebDomain: defaultWebURL,
+	},
+	"dev": {
+		Name: "dev",
+	},
+}
+
+type APIContext struct {
+	Name      string
 	APIDomain *url.URL
 	UIDomain  *url.URL
 	WebDomain *url.URL
-	CacheDir  string
-	DataDir   string
-	TokenPath string
+}
+
+type Config struct {
+	Debug          bool
+	Yes            bool
+	Out            OutputType
+	APIDomain      *url.URL
+	UIDomain       *url.URL
+	WebDomain      *url.URL
+	CacheDir       string
+	TokenPath      string
+	CurrentContext string
 }
 
 // GetDefaultConfig returns a config set used for error formatting when the user's config set cannot be read
 func GetDefaultConfig() *Config {
-	// gonna assume that the defaults are valid. Someone can yell at me if they want
-	apiDomain, _ := url.Parse(defaultAPIDomain)
-	uiDomain, _ := url.Parse(defaultUIDomain)
-	webDomain, _ := url.Parse(defaultWebDomain)
-
 	return &Config{
-		Debug:     true,
-		Yes:       false,
-		Out:       OutputTypeText,
-		APIDomain: apiDomain,
-		UIDomain:  uiDomain,
-		WebDomain: webDomain,
-		CacheDir:  userCacheDir(),
-		DataDir:   userDataDir(),
-		TokenPath: filepath.Join(userCacheDir(), "auth-token"),
+		Debug:          true,
+		Yes:            false,
+		Out:            OutputTypeText,
+		APIDomain:      defaultAPIURL,
+		UIDomain:       defaultUIURL,
+		WebDomain:      defaultWebURL,
+		CacheDir:       userCacheDir(),
+		TokenPath:      filepath.Join(userCacheDir(), "auth-token"),
+		CurrentContext: defaultCurrentContext,
 	}
 }
 
@@ -76,12 +94,13 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	v.SetDefault("out", string(OutputTypeText))
 	v.BindPFlag("out", flags.Lookup("out"))
 
-	v.SetDefault("api_domain", defaultAPIDomain)
-	v.SetDefault("ui_domain", defaultUIDomain)
-	v.SetDefault("web_domain", defaultUIDomain)
+	v.SetDefault("api_domain", defaultAPIURL.String())
+	v.SetDefault("ui_domain", defaultUIURL.String())
+	v.SetDefault("web_domain", defaultWebURL.String())
 	v.SetDefault("cache_dir", userCacheDir())
 	v.SetDefault("data_dir", userDataDir())
 	v.SetDefault("token_path", filepath.Join(userCacheDir(), "auth-token"))
+	v.SetDefault("current_context", defaultCurrentContext)
 
 	if err := readInConfigFile(v, flags); err != nil {
 		return nil, err
@@ -112,15 +131,15 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	}
 
 	config := &Config{
-		Debug:     v.GetBool("debug"),
-		Yes:       v.GetBool("yes"),
-		Out:       output,
-		APIDomain: apiDomain,
-		UIDomain:  uiDomain,
-		WebDomain: webDomain,
-		CacheDir:  v.GetString("cache_dir"),
-		DataDir:   v.GetString("data_dir"),
-		TokenPath: v.GetString("token_path"),
+		Debug:          v.GetBool("debug"),
+		Yes:            v.GetBool("yes"),
+		Out:            output,
+		APIDomain:      apiDomain,
+		UIDomain:       uiDomain,
+		WebDomain:      webDomain,
+		CacheDir:       v.GetString("cache_dir"),
+		TokenPath:      v.GetString("token_path"),
+		CurrentContext: v.GetString("current_context"),
 	}
 
 	return config, nil

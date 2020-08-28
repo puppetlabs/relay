@@ -3,6 +3,8 @@ package cluster
 import (
 	"context"
 
+	"github.com/puppetlabs/horsehead/v2/workdir"
+	"github.com/puppetlabs/relay/pkg/dialog"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -19,7 +21,8 @@ type ClientOptions struct {
 }
 
 type Config struct {
-	DataDir string
+	WorkDir *workdir.WorkDir
+	dialog.Dialog
 }
 
 // Manager provides methods to manage the lifecycle of a cluster.

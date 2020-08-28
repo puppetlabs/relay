@@ -21,7 +21,7 @@ var Config = config.GetDefaultConfig()
 // Client is the client that we should use based on the configuration. If the
 // configuration can't be loaded then we can't assume that the client is
 // loaded.
-var Client = client.NewClient(Config)
+var Client client.Interface = client.NewClient(Config)
 
 // Dialog is the UI to use derrived from the current configuration.
 var Dialog = dialog.FromConfig(Config)

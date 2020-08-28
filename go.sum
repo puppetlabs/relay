@@ -1274,6 +1274,7 @@ github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e h
 github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e/go.mod h1:fU2lLssuZDiOPlZS0sPObg4WPO1Cg1QSGJD3QTbjH7g=
 github.com/puppetlabs/relay-core v0.0.0-20200821161919-f80832c6de3e h1:YUsSMls57bxgr1iB4RZoVPcFuaCaIGJyu+XAw17LVQY=
 github.com/puppetlabs/relay-core v0.0.0-20200821161919-f80832c6de3e/go.mod h1:Arin/+G+noKveiPAcWfQJr7ol8cQ0kLfWacvdsoQCig=
+github.com/puppetlabs/relay-core v0.0.0-20200825172300-b0827b7d744e h1:mI2vbwNgY0MFVtvvqaDN6hROxIjWYvLkKXUEvXc2dlo=
 github.com/quasilyte/go-consistent v0.0.0-20190521200055-c6f3937de18c/go.mod h1:5STLWrekHfjyYwxBRVRXNOSewLJ3PWfDJd1VyTS21fI=
 github.com/quobyte/api v0.1.2/go.mod h1:jL7lIHrmqQ7yh05OJ+eEEdHr0u/kmT1Ff9iHd+4H6VI=
 github.com/rancher/helm-controller v0.6.3 h1:tsqSXndQ7Ms8S0mBd2zWOcTV1tiZ4BUYkemYnijNXio=
@@ -1404,6 +1405,8 @@ github.com/tektoncd/pipeline v0.12.0 h1:e3L0KoLhEk+DqNqt+Bp4jFvEsBJPSHfdMBswGZ8L
 github.com/tektoncd/pipeline v0.12.0/go.mod h1:FLppx3k2Xlk8bsEYvlnp/wz3SK07rMFk4vaSAI6aTCM=
 github.com/tektoncd/plumbing v0.0.0-20200217163359-cd0db6e567d2/go.mod h1:QZHgU07PRBTRF6N57w4+ApRu8OgfYLFNqCDlfEZaD9Y=
 github.com/tektoncd/plumbing/pipelinerun-logs v0.0.0-20191206114338-712d544c2c21/go.mod h1:S62EUWtqmejjJgUMOGB1CCCHRp6C706laH06BoALkzU=
+github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf h1:Z2X3Os7oRzpdJ75iPqWZc0HeJWFYNCvKsfpQwFpRNTA=
+github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf/go.mod h1:M8agBzgqHIhgj7wEn9/0hJUZcrvt9VY+Ln+S1I5Mha0=
 github.com/thecodeteam/goscaleio v0.1.0/go.mod h1:68sdkZAsK8bvEwBlbQnlLS+xU+hvLYM/iQ8KXej1AwM=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
