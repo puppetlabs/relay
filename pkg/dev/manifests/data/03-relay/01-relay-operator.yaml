@@ -815,6 +815,20 @@ spec:
         configMap:
           name: relay-metadata-api-vault-agent
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: relay-tasks-storage-volume
+  labels:
+    app.kubernetes.io/name: relay-system
+    app.kubernetes.io/component: tasks
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -853,7 +867,7 @@ spec:
         - -environment
         - dev
         - -storage-addr
-        - "file:///tmp"
+        - "file:///storage"
         - -num-workers
         - "2"
         - -jwt-signing-key-file
@@ -881,6 +895,8 @@ spec:
         - name: webhook-tls
           mountPath: /var/run/secrets/puppet/relay/tls
           readyOnly: true
+        - name: relay-tasks-storage-data
+          mountPath: /storage
       - name: vault
         image: "vault:1.1.3"
         imagePullPolicy: IfNotPresent
@@ -908,6 +924,9 @@ spec:
       - name: vault-agent-conf
         configMap:
           name: relay-tasks-vault-agent
+      - name: relay-tasks-storage-data
+        persistentVolumeClaim:
+          claimName: relay-tasks-storage-volume
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
