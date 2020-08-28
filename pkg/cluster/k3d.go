@@ -101,9 +101,12 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 	}
 
 	clusterConfig := &types.Cluster{
-		Name:               ClusterName,
-		ServerLoadBalancer: &types.Node{Role: types.LoadBalancerRole},
-		Nodes:              nodes,
+		Name: ClusterName,
+		ServerLoadBalancer: &types.Node{
+			Role:  types.LoadBalancerRole,
+			Ports: []string{"8080:80"},
+		},
+		Nodes: nodes,
 		CreateClusterOpts: &types.ClusterCreateOpts{
 			WaitForServer: true,
 		},
