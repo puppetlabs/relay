@@ -181,7 +181,7 @@ func (m *K3dClusterManager) ImportImages(ctx context.Context, images ...string) 
 		return fmt.Errorf("failed to lookup cluster: %w", err)
 	}
 
-	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{}); err != nil {
+	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{KeepTar: true}); err != nil {
 		return fmt.Errorf("failed to import image: %w", err)
 	}
 

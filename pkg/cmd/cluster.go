@@ -27,6 +27,8 @@ func newStartClusterCommand() *cobra.Command {
 		RunE:  doStartCluster,
 	}
 
+	cmd.Flags().IntP("load-balancer-port", "", 8080, "The port to map from the host to the service load balancer")
+
 	return cmd
 }
 
