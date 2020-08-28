@@ -66,6 +66,12 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		localStorage,
 	}
 
+	// If /dev/mapper exists, we'll automatically map it into the cluster
+	// controller.
+	if _, err := os.Stat("/dev/mapper"); !os.IsNotExist(err) {
+		volumes = append(volumes, "/dev/mapper:/dev/mapper:ro")
+	}
+
 	exposeAPI := types.ExposeAPI{
 		Host:   types.DefaultAPIHost,
 		HostIP: types.DefaultAPIHost,
