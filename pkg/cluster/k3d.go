@@ -51,7 +51,7 @@ func (m *K3dClusterManager) Exists(ctx context.Context) (bool, error) {
 
 // Create uses opinionated configuration constants to create a kubernetes cluster
 // running inside docker.
-func (m *K3dClusterManager) Create(ctx context.Context) error {
+func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) error {
 	k3sImage := fmt.Sprintf("%s:%s", types.DefaultK3sImageRepo, k3sVersion)
 
 	hostStoragePath := filepath.Join(m.cfg.WorkDir.Path, HostStorageName)
@@ -100,11 +100,18 @@ func (m *K3dClusterManager) Create(ctx context.Context) error {
 		Name: NetworkName,
 	}
 
+	lbHostPort := DefaultLoadBalancerHostPort
+	if opts.LoadBalancerHostPort != 0 {
+		lbHostPort = opts.LoadBalancerHostPort
+	}
+
+	lbPortMapping := fmt.Sprintf("%d:%d", lbHostPort, DefaultLoadBalancerNodePort)
+
 	clusterConfig := &types.Cluster{
 		Name: ClusterName,
 		ServerLoadBalancer: &types.Node{
 			Role:  types.LoadBalancerRole,
-			Ports: []string{"8080:80"},
+			Ports: []string{lbPortMapping},
 		},
 		Nodes: nodes,
 		CreateClusterOpts: &types.ClusterCreateOpts{

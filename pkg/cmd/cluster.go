@@ -27,7 +27,7 @@ func newStartClusterCommand() *cobra.Command {
 		RunE:  doStartCluster,
 	}
 
-	cmd.Flags().IntP("load-balancer-port", "", 8080, "The port to map from the host to the service load balancer")
+	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
 
 	return cmd
 }
@@ -35,11 +35,16 @@ func newStartClusterCommand() *cobra.Command {
 func doStartCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
+	lbHostPort, err := cmd.Flags().GetInt("load-balancer-port")
+	if err != nil {
+		return err
+	}
+
 	cm := cluster.NewManager(ClusterConfig)
 
 	if _, err := cm.Exists(ctx); err != nil {
 		Dialog.Info("Creating a new dev cluster")
-		if err := cm.Create(ctx); err != nil {
+		if err := cm.Create(ctx, cluster.CreateOptions{LoadBalancerHostPort: lbHostPort}); err != nil {
 			return err
 		}
 
