@@ -15,6 +15,7 @@ const (
 	WorkerCount     = 2
 	HostStorageName = "local-storage"
 
+	DefaultRegistryPort         = 5000
 	DefaultLoadBalancerHostPort = 8080
 	DefaultLoadBalancerNodePort = 80
 )
