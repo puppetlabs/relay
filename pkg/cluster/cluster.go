@@ -33,6 +33,14 @@ type CreateOptions struct {
 	// LoadBalancerHostPort is the port on the host to bind to when mapping
 	// between the host machine and the service load balancer node.
 	LoadBalancerHostPort int
+	// ImageRegistryPort is the port to use on both the host AND the nodes for
+	// the container image registry service. This isn't required, to be the
+	// same, but to avoid confusion when tagging images on the host and
+	// actually using them inside the cluster, we use the same port for both.
+	// This allows someone to tag and push an image with
+	// `localhost:5000/my-image:latest` and use the same repo/image/tag
+	// combination from k8s resources.
+	ImageRegistryPort int
 }
 
 // Manager provides methods to manage the lifecycle of a cluster.
