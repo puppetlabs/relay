@@ -48,11 +48,7 @@ var (
 		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
 	)
-	_          = schemeBuilder.AddToScheme(DefaultScheme)
-	coreImages = []string{
-		"relaysh/relay-operator:latest",
-		"relaysh/relay-metadata-api:latest",
-	}
+	_ = schemeBuilder.AddToScheme(DefaultScheme)
 )
 
 const defaultWorkflowName = "relay-workflow"
@@ -66,6 +62,10 @@ type Manager struct {
 	cm  cluster.Manager
 	cl  *cluster.Client
 	cfg Config
+}
+
+type InitializeOptions struct {
+	ImageRegistryPort int
 }
 
 func (m *Manager) KubectlCommand() (*cobra.Command, error) {
@@ -198,20 +198,12 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 	return vm.writeSecrets(ctx, secret)
 }
 
-func (m *Manager) InitializeRelayCore(ctx context.Context) error {
+func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOptions) error {
 	log := m.cfg.Dialog
 	nm := newNamespaceManager(m.cl)
 	cam := newCAManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
-
-	// attempting to import host images in the container runtime allows us to
-	// quickly bootstrap cluster with custom relay-core builds. if no such
-	// images exist, then they will be pulled from the remote by the cluster.
-	log.Info("importing locally cached core image")
-	if err := m.importInitialImages(ctx); err != nil {
-		return err
-	}
 
 	if err := nm.create(ctx); err != nil {
 		return err
@@ -224,6 +216,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context) error {
 	patchers := []objectPatcherFunc{
 		nm.objectNamespacePatcher("system"),
 		missingProtocolPatcher,
+		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
 	}
 
 	// Manifests are split into diffent directories because some managers
@@ -317,17 +310,6 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 	}
 
 	return vm.unseal(ctx)
-}
-
-func (m *Manager) importInitialImages(ctx context.Context) error {
-	if err := m.cm.ImportImages(ctx, coreImages...); err != nil {
-		// ignores not found errors
-		if !strings.Contains(err.Error(), "No valid images specified") {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {

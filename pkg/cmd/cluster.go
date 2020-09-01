@@ -28,6 +28,7 @@ func newStartClusterCommand() *cobra.Command {
 	}
 
 	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
+	cmd.Flags().IntP("image-registry-port", "", cluster.DefaultRegistryPort, "The port to use on the host and on the cluster nodes for the container image registry")
 
 	return cmd
 }
@@ -40,11 +41,20 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	registryPort, err := cmd.Flags().GetInt("image-registry-port")
+	if err != nil {
+		return err
+	}
+
 	cm := cluster.NewManager(ClusterConfig)
 
 	if _, err := cm.Exists(ctx); err != nil {
 		Dialog.Info("Creating a new dev cluster")
-		if err := cm.Create(ctx, cluster.CreateOptions{LoadBalancerHostPort: lbHostPort}); err != nil {
+		opts := cluster.CreateOptions{
+			LoadBalancerHostPort: lbHostPort,
+			ImageRegistryPort:    registryPort,
+		}
+		if err := cm.Create(ctx, opts); err != nil {
 			return err
 		}
 
@@ -61,7 +71,10 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 		}
 
 		Dialog.Info("Initializing relay-core; this might take a couple minutes...")
-		if err := dm.InitializeRelayCore(ctx); err != nil {
+		initOpts := dev.InitializeOptions{
+			ImageRegistryPort: registryPort,
+		}
+		if err := dm.InitializeRelayCore(ctx, initOpts); err != nil {
 			return err
 		}
 

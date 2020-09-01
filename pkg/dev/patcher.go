@@ -34,3 +34,20 @@ func missingProtocolPatcher(obj runtime.Object) {
 		}
 	}
 }
+
+func registryLoadBalancerPortPatcher(registryPort int) objectPatcherFunc {
+	return func(obj runtime.Object) {
+		switch t := obj.(type) {
+		case *corev1.Service:
+			if t.Name == "docker-registry" && t.Namespace == "docker-registry" {
+				for i, port := range t.Spec.Ports {
+					if port.Name == "http" {
+						t.Spec.Ports[i].Port = int32(registryPort)
+
+						break
+					}
+				}
+			}
+		}
+	}
+}

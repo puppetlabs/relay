@@ -78,6 +78,8 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		Port:   types.DefaultAPIPort,
 	}
 
+	registryPortMapping := fmt.Sprintf("%d:%d", opts.ImageRegistryPort, opts.ImageRegistryPort)
+
 	serverNode := &types.Node{
 		Role:  types.ServerRole,
 		Image: k3sImage,
@@ -85,6 +87,7 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 			ExposeAPI: exposeAPI,
 		},
 		Volumes: volumes,
+		Ports:   []string{registryPortMapping},
 	}
 
 	nodes := []*types.Node{
