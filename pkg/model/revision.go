@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/puppetlabs/relay-core/pkg/expr/serialize"
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 )
 
 type RevisionIdentifier struct {
@@ -49,7 +49,7 @@ type WorkflowTriggerSource struct {
 }
 
 type PushWorkflowTriggerSource struct {
-	Schema map[string]serialize.JSONTree `json:"schema"`
+	Schema map[string]transfer.JSONInterface `json:"schema"`
 }
 
 type ScheduleWorkflowTriggerSource struct {
@@ -61,7 +61,7 @@ type WebhookWorkflowTriggerSource struct {
 }
 
 type WorkflowTriggerBinding struct {
-	Parameters map[string]serialize.JSONTree `json:"parameters,omitempty"`
+	Parameters map[string]transfer.JSONInterface `json:"parameters,omitempty"`
 }
 
 type WorkflowStep struct {
@@ -93,10 +93,10 @@ type WorkflowDataReferences struct {
 }
 
 type ContainerMixin struct {
-	Image     string                        `json:"image,omitempty"`
-	Spec      map[string]serialize.JSONTree `json:"spec,omitempty"`
-	Input     []string                      `json:"input,omitempty"`
-	Command   string                        `json:"command,omitempty"`
-	Args      []string                      `json:"args,omitempty"`
-	InputFile string                        `json:"inputFile,omitempty"`
+	Image     string                            `json:"image,omitempty"`
+	Spec      map[string]transfer.JSONInterface `json:"spec,omitempty"`
+	Input     []string                          `json:"input,omitempty"`
+	Command   string                            `json:"command,omitempty"`
+	Args      []string                          `json:"args,omitempty"`
+	InputFile string                            `json:"inputFile,omitempty"`
 }
