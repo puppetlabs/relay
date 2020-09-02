@@ -243,10 +243,11 @@ func doRunWorkflow(cmd *cobra.Command, args []string) error {
 
 func newRunWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "run [workflow name]",
-		Short: "Invoke a Relay workflow",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  doRunWorkflow,
+		Use:               "run [workflow name]",
+		Short:             "Invoke a Relay workflow",
+		Args:              cobra.MaximumNArgs(1),
+		RunE:              doRunWorkflow,
+		ValidArgsFunction: doListWorkflowsCompletion,
 	}
 
 	cmd.Flags().StringArrayP("parameter", "p", []string{}, "Parameters to invoke this workflow run with")
@@ -313,6 +314,27 @@ func doListWorkflows(cmd *cobra.Command, args []string) error {
 	t.Flush()
 
 	return nil
+}
+
+func doListWorkflowsCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	if len(args) != 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	resp, err := Client.ListWorkflows()
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	results := []string{}
+
+	for _, workflow := range resp.Workflows {
+		if strings.HasPrefix(workflow.Name, toComplete) {
+			results = append(results, workflow.Name)
+		}
+	}
+
+	return results, cobra.ShellCompDirectiveDefault
 }
 
 func newListWorkflowsCommand() *cobra.Command {

@@ -91,6 +91,12 @@ sections:
       user_not_authenticated:
         title: User not authenticated error
         description: You must be logged in to perform this operation. Try `relay auth login`.
+      command_unavailable_in_client:
+        title: Command unavailable in client
+        description: "The command {{command}} is not available in this client. You must use a config context that uses a cluster that supports this command."
+        arguments:
+          command:
+            description: The command that is unavailable
   auth:
     title: Authentication errors
     errors:
