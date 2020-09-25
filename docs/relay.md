@@ -26,6 +26,33 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay auth logout`** -- Log out of Relay
 
+**`relay completion`** -- Generate shell completion scripts
+
+**`relay dev cluster delete`** -- Delete the local cluster
+
+**`relay dev cluster start [flags]`** -- Start the local cluster that can execute workflows
+```
+      --image-registry-port int   The port to use on the host and on the cluster nodes for the container image registry (default 5000)
+      --load-balancer-port int    The port to map from the host to the service load balancer (default 8080)
+```
+
+**`relay dev cluster stop`** -- Stop the local cluster
+
+**`relay dev image import <image:tag>`** -- Imports a container image into the cluster
+
+**`relay dev kubectl`** -- Run kubectl commands against the dev cluster
+
+**`relay dev workflow run [flags]`** -- Run a workflow on the dev cluster
+```
+  -f, --file string             Path to Relay workflow file
+  -p, --parameter stringArray   Parameters to invoke this workflow run with
+```
+
+**`relay dev workflow secret set [flags]`** -- Set a workflow secret
+```
+      --value-stdin   accept secret value from stdin
+```
+
 **`relay doc generate [flags]`** -- Generate markdown documentation to stdout
 ```
   -f, --file string   The path to a file to write the documentation to
