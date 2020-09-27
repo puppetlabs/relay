@@ -219,6 +219,17 @@ func (m *K3dClusterManager) GetKubeconfig(ctx context.Context) (*clientcmdapi.Co
 // WriteKubeconfig takes a path and writes the cluster's kubeconfig file to it. Attempting
 // to write a kubeconfig for a cluster that doesn't exist results in an error.
 func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) error {
+	clusterConfig, err := m.get(ctx)
+	if err != nil {
+		return err
+	}
+
+	k3dcluster.KubeconfigGetWrite(ctx, m.runtime, clusterConfig, "", &k3dcluster.WriteKubeConfigOptions{
+		OverwriteExisting:    false,
+		UpdateCurrentContext: true,
+		UpdateExisting:       true,
+	})
+
 	apiConfig, err := m.GetKubeconfig(ctx)
 	if err != nil {
 		return err
