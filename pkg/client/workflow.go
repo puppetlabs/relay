@@ -244,7 +244,7 @@ func (c *Client) DownloadWorkflow(name string) (string, errors.Error) {
 		return "", err
 	}
 
-	dec, berr := base64.URLEncoding.DecodeString(rev.Revision.Raw)
+	dec, berr := base64.StdEncoding.DecodeString(rev.Revision.Raw)
 
 	if berr != nil {
 		debug.Logf("the workflow body was in the wrong format. %s", berr.Error())
