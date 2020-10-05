@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/puppetlabs/relay/pkg/dialog"
@@ -12,6 +13,7 @@ import (
 	"github.com/rancher/k3d/v3/pkg/tools"
 	"github.com/rancher/k3d/v3/pkg/types"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -26,6 +28,16 @@ const (
 
 var agentArgs = []string{
 	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
+}
+
+// Mirror https://github.com/rancher/k3s/blob/master/pkg/agent/templates/registry.go
+type Mirror struct {
+	Endpoints []string `toml:"endpoint" yaml:"endpoint"`
+}
+
+// Registry https://github.com/rancher/k3s/blob/master/pkg/agent/templates/registry.go
+type Registry struct {
+	Mirrors map[string]Mirror `toml:"mirrors" yaml:"mirrors"`
 }
 
 type Client struct {
@@ -71,6 +83,19 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 	if _, err := os.Stat("/dev/mapper"); !os.IsNotExist(err) {
 		volumes = append(volumes, "/dev/mapper:/dev/mapper:ro")
 	}
+
+	// TODO Temporary workaround to ensure image pulls and manifest lookups can function conjointly against the in-cluster registry
+	registryConfigPath := path.Join(m.cfg.WorkDir.Path, "registries.yaml")
+	volumes = append(volumes, registryConfigPath+":/etc/rancher/k3s/registries.yaml")
+
+	registry := &Registry{
+		Mirrors: map[string]Mirror{
+			fmt.Sprintf("%s:%d", opts.ImageRegistryName, opts.ImageRegistryPort): Mirror{
+				Endpoints: []string{fmt.Sprintf("http://localhost:%d", opts.ImageRegistryPort)},
+			},
+		},
+	}
+	m.storeRegistryConfiguration(registryConfigPath, registry)
 
 	exposeAPI := types.ExposeAPI{
 		Host:   types.DefaultAPIHost,
@@ -277,6 +302,23 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 	}
 
 	return k3dcluster.ClusterGet(ctx, m.runtime, clusterConfig)
+}
+
+func (m *K3dClusterManager) storeRegistryConfiguration(path string, registry *Registry) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	data, err := yaml.Marshal(registry)
+
+	if _, err := f.Write(data); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // NewK3dClusterManager returns a new K3dClusterManager.

@@ -15,6 +15,7 @@ const (
 	WorkerCount     = 2
 	HostStorageName = "local-storage"
 
+	DefaultRegistryName         = "docker-registry.docker-registry.svc.cluster.local"
 	DefaultRegistryPort         = 5000
 	DefaultLoadBalancerHostPort = 8080
 	DefaultLoadBalancerNodePort = 80
@@ -33,6 +34,8 @@ type CreateOptions struct {
 	// LoadBalancerHostPort is the port on the host to bind to when mapping
 	// between the host machine and the service load balancer node.
 	LoadBalancerHostPort int
+	// ImageRegistryName is the base name used to reference local images.
+	ImageRegistryName string
 	// ImageRegistryPort is the port to use on both the host AND the nodes for
 	// the container image registry service. This isn't required, to be the
 	// same, but to avoid confusion when tagging images on the host and
