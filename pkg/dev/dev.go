@@ -89,7 +89,7 @@ func (m *Manager) Delete(ctx context.Context) error {
 	// TODO fix hack: deletes the PVCs because dirs inside are often created as root
 	// and we don't want relay running like that on the host to rm the data dir.
 	nm := newNamespaceManager(m.cl)
-	if err := nm.delete(ctx, systemNamespace); err != nil {
+	if err := nm.delete(ctx, systemNamespace); err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}
 
