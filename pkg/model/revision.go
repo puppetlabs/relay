@@ -31,8 +31,8 @@ type RevisionEntity struct {
 type WorkflowParameters map[string]WorkflowParameter
 
 type WorkflowParameter struct {
-	Default     string `json:"default"`
-	Description string `json:"description,omitempty"`
+	Default     interface{} `json:"default"`
+	Description string      `json:"description,omitempty"`
 }
 
 type WorkflowTrigger struct {
