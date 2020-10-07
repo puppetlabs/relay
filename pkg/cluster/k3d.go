@@ -115,11 +115,15 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		Ports:   []string{registryPortMapping},
 	}
 
+	if opts.WorkerCount <= 0 {
+		serverNode.Args = agentArgs
+	}
+
 	nodes := []*types.Node{
 		serverNode,
 	}
 
-	for i := 0; i < WorkerCount; i++ {
+	for i := 0; i < opts.WorkerCount; i++ {
 		node := &types.Node{
 			Role:    types.AgentRole,
 			Image:   k3sImage,
