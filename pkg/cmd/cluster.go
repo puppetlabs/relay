@@ -30,6 +30,7 @@ func newStartClusterCommand() *cobra.Command {
 	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
 	cmd.Flags().StringP("image-registry-name", "", cluster.DefaultRegistryName, "The name to use on the host and on the cluster nodes for the container image registry")
 	cmd.Flags().IntP("image-registry-port", "", cluster.DefaultRegistryPort, "The port to use on the host and on the cluster nodes for the container image registry")
+	cmd.Flags().IntP("worker-count", "", cluster.DefaultWorkerCount, "The number of worker nodes to create on the cluster")
 
 	return cmd
 }
@@ -52,6 +53,11 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	workerCount, err := cmd.Flags().GetInt("worker-count")
+	if err != nil {
+		return err
+	}
+
 	cm := cluster.NewManager(ClusterConfig)
 
 	if _, err := cm.Exists(ctx); err != nil {
@@ -60,6 +66,7 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			LoadBalancerHostPort: lbHostPort,
 			ImageRegistryName:    registryName,
 			ImageRegistryPort:    registryPort,
+			WorkerCount:          workerCount,
 		}
 		if err := cm.Create(ctx, opts); err != nil {
 			return err

@@ -35,6 +35,7 @@ Use the 'workflow' subcommand to interact with workflows:
       --image-registry-name string   The name to use on the host and on the cluster nodes for the container image registry (default "docker-registry.docker-registry.svc.cluster.local")
       --image-registry-port int      The port to use on the host and on the cluster nodes for the container image registry (default 5000)
       --load-balancer-port int       The port to map from the host to the service load balancer (default 8080)
+      --worker-count int             The number of worker nodes to create on the cluster (default 2)
 ```
 
 **`relay dev cluster stop`** -- Stop the local cluster

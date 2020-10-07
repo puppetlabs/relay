@@ -12,13 +12,13 @@ import (
 const (
 	ClusterName     = "relay-workflows"
 	NetworkName     = "relay-workflows-net"
-	WorkerCount     = 2
 	HostStorageName = "local-storage"
 
 	DefaultRegistryName         = "docker-registry.docker-registry.svc.cluster.local"
 	DefaultRegistryPort         = 5000
 	DefaultLoadBalancerHostPort = 8080
 	DefaultLoadBalancerNodePort = 80
+	DefaultWorkerCount          = 2
 )
 
 type ClientOptions struct {
@@ -44,6 +44,8 @@ type CreateOptions struct {
 	// `localhost:5000/my-image:latest` and use the same repo/image/tag
 	// combination from k8s resources.
 	ImageRegistryPort int
+	// Number of worker nodes on the cluster
+	WorkerCount int
 }
 
 // Manager provides methods to manage the lifecycle of a cluster.
