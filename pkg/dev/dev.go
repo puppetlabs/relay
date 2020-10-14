@@ -15,7 +15,7 @@ import (
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/horsehead/v2/workdir"
-	"github.com/puppetlabs/relay-core/pkg/dependency"
+	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/teris-io/shortid"
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +35,7 @@ import (
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
 	utilflag "k8s.io/component-base/cli/flag"
 	kctlcmd "k8s.io/kubernetes/pkg/kubectl/cmd"
+	cachingv1alpha1 "knative.dev/caching/pkg/apis/caching/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -42,11 +44,13 @@ var (
 	schemeBuilder = runtime.NewSchemeBuilder(
 		kubernetesscheme.AddToScheme,
 		metav1.AddMetaToScheme,
+		apiextensionsv1.AddToScheme,
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
 		certmanagerv1beta1.AddToScheme,
 		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
+		cachingv1alpha1.AddToScheme,
 	)
 	_ = schemeBuilder.AddToScheme(DefaultScheme)
 )
@@ -205,7 +209,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 
-	if err := nm.create(ctx); err != nil {
+	if err := nm.create(ctx, systemNamespace); err != nil {
 		return err
 	}
 
@@ -214,34 +218,20 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	}
 
 	patchers := []objectPatcherFunc{
-		nm.objectNamespacePatcher("system"),
+		nm.objectNamespacePatcher(systemNamespace),
 		missingProtocolPatcher,
 		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
 	}
 
-	// Manifests are split into diffent directories because some managers
+	// Apply manifests in ordered phases. Note that some managers
 	// have weird dependencies on running services. For instance, you cannot
 	// create or apply a ClusterIssuer unless the cert-manager webhook service
 	// is Ready. This means we will just wait for all services across all created
 	// namespaces to be ready before moving to the next phase of applying manifests.
-	initObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/01-init")...)
-	if err != nil {
+	// TODO: dynamically generate the list as we process the manifests
+
+	if err := m.processManifests(ctx, "/01-init", patchers, []string{"cert-manager", "relay-system"}); err != nil {
 		return err
-	}
-
-	log.Info("applying init objects")
-	if err := m.applyAllWithPatchers(ctx, patchers, initObjects); err != nil {
-		return err
-	}
-
-	// TODO: dynamically generate this list as we proccess the manifests
-	initNamespaces := []string{"cert-manager", "tekton-pipelines", "relay-system"}
-
-	for _, ns := range initNamespaces {
-		log.Infof("waiting for services in: %s", ns)
-		if err := m.waitForServices(ctx, ns); err != nil {
-			return err
-		}
 	}
 
 	log.Info("generating signing keys")
@@ -249,17 +239,11 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	secretObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/02-secrets")...)
-	if err != nil {
+	if err := m.processManifests(ctx, "/02-secrets", patchers, nil); err != nil {
 		return err
 	}
 
-	log.Info("applying secret objects")
-	if err := m.applyAllWithPatchers(ctx, patchers, secretObjects); err != nil {
-		return err
-	}
-
-	if err := m.waitForCertificates(ctx, nm.getByID("system")); err != nil {
+	if err := m.waitForCertificates(ctx, systemNamespace); err != nil {
 		return err
 	}
 
@@ -271,7 +255,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	// get the CA secret so we can pass the cert into things that need it.
 	caSecretKey := client.ObjectKey{
 		Name:      "relay-cert-ca-tls",
-		Namespace: nm.getByID("system"),
+		Namespace: systemNamespace,
 	}
 
 	tlsSecret := &corev1.Secret{}
@@ -280,21 +264,78 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	patchers = append(patchers, cam.admissionPatcher(tlsSecret.Data["ca.crt"]))
+	patchers = []objectPatcherFunc{
+		nm.objectNamespacePatcher("tekton-pipelines"),
+		missingProtocolPatcher,
+	}
 
-	relayObjects, err := m.parseAndLoadManifests(manifests.MustAssetListDir("/03-relay")...)
+	if err := m.processManifests(ctx, "/03-tekton", patchers, []string{"tekton-pipelines"}); err != nil {
+		return err
+	}
+
+	patchers = []objectPatcherFunc{
+		nm.objectNamespacePatcher("knative-serving"),
+		missingProtocolPatcher,
+	}
+
+	if err := m.processManifests(ctx, "/04-knative", patchers, []string{"knative-serving"}); err != nil {
+		return err
+	}
+
+	patchers = []objectPatcherFunc{
+		nm.objectNamespacePatcher(systemNamespace),
+		missingProtocolPatcher,
+		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
+		cam.admissionPatcher(tlsSecret.Data["ca.crt"]),
+	}
+
+	if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
+		return err
+	}
+
+	if err := nm.create(ctx, "ambassador-webhook"); err != nil {
+		return err
+	}
+
+	patchers = []objectPatcherFunc{
+		nm.objectNamespacePatcher("ambassador-webhook"),
+		missingProtocolPatcher,
+		ambassadorPatcher,
+	}
+
+	if err := m.processManifests(ctx, "/06-ambassador", patchers, []string{"ambassador-webhook"}); err != nil {
+		return err
+	}
+
+	patchers = []objectPatcherFunc{
+		nm.objectNamespacePatcher("default"),
+	}
+
+	if err := m.processManifests(ctx, "/07-hostpath", patchers, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Manager) processManifests(ctx context.Context, path string, patchers []objectPatcherFunc, initNamespaces []string) error {
+	log := m.cfg.Dialog
+
+	objects, err := m.parseAndLoadManifests(manifests.MustAssetListDir(path)...)
 	if err != nil {
 		return err
 	}
 
-	log.Info("applying relay objects")
-	if err := m.applyAllWithPatchers(ctx, patchers, relayObjects); err != nil {
+	log.Infof("applying %s", path)
+	if err := m.applyAllWithPatchers(ctx, patchers, objects); err != nil {
 		return err
 	}
 
-	log.Infof("waiting for services in: %s", "relay-system")
-	if err := m.waitForServices(ctx, "relay-system"); err != nil {
-		return err
+	for _, ns := range initNamespaces {
+		log.Infof("waiting for services in: %s", ns)
+		if err := m.waitForServices(ctx, ns); err != nil {
+			return err
+		}
 	}
 
 	return nil
