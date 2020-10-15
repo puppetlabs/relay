@@ -25,21 +25,18 @@ const (
 	defaultCurrentContext = "relaysh"
 )
 
-var (
-	defaultAPIURL = &url.URL{Scheme: "https", Host: "api.relay.sh"}
-	defaultUIURL  = &url.URL{Scheme: "https", Host: "app.relay.sh"}
-	defaultWebURL = &url.URL{Scheme: "https", Host: "relay.sh"}
-)
-
 var defaultContexts = map[string]APIContext{
 	"relaysh": {
 		Name:      "relaysh",
-		APIDomain: defaultAPIURL,
-		UIDomain:  defaultUIURL,
-		WebDomain: defaultWebURL,
+		APIDomain: &url.URL{Scheme: "https", Host: "api.relay.sh"},
+		UIDomain:  &url.URL{Scheme: "https", Host: "app.relay.sh"},
+		WebDomain: &url.URL{Scheme: "https", Host: "relay.sh"},
 	},
 	"dev": {
-		Name: "dev",
+		Name:      "dev",
+		APIDomain: &url.URL{Scheme: "http", Host: "relay-api.local:8080"},
+		UIDomain:  &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
+		WebDomain: &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
 	},
 }
 
@@ -68,9 +65,9 @@ func GetDefaultConfig() *Config {
 		Debug:          true,
 		Yes:            false,
 		Out:            OutputTypeText,
-		APIDomain:      defaultAPIURL,
-		UIDomain:       defaultUIURL,
-		WebDomain:      defaultWebURL,
+		APIDomain:      defaultContexts[defaultCurrentContext].APIDomain,
+		UIDomain:       defaultContexts[defaultCurrentContext].UIDomain,
+		WebDomain:      defaultContexts[defaultCurrentContext].WebDomain,
 		CacheDir:       userCacheDir(),
 		TokenPath:      filepath.Join(userCacheDir(), "auth-token"),
 		CurrentContext: defaultCurrentContext,
@@ -94,9 +91,6 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	v.SetDefault("out", string(OutputTypeText))
 	v.BindPFlag("out", flags.Lookup("out"))
 
-	v.SetDefault("api_domain", defaultAPIURL.String())
-	v.SetDefault("ui_domain", defaultUIURL.String())
-	v.SetDefault("web_domain", defaultWebURL.String())
 	v.SetDefault("cache_dir", userCacheDir())
 	v.SetDefault("data_dir", userDataDir())
 	v.SetDefault("token_path", filepath.Join(userCacheDir(), "auth-token"))
@@ -105,6 +99,11 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	if err := readInConfigFile(v, flags); err != nil {
 		return nil, err
 	}
+
+	context := v.GetString("current_context")
+	v.SetDefault("api_domain", defaultContexts[context].APIDomain)
+	v.SetDefault("ui_domain", defaultContexts[context].UIDomain)
+	v.SetDefault("web_domain", defaultContexts[context].WebDomain)
 
 	output, err := readOutput(v)
 
@@ -139,7 +138,7 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 		WebDomain:      webDomain,
 		CacheDir:       v.GetString("cache_dir"),
 		TokenPath:      v.GetString("token_path"),
-		CurrentContext: v.GetString("current_context"),
+		CurrentContext: context,
 	}
 
 	return config, nil

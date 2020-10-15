@@ -51,3 +51,40 @@ func registryLoadBalancerPortPatcher(registryPort int) objectPatcherFunc {
 		}
 	}
 }
+
+func ambassadorPatcher(obj runtime.Object) {
+	deployment, ok := obj.(*appsv1.Deployment)
+	if !ok || deployment.GetName() != "ambassador" {
+		return
+	}
+
+	for i, c := range deployment.Spec.Template.Spec.Containers {
+		if c.Name != "ambassador" {
+			continue
+		}
+
+		setKubernetesEnvVar(&c.Env, "AMBASSADOR_ID", "webhook")
+		setKubernetesEnvVar(&c.Env, "AMBASSADOR_KNATIVE_SUPPORT", "true")
+
+		deployment.Spec.Template.Spec.Containers[i] = c
+	}
+
+	// Make as minimal as possible for testing.
+	deployment.Spec.Replicas = func(i int32) *int32 { return &i }(1)
+	deployment.Spec.RevisionHistoryLimit = func(i int32) *int32 { return &i }(0)
+
+	// Don't allow old pods to linger.
+	deployment.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
+	deployment.Spec.Strategy.RollingUpdate = nil
+}
+
+func setKubernetesEnvVar(target *[]corev1.EnvVar, name, value string) {
+	for i, ev := range *target {
+		if ev.Name == name {
+			(*target)[i].Value = value
+			return
+		}
+	}
+
+	*target = append(*target, corev1.EnvVar{Name: name, Value: value})
+}

@@ -20,14 +20,17 @@ type namespaceManager struct {
 	cl *cluster.Client
 }
 
-func (m *namespaceManager) create(ctx context.Context) error {
+func (m *namespaceManager) create(ctx context.Context, ns string) error {
 	sn := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: systemNamespace,
-			Labels: map[string]string{
-				"nebula.puppet.com/network-policy.tasks": "true",
-			},
+			Name: ns,
 		},
+	}
+
+	if ns == systemNamespace {
+		sn.Labels = map[string]string{
+			"nebula.puppet.com/network-policy.tasks": "true",
+		}
 	}
 
 	if err := m.cl.APIClient.Create(ctx, sn); err != nil {
@@ -37,16 +40,7 @@ func (m *namespaceManager) create(ctx context.Context) error {
 	return nil
 }
 
-func (m *namespaceManager) getByID(id string) string {
-	switch id {
-	case "system":
-		return systemNamespace
-	}
-
-	return "default"
-}
-
-func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
+func (m *namespaceManager) objectNamespacePatcher(name string) objectPatcherFunc {
 	return func(obj runtime.Object) {
 		var gvk schema.GroupVersionKind
 
@@ -75,10 +69,12 @@ func (m *namespaceManager) objectNamespacePatcher(id string) objectPatcherFunc {
 			return
 		}
 
-		ns := m.getByID(id)
-
 		if a.GetNamespace() == "" {
-			a.SetNamespace(ns)
+			if name == "" {
+				a.SetNamespace("default")
+			} else {
+				a.SetNamespace(name)
+			}
 		}
 	}
 }
