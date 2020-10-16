@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"time"
 
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
@@ -25,13 +24,13 @@ import (
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/teris-io/shortid"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/storage/names"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
 	utilflag "k8s.io/component-base/cli/flag"
 	kctlcmd "k8s.io/kubernetes/pkg/kubectl/cmd"
@@ -140,12 +139,10 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[s
 		name = defaultWorkflowName
 	}
 
-	sid, err := shortid.Generate()
+	runID := names.SimpleNameGenerator.GenerateName(name + "-")
 	if err != nil {
 		return nil, err
 	}
-
-	runID := fmt.Sprintf("%s-%s", name, strings.ToLower(sid))
 
 	if err := am.addConnectionForWorkflow(ctx, name); err != nil {
 		return nil, err
