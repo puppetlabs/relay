@@ -50,6 +50,7 @@ require (
 	k8s.io/api v0.18.8
 	k8s.io/apiextensions-apiserver v0.18.8
 	k8s.io/apimachinery v0.19.1
+	k8s.io/apiserver v0.18.5
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/component-base v0.18.5
 	k8s.io/klog/v2 v2.1.0 // indirect
