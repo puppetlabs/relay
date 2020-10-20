@@ -1019,6 +1019,8 @@ spec:
         - -webhook-server-key-dir
         - /var/run/secrets/puppet/relay/tls
         - -dynamic-rbac-binding
+        - -tool-injection-image
+        - relaysh/relay-runtime-tools:latest
         env:
         - name: VAULT_ADDR
           value: http://localhost:8200
