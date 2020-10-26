@@ -57,10 +57,6 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 	revision, rerr := Client.CreateRevision(workflow.Workflow.Name, file)
 
 	if rerr != nil {
-
-		// attempt to revert creation of workflow record
-		Client.DeleteWorkflow(workflow.Workflow.Name)
-
 		return rerr
 	}
 
@@ -69,7 +65,7 @@ func doAddWorkflow(cmd *cobra.Command, args []string) error {
 	wr.Output(Config)
 
 	Dialog.Infof(`Successfully created workflow %v
-			
+
 View more information or update workflow settings at: %v`,
 		workflow.Workflow.Name,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
@@ -123,7 +119,7 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 	wr.Output(Config)
 
 	Dialog.Infof(`Successfully updated workflow %v
-			
+
 Updated version is visible at: %v`,
 		workflowName,
 		format.GuiLink(Config, "/workflows/%v", workflowName),
