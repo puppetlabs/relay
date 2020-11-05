@@ -24,6 +24,9 @@ type Dialog interface {
 	Info(string)
 	Infof(string, ...interface{})
 
+	Warn(string)
+	Warnf(string, ...interface{})
+
 	Error(string)
 	Errorf(string, ...interface{})
 
@@ -78,6 +81,19 @@ func (d *TextDialog) Infof(message string, args ...interface{}) {
 	fmt.Fprintf(d.stdout, withNewLine(message), args...)
 }
 
+func (d *TextDialog) Warn(msg string) {
+	d.completeProgress()
+
+	fmt.Fprintf(d.stderr, "%s %s", color.YellowString("Warning:"), withNewLine(msg))
+}
+
+func (d *TextDialog) Warnf(msg string, args ...interface{}) {
+	d.completeProgress()
+
+	str := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(d.stderr, "%s %s", color.YellowString("Warning:"), withNewLine(str))
+}
+
 func (d *TextDialog) Error(msg string) {
 	d.completeProgress()
 
@@ -129,6 +145,15 @@ func (d *JSONDialog) Info(message string) {
 
 func (d *JSONDialog) Infof(message string, args ...interface{}) {
 	// noop
+}
+
+func (d *JSONDialog) Warn(msg string) {
+	fmt.Fprintf(d.stderr, "%s%s", color.YellowString("Warning:"), msg)
+}
+
+func (d *JSONDialog) Warnf(msg string, args ...interface{}) {
+	str := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(d.stderr, "%s%s", color.YellowString("Warning:"), str)
 }
 
 func (d *JSONDialog) Error(msg string) {

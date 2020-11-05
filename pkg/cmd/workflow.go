@@ -301,6 +301,16 @@ func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
 	body, err := Client.DownloadWorkflow(name)
 
 	if err != nil {
+		if errors.IsClientResponseNotFound(err) {
+			Dialog.Warnf(`No file data found for workflow %v
+
+View more information or update workflow settings at: %v`,
+				name,
+				format.GuiLink(Config, "/workflows/%v", name),
+			)
+
+			return nil
+		}
 		return err
 	}
 
