@@ -35,41 +35,50 @@ func newWorkflowCommand() *cobra.Command {
 }
 
 func doAddWorkflow(cmd *cobra.Command, args []string) error {
-	filepath, file, ferr := readFile(cmd)
-
-	if ferr != nil {
-		return ferr
-	}
-
-	workflowName, nerr := getWorkflowName(args)
-
-	if nerr != nil {
-		return nerr
+	workflowName, err := getWorkflowName(args)
+	if err != nil {
+		return err
 	}
 
 	Dialog.Progress("Creating your workflow...")
 
 	workflow, cwerr := Client.CreateWorkflow(workflowName)
-
 	if cwerr != nil {
 		return cwerr
 	}
 
-	revision, rerr := Client.CreateRevision(workflow.Workflow.Name, file)
+	var fileInfo string
+	if cmd.Flags().Changed("file") {
+		filePath, revisionContent, err := readFile(cmd)
+		if err != nil {
+			return err
+		}
 
-	if rerr != nil {
-		return rerr
+		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
+		if err != nil {
+			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
+
+%s
+
+`,
+				filePath,
+				format.Error(err, cmd),
+			)
+
+			fileInfo = ", but the initial file content contained errors"
+		} else {
+			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+			wr.Output(Config)
+
+			fileInfo = fmt.Sprintf(" with file %s", filePath)
+		}
 	}
 
-	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-
-	wr.Output(Config)
-
-	Dialog.Infof(`Successfully created workflow %v with file %v
+	Dialog.Infof(`Successfully created workflow %v%s.
 
 View more information or update workflow settings at: %v`,
 		workflow.Workflow.Name,
-		filepath,
+		fileInfo,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
 
