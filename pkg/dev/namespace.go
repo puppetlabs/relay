@@ -9,36 +9,65 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	systemNamespace   = "relay-system"
-	registryNamespace = "docker-registry"
+	systemNamespace     = "relay-system"
+	registryNamespace   = "docker-registry"
+	ambassadorNamespace = "ambassador-webhook"
 )
 
-type namespaceManager struct {
-	cl *cluster.Client
+type namespaceObjects struct {
+	systemNamespace     corev1.Namespace
+	registryNamespace   corev1.Namespace
+	ambassadorNamespace corev1.Namespace
 }
 
-func (m *namespaceManager) create(ctx context.Context, ns string) error {
-	sn := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: ns,
-		},
+func newNamespaceObjects() *namespaceObjects {
+	return &namespaceObjects{
+		systemNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
+		registryNamespace:   corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: registryNamespace}},
+		ambassadorNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ambassadorNamespace}},
+	}
+}
+
+type namespaceManager struct {
+	cl      *cluster.Client
+	objects *namespaceObjects
+}
+
+func (m *namespaceManager) reconcile(ctx context.Context) error {
+	cl := m.cl.APIClient
+
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.systemNamespace, func() error {
+		m.systemNamespace(&m.objects.systemNamespace)
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	if ns == systemNamespace {
-		sn.Labels = map[string]string{
-			"nebula.puppet.com/network-policy.tasks": "true",
-		}
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.registryNamespace, func() error {
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	if err := m.cl.APIClient.Create(ctx, sn); err != nil {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.ambassadorNamespace, func() error {
+		return nil
+	}); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (m *namespaceManager) systemNamespace(ns *corev1.Namespace) {
+	ns.Labels = map[string]string{
+		"nebula.puppet.com/network-policy.tasks": "true",
+	}
 }
 
 func (m *namespaceManager) objectNamespacePatcher(name string) objectPatcherFunc {
@@ -91,5 +120,8 @@ func (m *namespaceManager) delete(ctx context.Context, ns string) error {
 }
 
 func newNamespaceManager(cl *cluster.Client) *namespaceManager {
-	return &namespaceManager{cl: cl}
+	return &namespaceManager{
+		cl:      cl,
+		objects: newNamespaceObjects(),
+	}
 }

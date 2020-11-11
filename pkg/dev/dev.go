@@ -224,13 +224,11 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 	rm := newRegistryManager(m.cl)
+	rim := newRelayInstallerManager(m.cl)
 	rcm := newRelayCoreManager(m.cl)
 
-	if err := nm.create(ctx, systemNamespace); err != nil {
-		return err
-	}
-
-	if err := nm.create(ctx, registryNamespace); err != nil {
+	log.Info("initializing namespaces")
+	if err := nm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -328,7 +326,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	}
 
 	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher("ambassador-webhook"),
+		nm.objectNamespacePatcher(ambassadorNamespace),
 		missingProtocolPatcher,
 		ambassadorPatcher,
 	}
