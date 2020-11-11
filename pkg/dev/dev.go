@@ -14,6 +14,7 @@ import (
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/horsehead/v2/workdir"
+	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
@@ -25,6 +26,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -43,6 +45,7 @@ var (
 	schemeBuilder = runtime.NewSchemeBuilder(
 		kubernetesscheme.AddToScheme,
 		metav1.AddMetaToScheme,
+		rbacv1.AddToScheme,
 		apiextensionsv1.AddToScheme,
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
@@ -50,6 +53,7 @@ var (
 		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
 		cachingv1alpha1.AddToScheme,
+		installerv1alpha1.AddToScheme,
 	)
 	_ = schemeBuilder.AddToScheme(DefaultScheme)
 )
@@ -200,17 +204,41 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 }
 
 func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOptions) error {
+	// I introduced some race condition where the cluster hasn't fully setup
+	// the object APIs or something, so when we try to create objects here, it
+	// will blow up saying the API for that object type doesn't exist. If we
+	// sleep for just a second, then we give it enough time to fully warm up or
+	// something. I dunno...
+	//
+	// There's an option in k3d's cluster create that I set to wait for the
+	// server, but I think there's something deeper happening inside kubernetes
+	// (probably in the API server).
+	<-time.After(time.Second)
+
 	log := m.cfg.Dialog
+
 	nm := newNamespaceManager(m.cl)
 	cam := newCAManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
+	rm := newRegistryManager(m.cl)
+	rcm := newRelayCoreManager(m.cl)
 
 	if err := nm.create(ctx, systemNamespace); err != nil {
 		return err
 	}
 
-	if err := am.createServiceAccount(ctx); err != nil {
+	if err := nm.create(ctx, registryNamespace); err != nil {
+		return err
+	}
+
+	log.Info("initializing admin account")
+	if err := am.reconcile(ctx); err != nil {
+		return err
+	}
+
+	log.Info("initializing image registry")
+	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -231,12 +259,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	log.Info("generating signing keys")
-	if _, err := cam.createSigningKeys(ctx); err != nil {
-		return err
-	}
-
-	if err := m.processManifests(ctx, "/02-secrets", patchers, nil); err != nil {
+	if err := rcm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -245,14 +268,18 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	}
 
 	log.Info("initializing vault")
-	if err := vm.init(ctx); err != nil {
+	if err := vm.reconcileInit(ctx); err != nil {
+		return err
+	}
+
+	if err := vm.reconcileUnseal(ctx); err != nil {
 		return err
 	}
 
 	// get the CA secret so we can pass the cert into things that need it.
 	caSecretKey := client.ObjectKey{
-		Name:      "relay-cert-ca-tls",
-		Namespace: systemNamespace,
+		Name:      rcm.objects.selfSignedCA.Spec.SecretName,
+		Namespace: rcm.objects.selfSignedCA.Namespace,
 	}
 
 	tlsSecret := &corev1.Secret{}
@@ -287,6 +314,10 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	}
 
 	if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
+		return err
+	}
+
+	if err := vm.reconcileConfiguration(ctx); err != nil {
 		return err
 	}
 
@@ -347,7 +378,7 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 		return err
 	}
 
-	return vm.unseal(ctx)
+	return vm.reconcileUnseal(ctx)
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {

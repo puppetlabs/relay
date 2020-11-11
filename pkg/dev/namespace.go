@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	systemNamespace = "relay-system"
+	systemNamespace   = "relay-system"
+	registryNamespace = "docker-registry"
 )
 
 type namespaceManager struct {

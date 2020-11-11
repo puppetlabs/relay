@@ -2,13 +2,13 @@ package dev
 
 import (
 	"context"
-	"fmt"
 	"path"
 
 	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -19,70 +19,108 @@ const (
 	RelayClusterConnectionName = "relay-dev-cluster"
 )
 
-type adminManager struct {
-	cl *cluster.Client
-	vm *vaultManager
+type adminObjects struct {
+	serviceAccount     corev1.ServiceAccount
+	secret             corev1.Secret
+	clusterRoleBinding rbacv1.ClusterRoleBinding
 }
 
-func (m *adminManager) createServiceAccount(ctx context.Context) error {
-	sa := &corev1.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      relayAdminServiceAccountName,
-			Namespace: "kube-system",
-		},
+func newAdminObjects() *adminObjects {
+	objectMeta := metav1.ObjectMeta{
+		Name:      relayAdminServiceAccountName,
+		Namespace: systemNamespace,
 	}
 
-	crb := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: relayAdminServiceAccountName,
-		},
-		RoleRef: rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     "cluster-admin",
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      relayAdminServiceAccountName,
-				Namespace: "kube-system",
+	return &adminObjects{
+		serviceAccount: corev1.ServiceAccount{ObjectMeta: objectMeta},
+		secret:         corev1.Secret{ObjectMeta: objectMeta},
+		clusterRoleBinding: rbacv1.ClusterRoleBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: objectMeta.Name,
 			},
 		},
 	}
+}
 
-	if err := m.cl.APIClient.Create(ctx, sa); err != nil {
-		return fmt.Errorf("failed to create admin service account: %w", err)
+type adminManager struct {
+	cl      *cluster.Client
+	objects *adminObjects
+	vm      *vaultManager
+}
+
+func (m *adminManager) reconcile(ctx context.Context) error {
+	client := m.cl.APIClient
+
+	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.serviceAccount, func() error {
+		return nil
+	}); err != nil {
+		return err
 	}
 
-	if err := m.cl.APIClient.Create(ctx, crb); err != nil {
-		return fmt.Errorf("failed to create admin user cluster role binding: %w", err)
+	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.secret, func() error {
+		m.secret(&m.objects.secret)
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.clusterRoleBinding, func() error {
+		m.clusterRoleBinding(&m.objects.clusterRoleBinding)
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func (m *adminManager) secret(secret *corev1.Secret) {
+	if secret.Annotations == nil {
+		secret.Annotations = make(map[string]string)
+	}
+
+	secret.Annotations["kubernetes.io/service-account.name"] = m.objects.serviceAccount.Name
+	secret.Type = corev1.SecretTypeServiceAccountToken
+}
+
+func (m *adminManager) clusterRoleBinding(clusterRoleBinding *rbacv1.ClusterRoleBinding) {
+	clusterRoleBinding.RoleRef = rbacv1.RoleRef{
+		APIGroup: "rbac.authorization.k8s.io",
+		Kind:     "ClusterRole",
+		Name:     "cluster-admin",
+	}
+
+	clusterRoleBinding.Subjects = []rbacv1.Subject{
+		{
+			Kind:      "ServiceAccount",
+			Name:      relayAdminServiceAccountName,
+			Namespace: systemNamespace,
+		},
+	}
+}
+
 func (m *adminManager) addConnectionForWorkflow(ctx context.Context, name string) error {
-	saKey := client.ObjectKey{Name: relayAdminServiceAccountName, Namespace: "kube-system"}
-	sa := &corev1.ServiceAccount{}
-	saSecret := &corev1.Secret{}
-
-	if err := m.cl.APIClient.Get(ctx, saKey, sa); err != nil {
+	secretKey, err := client.ObjectKeyFromObject(&m.objects.secret)
+	if err != nil {
 		return err
 	}
 
-	secretKey := client.ObjectKey{Name: sa.Secrets[0].Name, Namespace: "kube-system"}
-
-	if err := m.cl.APIClient.Get(ctx, secretKey, saSecret); err != nil {
+	if err := m.cl.APIClient.Get(ctx, secretKey, &m.objects.secret); err != nil {
 		return err
 	}
+
+	data := m.objects.secret.Data
 
 	connectionsPath := path.Join("customers", "connections", name)
 	pointerPath := path.Join(connectionsPath, "kubernetes", RelayClusterConnectionName)
 	base := path.Join(connectionsPath, relayClusterConnectionID)
+
 	connectionSecrets := map[string]string{
 		pointerPath:                             relayClusterConnectionID,
-		path.Join(base, "token"):                string(saSecret.Data["token"]),
-		path.Join(base, "certificateAuthority"): string(saSecret.Data["ca.crt"]),
+		path.Join(base, "token"):                string(data["token"]),
+		path.Join(base, "certificateAuthority"): string(data["ca.crt"]),
 		path.Join(base, "server"):               "https://kubernetes.default.svc.cluster.local",
 	}
 
@@ -91,7 +129,8 @@ func (m *adminManager) addConnectionForWorkflow(ctx context.Context, name string
 
 func newAdminManager(cl *cluster.Client, vm *vaultManager) *adminManager {
 	return &adminManager{
-		cl: cl,
-		vm: vm,
+		cl:      cl,
+		objects: newAdminObjects(),
+		vm:      vm,
 	}
 }
