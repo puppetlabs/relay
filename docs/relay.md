@@ -93,6 +93,11 @@ Use the 'workflow' subcommand to interact with workflows:
       --value-stdin   accept secret value from stdin
 ```
 
+**`relay workflow validate [flags]`** -- Validate a local Relay workflow file
+```
+  -f, --file string   Path to Relay workflow file
+```
+
 ### Global flags
 ```
   -d, --debug        print debugging information

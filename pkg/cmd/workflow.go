@@ -24,6 +24,7 @@ func newWorkflowCommand() *cobra.Command {
 
 	cmd.AddCommand(newAddWorkflowCommand())
 	cmd.AddCommand(newReplaceWorkflowCommand())
+	cmd.AddCommand(newValidateWorkflowFileCommand())
 	cmd.AddCommand(newDeleteWorkflowCommand())
 	cmd.AddCommand(newRunWorkflowCommand())
 	cmd.AddCommand(newListWorkflowsCommand())
@@ -34,44 +35,50 @@ func newWorkflowCommand() *cobra.Command {
 }
 
 func doAddWorkflow(cmd *cobra.Command, args []string) error {
-	file, ferr := readFile(cmd)
-
-	if ferr != nil {
-		return ferr
-	}
-
-	workflowName, nerr := getWorkflowName(args)
-
-	if nerr != nil {
-		return nerr
+	workflowName, err := getWorkflowName(args)
+	if err != nil {
+		return err
 	}
 
 	Dialog.Progress("Creating your workflow...")
 
 	workflow, cwerr := Client.CreateWorkflow(workflowName)
-
 	if cwerr != nil {
 		return cwerr
 	}
 
-	revision, rerr := Client.CreateRevision(workflow.Workflow.Name, file)
+	var fileInfo string
+	if cmd.Flags().Changed("file") {
+		filePath, revisionContent, err := readFile(cmd)
+		if err != nil {
+			return err
+		}
 
-	if rerr != nil {
+		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
+		if err != nil {
+			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
 
-		// attempt to revert creation of workflow record
-		Client.DeleteWorkflow(workflow.Workflow.Name)
+%s
 
-		return rerr
+`,
+				filePath,
+				format.Error(err, cmd),
+			)
+
+			fileInfo = ", but the initial file content contained errors"
+		} else {
+			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+			wr.Output(Config)
+
+			fileInfo = fmt.Sprintf(" with file %s", filePath)
+		}
 	}
 
-	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+	Dialog.Infof(`Successfully created workflow %v%s.
 
-	wr.Output(Config)
-
-	Dialog.Infof(`Successfully created workflow %v
-			
 View more information or update workflow settings at: %v`,
 		workflow.Workflow.Name,
+		fileInfo,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
 
@@ -92,7 +99,7 @@ func newAddWorkflowCommand() *cobra.Command {
 }
 
 func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
-	file, err := readFile(cmd)
+	filepath, file, err := readFile(cmd)
 
 	if err != nil {
 		return err
@@ -122,10 +129,11 @@ func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
 
 	wr.Output(Config)
 
-	Dialog.Infof(`Successfully updated workflow %v
-			
+	Dialog.Infof(`Successfully updated workflow %v with file %v
+
 Updated version is visible at: %v`,
 		workflowName,
+		filepath,
 		format.GuiLink(Config, "/workflows/%v", workflowName),
 	)
 
@@ -138,6 +146,39 @@ func newReplaceWorkflowCommand() *cobra.Command {
 		Short: "Replace an existing Relay workflow",
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doReplaceWorkflow,
+	}
+
+	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
+
+	return cmd
+}
+
+func doValidateWorkflowFile(cmd *cobra.Command, args []string) error {
+	filepath, file, err := readFile(cmd)
+
+	if err != nil {
+		return err
+	}
+
+	Dialog.Info("Validating workflow file " + filepath)
+
+	_, rerr := Client.Validate(file)
+
+	if rerr != nil {
+		return rerr
+	}
+
+	Dialog.Infof(`Successfully validated workflow file %v`, filepath)
+
+	return nil
+}
+
+func newValidateWorkflowFileCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "validate",
+		Short: "Validate a local Relay workflow file",
+		Args:  cobra.MaximumNArgs(1),
+		RunE:  doValidateWorkflowFile,
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
@@ -265,6 +306,16 @@ func doDownloadWorkflow(cmd *cobra.Command, args []string) error {
 	body, err := Client.DownloadWorkflow(name)
 
 	if err != nil {
+		if errors.IsClientResponseNotFound(err) {
+			Dialog.Warnf(`No file data found for workflow %v
+
+View more information or update workflow settings at: %v`,
+				name,
+				format.GuiLink(Config, "/workflows/%v", name),
+			)
+
+			return nil
+		}
 		return err
 	}
 
@@ -373,22 +424,22 @@ func getWorkflowName(args []string) (string, errors.Error) {
 	return strings.TrimSpace(namePrompt), nil
 }
 
-func readFile(cmd *cobra.Command) (string, errors.Error) {
+func readFile(cmd *cobra.Command) (string, string, errors.Error) {
 	filepath, err := cmd.Flags().GetString("file")
 
 	if err != nil {
-		return "", errors.NewGeneralUnknownError().WithCause(err)
+		return "", "", errors.NewGeneralUnknownError().WithCause(err)
 	}
 
 	if filepath == "" {
-		return "", errors.NewWorkflowMissingFileFlagError()
+		return "", "", errors.NewWorkflowMissingFileFlagError()
 	}
 
 	bytes, err := ioutil.ReadFile(filepath)
 
 	if err != nil {
-		return "", errors.NewWorkflowWorkflowFileReadError().WithCause(err)
+		return "", "", errors.NewWorkflowWorkflowFileReadError().WithCause(err)
 	}
 
-	return string(bytes), nil
+	return filepath, string(bytes), nil
 }
