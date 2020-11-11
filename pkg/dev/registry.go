@@ -157,45 +157,43 @@ func (m *registryManager) cacheContainerEnv(container *corev1.Container) {
 }
 
 func (m *registryManager) headlessService(service *corev1.Service) {
-	service.Spec = corev1.ServiceSpec{
-		Ports: []corev1.ServicePort{
-			{
-				Name:       "http",
-				Port:       m.serverPort,
-				TargetPort: intstr.FromString("http"),
-				Protocol:   corev1.ProtocolTCP,
-			},
-			{
-				Name:       "cache-http",
-				Port:       m.cachePort,
-				TargetPort: intstr.FromString("cache-http"),
-				Protocol:   corev1.ProtocolTCP,
-			},
+	service.Spec.Ports = []corev1.ServicePort{
+		{
+			Name:       "http",
+			Port:       m.serverPort,
+			TargetPort: intstr.FromString("http"),
+			Protocol:   corev1.ProtocolTCP,
 		},
-		ClusterIP: "None",
-		Selector:  m.labels(),
+		{
+			Name:       "cache-http",
+			Port:       m.cachePort,
+			TargetPort: intstr.FromString("cache-http"),
+			Protocol:   corev1.ProtocolTCP,
+		},
 	}
+
+	service.Spec.ClusterIP = "None"
+	service.Spec.Selector = m.labels()
 }
 
 func (m *registryManager) loadBalancerService(service *corev1.Service) {
-	service.Spec = corev1.ServiceSpec{
-		Ports: []corev1.ServicePort{
-			{
-				Name:       "http",
-				Port:       m.serverPort,
-				TargetPort: intstr.FromString("http"),
-				Protocol:   corev1.ProtocolTCP,
-			},
-			{
-				Name:       "cache-http",
-				Port:       m.cachePort,
-				TargetPort: intstr.FromString("cache-http"),
-				Protocol:   corev1.ProtocolTCP,
-			},
+	service.Spec.Ports = []corev1.ServicePort{
+		{
+			Name:       "http",
+			Port:       m.serverPort,
+			TargetPort: intstr.FromString("http"),
+			Protocol:   corev1.ProtocolTCP,
 		},
-		Type:     corev1.ServiceTypeLoadBalancer,
-		Selector: m.labels(),
+		{
+			Name:       "cache-http",
+			Port:       m.cachePort,
+			TargetPort: intstr.FromString("cache-http"),
+			Protocol:   corev1.ProtocolTCP,
+		},
 	}
+
+	service.Spec.Type = corev1.ServiceTypeLoadBalancer
+	service.Spec.Selector = m.labels()
 }
 
 func (m *registryManager) labels() map[string]string {

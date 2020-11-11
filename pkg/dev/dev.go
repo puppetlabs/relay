@@ -374,18 +374,8 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 
 	vm := newVaultManager(m.cl, m.cfg)
 	rm := newRegistryManager(m.cl)
-	rim := newRelayInstallerManager(m.cl)
-	rcm := newRelayCoreManager(m.cl)
 
 	if err := rm.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := rim.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := rcm.reconcile(ctx); err != nil {
 		return err
 	}
 
