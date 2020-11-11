@@ -306,22 +306,22 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher(systemNamespace),
-		missingProtocolPatcher,
-		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
-		admissionPatcher(tlsSecret.Data["ca.crt"]),
-	}
+	// patchers = []objectPatcherFunc{
+	// 	nm.objectNamespacePatcher(systemNamespace),
+	// 	missingProtocolPatcher,
+	// 	registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
+	// 	admissionPatcher(tlsSecret.Data["ca.crt"]),
+	// }
 
-	if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
+	// if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
+	// 	return err
+	// }
+
+	if err := rim.reconcile(ctx); err != nil {
 		return err
 	}
 
 	if err := vm.reconcileConfiguration(ctx); err != nil {
-		return err
-	}
-
-	if err := nm.create(ctx, "ambassador-webhook"); err != nil {
 		return err
 	}
 
@@ -370,11 +370,22 @@ func (m *Manager) processManifests(ctx context.Context, path string, patchers []
 }
 
 func (m *Manager) StartRelayCore(ctx context.Context) error {
-	log := m.cfg.Dialog
-	vm := newVaultManager(m.cl, m.cfg)
+	<-time.After(time.Second)
 
-	log.Infof("waiting for services in: %s", "relay-system")
-	if err := m.waitForServices(ctx, "relay-system"); err != nil {
+	vm := newVaultManager(m.cl, m.cfg)
+	rm := newRegistryManager(m.cl)
+	rim := newRelayInstallerManager(m.cl)
+	rcm := newRelayCoreManager(m.cl)
+
+	if err := rm.reconcile(ctx); err != nil {
+		return err
+	}
+
+	if err := rim.reconcile(ctx); err != nil {
+		return err
+	}
+
+	if err := rcm.reconcile(ctx); err != nil {
 		return err
 	}
 
