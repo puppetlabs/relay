@@ -58,7 +58,10 @@ var (
 	_ = schemeBuilder.AddToScheme(DefaultScheme)
 )
 
-const defaultWorkflowName = "relay-workflow"
+const (
+	defaultWorkflowName      = "relay-workflow"
+	jwtSigningKeysSecretName = "relay-core-v1-operator-signing-keys"
+)
 
 type Config struct {
 	WorkDir *workdir.WorkDir
@@ -218,7 +221,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	log := m.cfg.Dialog
 
 	nm := newNamespaceManager(m.cl)
-	cam := newCAManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 	rm := newRegistryManager(m.cl)
@@ -310,7 +312,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		nm.objectNamespacePatcher(systemNamespace),
 		missingProtocolPatcher,
 		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
-		cam.admissionPatcher(tlsSecret.Data["ca.crt"]),
+		admissionPatcher(tlsSecret.Data["ca.crt"]),
 	}
 
 	if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {

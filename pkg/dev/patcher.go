@@ -1,6 +1,7 @@
 package dev
 
 import (
+	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -76,6 +77,17 @@ func ambassadorPatcher(obj runtime.Object) {
 	// Don't allow old pods to linger.
 	deployment.Spec.Strategy.Type = appsv1.RecreateDeploymentStrategyType
 	deployment.Spec.Strategy.RollingUpdate = nil
+}
+
+func admissionPatcher(caCertData []byte) objectPatcherFunc {
+	return func(obj runtime.Object) {
+		switch t := obj.(type) {
+		case *admissionregistrationv1beta1.MutatingWebhookConfiguration:
+			for i := range t.Webhooks {
+				t.Webhooks[i].ClientConfig.CABundle = caCertData
+			}
+		}
+	}
 }
 
 func setKubernetesEnvVar(target *[]corev1.EnvVar, name, value string) {
