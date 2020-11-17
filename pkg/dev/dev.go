@@ -216,7 +216,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	// There's an option in k3d's cluster create that I set to wait for the
 	// server, but I think there's something deeper happening inside kubernetes
 	// (probably in the API server).
-	<-time.After(time.Second)
+	<-time.After(time.Second * 5)
 
 	log := m.cfg.Dialog
 
@@ -259,32 +259,8 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	if err := rcm.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := m.waitForCertificates(ctx, systemNamespace); err != nil {
-		return err
-	}
-
 	log.Info("initializing vault")
-	if err := vm.reconcileInit(ctx); err != nil {
-		return err
-	}
-
-	if err := vm.reconcileUnseal(ctx); err != nil {
-		return err
-	}
-
-	// get the CA secret so we can pass the cert into things that need it.
-	caSecretKey := client.ObjectKey{
-		Name:      rcm.objects.selfSignedCA.Spec.SecretName,
-		Namespace: rcm.objects.selfSignedCA.Namespace,
-	}
-
-	tlsSecret := &corev1.Secret{}
-
-	if err := m.cl.APIClient.Get(ctx, caSecretKey, tlsSecret); err != nil {
+	if err := vm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -293,7 +269,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		missingProtocolPatcher,
 	}
 
-	if err := m.processManifests(ctx, "/03-tekton", patchers, []string{"tekton-pipelines"}); err != nil {
+	if err := m.processManifests(ctx, "/03-tekton", patchers, nil); err != nil {
 		return err
 	}
 
@@ -302,36 +278,28 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		missingProtocolPatcher,
 	}
 
-	if err := m.processManifests(ctx, "/04-knative", patchers, []string{"knative-serving"}); err != nil {
+	if err := m.processManifests(ctx, "/04-knative", patchers, nil); err != nil {
 		return err
 	}
-
-	// patchers = []objectPatcherFunc{
-	// 	nm.objectNamespacePatcher(systemNamespace),
-	// 	missingProtocolPatcher,
-	// 	registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
-	// 	admissionPatcher(tlsSecret.Data["ca.crt"]),
-	// }
-
-	// if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
-	// 	return err
-	// }
 
 	if err := rim.reconcile(ctx); err != nil {
 		return err
 	}
 
-	if err := vm.reconcileConfiguration(ctx); err != nil {
+	if err := rcm.reconcile(ctx); err != nil {
+		return err
+	}
+
+	if err := vm.addRelayCoreAccess(ctx, &rcm.objects.relayCore); err != nil {
 		return err
 	}
 
 	patchers = []objectPatcherFunc{
 		nm.objectNamespacePatcher(ambassadorNamespace),
 		missingProtocolPatcher,
-		ambassadorPatcher,
 	}
 
-	if err := m.processManifests(ctx, "/06-ambassador", patchers, []string{"ambassador-webhook"}); err != nil {
+	if err := m.processManifests(ctx, "/06-ambassador", patchers, nil); err != nil {
 		return err
 	}
 

@@ -2,18 +2,22 @@ package dev
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
+	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -28,7 +32,6 @@ type relayCoreObjects struct {
 	selfSignedCA        certmanagerv1beta1.Certificate
 	issuer              certmanagerv1beta1.Issuer
 	operatorWebhookCert certmanagerv1beta1.Certificate
-	metadataAPICert     certmanagerv1beta1.Certificate
 	pvc                 corev1.PersistentVolumeClaim
 	relayCore           installerv1alpha1.RelayCore
 	rbacDefinition      rbacmanagerv1beta1.RBACDefinition
@@ -46,15 +49,11 @@ func newRelayCoreObjects() *relayCoreObjects {
 	operatorObjectMeta := objectMeta
 	operatorObjectMeta.Name = fmt.Sprintf("%s-operator", objectMeta.Name)
 
-	metadataAPIObjectMeta := objectMeta
-	metadataAPIObjectMeta.Name = fmt.Sprintf("%s-metadata-api", objectMeta.Name)
-
 	return &relayCoreObjects{
 		selfSignedIssuer:    certmanagerv1beta1.Issuer{ObjectMeta: selfSignedObjectMeta},
 		selfSignedCA:        certmanagerv1beta1.Certificate{ObjectMeta: selfSignedObjectMeta},
 		issuer:              certmanagerv1beta1.Issuer{ObjectMeta: objectMeta},
 		operatorWebhookCert: certmanagerv1beta1.Certificate{ObjectMeta: operatorObjectMeta},
-		metadataAPICert:     certmanagerv1beta1.Certificate{ObjectMeta: metadataAPIObjectMeta},
 		pvc:                 corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
 		relayCore:           installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
 		rbacDefinition:      rbacmanagerv1beta1.RBACDefinition{ObjectMeta: operatorObjectMeta},
@@ -67,9 +66,9 @@ type relayCoreManager struct {
 }
 
 func (m *relayCoreManager) reconcile(ctx context.Context) error {
-	client := m.cl.APIClient
+	cl := m.cl.APIClient
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.selfSignedIssuer, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.selfSignedIssuer, func() error {
 		m.selfSignedIssuer(&m.objects.selfSignedIssuer)
 
 		return nil
@@ -77,7 +76,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.selfSignedCA, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.selfSignedCA, func() error {
 		m.selfSignedCA(&m.objects.selfSignedCA)
 
 		return nil
@@ -85,7 +84,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.issuer, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.issuer, func() error {
 		m.issuer(&m.objects.issuer)
 
 		return nil
@@ -93,7 +92,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.operatorWebhookCert, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.operatorWebhookCert, func() error {
 		m.operatorWebhookCert(&m.objects.operatorWebhookCert)
 
 		return nil
@@ -101,15 +100,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.metadataAPICert, func() error {
-		m.metadataAPICert(&m.objects.metadataAPICert)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.pvc, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.pvc, func() error {
 		m.operatorStoragePVC(&m.objects.pvc)
 
 		return nil
@@ -117,7 +108,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.relayCore, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.relayCore, func() error {
 		m.relayCore(&m.objects.relayCore)
 
 		return nil
@@ -125,7 +116,20 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.rbacDefinition, func() error {
+	rcKey, err := client.ObjectKeyFromObject(&m.objects.relayCore)
+	if err != nil {
+		return err
+	}
+
+	if err := cl.Get(ctx, rcKey, &m.objects.relayCore); err != nil {
+		return err
+	}
+
+	if err := m.wait(ctx); err != nil {
+		return err
+	}
+
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.rbacDefinition, func() error {
 		m.rbacDefinition(&m.objects.rbacDefinition)
 
 		return nil
@@ -160,21 +164,15 @@ func (m *relayCoreManager) issuer(issuer *certmanagerv1beta1.Issuer) {
 }
 
 func (m *relayCoreManager) operatorWebhookCert(cert *certmanagerv1beta1.Certificate) {
-	cert.Spec.SecretName = fmt.Sprintf("%s-tls", cert.Name)
-	cert.Spec.CommonName = fmt.Sprintf("%s.%s.svc", cert.Name, cert.Namespace)
-	cert.Spec.DNSNames = append(cert.Spec.DNSNames,
-		fmt.Sprintf("%s.%s.svc", cert.Name, cert.Namespace),
-		fmt.Sprintf("%s.%s.svc.cluster.local", cert.Name, cert.Namespace),
-		cert.Name,
-	)
-	cert.Spec.IssuerRef = certmanagermetav1.ObjectReference{
-		Name: m.objects.issuer.Name,
-	}
-}
+	operatorServiceName := fmt.Sprintf("%s-operator", m.objects.relayCore.Name)
 
-func (m *relayCoreManager) metadataAPICert(cert *certmanagerv1beta1.Certificate) {
 	cert.Spec.SecretName = fmt.Sprintf("%s-tls", cert.Name)
-	cert.Spec.CommonName = fmt.Sprintf("%s.%s.svc", cert.Name, cert.Namespace)
+	cert.Spec.CommonName = fmt.Sprintf("%s.%s.svc", operatorServiceName, cert.Namespace)
+	cert.Spec.DNSNames = append(cert.Spec.DNSNames,
+		fmt.Sprintf("%s.%s.svc", operatorServiceName, cert.Namespace),
+		fmt.Sprintf("%s.%s.svc.cluster.local", operatorServiceName, cert.Namespace),
+		operatorServiceName,
+	)
 	cert.Spec.IssuerRef = certmanagermetav1.ObjectReference{
 		Name: m.objects.issuer.Name,
 	}
@@ -192,18 +190,20 @@ func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim)
 
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	rc.Spec.Operator = &installerv1alpha1.OperatorConfig{
-		Image:                 relayOperatorImage,
-		Standalone:            true,
-		StorageAddr:           "file:///tmp",
-		WebhookTLSSecretName:  &m.objects.operatorWebhookCert.Spec.SecretName,
+		Image:             relayOperatorImage,
+		Standalone:        true,
+		LogStoragePVCName: &m.objects.pvc.Name,
+		AdmissionWebhookServer: &installerv1alpha1.AdmissionWebhookServerConfig{
+			TLSSecretName:      m.objects.operatorWebhookCert.Spec.SecretName,
+			CABundleSecretName: &m.objects.selfSignedCA.Spec.SecretName,
+		},
 		GenerateJWTSigningKey: true,
 	}
 
 	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
-		Image:           relayMetadataAPIImage,
-		TLSSecretName:   &m.objects.metadataAPICert.Spec.SecretName,
-		Replicas:        int32(1),
-		StepMetadataURL: "https://relay.sh/step-metadata.json",
+		Image:         relayMetadataAPIImage,
+		VaultAuthRole: "tenant",
+		VaultAuthPath: "auth/jwt-tenants",
 	}
 }
 
@@ -235,6 +235,29 @@ func (m *relayCoreManager) rbacDefinition(rd *rbacmanagerv1beta1.RBACDefinition)
 			},
 		},
 	}
+}
+
+func (m *relayCoreManager) wait(ctx context.Context) error {
+	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+		key, err := client.ObjectKeyFromObject(&m.objects.relayCore)
+		if err != nil {
+			return retry.RetryPermanent(err)
+		}
+
+		if err := m.cl.APIClient.Get(ctx, key, &m.objects.relayCore); err != nil {
+			return retry.RetryTransient(err)
+		}
+
+		if m.objects.relayCore.Status.Status != installerv1alpha1.StatusCreated {
+			return retry.RetryTransient(errors.New("waiting for relaycore to be created"))
+		}
+		return retry.RetryPermanent(nil)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func newRelayCoreManager(cl *cluster.Client) *relayCoreManager {

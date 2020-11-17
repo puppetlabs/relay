@@ -31,6 +31,10 @@ spec:
           spec:
             description: RelayCoreSpec defines the desired state of RelayCore
             properties:
+              debug:
+                default: false
+                description: Debug enabled debug logging and tools where possible.
+                type: boolean
               environment:
                 default: dev
                 description: Environment is the environment this instance is running in.
@@ -496,6 +500,16 @@ spec:
               operator:
                 description: Operator is the configuration for the workflow run operator.
                 properties:
+                  admissionWebhookServer:
+                    description: AdmissionWebhookServer is the configuration for the admissionregistration webhook server.  If this field is set, then the admission webhook server is enabled and MutatingWebhooks are created.
+                    properties:
+                      caBundleSecretName:
+                        description: CABundleSecretName is the name of the secret that holds the ca certificate bundle for the admission webhook config.  The secret object MUST have a field called "ca.crt".
+                        type: string
+                      tlsSecretName:
+                        description: TLSSecretName is the name of the secret that holds the tls cert files for webhooks. The secret object MUST have two data fields called "tls.key" and "tls.crt".
+                        type: string
+                    type: object
                   affinity:
                     description: Affinity is an optional set of affinity constraints to apply to operator pods.
                     properties:
@@ -930,6 +944,9 @@ spec:
                   jwtSigningKeySecretName:
                     description: JWTSigningKeySecretName is the name of the secret object that holds a JWT signing key.  The secret object MUST have a data field called "key.pem".  This field is ignored if GenerateJWTSigningKey is true.
                     type: string
+                  logStoragePVCName:
+                    description: "LogStoragePVCName is the name of a PVC to store logs in. This field is here to support the development environment and may be removed at a later date when the PLS implementation is rolled in. \n DEPRECATED"
+                    type: string
                   metricsEnabled:
                     default: false
                     description: MetricsEnabled enables the metrics server for the operator deployment and creates a service that can be used to scrape those metrics.
@@ -964,9 +981,6 @@ spec:
                     type: object
                   vaultAgentRole:
                     description: VaultAgentRole is the role to use when configuring the vault agent.
-                    type: string
-                  webhookTLSSecretName:
-                    description: WebhookTLSSecretName is the name of the secret that holds the tls cert files for webhooks. The secret object MUST have two data fields called "tls.key" and "tls.crt".
                     type: string
                   workers:
                     default: 2
@@ -1031,6 +1045,9 @@ spec:
                     required:
                     - serverAddr
                     type: object
+                  tenantPath:
+                    default: customers
+                    type: string
                   transitKey:
                     default: metadata-api
                     type: string

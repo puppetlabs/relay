@@ -15,12 +15,14 @@ import (
 
 const (
 	systemNamespace     = "relay-system"
+	tenantNamespace     = "relay-tenants"
 	registryNamespace   = "docker-registry"
 	ambassadorNamespace = "ambassador-webhook"
 )
 
 type namespaceObjects struct {
 	systemNamespace     corev1.Namespace
+	tenantNamespace     corev1.Namespace
 	registryNamespace   corev1.Namespace
 	ambassadorNamespace corev1.Namespace
 }
@@ -28,6 +30,7 @@ type namespaceObjects struct {
 func newNamespaceObjects() *namespaceObjects {
 	return &namespaceObjects{
 		systemNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
+		tenantNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tenantNamespace}},
 		registryNamespace:   corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: registryNamespace}},
 		ambassadorNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ambassadorNamespace}},
 	}
@@ -44,6 +47,12 @@ func (m *namespaceManager) reconcile(ctx context.Context) error {
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.systemNamespace, func() error {
 		m.systemNamespace(&m.objects.systemNamespace)
 
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.tenantNamespace, func() error {
 		return nil
 	}); err != nil {
 		return err

@@ -128,8 +128,8 @@ func (m *relayInstallerManager) clusterRole(cr *rbacv1.ClusterRole) {
 	cr.Rules = []rbacv1.PolicyRule{
 		{APIGroups: verbAllGroups, Resources: verbAllResources, Verbs: []string{rbacv1.VerbAll}},
 		{
-			APIGroups: []string{"apps", "rbac.authorization.k8s.io"},
-			Resources: []string{"deployments", "clusterroles", "clusterrolebindings"},
+			APIGroups: []string{"apps", "rbac.authorization.k8s.io", "admissionregistration.k8s.io"},
+			Resources: []string{"deployments", "clusterroles", "clusterrolebindings", "mutatingwebhookconfigurations"},
 			Verbs:     []string{"create", "get", "list", "patch", "update", "watch"},
 		},
 		{
