@@ -28,7 +28,7 @@ require (
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.16.0
-	github.com/puppetlabs/relay-core v0.0.0-20201013175042-c86a3006e730
+	github.com/puppetlabs/relay-core v0.0.0-20201117200513-46b2d2059adb
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.1
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
@@ -57,7 +57,6 @@ require (
 replace (
 	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20200319173657-742aab907b54
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1
-	github.com/puppetlabs/relay-core => /home/kyle/code/puppet/relay-core
 	k8s.io/api => k8s.io/api v0.17.12
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.12
 	k8s.io/apimachinery => k8s.io/apimachinery v0.17.12
