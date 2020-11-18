@@ -10,15 +10,16 @@ import (
 )
 
 const (
-	ClusterName     = "relay-workflows"
-	NetworkName     = "relay-workflows-net"
-	HostStorageName = "local-storage"
+	ClusterName               = "relay-workflows"
+	NetworkName               = "relay-workflows-net"
+	HostStorageName           = "local-storage"
+	ImagePassthroughCacheAddr = "http://localhost:5001"
 
 	DefaultRegistryName         = "docker-registry.docker-registry.svc.cluster.local"
 	DefaultRegistryPort         = 5000
 	DefaultLoadBalancerHostPort = 8080
 	DefaultLoadBalancerNodePort = 80
-	DefaultWorkerCount          = 2
+	DefaultWorkerCount          = 0
 )
 
 type ClientOptions struct {

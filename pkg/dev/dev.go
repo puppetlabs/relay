@@ -14,6 +14,7 @@ import (
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/horsehead/v2/workdir"
+	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
 	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
@@ -25,6 +26,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -43,6 +45,7 @@ var (
 	schemeBuilder = runtime.NewSchemeBuilder(
 		kubernetesscheme.AddToScheme,
 		metav1.AddMetaToScheme,
+		rbacv1.AddToScheme,
 		apiextensionsv1.AddToScheme,
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
@@ -50,11 +53,15 @@ var (
 		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
 		cachingv1alpha1.AddToScheme,
+		installerv1alpha1.AddToScheme,
 	)
 	_ = schemeBuilder.AddToScheme(DefaultScheme)
 )
 
-const defaultWorkflowName = "relay-workflow"
+const (
+	defaultWorkflowName      = "relay-workflow"
+	jwtSigningKeysSecretName = "relay-core-v1-operator-signing-keys"
+)
 
 type Config struct {
 	WorkDir *workdir.WorkDir
@@ -200,17 +207,38 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 }
 
 func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOptions) error {
+	// I introduced some race condition where the cluster hasn't fully setup
+	// the object APIs or something, so when we try to create objects here, it
+	// will blow up saying the API for that object type doesn't exist. If we
+	// sleep for just a second, then we give it enough time to fully warm up or
+	// something. I dunno...
+	//
+	// There's an option in k3d's cluster create that I set to wait for the
+	// server, but I think there's something deeper happening inside kubernetes
+	// (probably in the API server).
+	<-time.After(time.Second * 5)
+
 	log := m.cfg.Dialog
+
 	nm := newNamespaceManager(m.cl)
-	cam := newCAManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
+	rm := newRegistryManager(m.cl)
+	rim := newRelayInstallerManager(m.cl)
+	rcm := newRelayCoreManager(m.cl)
 
-	if err := nm.create(ctx, systemNamespace); err != nil {
+	log.Info("initializing namespaces")
+	if err := nm.reconcile(ctx); err != nil {
 		return err
 	}
 
-	if err := am.createServiceAccount(ctx); err != nil {
+	log.Info("initializing admin account")
+	if err := am.reconcile(ctx); err != nil {
+		return err
+	}
+
+	log.Info("initializing image registry")
+	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -231,33 +259,8 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	log.Info("generating signing keys")
-	if _, err := cam.createSigningKeys(ctx); err != nil {
-		return err
-	}
-
-	if err := m.processManifests(ctx, "/02-secrets", patchers, nil); err != nil {
-		return err
-	}
-
-	if err := m.waitForCertificates(ctx, systemNamespace); err != nil {
-		return err
-	}
-
 	log.Info("initializing vault")
-	if err := vm.init(ctx); err != nil {
-		return err
-	}
-
-	// get the CA secret so we can pass the cert into things that need it.
-	caSecretKey := client.ObjectKey{
-		Name:      "relay-cert-ca-tls",
-		Namespace: systemNamespace,
-	}
-
-	tlsSecret := &corev1.Secret{}
-
-	if err := m.cl.APIClient.Get(ctx, caSecretKey, tlsSecret); err != nil {
+	if err := vm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -266,7 +269,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		missingProtocolPatcher,
 	}
 
-	if err := m.processManifests(ctx, "/03-tekton", patchers, []string{"tekton-pipelines"}); err != nil {
+	if err := m.processManifests(ctx, "/03-tekton", patchers, nil); err != nil {
 		return err
 	}
 
@@ -275,32 +278,28 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		missingProtocolPatcher,
 	}
 
-	if err := m.processManifests(ctx, "/04-knative", patchers, []string{"knative-serving"}); err != nil {
+	if err := m.processManifests(ctx, "/04-knative", patchers, nil); err != nil {
+		return err
+	}
+
+	if err := rim.reconcile(ctx); err != nil {
+		return err
+	}
+
+	if err := rcm.reconcile(ctx); err != nil {
+		return err
+	}
+
+	if err := vm.addRelayCoreAccess(ctx, &rcm.objects.relayCore); err != nil {
 		return err
 	}
 
 	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher(systemNamespace),
+		nm.objectNamespacePatcher(ambassadorNamespace),
 		missingProtocolPatcher,
-		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
-		cam.admissionPatcher(tlsSecret.Data["ca.crt"]),
 	}
 
-	if err := m.processManifests(ctx, "/05-relay", patchers, []string{systemNamespace}); err != nil {
-		return err
-	}
-
-	if err := nm.create(ctx, "ambassador-webhook"); err != nil {
-		return err
-	}
-
-	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher("ambassador-webhook"),
-		missingProtocolPatcher,
-		ambassadorPatcher,
-	}
-
-	if err := m.processManifests(ctx, "/06-ambassador", patchers, []string{"ambassador-webhook"}); err != nil {
+	if err := m.processManifests(ctx, "/06-ambassador", patchers, nil); err != nil {
 		return err
 	}
 
@@ -339,15 +338,22 @@ func (m *Manager) processManifests(ctx context.Context, path string, patchers []
 }
 
 func (m *Manager) StartRelayCore(ctx context.Context) error {
-	log := m.cfg.Dialog
-	vm := newVaultManager(m.cl, m.cfg)
+	// same issue where as above in the initialization.
+	<-time.After(time.Second * 5)
 
-	log.Infof("waiting for services in: %s", "relay-system")
-	if err := m.waitForServices(ctx, "relay-system"); err != nil {
+	vm := newVaultManager(m.cl, m.cfg)
+	rm := newRegistryManager(m.cl)
+
+	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
-	return vm.unseal(ctx)
+	if err := m.waitForServices(ctx, systemNamespace); err != nil {
+		return err
+	}
+
+	// unseal the vault
+	return vm.reconcile(ctx)
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {

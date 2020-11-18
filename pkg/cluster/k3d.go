@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	k3sVersion          = "v1.18.6-k3s1"
+	k3sVersion          = "v1.19.3-k3s2"
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
 
@@ -90,6 +90,9 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 
 	registry := &Registry{
 		Mirrors: map[string]Mirror{
+			"docker.io": Mirror{
+				Endpoints: []string{ImagePassthroughCacheAddr},
+			},
 			fmt.Sprintf("%s:%d", opts.ImageRegistryName, opts.ImageRegistryPort): Mirror{
 				Endpoints: []string{fmt.Sprintf("http://localhost:%d", opts.ImageRegistryPort)},
 			},
