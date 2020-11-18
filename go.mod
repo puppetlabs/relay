@@ -28,7 +28,7 @@ require (
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.16.0
-	github.com/puppetlabs/relay-core v0.0.0-20201117200513-46b2d2059adb
+	github.com/puppetlabs/relay-core v0.0.0-20201118015531-5ad991906201
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.1
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
