@@ -338,7 +338,8 @@ func (m *Manager) processManifests(ctx context.Context, path string, patchers []
 }
 
 func (m *Manager) StartRelayCore(ctx context.Context) error {
-	<-time.After(time.Second)
+	// same issue where as above in the initialization.
+	<-time.After(time.Second * 5)
 
 	vm := newVaultManager(m.cl, m.cfg)
 	rm := newRegistryManager(m.cl)
@@ -347,7 +348,12 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 		return err
 	}
 
-	return vm.reconcileUnseal(ctx)
+	if err := m.waitForServices(ctx, systemNamespace); err != nil {
+		return err
+	}
+
+	// unseal the vault
+	return vm.reconcile(ctx)
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {

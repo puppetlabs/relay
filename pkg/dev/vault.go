@@ -547,7 +547,9 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 		return err
 	}
 
-	err = retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+	var maxAttempts = 10
+
+	err = retry.Retry(ctx, 5*time.Second, func() *retry.RetryError {
 		if err := cl.Get(ctx, key, job); err != nil {
 			return retry.RetryPermanent(err)
 		}
@@ -565,7 +567,11 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 				}
 			case batchv1.JobFailed:
 				if cond.Status == corev1.ConditionTrue {
-					return retry.RetryPermanent(errors.New(cond.Message))
+					if maxAttempts == 0 {
+						return retry.RetryPermanent(errors.New(cond.Message))
+					}
+
+					maxAttempts--
 				}
 			}
 
