@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/dev"
@@ -64,7 +65,9 @@ func doRunMetadata(cmd *cobra.Command, subcommand []string) error {
 
 	if len(subcommand) == 0 {
 		Dialog.Infof("No command was supplied, idling metadataservice with access via: %s", url)
-		for { }
+		for {
+			time.Sleep(time.Second)
+		}
 	} else {
 		// TODO this may not be strictly correct, if the subcommand is fancy
 		command := exec.Command(subcommand[0], subcommand[1:]...)
