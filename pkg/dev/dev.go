@@ -6,6 +6,7 @@ import (
 	goflag "flag"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -223,7 +224,8 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 }
 
 func (m *Manager) InitializeMetadataApi(ctx context.Context, mockOptions MetadataMockOptions) (string, error) {
-	s, token, err := m.initializeMetadataServer(ctx, mockOptions)
+	dynamicAddr := make(chan string)
+	s, token, err := m.initializeMetadataServer(ctx, dynamicAddr, mockOptions)
 	if err != nil {
 		return "", err
 	}
@@ -238,13 +240,14 @@ func (m *Manager) InitializeMetadataApi(ctx context.Context, mockOptions Metadat
 		}
 	}()
 
-	return fmt.Sprintf("http://:%s@%s", token, s.Addr), nil
+	return fmt.Sprintf("http://:%s@%s", token, <-dynamicAddr), nil
 }
 
-func (m *Manager) initializeMetadataServer(ctx context.Context, mockOptions MetadataMockOptions) (*http.Server, string, error) {
+func (m *Manager) initializeMetadataServer(ctx context.Context, addr chan string, mockOptions MetadataMockOptions) (*http.Server, string, error) {
 	var auth middleware.Authenticator
 	var tm *sample.TokenMap
 	cfg := opt.NewConfig()
+	cfg.ListenPort = 0
 	cfg.SampleConfigFiles = []string{mockOptions.Input}
 	log := m.cfg.Dialog
 
@@ -281,6 +284,10 @@ func (m *Manager) initializeMetadataServer(ctx context.Context, mockOptions Meta
 	s := &http.Server{
 		Handler: server.NewHandler(auth, serverOpts...),
 		Addr:    fmt.Sprintf("0.0.0.0:%d", cfg.ListenPort),
+		BaseContext: func(l net.Listener) context.Context {
+			addr <- l.Addr().String()
+			return context.Background()
+		},
 	}
 	token, found := tm.ForStep(mockOptions.RunID, mockOptions.StepName)
 	if !found {
