@@ -47,6 +47,7 @@ func newDevCommand() *cobra.Command {
 	cmd.AddCommand(newClusterCommand())
 	cmd.AddCommand(newImageCommand())
 	cmd.AddCommand(newKubectlCommand())
+	cmd.AddCommand(newMetadataCommand())
 
 	// TODO temporary workflow commands until `relay workflow` is integrated
 	// with the dev cluster
