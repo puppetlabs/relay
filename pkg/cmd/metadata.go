@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/puppetlabs/relay/pkg/errors"
@@ -25,7 +24,7 @@ func newMetadataCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringP("input", "i", "", "Path to metadata mock file")
-	_ = cmd.MarkFlagRequired("input")
+	cmd.MarkFlagRequired("input")
 
 	cmd.Flags().StringP("run", "r", "1", "Run ID of step to serve")
 
@@ -52,11 +51,9 @@ func doRunMetadata(cmd *cobra.Command, subcommand []string) error {
 	}
 
 	ctx := cmd.Context()
-	cm := cluster.NewManager(ClusterConfig)
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
-	dm := dev.NewManager(cm, cl, DevConfig)
+	m := dev.NewMetadataAPIManager(DevConfig)
 
-	url, err := dm.InitializeMetadataApi(ctx, dev.MetadataMockOptions{
+	url, err := m.InitializeMetadataApi(ctx, dev.MetadataMockOptions{
 		RunID: runID,
 		StepName: stepName,
 		Input: input,
