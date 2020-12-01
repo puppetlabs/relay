@@ -21,6 +21,7 @@ require (
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/moby/sys/mountinfo v0.1.3 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/opencontainers/selinux v1.6.0 // indirect
