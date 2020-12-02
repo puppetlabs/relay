@@ -1,3 +1,15 @@
+# [4.3.0](https://github.com/puppetlabs/relay/compare/v4.3.0...v4.2.3)
+
+### Added
+- Ability to validate workflow
+- Ability to create workflow without specifying a file
+- Development environment: webhook support
+- Development environment: image cache
+
+### Fixed
+- Deletion of workflow on error
+- Development environment: Random workflow run name generation
+
 # [4.0.3](https://github.com/puppetlabs/relay/compare/v4.0.2...v4.0.3) (2020-05-08)
 
 
