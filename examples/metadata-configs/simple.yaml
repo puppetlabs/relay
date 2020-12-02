@@ -1,0 +1,19 @@
+connections:
+  aws/test:
+    accessKeyID: AKIASAMPLEKEY
+    secretAccessKey: 6bkpuV9fF3LX1Yo79OpfTwsw8wt5wsVLGTPJjDTu
+
+secrets:
+  hello: world
+
+runs:
+  '1234':
+    steps:
+      foo:
+        spec:
+          aws: !Connection [aws, test]
+          foo: bar
+        outputs:
+          foo: bar
+        state:
+          foo: bar

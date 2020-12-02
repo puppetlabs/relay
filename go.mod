@@ -11,16 +11,17 @@ require (
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
 	github.com/fairwindsops/rbac-manager v0.9.4
-	github.com/fatih/color v1.9.0
+	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/gogo/googleapis v1.4.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
 	github.com/imdario/mergo v0.3.11 // indirect
+	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
-	github.com/mattn/go-colorable v0.1.7 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/moby/sys/mountinfo v0.1.3 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/opencontainers/selinux v1.6.0 // indirect
@@ -28,28 +29,33 @@ require (
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.16.0
-	github.com/puppetlabs/relay-core v0.0.0-20201118015531-5ad991906201
+	github.com/puppetlabs/relay-core v0.0.0-20201125233608-779cdfeb3766
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.1
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v1.0.1-0.20200629195214-2c5a0d300f8b
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.5.1
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
 	github.com/willf/bitset v1.1.11 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
+	golang.org/x/sys v0.0.0-20201130171929-760e229fe7c5 // indirect
+	golang.org/x/text v0.3.4 // indirect
+	golang.org/x/tools v0.0.0-20201130184508-c5a73c303507 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
-	k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver v0.18.8
-	k8s.io/apimachinery v0.19.1
+	k8s.io/api v0.19.4
+	k8s.io/apiextensions-apiserver v0.19.4
+	k8s.io/apimachinery v0.19.4
 	k8s.io/apiserver v0.18.5
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/component-base v0.18.5
 	k8s.io/klog/v2 v2.1.0 // indirect
 	k8s.io/kubernetes v1.17.2
-	k8s.io/utils v0.0.0-20200821003339-5e75c0163111 // indirect
+	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
 	knative.dev/caching v0.0.0-20200630172829-a78409990d76
 	sigs.k8s.io/controller-runtime v0.5.11
 )
