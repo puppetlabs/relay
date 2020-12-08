@@ -44,6 +44,13 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay dev kubectl`** -- Run kubectl commands against the dev cluster
 
+**`relay dev metadata [flags]`** -- Run a mock metadata service
+```
+  -i, --input string   Path to metadata mock file
+  -r, --run string     Run ID of step to serve (default "1")
+  -s, --step string    Step name to serve (default "default")
+```
+
 **`relay dev workflow run [flags]`** -- Run a workflow on the dev cluster
 ```
   -f, --file string             Path to Relay workflow file

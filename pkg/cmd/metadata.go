@@ -17,11 +17,11 @@ func newMetadataCommand() *cobra.Command {
 	// TODO Add help about usage, idling and direct execution
 	cmd := &cobra.Command{
 		Use:   "metadata",
-		Short: "Run a mock metadata service for entrypoint testing",
+		Short: "Run a mock metadata service",
 		FParseErrWhitelist: cobra.FParseErrWhitelist{
 			UnknownFlags: true,
 		},
-		RunE:               doRunMetadata,
+		RunE: doRunMetadata,
 	}
 
 	cmd.Flags().StringP("input", "i", "", "Path to metadata mock file")
@@ -55,9 +55,9 @@ func doRunMetadata(cmd *cobra.Command, subcommand []string) error {
 	m := dev.NewMetadataAPIManager(DevConfig)
 
 	url, err := m.InitializeMetadataApi(ctx, dev.MetadataMockOptions{
-		RunID: runID,
+		RunID:    runID,
 		StepName: stepName,
-		Input: input,
+		Input:    input,
 	})
 	if err != nil {
 		return err
