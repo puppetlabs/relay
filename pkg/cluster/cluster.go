@@ -31,6 +31,7 @@ type Config struct {
 	dialog.Dialog
 }
 
+// CreateOptions are the configurable options for cluster creation
 type CreateOptions struct {
 	// LoadBalancerHostPort is the port on the host to bind to when mapping
 	// between the host machine and the service load balancer node.
@@ -48,6 +49,9 @@ type CreateOptions struct {
 	// Number of worker nodes on the cluster
 	WorkerCount int
 }
+
+// InitializeOptions are the configurable options for cluster initialization
+type InitializeOptions struct{}
 
 // Manager provides methods to manage the lifecycle of a cluster.
 type Manager interface {

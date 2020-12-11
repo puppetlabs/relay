@@ -375,6 +375,7 @@ func (m *vaultManager) relayCoreAccessJob(rc *installerv1alpha1.RelayCore, job *
 	}
 
 	configMap.Data = map[string]string{
+		"log-service.hcl":                 string(policyGen.logServiceFile()),
 		"operator.hcl":                    string(policyGen.operatorFile()),
 		"metadata-api.hcl":                string(policyGen.metadataAPIFile()),
 		"metadata-api-tenant.hcl":         string(policyGen.metadataAPITenantFile()),
@@ -421,7 +422,7 @@ func (m *vaultManager) relayCoreAccessJob(rc *installerv1alpha1.RelayCore, job *
 func (m *vaultManager) relayCoreAccessJobEnvs(rc *installerv1alpha1.RelayCore, container *corev1.Container) {
 	container.Env = append(container.Env,
 		corev1.EnvVar{
-			Name: "JWT_SINGING_PUBLIC_KEY",
+			Name: "JWT_SIGNING_PUBLIC_KEY",
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					Key: "public-key.pem",
@@ -430,6 +431,14 @@ func (m *vaultManager) relayCoreAccessJobEnvs(rc *installerv1alpha1.RelayCore, c
 					},
 				},
 			},
+		},
+		corev1.EnvVar{
+			Name:  "LOG_SERVICE_POLICY",
+			Value: rc.Status.Vault.LogServiceRole,
+		},
+		corev1.EnvVar{
+			Name:  "LOG_SERVICE_SERVICE_ACCOUNT_NAME",
+			Value: rc.Status.Vault.LogServiceServiceAccount,
 		},
 		corev1.EnvVar{
 			Name:  "OPERATOR_POLICY",
@@ -462,6 +471,10 @@ func (m *vaultManager) relayCoreAccessJobEnvs(rc *installerv1alpha1.RelayCore, c
 		corev1.EnvVar{
 			Name:  "JWT_AUTH_PATH",
 			Value: rc.Spec.MetadataAPI.VaultAuthPath,
+		},
+		corev1.EnvVar{
+			Name:  "LOG_SERVICE_PATH",
+			Value: rc.Spec.Vault.LogServicePath,
 		},
 		corev1.EnvVar{
 			Name:  "TENANT_PATH",
@@ -657,6 +670,35 @@ func (g *vaultPolicyGenerator) operatorFile() []byte {
 	return g.generate(&policy)
 }
 
+func (g *vaultPolicyGenerator) logServiceFile() []byte {
+	policy := vaultPolicy{
+		Paths: []vaultPolicyPath{
+			{
+				Name:         path.Join("sys", "mounts"),
+				Capabilities: []string{"read"},
+			},
+			{
+				Name:         path.Join(g.rc.Spec.Vault.LogServicePath, "data", "logs", "*"),
+				Capabilities: []string{"create", "read", "update"},
+			},
+			{
+				Name:         path.Join(g.rc.Spec.Vault.LogServicePath, "data", "contexts", "*"),
+				Capabilities: []string{"create", "read", "update"},
+			},
+			{
+				Name:         path.Join(g.rc.Spec.Vault.LogServicePath, "metadata", "logs", "*"),
+				Capabilities: []string{"list", "delete"},
+			},
+			{
+				Name:         path.Join(g.rc.Spec.Vault.LogServicePath, "metadata", "contexts", "*"),
+				Capabilities: []string{"list", "delete"},
+			},
+		},
+	}
+
+	return g.generate(&policy)
+}
+
 func (g *vaultPolicyGenerator) metadataAPIFile() []byte {
 	policy := vaultPolicy{
 		Paths: []vaultPolicyPath{
@@ -746,13 +788,15 @@ apk add --no-cache jq gettext
 vault auth enable -path=jwt-tenants jwt
 vault write ${JWT_AUTH_PATH}/config \
    jwt_supported_algs="RS256,RS512" \
-   jwt_validation_pubkeys="${JWT_SINGING_PUBLIC_KEY}"
+   jwt_validation_pubkeys="${JWT_SIGNING_PUBLIC_KEY}"
 export AUTH_JWT_ACCESSOR="$( vault auth list -format=json | jq -r '."jwt-tenants/".accessor' )"
+vault secrets enable -path=${LOG_SERVICE_PATH} kv-v2
 vault secrets enable -path=${TENANT_PATH} kv-v2
 vault secrets enable -path=${TRANSIT_PATH} transit
 vault write ${TRANSIT_PATH}/keys/${TRANSIT_KEY} derived=true
 vault policy write ${OPERATOR_POLICY} /vault-policy-config/operator.hcl
 vault policy write ${METADATA_API_POLICY} /vault-policy-config/metadata-api.hcl
+vault policy write ${LOG_SERVICE_POLICY} /vault-policy-config/log-service.hcl
 envsubst '$AUTH_JWT_ACCESSOR' < /vault-policy-config/metadata-api-tenant.hcl > /tmp/metadata-api-tenant.hcl
 vault policy write ${METADATA_API_TENANT_POLICY} /tmp/metadata-api-tenant.hcl
 vault write auth/kubernetes/role/${OPERATOR_POLICY} \
@@ -762,7 +806,12 @@ vault write auth/kubernetes/role/${OPERATOR_POLICY} \
 vault write auth/kubernetes/role/${METADATA_API_POLICY} \
     bound_service_account_names=${METADATA_API_SERVICE_ACCOUNT_NAME} \
     bound_service_account_namespaces=${SERVICE_ACCOUNT_NAMESPACE} \
-    ttl=24h policies=${METADATA_API_POLICY}
+	ttl=24h policies=${METADATA_API_POLICY}
+vault write auth/kubernetes/role/${LOG_SERVICE_POLICY} \
+    bound_service_account_names=${LOG_SERVICE_SERVICE_ACCOUNT_NAME} \
+    bound_service_account_namespaces=${SERVICE_ACCOUNT_NAMESPACE} \
+    ttl=24h \
+    policies=${LOG_SERVICE_POLICY}
 vault write ${JWT_AUTH_PATH}/role/${JWT_AUTH_ROLE} - < /vault-policy-config/metadata-api-tenant-config.json
 `
 )

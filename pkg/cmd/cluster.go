@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
@@ -13,6 +15,8 @@ func newClusterCommand() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 	}
 
+	cmd.AddCommand(newCreateClusterCommand())
+	cmd.AddCommand(newInitClusterCommand())
 	cmd.AddCommand(newStartClusterCommand())
 	cmd.AddCommand(newStopClusterCommand())
 	cmd.AddCommand(newDeleteClusterCommand())
@@ -20,11 +24,11 @@ func newClusterCommand() *cobra.Command {
 	return cmd
 }
 
-func newStartClusterCommand() *cobra.Command {
+func newCreateClusterCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "start",
-		Short: "Start the local cluster that can execute workflows",
-		RunE:  doStartCluster,
+		Use:   "create",
+		Short: "Create the local cluster",
+		RunE:  doCreateCluster,
 	}
 
 	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
@@ -35,7 +39,7 @@ func newStartClusterCommand() *cobra.Command {
 	return cmd
 }
 
-func doStartCluster(cmd *cobra.Command, args []string) error {
+func doCreateCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
 	lbHostPort, err := cmd.Flags().GetInt("load-balancer-port")
@@ -58,16 +62,21 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	opts := cluster.CreateOptions{
+		LoadBalancerHostPort: lbHostPort,
+		ImageRegistryName:    registryName,
+		ImageRegistryPort:    registryPort,
+		WorkerCount:          workerCount,
+	}
+
+	return createCluster(ctx, opts)
+}
+
+func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 	cm := cluster.NewManager(ClusterConfig)
 
-	if _, err := cm.Exists(ctx); err != nil {
+	if exists, _ := cm.Exists(ctx); !exists {
 		Dialog.Info("Creating a new dev cluster")
-		opts := cluster.CreateOptions{
-			LoadBalancerHostPort: lbHostPort,
-			ImageRegistryName:    registryName,
-			ImageRegistryPort:    registryPort,
-			WorkerCount:          workerCount,
-		}
 		if err := cm.Create(ctx, opts); err != nil {
 			return err
 		}
@@ -84,33 +93,121 @@ func doStartCluster(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		Dialog.Info("Initializing relay-core; this might take a couple minutes...")
 		initOpts := dev.InitializeOptions{
-			ImageRegistryPort: registryPort,
+			ImageRegistryPort: opts.ImageRegistryPort,
 		}
-		if err := dm.InitializeRelayCore(ctx, initOpts); err != nil {
+
+		if err := dm.Initialize(ctx, initOpts); err != nil {
 			return err
 		}
 
-		Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
+		Dialog.Info("Relay dev cluster is ready to use")
 	} else {
-		if err := cm.Start(ctx); err != nil {
-			return err
-		}
+		Dialog.Info("Cluster already exists")
+	}
 
-		cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
-		if err != nil {
-			return err
-		}
+	return nil
+}
 
-		// dev manager depends on a kubernetes client, which we can't get if a
-		// cluster doesn't exist, so we can't create one at the top of this
-		// function.
-		dm := dev.NewManager(cm, cl, DevConfig)
+func newInitClusterCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "initialize",
+		Aliases: []string{"init"},
+		Short:   "Initialize the local cluster",
+		RunE:    doInitCluster,
+	}
 
-		if err := dm.StartRelayCore(ctx); err != nil {
-			return err
+	return cmd
+}
+
+func doInitCluster(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
+
+	opts := cluster.InitializeOptions{}
+
+	return initCluster(ctx, opts)
+}
+
+func initCluster(ctx context.Context, opts cluster.InitializeOptions) error {
+	cm := cluster.NewManager(ClusterConfig)
+
+	if exists, _ := cm.Exists(ctx); !exists {
+		Dialog.Info("Cluster does not exist")
+		return nil
+	}
+
+	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	if err != nil {
+		return err
+	}
+
+	dm := dev.NewManager(cm, cl, DevConfig)
+
+	logServiceOpts := dev.LogServiceOptions{
+		Enabled: false,
+	}
+
+	if Config.LogServiceConfig != nil {
+		logServiceOpts = dev.LogServiceOptions{
+			Enabled:               Config.LogServiceConfig.Enabled,
+			CredentialsSecretName: Config.LogServiceConfig.CredentialsSecretName,
+			Project:               Config.LogServiceConfig.Project,
+			Dataset:               Config.LogServiceConfig.Dataset,
+			Table:                 Config.LogServiceConfig.Table,
 		}
+	}
+
+	Dialog.Info("Initializing relay-core; this might take a couple minutes...")
+
+	if err := dm.InitializeRelayCore(ctx, logServiceOpts); err != nil {
+		return err
+	}
+
+	Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
+
+	return nil
+}
+
+func newStartClusterCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "start",
+		Short: "Start the local cluster",
+		RunE:  doStartCluster,
+	}
+
+	return cmd
+}
+
+func doStartCluster(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
+
+	return startCluster(ctx)
+}
+
+func startCluster(ctx context.Context) error {
+	cm := cluster.NewManager(ClusterConfig)
+
+	if exists, _ := cm.Exists(ctx); !exists {
+		Dialog.Info("Cluster does not exist")
+		return nil
+	}
+
+	if err := cm.Start(ctx); err != nil {
+		return err
+	}
+
+	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	if err != nil {
+		return err
+	}
+
+	// dev manager depends on a kubernetes client, which we can't get if a
+	// cluster doesn't exist, so we can't create one at the top of this
+	// function.
+	dm := dev.NewManager(cm, cl, DevConfig)
+
+	if err := dm.StartRelayCore(ctx); err != nil {
+		return err
 	}
 
 	Dialog.Info("Relay dev cluster is ready to use")
@@ -132,6 +229,11 @@ func doStopCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager(ClusterConfig)
 
+	if exists, _ := cm.Exists(ctx); !exists {
+		Dialog.Info("Cluster does not exist")
+		return nil
+	}
+
 	return cm.Stop(ctx)
 }
 
@@ -148,6 +250,11 @@ func newDeleteClusterCommand() *cobra.Command {
 func doDeleteCluster(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager(ClusterConfig)
+
+	if exists, _ := cm.Exists(ctx); !exists {
+		Dialog.Info("Cluster does not exist")
+		return nil
+	}
 
 	Dialog.Progress("Deleting cluster; this may take a minute...")
 
