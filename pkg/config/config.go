@@ -2,6 +2,7 @@
 package config
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -47,16 +48,24 @@ type APIContext struct {
 	WebDomain *url.URL
 }
 
+type LogServiceConfig struct {
+	CredentialsSecretName string
+	Project               string
+	Dataset               string
+	Table                 string
+}
+
 type Config struct {
 	Debug          bool
 	Yes            bool
 	Out            OutputType
-	APIDomain      *url.URL
-	UIDomain       *url.URL
-	WebDomain      *url.URL
 	CacheDir       string
 	TokenPath      string
 	CurrentContext string
+
+	ContextConfig *APIContext
+
+	LogServiceConfig *LogServiceConfig
 }
 
 // GetDefaultConfig returns a config set used for error formatting when the user's config set cannot be read
@@ -65,12 +74,47 @@ func GetDefaultConfig() *Config {
 		Debug:          true,
 		Yes:            false,
 		Out:            OutputTypeText,
-		APIDomain:      defaultContexts[defaultCurrentContext].APIDomain,
-		UIDomain:       defaultContexts[defaultCurrentContext].UIDomain,
-		WebDomain:      defaultContexts[defaultCurrentContext].WebDomain,
 		CacheDir:       userCacheDir(),
 		TokenPath:      filepath.Join(userCacheDir(), "auth-token"),
 		CurrentContext: defaultCurrentContext,
+
+		ContextConfig: &APIContext{
+			APIDomain: defaultContexts[defaultCurrentContext].APIDomain,
+			UIDomain:  defaultContexts[defaultCurrentContext].UIDomain,
+			WebDomain: defaultContexts[defaultCurrentContext].WebDomain,
+		},
+	}
+}
+
+func NewAPIContext(v *viper.Viper) (*APIContext, error) {
+	apiDomain, err := url.Parse(v.GetString("apiDomain"))
+	if err != nil {
+		return nil, err
+	}
+
+	uiDomain, err := url.Parse(v.GetString("uiDomain"))
+	if err != nil {
+		return nil, err
+	}
+
+	webDomain, err := url.Parse(v.GetString("webDomain"))
+	if err != nil {
+		return nil, err
+	}
+
+	return &APIContext{
+		APIDomain: apiDomain,
+		UIDomain:  uiDomain,
+		WebDomain: webDomain,
+	}, nil
+}
+
+func NewLogServiceConfig(v *viper.Viper) *LogServiceConfig {
+	return &LogServiceConfig{
+		CredentialsSecretName: v.GetString("credentialsSecretName"),
+		Project:               v.GetString("project"),
+		Dataset:               v.GetString("dataset"),
+		Table:                 v.GetString("table"),
 	}
 }
 
@@ -101,30 +145,8 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	}
 
 	context := v.GetString("current_context")
-	v.SetDefault("api_domain", defaultContexts[context].APIDomain)
-	v.SetDefault("ui_domain", defaultContexts[context].UIDomain)
-	v.SetDefault("web_domain", defaultContexts[context].WebDomain)
 
 	output, err := readOutput(v)
-
-	if err != nil {
-		return nil, err
-	}
-
-	apiDomain, err := readAPIDomain(v)
-
-	if err != nil {
-		return nil, err
-	}
-
-	uiDomain, err := readUIDomain(v)
-
-	if err != nil {
-		return nil, err
-	}
-
-	webDomain, err := readWebDomain(v)
-
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +155,57 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 		Debug:          v.GetBool("debug"),
 		Yes:            v.GetBool("yes"),
 		Out:            output,
-		APIDomain:      apiDomain,
-		UIDomain:       uiDomain,
-		WebDomain:      webDomain,
 		CacheDir:       v.GetString("cache_dir"),
 		TokenPath:      v.GetString("token_path"),
 		CurrentContext: context,
+	}
+
+	// FIXME This will likely change to read in the entire context section
+	// to enable switching context on demand without necessarily reloading
+	// the configuration
+	if context != "" {
+		logServiceSection := v.Sub(fmt.Sprintf("config.%s.logService", context))
+		if logServiceSection != nil {
+			config.LogServiceConfig = NewLogServiceConfig(logServiceSection)
+		}
+
+		contextSection := v.Sub(fmt.Sprintf("contexts.%s", context))
+		if contextSection != nil {
+			contextConfig, err := NewAPIContext(contextSection)
+			if err != nil {
+				return nil, err
+			}
+
+			config.ContextConfig = contextConfig
+		}
+	}
+
+	// Deprecated. Backwards compatibility only.
+	if config.ContextConfig == nil {
+		v.SetDefault("api_domain", defaultContexts[context].APIDomain)
+		v.SetDefault("ui_domain", defaultContexts[context].UIDomain)
+		v.SetDefault("web_domain", defaultContexts[context].WebDomain)
+
+		apiDomain, err := readAPIDomain(v)
+		if err != nil {
+			return nil, err
+		}
+
+		uiDomain, err := readUIDomain(v)
+		if err != nil {
+			return nil, err
+		}
+
+		webDomain, err := readWebDomain(v)
+		if err != nil {
+			return nil, err
+		}
+
+		config.ContextConfig = &APIContext{
+			APIDomain: apiDomain,
+			UIDomain:  uiDomain,
+			WebDomain: webDomain,
+		}
 	}
 
 	return config, nil

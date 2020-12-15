@@ -21,9 +21,12 @@ import (
 )
 
 const (
-	relayCoreName                  = "relay-core-v1"
-	relayOperatorImage             = "relaysh/relay-operator:latest"
-	relayMetadataAPIImage          = "relaysh/relay-metadata-api:latest"
+	relayCoreName          = "relay-core-v1"
+	relayLogServiceImage   = "relaysh/relay-pls:latest"
+	relayOperatorImage     = "relaysh/relay-operator:latest"
+	relayMetadataAPIImage  = "relaysh/relay-metadata-api:latest"
+	relayRuntimeToolsImage = "relaysh/relay-runtime-tools:latest"
+
 	relayOperatorStorageVolumeSize = "1Gi"
 )
 
@@ -61,8 +64,9 @@ func newRelayCoreObjects() *relayCoreObjects {
 }
 
 type relayCoreManager struct {
-	cl      *cluster.Client
-	objects *relayCoreObjects
+	cl             *cluster.Client
+	objects        *relayCoreObjects
+	logServiceOpts LogServiceOptions
 }
 
 func (m *relayCoreManager) reconcile(ctx context.Context) error {
@@ -189,6 +193,17 @@ func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim)
 }
 
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
+	if m.logServiceOpts.Enabled {
+		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
+			Image: relayLogServiceImage,
+
+			CredentialsSecretName: m.logServiceOpts.CredentialsSecretName,
+			Project:               m.logServiceOpts.Project,
+			Dataset:               m.logServiceOpts.Dataset,
+			Table:                 m.logServiceOpts.Table,
+		}
+	}
+
 	rc.Spec.Operator = &installerv1alpha1.OperatorConfig{
 		Image:             relayOperatorImage,
 		Standalone:        true,
@@ -198,6 +213,10 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 			CABundleSecretName: &m.objects.selfSignedCA.Spec.SecretName,
 		},
 		GenerateJWTSigningKey: true,
+		ToolInjection: &installerv1alpha1.ToolInjectionConfig{
+			Image:           relayRuntimeToolsImage,
+			ImagePullPolicy: corev1.PullAlways,
+		},
 	}
 
 	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
@@ -260,9 +279,10 @@ func (m *relayCoreManager) wait(ctx context.Context) error {
 	return nil
 }
 
-func newRelayCoreManager(cl *cluster.Client) *relayCoreManager {
+func newRelayCoreManager(cl *cluster.Client, logServiceOpts LogServiceOptions) *relayCoreManager {
 	return &relayCoreManager{
-		cl:      cl,
-		objects: newRelayCoreObjects(),
+		cl:             cl,
+		objects:        newRelayCoreObjects(),
+		logServiceOpts: logServiceOpts,
 	}
 }

@@ -136,7 +136,7 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 	}
 
 	rel := &url.URL{Path: opts.path}
-	u := c.config.APIDomain.ResolveReference(rel)
+	u := c.config.ContextConfig.APIDomain.ResolveReference(rel)
 
 	encoding, ok := mapEncodingTypeToEncoding[opts.BodyEncodingType]
 

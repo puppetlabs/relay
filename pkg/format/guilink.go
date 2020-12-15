@@ -8,5 +8,5 @@ import (
 )
 
 func GuiLink(cfg *config.Config, path string, a ...interface{}) string {
-	return cfg.UIDomain.ResolveReference(&url.URL{Path: fmt.Sprintf(path, a...)}).String()
+	return cfg.ContextConfig.UIDomain.ResolveReference(&url.URL{Path: fmt.Sprintf(path, a...)}).String()
 }

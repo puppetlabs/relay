@@ -120,7 +120,10 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	Dialog.Infof("Monitor step progress with: relay dev kubectl -n %s get pods --watch", ws.WorkflowIdentifier.Name)
+	// FIXME Ideally this would have cognizance of the exact (generated) name of the workflow run and the namespace used
+	Dialog.Infof("Monitor step progress with: ")
+	Dialog.Infof("relay dev kubectl -n %s get workflowruns --watch", ws.WorkflowIdentifier.Name)
+	Dialog.Infof("relay dev kubectl -n %s get pods --watch", ws.WorkflowIdentifier.Name)
 
 	return nil
 }

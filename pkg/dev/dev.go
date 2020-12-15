@@ -78,6 +78,15 @@ type InitializeOptions struct {
 	ImageRegistryPort int
 }
 
+// FIXME Consider a better mechanism for specific service options
+type LogServiceOptions struct {
+	Enabled               bool
+	CredentialsSecretName string
+	Project               string
+	Dataset               string
+	Table                 string
+}
+
 func (m *Manager) KubectlCommand() (*cobra.Command, error) {
 	if err := os.Setenv("KUBECONFIG", filepath.Join(m.cfg.WorkDir.Path, "kubeconfig")); err != nil {
 		return nil, err
@@ -206,7 +215,7 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 	return vm.writeSecrets(ctx, secret)
 }
 
-func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOptions) error {
+func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error {
 	// I introduced some race condition where the cluster hasn't fully setup
 	// the object APIs or something, so when we try to create objects here, it
 	// will blow up saying the API for that object type doesn't exist. If we
@@ -224,8 +233,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 	rm := newRegistryManager(m.cl)
-	rim := newRelayInstallerManager(m.cl)
-	rcm := newRelayCoreManager(m.cl)
 
 	log.Info("initializing namespaces")
 	if err := nm.reconcile(ctx); err != nil {
@@ -264,7 +271,36 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 		return err
 	}
 
-	patchers = []objectPatcherFunc{
+	return nil
+}
+
+func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOptions) error {
+	// I introduced some race condition where the cluster hasn't fully setup
+	// the object APIs or something, so when we try to create objects here, it
+	// will blow up saying the API for that object type doesn't exist. If we
+	// sleep for just a second, then we give it enough time to fully warm up or
+	// something. I dunno...
+	//
+	// There's an option in k3d's cluster create that I set to wait for the
+	// server, but I think there's something deeper happening inside kubernetes
+	// (probably in the API server).
+	<-time.After(time.Second * 5)
+
+	// log := m.cfg.Dialog
+
+	nm := newNamespaceManager(m.cl)
+	vm := newVaultManager(m.cl, m.cfg)
+	rim := newRelayInstallerManager(m.cl)
+	rcm := newRelayCoreManager(m.cl, lsOpts)
+
+	// Apply manifests in ordered phases. Note that some managers
+	// have weird dependencies on running services. For instance, you cannot
+	// create or apply a ClusterIssuer unless the cert-manager webhook service
+	// is Ready. This means we will just wait for all services across all created
+	// namespaces to be ready before moving to the next phase of applying manifests.
+	// TODO: dynamically generate the list as we process the manifests
+
+	patchers := []objectPatcherFunc{
 		nm.objectNamespacePatcher("tekton-pipelines"),
 		missingProtocolPatcher,
 	}
@@ -279,6 +315,10 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	}
 
 	if err := m.processManifests(ctx, "/04-knative", patchers, nil); err != nil {
+		return err
+	}
+
+	if err := m.processManifests(ctx, "/05-relay", nil, nil); err != nil {
 		return err
 	}
 
@@ -297,6 +337,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, opts InitializeOption
 	patchers = []objectPatcherFunc{
 		nm.objectNamespacePatcher(ambassadorNamespace),
 		missingProtocolPatcher,
+		ambassadorPatcher,
 	}
 
 	if err := m.processManifests(ctx, "/06-ambassador", patchers, nil); err != nil {
