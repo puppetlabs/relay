@@ -923,9 +923,6 @@ spec:
                     default: IfNotPresent
                     description: PullPolicy describes a policy for if/when to pull a container image
                     type: string
-                  logServiceEnabled:
-                    description: LogServiceEnabled is whether the log service is enabled or not
-                    type: boolean
                   logServiceURL:
                     description: LogServiceURL is the URL of the service used to persist log messages.
                     type: string

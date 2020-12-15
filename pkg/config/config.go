@@ -49,7 +49,6 @@ type APIContext struct {
 }
 
 type LogServiceConfig struct {
-	Enabled               bool
 	CredentialsSecretName string
 	Project               string
 	Dataset               string
@@ -84,10 +83,6 @@ func GetDefaultConfig() *Config {
 			UIDomain:  defaultContexts[defaultCurrentContext].UIDomain,
 			WebDomain: defaultContexts[defaultCurrentContext].WebDomain,
 		},
-
-		LogServiceConfig: &LogServiceConfig{
-			Enabled: false,
-		},
 	}
 }
 
@@ -116,7 +111,6 @@ func NewAPIContext(v *viper.Viper) (*APIContext, error) {
 
 func NewLogServiceConfig(v *viper.Viper) *LogServiceConfig {
 	return &LogServiceConfig{
-		Enabled:               v.GetBool("enabled"),
 		CredentialsSecretName: v.GetString("credentialsSecretName"),
 		Project:               v.GetString("project"),
 		Dataset:               v.GetString("dataset"),

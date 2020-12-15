@@ -30,7 +30,7 @@ require (
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/horsehead/v2 v2.16.0
-	github.com/puppetlabs/relay-core v0.0.0-20201211131443-4ba4da9d77b0
+	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.1
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
@@ -44,9 +44,9 @@ require (
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11 // indirect
-	golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f // indirect
+	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e // indirect
 	golang.org/x/text v0.3.4 // indirect
-	golang.org/x/tools v0.0.0-20201211025543-abf6a1d87e11 // indirect
+	golang.org/x/tools v0.0.0-20201215192005-fa10ef0b8743 // indirect
 	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776

@@ -143,13 +143,10 @@ func initCluster(ctx context.Context, opts cluster.InitializeOptions) error {
 
 	dm := dev.NewManager(cm, cl, DevConfig)
 
-	logServiceOpts := dev.LogServiceOptions{
-		Enabled: false,
-	}
-
+	logServiceOpts := dev.LogServiceOptions{}
 	if Config.LogServiceConfig != nil {
 		logServiceOpts = dev.LogServiceOptions{
-			Enabled:               Config.LogServiceConfig.Enabled,
+			Enabled:               true,
 			CredentialsSecretName: Config.LogServiceConfig.CredentialsSecretName,
 			Project:               Config.LogServiceConfig.Project,
 			Dataset:               Config.LogServiceConfig.Dataset,

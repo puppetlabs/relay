@@ -223,8 +223,6 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		Image:         relayMetadataAPIImage,
 		VaultAuthRole: "tenant",
 		VaultAuthPath: "auth/jwt-tenants",
-
-		LogServiceEnabled: m.logServiceOpts.Enabled,
 	}
 }
 
