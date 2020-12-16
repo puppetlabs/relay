@@ -14,25 +14,29 @@ import (
 )
 
 const (
-	systemNamespace     = "relay-system"
-	tenantNamespace     = "relay-tenants"
-	registryNamespace   = "docker-registry"
-	ambassadorNamespace = "ambassador-webhook"
+	systemNamespace          = "relay-system"
+	tenantNamespace          = "relay-tenants"
+	registryNamespace        = "docker-registry"
+	ambassadorNamespace      = "ambassador-webhook"
+	knativeServingNamespace  = "knative-serving"
+	tektonPipelinesNamespace = "tekton-pipelines"
 )
 
 type namespaceObjects struct {
-	systemNamespace     corev1.Namespace
-	tenantNamespace     corev1.Namespace
-	registryNamespace   corev1.Namespace
-	ambassadorNamespace corev1.Namespace
+	systemNamespace         corev1.Namespace
+	tenantNamespace         corev1.Namespace
+	registryNamespace       corev1.Namespace
+	ambassadorNamespace     corev1.Namespace
+	knativeServingNamespace corev1.Namespace
 }
 
 func newNamespaceObjects() *namespaceObjects {
 	return &namespaceObjects{
-		systemNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
-		tenantNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tenantNamespace}},
-		registryNamespace:   corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: registryNamespace}},
-		ambassadorNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ambassadorNamespace}},
+		systemNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
+		tenantNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tenantNamespace}},
+		registryNamespace:       corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: registryNamespace}},
+		ambassadorNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ambassadorNamespace}},
+		knativeServingNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: knativeServingNamespace}},
 	}
 }
 
@@ -65,6 +69,16 @@ func (m *namespaceManager) reconcile(ctx context.Context) error {
 	}
 
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.ambassadorNamespace, func() error {
+		m.ambassadorNamespace(&m.objects.ambassadorNamespace)
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.knativeServingNamespace, func() error {
+		m.knativeServingNamespace(&m.objects.knativeServingNamespace)
+
 		return nil
 	}); err != nil {
 		return err
@@ -76,6 +90,18 @@ func (m *namespaceManager) reconcile(ctx context.Context) error {
 func (m *namespaceManager) systemNamespace(ns *corev1.Namespace) {
 	ns.Labels = map[string]string{
 		"nebula.puppet.com/network-policy.tasks": "true",
+	}
+}
+
+func (m *namespaceManager) ambassadorNamespace(ns *corev1.Namespace) {
+	ns.Labels = map[string]string{
+		"nebula.puppet.com/network-policy.webhook-gateway": "true",
+	}
+}
+
+func (m *namespaceManager) knativeServingNamespace(ns *corev1.Namespace) {
+	ns.Labels = map[string]string{
+		"nebula.puppet.com/network-policy.webhook-gateway": "true",
 	}
 }
 

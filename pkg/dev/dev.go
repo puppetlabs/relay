@@ -301,7 +301,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	// TODO: dynamically generate the list as we process the manifests
 
 	patchers := []objectPatcherFunc{
-		nm.objectNamespacePatcher("tekton-pipelines"),
+		nm.objectNamespacePatcher(tektonPipelinesNamespace),
 		missingProtocolPatcher,
 	}
 
@@ -310,7 +310,7 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	}
 
 	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher("knative-serving"),
+		nm.objectNamespacePatcher(knativeServingNamespace),
 		missingProtocolPatcher,
 	}
 
