@@ -385,16 +385,15 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 	vm := newVaultManager(m.cl, m.cfg)
 	rm := newRegistryManager(m.cl)
 
+	if err := vm.reconcile(ctx); err != nil {
+		return err
+	}
+
 	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
-	if err := m.waitForServices(ctx, systemNamespace); err != nil {
-		return err
-	}
-
-	// unseal the vault
-	return vm.reconcile(ctx)
+	return m.waitForServices(ctx, systemNamespace)
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {

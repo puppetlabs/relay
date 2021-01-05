@@ -61,7 +61,7 @@ Use the 'workflow' subcommand to interact with workflows:
   -p, --parameter stringArray   Parameters to invoke this workflow run with
 ```
 
-**`relay dev workflow secret set [flags]`** -- Set a workflow secret
+**`relay dev workflow secret set [workflow name] [secret name] [flags]`** -- Set a workflow secret
 ```
       --value-stdin   accept secret value from stdin
 ```
