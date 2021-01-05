@@ -141,7 +141,7 @@ func newDevWorkflowSecretCommand() *cobra.Command {
 
 func newDevWorkflowSecretSetCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set",
+		Use:   "set [workflow name] [secret name]",
 		Short: "Set a workflow secret",
 		Args:  cobra.MaximumNArgs(2),
 		RunE:  doDevWorkflowSecretSet,

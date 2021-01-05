@@ -776,6 +776,10 @@ func newVaultPolicyGenerator(rc *installerv1alpha1.RelayCore) *vaultPolicyGenera
 
 var (
 	vaultConfigureScript = `
+vault plugin register \
+	-sha256=c2b9cf0bdacfb29a4b7b65814100a3f699cd732b6c8620d632e4ced17df8c091 \
+	-command=oauthapp \
+	secret oauthapp
 vault auth enable -path=kubernetes kubernetes
 vault write auth/kubernetes/config \
     kubernetes_host="https://kubernetes.default.svc" \

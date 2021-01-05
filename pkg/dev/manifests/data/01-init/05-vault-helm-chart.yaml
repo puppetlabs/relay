@@ -7,4 +7,40 @@ spec:
   chart: vault
   targetNamespace: relay-system
   repo: https://helm.releases.hashicorp.com
-  version: 0.6.0
+  version: 0.8.0
+  valuesContent: |
+    server:
+      extraInitContainers:
+      - name: oauthapp
+        image: "alpine"
+        command: [sh, -c]
+        args:
+        - cd /tmp &&
+          wget https://github.com/puppetlabs/vault-plugin-secrets-oauthapp/releases/download/v1.8.3/vault-plugin-secrets-oauthapp-v1.8.3-linux-amd64.tar.xz -O oauthapp.xz &&
+          tar -xf oauthapp.xz &&
+          mv vault-plugin-secrets-oauthapp-v1.8.3-linux-amd64 /usr/local/libexec/vault/oauthapp &&
+          chmod +x /usr/local/libexec/vault/oauthapp
+        volumeMounts:
+        - name: plugins
+          mountPath: /usr/local/libexec/vault
+      volumes:
+      - name: plugins
+        emptyDir: {}
+      volumeMounts:
+      - mountPath: /usr/local/libexec/vault
+        name: plugins
+        readOnly: true
+      standalone:
+        config: |
+          ui = true
+
+          plugin_directory = "/usr/local/libexec/vault"
+
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "file" {
+            path = "/vault/data"
+          }
