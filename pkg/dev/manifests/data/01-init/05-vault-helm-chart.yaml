@@ -7,7 +7,7 @@ spec:
   chart: vault
   targetNamespace: relay-system
   repo: https://helm.releases.hashicorp.com
-  version: 0.8.0
+  version: 0.9.0
   valuesContent: |
     server:
       extraInitContainers:
@@ -35,6 +35,7 @@ spec:
           ui = true
 
           plugin_directory = "/usr/local/libexec/vault"
+          log_level = "Debug"
 
           listener "tcp" {
             tls_disable = 1
