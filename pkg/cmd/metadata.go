@@ -18,6 +18,14 @@ func newMetadataCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "metadata",
 		Short: "Run a mock metadata service",
+		Long: `
+This subcommand starts a mock metadata service which
+responds to queries from the Relay client SDKs, to help debug
+and test step entrypoint code in your local environment. You can 
+either run your code directly from this command by appending the
+invocation to the end of the command line. Or, without any arguments,
+it will start a persistent HTTP service bound to localhost which 
+you can query repeatedly.`,
 		FParseErrWhitelist: cobra.FParseErrWhitelist{
 			UnknownFlags: true,
 		},
@@ -64,7 +72,7 @@ func doRunMetadata(cmd *cobra.Command, subcommand []string) error {
 	}
 
 	if len(subcommand) == 0 {
-		Dialog.Infof("No command was supplied, idling metadataservice with access via: %s", url)
+		Dialog.Infof("No command was supplied, awaiting requests. Set environment with:\nexport METADATA_API_URL='%s'", url)
 		for {
 			time.Sleep(time.Second)
 		}
