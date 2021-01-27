@@ -21,10 +21,11 @@ func newMetadataCommand() *cobra.Command {
 		Long: `
 This subcommand starts a mock metadata service which
 responds to queries from the Relay client SDKs, to help debug
-and test step entrypoint code in your local environment. You can 
-either run your code directly from this command by appending the
+and test steps in your local environment.
+
+You can either run your code directly from this command by appending the
 invocation to the end of the command line. Or, without any arguments,
-it will start a persistent HTTP service bound to localhost which 
+it will start a persistent HTTP service bound to localhost which
 you can query repeatedly.`,
 		FParseErrWhitelist: cobra.FParseErrWhitelist{
 			UnknownFlags: true,

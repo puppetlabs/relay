@@ -49,6 +49,15 @@ Use the 'workflow' subcommand to interact with workflows:
 **`relay dev kubectl`** -- Run kubectl commands against the dev cluster
 
 **`relay dev metadata [flags]`** -- Run a mock metadata service
+  
+This subcommand starts a mock metadata service which
+responds to queries from the Relay client SDKs, to help debug
+and test steps in your local environment.
+
+You can either run your code directly from this command by appending the
+invocation to the end of the command line. Or, without any arguments,
+it will start a persistent HTTP service bound to localhost which
+you can query repeatedly.
 ```
   -i, --input string   Path to metadata mock file
   -r, --run string     Run ID of step to serve (default "1")
