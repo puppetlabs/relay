@@ -73,6 +73,8 @@ Use the 'workflow' subcommand to interact with workflows:
 	// can find the flag. likely figured out from reading this comment, actually...
 	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")
 	cmd.PersistentFlags().MarkHidden("config")
+	cmd.PersistentFlags().StringP("context", "x", "", "current context")
+	cmd.PersistentFlags().MarkHidden("context")
 
 	cmd.AddCommand(newAuthCommand())
 	cmd.AddCommand(newWorkflowCommand())

@@ -138,7 +138,9 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	v.SetDefault("cache_dir", userCacheDir())
 	v.SetDefault("data_dir", userDataDir())
 	v.SetDefault("token_path", filepath.Join(userCacheDir(), "auth-token"))
+
 	v.SetDefault("current_context", defaultCurrentContext)
+	v.BindPFlag("current_context", flags.Lookup("context"))
 
 	if err := readInConfigFile(v, flags); err != nil {
 		return nil, err
