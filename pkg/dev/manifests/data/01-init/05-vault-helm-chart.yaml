@@ -16,9 +16,9 @@ spec:
         command: [sh, -c]
         args:
         - cd /tmp &&
-          wget https://github.com/puppetlabs/vault-plugin-secrets-oauthapp/releases/download/v1.8.3/vault-plugin-secrets-oauthapp-v1.8.3-linux-amd64.tar.xz -O oauthapp.xz &&
+          wget https://github.com/puppetlabs/vault-plugin-secrets-oauthapp/releases/download/v1.9.0/vault-plugin-secrets-oauthapp-v1.9.0-linux-amd64.tar.xz -O oauthapp.xz &&
           tar -xf oauthapp.xz &&
-          mv vault-plugin-secrets-oauthapp-v1.8.3-linux-amd64 /usr/local/libexec/vault/oauthapp &&
+          mv vault-plugin-secrets-oauthapp-v1.9.0-linux-amd64 /usr/local/libexec/vault/oauthapp &&
           chmod +x /usr/local/libexec/vault/oauthapp
         volumeMounts:
         - name: plugins
