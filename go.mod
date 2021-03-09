@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/Microsoft/hcsshim/test v0.0.0-20201109231005-3cc00bc91358 // indirect
+	github.com/cli/browser v1.0.0
 	github.com/containerd/cgroups v0.0.0-20200817152742-7a3c009711fb // indirect
 	github.com/containerd/containerd v1.4.0 // indirect
 	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect

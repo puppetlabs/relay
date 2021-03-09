@@ -7,37 +7,26 @@ import (
 	"github.com/puppetlabs/relay/pkg/model"
 )
 
-type CreateTokenParameters struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 type CreateTokenResponse struct {
-	Token *model.Token `json:"token"`
+	Token                   *model.Token `json:"token"`
+	VerificationURIComplete string       `json:"verification_uri_complete"`
 }
 
-func (c *Client) CreateToken(email string, password string) errors.Error {
-
-	params := CreateTokenParameters{
-		Email:    email,
-		Password: password,
-	}
-
+func (c *Client) CreateToken() (string, errors.Error) {
 	response := &CreateTokenResponse{}
 	if err := c.Request(
 		WithMethod(http.MethodPost),
-		WithPath("/auth/sessions"),
-		WithBody(params),
+		WithPath("/auth/sessions/device"),
 		WithResponseInto(response),
 	); err != nil {
-		return err
+		return "", err
 	}
 
 	if err := c.storeToken(response.Token); err != nil {
-		return errors.NewClientInternalError().WithCause(err)
+		return "", errors.NewClientInternalError().WithCause(err)
 	}
 
-	return nil
+	return response.VerificationURIComplete, nil
 }
 
 func (c *Client) InvalidateToken() errors.Error {
