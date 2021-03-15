@@ -561,6 +561,9 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 
 	err = retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		if err := cl.Get(ctx, key, job); err != nil {
+			if k8serrors.IsNotFound(err) {
+				return retry.Done(nil)
+			}
 			return retry.Repeat(err)
 		}
 
