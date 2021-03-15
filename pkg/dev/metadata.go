@@ -10,12 +10,12 @@ import (
 
 	"github.com/inconshreveable/log15"
 	"github.com/puppetlabs/errawr-go/v2/pkg/errawr"
-	"github.com/puppetlabs/horsehead/v2/logging"
+	"github.com/puppetlabs/leg/httputil/serving"
+	"github.com/puppetlabs/leg/logging"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/opt"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/sample"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/server"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/server/middleware"
-	"github.com/puppetlabs/relay-core/pkg/util/lifecycleutil"
 )
 
 type MetadataAPIManager struct {
@@ -23,9 +23,9 @@ type MetadataAPIManager struct {
 }
 
 type MetadataMockOptions struct {
-	RunID string
+	RunID    string
 	StepName string
-	Input string
+	Input    string
 }
 
 func (m *MetadataAPIManager) InitializeMetadataApi(ctx context.Context, mockOptions MetadataMockOptions) (string, error) {
@@ -35,10 +35,10 @@ func (m *MetadataAPIManager) InitializeMetadataApi(ctx context.Context, mockOpti
 		return "", err
 	}
 
-	var listenOpts []lifecycleutil.ListenWaitHTTPOption
+	var listenOpts []serving.ListenWaitHTTPOption
 	go func() {
 		// This will end by the closer when the ctx is marked done
-		err = lifecycleutil.ListenWaitHTTP(ctx, s, listenOpts...)
+		err = serving.ListenWaitHTTP(ctx, s, listenOpts...)
 		if err != nil {
 			println(fmt.Errorf("couldn't start metadata service: %v", err.Error()))
 			os.Exit(1)

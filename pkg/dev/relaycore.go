@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
-	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -257,20 +256,20 @@ func (m *relayCoreManager) rbacDefinition(rd *rbacmanagerv1beta1.RBACDefinition)
 }
 
 func (m *relayCoreManager) wait(ctx context.Context) error {
-	err := retry.Retry(ctx, 2*time.Second, func() *retry.RetryError {
+	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		key, err := client.ObjectKeyFromObject(&m.objects.relayCore)
 		if err != nil {
-			return retry.RetryPermanent(err)
+			return false, err
 		}
 
 		if err := m.cl.APIClient.Get(ctx, key, &m.objects.relayCore); err != nil {
-			return retry.RetryTransient(err)
+			return false, err
 		}
 
 		if m.objects.relayCore.Status.Status != installerv1alpha1.StatusCreated {
-			return retry.RetryTransient(errors.New("waiting for relaycore to be created"))
+			return false, errors.New("waiting for relaycore to be created")
 		}
-		return retry.RetryPermanent(nil)
+		return true, nil
 	})
 	if err != nil {
 		return err

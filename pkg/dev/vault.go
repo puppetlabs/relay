@@ -9,12 +9,11 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hclwrite"
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
-	"github.com/puppetlabs/relay-core/pkg/util/retry"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -560,38 +559,29 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 		return err
 	}
 
-	var maxAttempts = 10
-
-	err = retry.Retry(ctx, 5*time.Second, func() *retry.RetryError {
+	err = retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		if err := cl.Get(ctx, key, job); err != nil {
-			return retry.RetryPermanent(err)
+			return false, err
 		}
 
 		if len(job.Status.Conditions) == 0 {
-			return retry.RetryTransient(errors.New("waiting for vault operator job to finish"))
+			return false, errors.New("waiting for vault operator job to finish")
 		}
 
-	conditions:
 		for _, cond := range job.Status.Conditions {
 			switch cond.Type {
 			case batchv1.JobComplete:
 				if cond.Status == corev1.ConditionTrue {
-					break conditions
+					return true, nil
 				}
 			case batchv1.JobFailed:
 				if cond.Status == corev1.ConditionTrue {
-					if maxAttempts == 0 {
-						return retry.RetryPermanent(errors.New(cond.Message))
-					}
-
-					maxAttempts--
+					return false, errors.New(cond.Message)
 				}
 			}
-
-			return retry.RetryTransient(errors.New("waiting for vault operator job to finish"))
 		}
 
-		return retry.RetryPermanent(nil)
+		return false, nil
 	})
 	if err != nil {
 		return err

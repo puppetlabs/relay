@@ -3,7 +3,7 @@ package cluster
 import (
 	"context"
 
-	"github.com/puppetlabs/horsehead/v2/workdir"
+	"github.com/puppetlabs/leg/workdir"
 	"github.com/puppetlabs/relay/pkg/dialog"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
