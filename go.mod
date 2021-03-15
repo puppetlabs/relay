@@ -13,23 +13,25 @@ require (
 	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
-	github.com/gobuffalo/flect v0.2.2 // indirect
 	github.com/gogo/googleapis v1.4.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
 	github.com/imdario/mergo v0.3.11 // indirect
-	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
+	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/moby/sys/mountinfo v0.1.3 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/opencontainers/selinux v1.6.0 // indirect
-	github.com/prometheus/client_golang v1.7.1 // indirect
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
-	github.com/puppetlabs/horsehead/v2 v2.16.0
+	github.com/puppetlabs/leg/encoding v0.1.0
+	github.com/puppetlabs/leg/httputil v0.1.4
+	github.com/puppetlabs/leg/logging v0.1.0
+	github.com/puppetlabs/leg/timeutil v0.4.0
+	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v3 v3.0.1
@@ -45,14 +47,12 @@ require (
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11 // indirect
 	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e // indirect
-	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/tools v0.0.0-20201215192005-fa10ef0b8743 // indirect
-	google.golang.org/grpc v1.34.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 	k8s.io/api v0.20.0
 	k8s.io/apiextensions-apiserver v0.20.0
-	k8s.io/apimachinery v0.20.0
+	k8s.io/apimachinery v0.20.1
 	k8s.io/apiserver v0.18.5
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/component-base v0.18.5
@@ -61,7 +61,6 @@ require (
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
 	knative.dev/caching v0.0.0-20200630172829-a78409990d76
 	sigs.k8s.io/controller-runtime v0.5.11
-	sigs.k8s.io/controller-tools v0.4.1 // indirect
 )
 
 replace (

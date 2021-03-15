@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/leg/encoding/transfer"
 )
 
 type RevisionIdentifier struct {

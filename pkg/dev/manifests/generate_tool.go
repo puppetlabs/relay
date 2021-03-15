@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/puppetlabs/horsehead/v2/httputil/fs"
+	"github.com/puppetlabs/leg/httputil/fs"
 	"github.com/shurcooL/vfsgen"
 )
 

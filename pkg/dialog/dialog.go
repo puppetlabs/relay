@@ -1,9 +1,7 @@
-// package diaglog encapsulates standard user messaging for all standard cli behavior.
-// It is distinct from https://github.com/puppetlabs/horsehead/blob/master/logging/logger.go
-// which should be used for structured debug logging, intended for developers or for semi-technical
-// users running in debug-mode. This package is for polished messages that are leveled
-// but unstructured. All messages are hidden in json output mode, under the assumption
-// that users will want to pipe json output to a file or another process
+// package dialog encapsulates standard user messaging for all standard CLI behavior.
+// This package is for polished messages that are leveled but unstructured.
+// All messages are hidden in json output mode, under the assumption
+// that users will want to pipe json output to a file or another process.
 package dialog
 
 import (

@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/puppetlabs/horsehead/v2/workdir"
+	"github.com/puppetlabs/leg/workdir"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
