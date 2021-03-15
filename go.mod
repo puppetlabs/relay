@@ -30,7 +30,7 @@ require (
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
 	github.com/puppetlabs/leg/logging v0.1.0
-	github.com/puppetlabs/leg/timeutil v0.3.0
+	github.com/puppetlabs/leg/timeutil v0.4.0
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3

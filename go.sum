@@ -1724,8 +1724,12 @@ github.com/puppetlabs/errawr-go/v2 v2.2.0 h1:HiX2K0PoZCwe2F2ZPf4QF3xeNzNNuov3QCw
 github.com/puppetlabs/errawr-go/v2 v2.2.0/go.mod h1:SJ1lTqOW0HcfqVPS/F7kSrUAc4o/6DfjBatQ5TTS/JU=
 github.com/puppetlabs/horsehead/v2 v2.16.0 h1:K3u6ct/omcVCcUxoam3jpZI8uRo5vpABGM0Qvxv3dkc=
 github.com/puppetlabs/horsehead/v2 v2.16.0/go.mod h1:ixb6zHYDDe9tvWRi2YhJpljRfQukggDZ6KGfZkezvEc=
+github.com/puppetlabs/leg/datastructure v0.1.0 h1:0703wQJ71etqsPOr+vfiTBHkq0+tVVT0kH7iluwH7GU=
+github.com/puppetlabs/leg/datastructure v0.1.0/go.mod h1:4Kwk/83hkiR1smN1gRsi0LJDgVDbD672JpWjRPBVka8=
 github.com/puppetlabs/leg/encoding v0.1.0 h1:9c3wfcc2qQu2WBOHLaCFzy9M5Ykx/LxInRMi6bB4YXA=
 github.com/puppetlabs/leg/encoding v0.1.0/go.mod h1:g0nlkWi36AWq6ldfjqSMjVgcqrSXekcsfVPPKh/+qdw=
+github.com/puppetlabs/leg/errmap v0.1.0 h1:1oH50d/sch1kB5JuIRrLf0hg9gSr5pfAmTUc6o8CtZQ=
+github.com/puppetlabs/leg/errmap v0.1.0/go.mod h1:8oVNaeaaprDjbMYWHj5lLHsD1nsnKZbv0Jw+SjoJ6hY=
 github.com/puppetlabs/leg/httputil v0.1.4 h1:EZwi3AUwlUTV7feXuarcYokkV5gv/mASyUHtYpSuU6E=
 github.com/puppetlabs/leg/httputil v0.1.4/go.mod h1:UFUX0e6nwqrcp3v7qactusd/JHqBsRRaJL8meW5ZXW4=
 github.com/puppetlabs/leg/instrumentation v0.1.4/go.mod h1:x6wQv38l6/tZRQHolqpL6mhnF+tjMYt4pu0MzoaM54s=
@@ -1740,6 +1744,8 @@ github.com/puppetlabs/leg/request v0.1.0/go.mod h1:rLKkF3VdNg//iXBSTs+6Eir05BQR1
 github.com/puppetlabs/leg/scheduler v0.1.4/go.mod h1:kC6I8SA/nRt4VOu18qJ+HwBW+IxmXHI2lKicdfj3ItI=
 github.com/puppetlabs/leg/timeutil v0.3.0 h1:7JUYWWW8bvSRU7EcEBVmkDv2gTb1uLE/F7hnEWljfQc=
 github.com/puppetlabs/leg/timeutil v0.3.0/go.mod h1:FHkZ9rYegF0STjS4az6hsjdvcBHcG+FB4CsY5mx1DfI=
+github.com/puppetlabs/leg/timeutil v0.4.0 h1:jPp+4t/zltrPkmcwSlfNsnxZnSgJPrtyw2hQuw9lxN8=
+github.com/puppetlabs/leg/timeutil v0.4.0/go.mod h1:NFYu1scx8y6qIzMWVzlUAxQ7Hp+2mqIeRm0QO8X29jk=
 github.com/puppetlabs/leg/workdir v0.1.0 h1:ErFrZiEK7eYufupQ34ytM4AFIVxZryuOktMGoSd3Y0c=
 github.com/puppetlabs/leg/workdir v0.1.0/go.mod h1:wqtQ5F1GvWJ2OH0OaDYkZnF4Iq+yV9uojU6kBub6jcA=
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b h1:L3KBXqsUZK0OsVAN6DQ99OzI18BvtP+uVtX0oTjCxhQ=

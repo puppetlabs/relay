@@ -115,14 +115,14 @@ func (m *Manager) Delete(ctx context.Context) error {
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		pvcs := &corev1.PersistentVolumeClaimList{}
 		if err := m.cl.APIClient.List(ctx, pvcs, client.InNamespace(systemNamespace)); err != nil {
-			return false, err
+			return retry.Repeat(err)
 		}
 
 		if len(pvcs.Items) != 0 {
-			return false, fmt.Errorf("waiting for pvcs to be deleted")
+			return retry.Repeat(fmt.Errorf("waiting for pvcs to be deleted"))
 		}
 
-		return true, nil
+		return retry.Done(nil)
 	})
 	if err != nil {
 		return err
@@ -420,26 +420,26 @@ func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		eps := &corev1.EndpointsList{}
 		if err := m.cl.APIClient.List(ctx, eps, client.InNamespace(namespace)); err != nil {
-			return false, err
+			return retry.Repeat(err)
 		}
 
 		if len(eps.Items) == 0 {
-			return false, fmt.Errorf("waiting for endpoints")
+			return retry.Repeat(fmt.Errorf("waiting for endpoints"))
 		}
 
 		for _, ep := range eps.Items {
 			if len(ep.Subsets) == 0 {
-				return false, fmt.Errorf("waiting for subsets")
+				return retry.Repeat(fmt.Errorf("waiting for subsets"))
 			}
 
 			for _, subset := range ep.Subsets {
 				if len(subset.Addresses) == 0 {
-					return false, fmt.Errorf("waiting for pod assignment")
+					return retry.Repeat(fmt.Errorf("waiting for pod assignment"))
 				}
 			}
 		}
 
-		return true, nil
+		return retry.Done(nil)
 	})
 	if err != nil {
 		return err
@@ -452,28 +452,24 @@ func (m *Manager) waitForCertificates(ctx context.Context, namespace string) err
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		certs := &certmanagerv1beta1.CertificateList{}
 		if err := m.cl.APIClient.List(ctx, certs, client.InNamespace(namespace)); err != nil {
-			return false, err
+			return retry.Repeat(err)
 		}
 
 		if len(certs.Items) == 0 {
-			return false, fmt.Errorf("waiting for certificates")
+			return retry.Repeat(fmt.Errorf("waiting for certificates"))
 		}
 
 		for _, cert := range certs.Items {
-			var isReady bool
-
 			for _, cond := range cert.Status.Conditions {
 				if cond.Type == certmanagerv1beta1.CertificateConditionReady {
-					isReady = cond.Status == certmanagermetav1.ConditionTrue
+					if cond.Status != certmanagermetav1.ConditionTrue {
+						return retry.Repeat(fmt.Errorf("waiting for certificates to be ready"))
+					}
 				}
-			}
-
-			if !isReady {
-				return false, fmt.Errorf("waiting for certificates to be ready")
 			}
 		}
 
-		return true, nil
+		return retry.Done(nil)
 	})
 	if err != nil {
 		return err

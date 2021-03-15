@@ -561,27 +561,27 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 
 	err = retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		if err := cl.Get(ctx, key, job); err != nil {
-			return false, err
+			return retry.Repeat(err)
 		}
 
 		if len(job.Status.Conditions) == 0 {
-			return false, errors.New("waiting for vault operator job to finish")
+			return retry.Repeat(errors.New("waiting for vault operator job to finish"))
 		}
 
 		for _, cond := range job.Status.Conditions {
 			switch cond.Type {
 			case batchv1.JobComplete:
 				if cond.Status == corev1.ConditionTrue {
-					return true, nil
+					return retry.Done(nil)
 				}
 			case batchv1.JobFailed:
 				if cond.Status == corev1.ConditionTrue {
-					return false, errors.New(cond.Message)
+					return retry.Done(errors.New(cond.Message))
 				}
 			}
 		}
 
-		return false, nil
+		return retry.Repeat(nil)
 	})
 	if err != nil {
 		return err

@@ -259,17 +259,18 @@ func (m *relayCoreManager) wait(ctx context.Context) error {
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		key, err := client.ObjectKeyFromObject(&m.objects.relayCore)
 		if err != nil {
-			return false, err
+			return retry.Done(err)
 		}
 
 		if err := m.cl.APIClient.Get(ctx, key, &m.objects.relayCore); err != nil {
-			return false, err
+			return retry.Repeat(err)
 		}
 
 		if m.objects.relayCore.Status.Status != installerv1alpha1.StatusCreated {
-			return false, errors.New("waiting for relaycore to be created")
+			return retry.Repeat(errors.New("waiting for relaycore to be created"))
 		}
-		return true, nil
+
+		return retry.Done(nil)
 	})
 	if err != nil {
 		return err
