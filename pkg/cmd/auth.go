@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/cli/browser"
+	"github.com/eiannone/keyboard"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -28,21 +29,47 @@ func newAuthCommand() *cobra.Command {
 func doLogin(cmd *cobra.Command, args []string) error {
 	Dialog.Progress("Getting authorization...")
 
-	verificationURI, cterr := Client.CreateToken()
-
+	deviceValues, cterr := Client.CreateToken()
 	if cterr != nil {
 		return cterr
 	}
+	Dialog.Info("Stored authorization token.")
 
-	fmt.Fprintf(os.Stdout, "Press [Enter] to continue authorization in the web browser: %s\n", verificationURI)
-	fmt.Scanln()
+	Dialog.Info(fmt.Sprintf(
+		`Your one-time code for activation is:
 
-	if err := browser.OpenURL(verificationURI); err != nil {
+**%s**
+* %s *
+**%s**
+
+Press [ENTER] to open %s in a browser or any other key to cancel...`,
+		strings.Repeat("*", len(deviceValues.UserCode)),
+		deviceValues.UserCode,
+		strings.Repeat("*", len(deviceValues.UserCode)),
+		deviceValues.VerificationURI,
+	))
+	_, key, err := keyboard.GetSingleKey()
+	if err != nil {
+		return errors.NewGeneralUnknownError().WithCause(err)
+	}
+
+	if key != keyboard.KeyEnter {
+		Dialog.Info("Canceled.")
+		return nil
+	}
+
+	// The complete url may be empty, depending on the Device Auth Flow implementation.
+	var uri string
+	if deviceValues.VerificationURIComplete != "" {
+		uri = deviceValues.VerificationURIComplete
+	} else {
+		uri = deviceValues.VerificationURI
+	}
+	if err := browser.OpenURL(uri); err != nil {
 		return errors.NewAuthFailedLoginError().WithCause(fmt.Errorf("error opening the web browser: %w", err))
 	}
 
-	Dialog.Info("Successfully stored authorization token.")
-
+	Dialog.Info("Done!")
 	return nil
 }
 

@@ -2,31 +2,45 @@ package client
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/model"
 )
 
-type CreateTokenResponse struct {
+type createTokenResponse struct {
 	Token                   *model.Token `json:"token"`
+	UserCode                string       `json:"user_code"`
+	VerificationURI         string       `json:"verification_uri"`
 	VerificationURIComplete string       `json:"verification_uri_complete"`
+	ExpiresAt               time.Time    `json:"expires_at"`
 }
 
-func (c *Client) CreateToken() (string, errors.Error) {
-	response := &CreateTokenResponse{}
+type UserDeviceValues struct {
+	UserCode                string
+	VerificationURI         string
+	VerificationURIComplete string
+}
+
+func (c *Client) CreateToken() (*UserDeviceValues, errors.Error) {
+	response := &createTokenResponse{}
 	if err := c.Request(
 		WithMethod(http.MethodPost),
 		WithPath("/auth/sessions/device"),
 		WithResponseInto(response),
 	); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if err := c.storeToken(response.Token); err != nil {
-		return "", errors.NewClientInternalError().WithCause(err)
+		return nil, errors.NewClientInternalError().WithCause(err)
 	}
 
-	return response.VerificationURIComplete, nil
+	return &UserDeviceValues{
+		UserCode:                response.UserCode,
+		VerificationURI:         response.VerificationURI,
+		VerificationURIComplete: response.VerificationURIComplete,
+	}, nil
 }
 
 func (c *Client) InvalidateToken() errors.Error {

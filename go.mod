@@ -11,6 +11,7 @@ require (
 	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
+	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
 	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
