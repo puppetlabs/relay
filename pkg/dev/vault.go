@@ -109,8 +109,7 @@ func (m *vaultManager) reconcileInit(ctx context.Context) error {
 		return err
 	}
 
-	err = m.waitForJobCompletion(ctx, &m.objects.initJob)
-
+	err = m.getJob(ctx, &m.objects.initJob)
 	if err != nil && k8serrors.IsNotFound(err) {
 		m.initPVC(&m.objects.initPVC)
 		if err := cl.Create(ctx, &m.objects.initPVC); err != nil {
@@ -144,8 +143,7 @@ func (m *vaultManager) reconcileInit(ctx context.Context) error {
 }
 
 func (m *vaultManager) reconcileConfiguration(ctx context.Context) error {
-	err := m.waitForJobCompletion(ctx, &m.objects.configureJob)
-
+	err := m.getJob(ctx, &m.objects.configureJob)
 	if err != nil && k8serrors.IsNotFound(err) {
 		m.configureJob(&m.objects.configureJob)
 		if err := m.cl.APIClient.Create(ctx, &m.objects.configureJob); err != nil {
@@ -161,8 +159,7 @@ func (m *vaultManager) reconcileConfiguration(ctx context.Context) error {
 }
 
 func (m *vaultManager) reconcileUnseal(ctx context.Context) error {
-	err := m.waitForJobCompletion(ctx, &m.objects.unsealJob)
-
+	err := m.getJob(ctx, &m.objects.unsealJob)
 	if err != nil && k8serrors.IsNotFound(err) {
 		ss := appsv1.StatefulSet{}
 		ssKey := client.ObjectKey{Name: "vault", Namespace: systemNamespace}
@@ -551,7 +548,7 @@ func (m *vaultManager) writeSecrets(ctx context.Context, vals map[string]string)
 	return nil
 }
 
-func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Job) error {
+func (m *vaultManager) getJob(ctx context.Context, job *batchv1.Job) error {
 	cl := m.cl.APIClient
 
 	key, err := client.ObjectKeyFromObject(job)
@@ -559,11 +556,12 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 		return err
 	}
 
-	err = retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		if err := cl.Get(ctx, key, job); err != nil {
-			if k8serrors.IsNotFound(err) {
-				return retry.Done(nil)
-			}
+	return cl.Get(ctx, key, job)
+}
+
+func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Job) error {
+	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
+		if err := m.getJob(ctx, job); err != nil {
 			return retry.Repeat(err)
 		}
 
