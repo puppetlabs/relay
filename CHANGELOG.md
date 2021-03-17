@@ -1,4 +1,33 @@
-# [4.3.0](https://github.com/puppetlabs/relay/compare/v4.3.0...v4.2.3)
+# [4.3.5](https://github.com/puppetlabs/relay/compare/v4.3.4...v4.3.5)
+
+### Fixed
+- `relay auth login` to use new device flow
+- Dev cluster fixes
+- Move from horsehead to leg
+- Job handling for deleted jobs
+
+# [4.3.4](https://github.com/puppetlabs/relay/compare/v4.3.3...v4.3.4)
+
+### Fixed
+- Update docs
+
+# [4.3.3](https://github.com/puppetlabs/relay/compare/v4.3.2...v4.3.3)
+
+### Fixed
+- Make `relay dev metadata` easier to copy
+- Dev cluster oauth fixes
+
+# [4.3.2](https://github.com/puppetlabs/relay/compare/v4.3.1...v4.3.2)
+
+### Fixed
+- Apply namespaces to dev cluster that were missed
+
+# [4.3.1](https://github.com/puppetlabs/relay/compare/v4.3.0...v4.3.1)
+
+### Fixed
+- Expanded dev cluster commands for logservice functionality
+
+# [4.3.0](https://github.com/puppetlabs/relay/compare/v4.2.3...v4.3.0)
 
 ### Added
 - Ability to validate workflow
