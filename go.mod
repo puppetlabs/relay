@@ -4,12 +4,14 @@ go 1.14
 
 require (
 	github.com/Microsoft/hcsshim/test v0.0.0-20201109231005-3cc00bc91358 // indirect
+	github.com/cli/browser v1.0.0
 	github.com/containerd/cgroups v0.0.0-20200817152742-7a3c009711fb // indirect
 	github.com/containerd/containerd v1.4.0 // indirect
 	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect
 	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
 	github.com/containerd/ttrpc v1.0.1 // indirect
 	github.com/containerd/typeurl v1.0.1 // indirect
+	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
 	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
