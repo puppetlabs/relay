@@ -55,19 +55,23 @@ func formatJSONError(err errors.Error) string {
 func formatTextError(err errors.Error, cfg *config.Config) string {
 	var out string
 
-	appendError(err, cfg, &out, 0, "")
+	suppressed := appendError(err, cfg, &out, 0, "")
 
 	if cfg.Debug {
 		out += fmt.Sprintf(`
 
-You have received an error in debug mode. If the error persists you may file a bug report at https://github.com/puppetlabs/relay/issues`)
+You have received an error in debug mode. If the error persists you may file a bug report at https://github.com/puppetlabs/relay/issues.`)
+	} else if suppressed {
+		out += fmt.Sprintf(`
+
+There was a problem executing your request. Rerun with --debug to see more information.`)
 	}
 
 	return out
 }
 
 // appendError recursively prints errawr causes and items, progressively indented
-func appendError(err errors.Error, cfg *config.Config, out *string, indent int, prefix string) {
+func appendError(err errors.Error, cfg *config.Config, out *string, indent int, prefix string) (suppressed bool) {
 	// print error if in debug mode or if Sensitivity is zero
 	if err.Sensitivity() == 0 || cfg.Debug {
 		*out += strings.Repeat(" ", indent)
@@ -79,15 +83,17 @@ func appendError(err errors.Error, cfg *config.Config, out *string, indent int, 
 		*out += err.FormattedDescription().Friendly()
 
 		for _, cause := range err.Causes() {
-			*out += "\n"
-			appendError(cause, cfg, out, indent+2, "• ")
+			suppressed = suppressed || appendError(cause, cfg, out, indent+2, "\n• ")
 		}
 
 		if items, ok := err.Items(); ok {
 			for itemKey, item := range items {
-				*out += "\n"
-				appendError(item, cfg, out, indent+2, fmt.Sprintf("• `%v`", itemKey))
+				suppressed = suppressed || appendError(item, cfg, out, indent+2, fmt.Sprintf("\n• `%v`", itemKey))
 			}
 		}
+
+		return suppressed
 	}
+
+	return true
 }
