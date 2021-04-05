@@ -1,3 +1,9 @@
+# [4.3.6](https://github.com/puppetlabs/relay/compare/v4.3.5...v4.3.6)
+
+### Changed
+
+- The command will no longer tell you to rerun with `--debug` when debug mode is already enabled.
+
 # [4.3.5](https://github.com/puppetlabs/relay/compare/v4.3.4...v4.3.5)
 
 ### Fixed
@@ -58,7 +64,7 @@
 
 * Bug in the automated release process, specifically when releasing new
   versions to Homebrew.
-* When there are issues loading the configuration file, the CLI will 
+* When there are issues loading the configuration file, the CLI will
   no longer panic.
 
 # [4.0.0](https://github.com/puppetlabs/relay/compare/v3.5.4...v4.0.0) (2020-05-08)
