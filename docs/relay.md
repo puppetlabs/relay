@@ -19,10 +19,7 @@ Use the 'workflow' subcommand to interact with workflows:
 
 ### Subcommand Usage
 
-**`relay auth login [email] [flags]`** -- Log in to Relay
-```
-  -p, --password-stdin   accept password from stdin
-```
+**`relay auth login`** -- Log in to Relay
 
 **`relay auth logout`** -- Log out of Relay
 

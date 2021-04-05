@@ -8,7 +8,7 @@ sections:
     errors:
       unknown_error:
         title: Unknown error
-        description: There was a problem executing your request. Rerun with --debug to see more information
+        description: An unexpected error occurred.
   config:
     title: CLI Config errors
     errors:
@@ -56,7 +56,7 @@ sections:
     errors:
       unknown_error:
         title: Unknown error
-        description: An unknown error has occurred. Rerun with --debug to troubleshoot.
+        description: An unexpected error occurred.
       # This error probably means a CLI developer screwed up
       internal_error:
         title: Unknown error

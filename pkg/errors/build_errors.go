@@ -540,8 +540,8 @@ type ClientUnknownErrorBuilder struct {
 // Build creates the error for the code "unknown_error" from this builder.
 func (b *ClientUnknownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "An unknown error has occurred. Rerun with --debug to troubleshoot.",
-		Technical: "An unknown error has occurred. Rerun with --debug to troubleshoot.",
+		Friendly:  "An unexpected error occurred.",
+		Technical: "An unexpected error occurred.",
 	}
 
 	return &impl.Error{
@@ -1034,8 +1034,8 @@ type GeneralUnknownErrorBuilder struct {
 // Build creates the error for the code "unknown_error" from this builder.
 func (b *GeneralUnknownErrorBuilder) Build() Error {
 	description := &impl.ErrorDescription{
-		Friendly:  "There was a problem executing your request. Rerun with --debug to see more information",
-		Technical: "There was a problem executing your request. Rerun with --debug to see more information",
+		Friendly:  "An unexpected error occurred.",
+		Technical: "An unexpected error occurred.",
 	}
 
 	return &impl.Error{
