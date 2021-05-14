@@ -7,11 +7,13 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/puppetlabs/relay/pkg/dialog"
-	k3dcluster "github.com/rancher/k3d/v3/pkg/cluster"
-	"github.com/rancher/k3d/v3/pkg/runtimes"
-	"github.com/rancher/k3d/v3/pkg/tools"
-	"github.com/rancher/k3d/v3/pkg/types"
+	k3dclient "github.com/rancher/k3d/v4/pkg/client"
+	"github.com/rancher/k3d/v4/pkg/config/v1alpha2"
+	"github.com/rancher/k3d/v4/pkg/runtimes"
+	"github.com/rancher/k3d/v4/pkg/tools"
+	"github.com/rancher/k3d/v4/pkg/types"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -22,7 +24,7 @@ import (
 )
 
 const (
-	k3sVersion          = "v1.19.3-k3s2"
+	k3sVersion          = "v1.20.6-k3s1"
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
 
@@ -100,22 +102,35 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 	}
 	m.storeRegistryConfiguration(registryConfigPath, registry)
 
-	exposeAPI := types.ExposeAPI{
-		Host:   types.DefaultAPIHost,
-		HostIP: types.DefaultAPIHost,
-		Port:   types.DefaultAPIPort,
+	exposeAPI := &types.ExposureOpts{
+		Host: types.DefaultAPIHost,
+		PortMapping: nat.PortMapping{
+			Port: types.DefaultAPIPort,
+			Binding: nat.PortBinding{
+				HostIP:   types.DefaultAPIHost,
+				HostPort: types.DefaultAPIPort,
+			},
+		},
 	}
 
-	registryPortMapping := fmt.Sprintf("%d:%d", opts.ImageRegistryPort, opts.ImageRegistryPort)
+	imageRegistryPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", opts.ImageRegistryPort))
+	if err != nil {
+		return fmt.Errorf("failed to create cluster: %w", err)
+	}
+	registryPortMapping := nat.PortMap{}
+	registryPortMapping[imageRegistryPort] = []nat.PortBinding{{
+		HostIP:   types.DefaultAPIHost,
+		HostPort: imageRegistryPort.Port(),
+	}}
 
 	serverNode := &types.Node{
 		Role:  types.ServerRole,
 		Image: k3sImage,
 		ServerOpts: types.ServerOpts{
-			ExposeAPI: exposeAPI,
+			KubeAPI: exposeAPI,
 		},
 		Volumes: volumes,
-		Ports:   []string{registryPortMapping},
+		Ports:   registryPortMapping,
 	}
 
 	if opts.WorkerCount <= 0 {
@@ -146,23 +161,36 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		lbHostPort = opts.LoadBalancerHostPort
 	}
 
-	lbPortMapping := fmt.Sprintf("%d:%d", lbHostPort, DefaultLoadBalancerNodePort)
+	lbPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", DefaultLoadBalancerHostPort))
+	if err != nil {
+		return fmt.Errorf("failed to create cluster: %w", err)
+	}
+	lbPortMapping := nat.PortMap{}
+	lbPortMapping[lbPort] = []nat.PortBinding{{
+		HostIP:   types.DefaultAPIHost,
+		HostPort: fmt.Sprintf("%d", lbHostPort),
+	}}
 
-	clusterConfig := &types.Cluster{
-		Name: ClusterName,
-		ServerLoadBalancer: &types.Node{
-			Role:  types.LoadBalancerRole,
-			Ports: []string{lbPortMapping},
+	clusterConfig := &v1alpha2.ClusterConfig{
+		ClusterCreateOpts: types.ClusterCreateOpts{
+			PrepDisableHostIPInjection: true,
+			WaitForServer:              true,
+			// HACK this is to workaround a k3d bug
+			GlobalLabels: make(map[string]string),
 		},
-		Nodes: nodes,
-		CreateClusterOpts: &types.ClusterCreateOpts{
-			WaitForServer: true,
+		Cluster: types.Cluster{
+			Name: ClusterName,
+			ServerLoadBalancer: &types.Node{
+				Role:  types.LoadBalancerRole,
+				Ports: lbPortMapping,
+			},
+			Nodes:   nodes,
+			Network: network,
+			KubeAPI: exposeAPI,
 		},
-		Network:   network,
-		ExposeAPI: exposeAPI,
 	}
 
-	if err := k3dcluster.ClusterCreate(ctx, m.runtime, clusterConfig); err != nil {
+	if err := k3dclient.ClusterRun(ctx, m.runtime, clusterConfig); err != nil {
 		return fmt.Errorf("failed to create cluster: %w", err)
 	}
 
@@ -182,7 +210,7 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 	}
 
 	opts := types.ClusterStartOpts{WaitForServer: true}
-	if err := k3dcluster.ClusterStart(ctx, m.runtime, clusterConfig, opts); err != nil {
+	if err := k3dclient.ClusterStart(ctx, m.runtime, clusterConfig, opts); err != nil {
 		return fmt.Errorf("failed to start cluster: %w", err)
 	}
 
@@ -201,7 +229,7 @@ func (m *K3dClusterManager) Stop(ctx context.Context) error {
 		return err
 	}
 
-	return k3dcluster.ClusterStop(ctx, m.runtime, clusterConfig)
+	return k3dclient.ClusterStop(ctx, m.runtime, clusterConfig)
 }
 
 // Delete deletes the cluster and all its resources (docker network and volumes included).
@@ -216,7 +244,7 @@ func (m *K3dClusterManager) Delete(ctx context.Context) error {
 		return err
 	}
 
-	return k3dcluster.ClusterDelete(ctx, m.runtime, clusterConfig)
+	return k3dclient.ClusterDelete(ctx, m.runtime, clusterConfig, types.ClusterDeleteOpts{})
 }
 
 // ImportImages import's a given image or images from the local container
@@ -245,7 +273,7 @@ func (m *K3dClusterManager) GetKubeconfig(ctx context.Context) (*clientcmdapi.Co
 		return nil, err
 	}
 
-	return k3dcluster.KubeconfigGet(ctx, m.runtime, clusterConfig)
+	return k3dclient.KubeconfigGet(ctx, m.runtime, clusterConfig)
 }
 
 // WriteKubeconfig takes a path and writes the cluster's kubeconfig file to it. Attempting
@@ -256,7 +284,7 @@ func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) er
 		return err
 	}
 
-	k3dcluster.KubeconfigGetWrite(ctx, m.runtime, clusterConfig, "", &k3dcluster.WriteKubeConfigOptions{
+	k3dclient.KubeconfigGetWrite(ctx, m.runtime, clusterConfig, "", &k3dclient.WriteKubeConfigOptions{
 		OverwriteExisting:    false,
 		UpdateCurrentContext: true,
 		UpdateExisting:       true,
@@ -267,7 +295,7 @@ func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) er
 		return err
 	}
 
-	return k3dcluster.KubeconfigWriteToPath(ctx, apiConfig, path)
+	return k3dclient.KubeconfigWriteToPath(ctx, apiConfig, path)
 }
 
 // GetClient returns a new Client configured with a RESTMapper and k8s api client.
@@ -308,7 +336,7 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 		Name: ClusterName,
 	}
 
-	return k3dcluster.ClusterGet(ctx, m.runtime, clusterConfig)
+	return k3dclient.ClusterGet(ctx, m.runtime, clusterConfig)
 }
 
 func (m *K3dClusterManager) storeRegistryConfiguration(path string, registry *Registry) error {

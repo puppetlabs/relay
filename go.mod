@@ -1,32 +1,22 @@
 module github.com/puppetlabs/relay
 
-go 1.14
+go 1.16
 
 require (
-	github.com/Microsoft/hcsshim/test v0.0.0-20201109231005-3cc00bc91358 // indirect
 	github.com/cli/browser v1.0.0
-	github.com/containerd/cgroups v0.0.0-20200817152742-7a3c009711fb // indirect
-	github.com/containerd/containerd v1.4.0 // indirect
-	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect
-	github.com/containerd/fifo v0.0.0-20200410184934-f15a3290365b // indirect
-	github.com/containerd/ttrpc v1.0.1 // indirect
-	github.com/containerd/typeurl v1.0.1 // indirect
+	github.com/docker/go-connections v0.4.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
 	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
-	github.com/gogo/googleapis v1.4.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
-	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/moby/sys/mountinfo v0.1.3 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
-	github.com/opencontainers/selinux v1.6.0 // indirect
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
@@ -36,22 +26,16 @@ require (
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
-	github.com/rancher/k3d/v3 v3.0.1
+	github.com/rancher/k3d/v4 v4.4.3
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
-	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v1.1.1
+	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.6.1
-	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
-	github.com/willf/bitset v1.1.11 // indirect
+	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/mod v0.4.0 // indirect
-	golang.org/x/net v0.0.0-20201209123823-ac852fbbde11 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e // indirect
-	golang.org/x/tools v0.0.0-20201215192005-fa10ef0b8743 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 	k8s.io/api v0.20.0
 	k8s.io/apiextensions-apiserver v0.20.0
