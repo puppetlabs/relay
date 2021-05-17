@@ -4,7 +4,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
   name: webhooktriggers.relay.sh
 spec:
@@ -19,13 +19,18 @@ spec:
   - name: v1beta1
     schema:
       openAPIV3Schema:
-        description: WebhookTrigger represents a definition of a webhook to receive events.
+        description: WebhookTrigger represents a definition of a webhook to receive
+          events.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
             type: string
           metadata:
             type: object
@@ -37,15 +42,20 @@ spec:
                   type: string
                 type: array
               command:
-                description: Command is the path to the executable to run when the container starts.
+                description: Command is the path to the executable to run when the
+                  container starts.
                 type: string
               env:
                 additionalProperties:
+                  description: Unstructured is arbitrary JSON data, which may also
+                    include base64-encoded binary data.
                   x-kubernetes-preserve-unknown-fields: true
-                description: Env allows environment variables to be provided to the container image.
+                description: Env allows environment variables to be provided to the
+                  container image.
                 type: object
               image:
-                description: Image is the Docker image to run when this webhook receives an event.
+                description: Image is the Docker image to run when this webhook receives
+                  an event.
                 type: string
               input:
                 description: Input is the input script to provide to the container.
@@ -53,18 +63,23 @@ spec:
                   type: string
                 type: array
               name:
-                description: Name is a friendly name for this webhook trigger used for authentication and reporting.
+                description: Name is a friendly name for this webhook trigger used
+                  for authentication and reporting.
                 type: string
               spec:
                 additionalProperties:
+                  description: Unstructured is arbitrary JSON data, which may also
+                    include base64-encoded binary data.
                   x-kubernetes-preserve-unknown-fields: true
-                description: Spec is the Relay specification to be provided to the container image.
+                description: Spec is the Relay specification to be provided to the
+                  container image.
                 type: object
               tenantRef:
                 description: TenantRef selects the tenant to apply this trigger to.
                 properties:
                   name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?'
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
                     type: string
                 type: object
             required:
@@ -81,10 +96,12 @@ spec:
                       format: date-time
                       type: string
                     message:
-                      description: Message is a human-readable description of the given status.
+                      description: Message is a human-readable description of the
+                        given status.
                       type: string
                     reason:
-                      description: Reason identifies the cause of the given status using an API-locked camel-case identifier.
+                      description: Reason identifies the cause of the given status
+                        using an API-locked camel-case identifier.
                       type: string
                     status:
                       type: string
@@ -104,10 +121,12 @@ spec:
                 - type
                 x-kubernetes-list-type: map
               namespace:
-                description: Namespace is the Kubernetes namespace containing the target resources of this webhook trigger.
+                description: Namespace is the Kubernetes namespace containing the
+                  target resources of this webhook trigger.
                 type: string
               observedGeneration:
-                description: ObservedGeneration is the generation of the resource specification that this status matches.
+                description: ObservedGeneration is the generation of the resource
+                  specification that this status matches.
                 format: int64
                 type: integer
               url:
