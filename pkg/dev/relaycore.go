@@ -20,11 +20,10 @@ import (
 )
 
 const (
-	relayCoreName          = "relay-core-v1"
-	relayLogServiceImage   = "relaysh/relay-pls:latest"
-	relayOperatorImage     = "relaysh/relay-operator:latest"
-	relayMetadataAPIImage  = "relaysh/relay-metadata-api:latest"
-	relayRuntimeToolsImage = "relaysh/relay-runtime-tools:latest"
+	relayCoreName         = "relay-core-v1"
+	relayLogServiceImage  = "relaysh/relay-pls:latest"
+	relayOperatorImage    = "relaysh/relay-operator:latest"
+	relayMetadataAPIImage = "relaysh/relay-metadata-api:latest"
 
 	relayOperatorStorageVolumeSize = "1Gi"
 )
@@ -212,10 +211,6 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 			CABundleSecretName: &m.objects.selfSignedCA.Spec.SecretName,
 		},
 		GenerateJWTSigningKey: true,
-		ToolInjection: &installerv1alpha1.ToolInjectionConfig{
-			Image:           relayRuntimeToolsImage,
-			ImagePullPolicy: corev1.PullAlways,
-		},
 	}
 
 	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
