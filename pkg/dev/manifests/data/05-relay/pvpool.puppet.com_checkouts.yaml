@@ -1,0 +1,141 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: checkouts.pvpool.puppet.com
+spec:
+  group: pvpool.puppet.com
+  names:
+    kind: Checkout
+    listKind: CheckoutList
+    plural: checkouts
+    singular: checkout
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.volumeClaimRef.name
+      name: Claim
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Checkout requests a PVC from a Pool.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CheckoutSpec is the configuration to request a particular
+              PV from a Pool.
+            properties:
+              accessModes:
+                default:
+                - ReadWriteOnce
+                description: AccessModes are the access modes to assign to the checked
+                  out PVC. Defaults to ReadWriteOnce.
+                items:
+                  type: string
+                type: array
+              claimName:
+                description: "ClaimName is the name of the PVC to allocate. \n If
+                  not specified, the controller will generate a name for you."
+                type: string
+              poolRef:
+                description: PoolRef is the pool to check out a PVC from.
+                properties:
+                  name:
+                    description: Name identifies the name of the pool within the namespace.
+                    type: string
+                  namespace:
+                    description: Namespace identifies the Kubernetes namespace of
+                      the pool.
+                    type: string
+                required:
+                - name
+                type: object
+            required:
+            - poolRef
+            type: object
+          status:
+            description: CheckoutStatus is the runtime state of a checkout.
+            properties:
+              conditions:
+                description: Conditions are the possible observable conditions for
+                  the checkout.
+                items:
+                  description: CheckoutCondition is a status condition for a Checkout.
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      description: Message is a human-readable description of the
+                        given status.
+                      type: string
+                    reason:
+                      description: Reason identifies the cause of the given status
+                        using an API-locked camel-case identifier.
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      description: Type is the identifier for this condition.
+                      enum:
+                      - Acquired
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              volumeClaimRef:
+                description: "VolumeClaimRef is a reference to the PVC checked out
+                  from the pool. \n This field will only be set when the checked out
+                  PVC is ready to be used."
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+              volumeName:
+                description: "VolumeName is the name of the volume being configured
+                  for the checkout. It will track a volume from the upstream pool
+                  until its configuration is copied to a new volume, at which point
+                  it will be permanently set to that new volume. \n This field will
+                  be set as soon as a PVC is available in the pool."
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
