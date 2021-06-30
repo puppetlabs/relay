@@ -77,6 +77,16 @@ you can query repeatedly.
   -f, --file string   The path to a file to write the documentation to
 ```
 
+**`relay notifications clear read`** -- Clear all read notifications
+
+**`relay notifications list`** -- List notifications
+
+**`relay subscriptions list`** -- List workflow subscriptions
+
+**`relay subscriptions subscribe [workflow name]`** -- Subscribe to workflow
+
+**`relay subscriptions unsubscribe [workflow name]`** -- Unsubscribe to workflow
+
 **`relay workflow add [workflow name] [flags]`** -- Add a Relay workflow from a local file
 ```
   -f, --file string   Path to Relay workflow file

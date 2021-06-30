@@ -1,7 +1,10 @@
 package dialog
 
-import "io"
-import "github.com/jedib0t/go-pretty/table"
+import (
+	"io"
+
+	"github.com/jedib0t/go-pretty/table"
+)
 
 type textTable struct {
 	w       io.Writer

@@ -59,6 +59,8 @@ Use the 'workflow' subcommand to interact with workflows:
 			// We have a config that we can assume is good to use.
 			Config = cfg
 			Client = client.NewClient(Config)
+			Client.SetAuthorization()
+
 			Dialog = dialog.FromConfig(Config)
 
 			return nil
@@ -81,6 +83,8 @@ Use the 'workflow' subcommand to interact with workflows:
 	cmd.AddCommand(newDevCommand())
 	cmd.AddCommand(newDocCommand())
 	cmd.AddCommand(newCompletionCommand())
+	cmd.AddCommand(newNotificationsCommand())
+	cmd.AddCommand(newSubscriptionsCommand())
 
 	return cmd
 }
