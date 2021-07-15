@@ -23,10 +23,10 @@ type NotificationSummary struct {
 	CreatedAt time.Time `json:"created_at"`
 	// Time of last update
 	UpdatedAt time.Time `json:"updated_at"`
-	// The type of event that created the event
-	Type string `json:"type"`
 	// The attributes of this notification
 	Attributes *[]string `json:"attributes,omitempty"`
+	// The type of event that created the event
+	Type string `json:"type"`
 }
 
 // NewNotificationSummary instantiates a new NotificationSummary object
@@ -122,30 +122,6 @@ func (o *NotificationSummary) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = v
 }
 
-// GetType returns the Type field value
-func (o *NotificationSummary) GetType() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Type
-}
-
-// GetTypeOk returns a tuple with the Type field value
-// and a boolean to check if the value has been set.
-func (o *NotificationSummary) GetTypeOk() (*string, bool) {
-	if o == nil  {
-		return nil, false
-	}
-	return &o.Type, true
-}
-
-// SetType sets field value
-func (o *NotificationSummary) SetType(v string) {
-	o.Type = v
-}
-
 // GetAttributes returns the Attributes field value if set, zero value otherwise.
 func (o *NotificationSummary) GetAttributes() []string {
 	if o == nil || o.Attributes == nil {
@@ -178,6 +154,30 @@ func (o *NotificationSummary) SetAttributes(v []string) {
 	o.Attributes = &v
 }
 
+// GetType returns the Type field value
+func (o *NotificationSummary) GetType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Type
+}
+
+// GetTypeOk returns a tuple with the Type field value
+// and a boolean to check if the value has been set.
+func (o *NotificationSummary) GetTypeOk() (*string, bool) {
+	if o == nil  {
+		return nil, false
+	}
+	return &o.Type, true
+}
+
+// SetType sets field value
+func (o *NotificationSummary) SetType(v string) {
+	o.Type = v
+}
+
 func (o NotificationSummary) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if true {
@@ -189,11 +189,11 @@ func (o NotificationSummary) MarshalJSON() ([]byte, error) {
 	if true {
 		toSerialize["updated_at"] = o.UpdatedAt
 	}
-	if true {
-		toSerialize["type"] = o.Type
-	}
 	if o.Attributes != nil {
 		toSerialize["attributes"] = o.Attributes
+	}
+	if true {
+		toSerialize["type"] = o.Type
 	}
 	return json.Marshal(toSerialize)
 }

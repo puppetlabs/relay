@@ -16,14 +16,14 @@ import (
 
 // Error An error
 type Error struct {
-	Domain *string `json:"domain,omitempty"`
-	Section *string `json:"section,omitempty"`
-	Code *string `json:"code,omitempty"`
-	Title *string `json:"title,omitempty"`
-	Description *ErrorDescription `json:"description,omitempty"`
 	Arguments *map[string]map[string]interface{} `json:"arguments,omitempty"`
+	Code *string `json:"code,omitempty"`
+	Description *ErrorDescription `json:"description,omitempty"`
+	Domain *string `json:"domain,omitempty"`
 	Formatted *ErrorFormatted `json:"formatted,omitempty"`
 	Items *map[string]Error `json:"items,omitempty"`
+	Section *string `json:"section,omitempty"`
+	Title *string `json:"title,omitempty"`
 }
 
 // NewError instantiates a new Error object
@@ -43,68 +43,36 @@ func NewErrorWithDefaults() *Error {
 	return &this
 }
 
-// GetDomain returns the Domain field value if set, zero value otherwise.
-func (o *Error) GetDomain() string {
-	if o == nil || o.Domain == nil {
-		var ret string
+// GetArguments returns the Arguments field value if set, zero value otherwise.
+func (o *Error) GetArguments() map[string]map[string]interface{} {
+	if o == nil || o.Arguments == nil {
+		var ret map[string]map[string]interface{}
 		return ret
 	}
-	return *o.Domain
+	return *o.Arguments
 }
 
-// GetDomainOk returns a tuple with the Domain field value if set, nil otherwise
+// GetArgumentsOk returns a tuple with the Arguments field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Error) GetDomainOk() (*string, bool) {
-	if o == nil || o.Domain == nil {
+func (o *Error) GetArgumentsOk() (*map[string]map[string]interface{}, bool) {
+	if o == nil || o.Arguments == nil {
 		return nil, false
 	}
-	return o.Domain, true
+	return o.Arguments, true
 }
 
-// HasDomain returns a boolean if a field has been set.
-func (o *Error) HasDomain() bool {
-	if o != nil && o.Domain != nil {
+// HasArguments returns a boolean if a field has been set.
+func (o *Error) HasArguments() bool {
+	if o != nil && o.Arguments != nil {
 		return true
 	}
 
 	return false
 }
 
-// SetDomain gets a reference to the given string and assigns it to the Domain field.
-func (o *Error) SetDomain(v string) {
-	o.Domain = &v
-}
-
-// GetSection returns the Section field value if set, zero value otherwise.
-func (o *Error) GetSection() string {
-	if o == nil || o.Section == nil {
-		var ret string
-		return ret
-	}
-	return *o.Section
-}
-
-// GetSectionOk returns a tuple with the Section field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *Error) GetSectionOk() (*string, bool) {
-	if o == nil || o.Section == nil {
-		return nil, false
-	}
-	return o.Section, true
-}
-
-// HasSection returns a boolean if a field has been set.
-func (o *Error) HasSection() bool {
-	if o != nil && o.Section != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetSection gets a reference to the given string and assigns it to the Section field.
-func (o *Error) SetSection(v string) {
-	o.Section = &v
+// SetArguments gets a reference to the given map[string]map[string]interface{} and assigns it to the Arguments field.
+func (o *Error) SetArguments(v map[string]map[string]interface{}) {
+	o.Arguments = &v
 }
 
 // GetCode returns the Code field value if set, zero value otherwise.
@@ -139,38 +107,6 @@ func (o *Error) SetCode(v string) {
 	o.Code = &v
 }
 
-// GetTitle returns the Title field value if set, zero value otherwise.
-func (o *Error) GetTitle() string {
-	if o == nil || o.Title == nil {
-		var ret string
-		return ret
-	}
-	return *o.Title
-}
-
-// GetTitleOk returns a tuple with the Title field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *Error) GetTitleOk() (*string, bool) {
-	if o == nil || o.Title == nil {
-		return nil, false
-	}
-	return o.Title, true
-}
-
-// HasTitle returns a boolean if a field has been set.
-func (o *Error) HasTitle() bool {
-	if o != nil && o.Title != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetTitle gets a reference to the given string and assigns it to the Title field.
-func (o *Error) SetTitle(v string) {
-	o.Title = &v
-}
-
 // GetDescription returns the Description field value if set, zero value otherwise.
 func (o *Error) GetDescription() ErrorDescription {
 	if o == nil || o.Description == nil {
@@ -203,36 +139,36 @@ func (o *Error) SetDescription(v ErrorDescription) {
 	o.Description = &v
 }
 
-// GetArguments returns the Arguments field value if set, zero value otherwise.
-func (o *Error) GetArguments() map[string]map[string]interface{} {
-	if o == nil || o.Arguments == nil {
-		var ret map[string]map[string]interface{}
+// GetDomain returns the Domain field value if set, zero value otherwise.
+func (o *Error) GetDomain() string {
+	if o == nil || o.Domain == nil {
+		var ret string
 		return ret
 	}
-	return *o.Arguments
+	return *o.Domain
 }
 
-// GetArgumentsOk returns a tuple with the Arguments field value if set, nil otherwise
+// GetDomainOk returns a tuple with the Domain field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Error) GetArgumentsOk() (*map[string]map[string]interface{}, bool) {
-	if o == nil || o.Arguments == nil {
+func (o *Error) GetDomainOk() (*string, bool) {
+	if o == nil || o.Domain == nil {
 		return nil, false
 	}
-	return o.Arguments, true
+	return o.Domain, true
 }
 
-// HasArguments returns a boolean if a field has been set.
-func (o *Error) HasArguments() bool {
-	if o != nil && o.Arguments != nil {
+// HasDomain returns a boolean if a field has been set.
+func (o *Error) HasDomain() bool {
+	if o != nil && o.Domain != nil {
 		return true
 	}
 
 	return false
 }
 
-// SetArguments gets a reference to the given map[string]map[string]interface{} and assigns it to the Arguments field.
-func (o *Error) SetArguments(v map[string]map[string]interface{}) {
-	o.Arguments = &v
+// SetDomain gets a reference to the given string and assigns it to the Domain field.
+func (o *Error) SetDomain(v string) {
+	o.Domain = &v
 }
 
 // GetFormatted returns the Formatted field value if set, zero value otherwise.
@@ -299,31 +235,95 @@ func (o *Error) SetItems(v map[string]Error) {
 	o.Items = &v
 }
 
+// GetSection returns the Section field value if set, zero value otherwise.
+func (o *Error) GetSection() string {
+	if o == nil || o.Section == nil {
+		var ret string
+		return ret
+	}
+	return *o.Section
+}
+
+// GetSectionOk returns a tuple with the Section field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Error) GetSectionOk() (*string, bool) {
+	if o == nil || o.Section == nil {
+		return nil, false
+	}
+	return o.Section, true
+}
+
+// HasSection returns a boolean if a field has been set.
+func (o *Error) HasSection() bool {
+	if o != nil && o.Section != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetSection gets a reference to the given string and assigns it to the Section field.
+func (o *Error) SetSection(v string) {
+	o.Section = &v
+}
+
+// GetTitle returns the Title field value if set, zero value otherwise.
+func (o *Error) GetTitle() string {
+	if o == nil || o.Title == nil {
+		var ret string
+		return ret
+	}
+	return *o.Title
+}
+
+// GetTitleOk returns a tuple with the Title field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Error) GetTitleOk() (*string, bool) {
+	if o == nil || o.Title == nil {
+		return nil, false
+	}
+	return o.Title, true
+}
+
+// HasTitle returns a boolean if a field has been set.
+func (o *Error) HasTitle() bool {
+	if o != nil && o.Title != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetTitle gets a reference to the given string and assigns it to the Title field.
+func (o *Error) SetTitle(v string) {
+	o.Title = &v
+}
+
 func (o Error) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Domain != nil {
-		toSerialize["domain"] = o.Domain
-	}
-	if o.Section != nil {
-		toSerialize["section"] = o.Section
+	if o.Arguments != nil {
+		toSerialize["arguments"] = o.Arguments
 	}
 	if o.Code != nil {
 		toSerialize["code"] = o.Code
 	}
-	if o.Title != nil {
-		toSerialize["title"] = o.Title
-	}
 	if o.Description != nil {
 		toSerialize["description"] = o.Description
 	}
-	if o.Arguments != nil {
-		toSerialize["arguments"] = o.Arguments
+	if o.Domain != nil {
+		toSerialize["domain"] = o.Domain
 	}
 	if o.Formatted != nil {
 		toSerialize["formatted"] = o.Formatted
 	}
 	if o.Items != nil {
 		toSerialize["items"] = o.Items
+	}
+	if o.Section != nil {
+		toSerialize["section"] = o.Section
+	}
+	if o.Title != nil {
+		toSerialize["title"] = o.Title
 	}
 	return json.Marshal(toSerialize)
 }

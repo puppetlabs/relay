@@ -162,7 +162,7 @@ func (r ApiPostAllNotificationDoneRequest) NotificationIdentifiers(notificationI
 	return r
 }
 
-func (r ApiPostAllNotificationDoneRequest) Execute() (InlineResponse200, *_nethttp.Response, error) {
+func (r ApiPostAllNotificationDoneRequest) Execute() (InlineResponse2002, *_nethttp.Response, error) {
 	return r.ApiService.PostAllNotificationDoneExecute(r)
 }
 
@@ -180,16 +180,16 @@ func (a *NotificationsApiService) PostAllNotificationDone(ctx _context.Context) 
 
 /*
  * Execute executes the request
- * @return InlineResponse200
+ * @return InlineResponse2002
  */
-func (a *NotificationsApiService) PostAllNotificationDoneExecute(r ApiPostAllNotificationDoneRequest) (InlineResponse200, *_nethttp.Response, error) {
+func (a *NotificationsApiService) PostAllNotificationDoneExecute(r ApiPostAllNotificationDoneRequest) (InlineResponse2002, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  InlineResponse200
+		localVarReturnValue  InlineResponse2002
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NotificationsApiService.PostAllNotificationDone")
@@ -277,7 +277,7 @@ func (r ApiPostAllNotificationReadRequest) NotificationIdentifiers(notificationI
 	return r
 }
 
-func (r ApiPostAllNotificationReadRequest) Execute() (InlineResponse200, *_nethttp.Response, error) {
+func (r ApiPostAllNotificationReadRequest) Execute() (InlineResponse2002, *_nethttp.Response, error) {
 	return r.ApiService.PostAllNotificationReadExecute(r)
 }
 
@@ -295,16 +295,16 @@ func (a *NotificationsApiService) PostAllNotificationRead(ctx _context.Context) 
 
 /*
  * Execute executes the request
- * @return InlineResponse200
+ * @return InlineResponse2002
  */
-func (a *NotificationsApiService) PostAllNotificationReadExecute(r ApiPostAllNotificationReadRequest) (InlineResponse200, *_nethttp.Response, error) {
+func (a *NotificationsApiService) PostAllNotificationReadExecute(r ApiPostAllNotificationReadRequest) (InlineResponse2002, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  InlineResponse200
+		localVarReturnValue  InlineResponse2002
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NotificationsApiService.PostAllNotificationRead")
@@ -388,7 +388,7 @@ type ApiPostNotificationDoneRequest struct {
 }
 
 
-func (r ApiPostNotificationDoneRequest) Execute() (InlineResponse200, *_nethttp.Response, error) {
+func (r ApiPostNotificationDoneRequest) Execute() (InlineResponse2002, *_nethttp.Response, error) {
 	return r.ApiService.PostNotificationDoneExecute(r)
 }
 
@@ -408,16 +408,16 @@ func (a *NotificationsApiService) PostNotificationDone(ctx _context.Context, not
 
 /*
  * Execute executes the request
- * @return InlineResponse200
+ * @return InlineResponse2002
  */
-func (a *NotificationsApiService) PostNotificationDoneExecute(r ApiPostNotificationDoneRequest) (InlineResponse200, *_nethttp.Response, error) {
+func (a *NotificationsApiService) PostNotificationDoneExecute(r ApiPostNotificationDoneRequest) (InlineResponse2002, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  InlineResponse200
+		localVarReturnValue  InlineResponse2002
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NotificationsApiService.PostNotificationDone")
@@ -500,7 +500,7 @@ type ApiPostNotificationReadRequest struct {
 }
 
 
-func (r ApiPostNotificationReadRequest) Execute() (InlineResponse200, *_nethttp.Response, error) {
+func (r ApiPostNotificationReadRequest) Execute() (InlineResponse2002, *_nethttp.Response, error) {
 	return r.ApiService.PostNotificationReadExecute(r)
 }
 
@@ -520,16 +520,16 @@ func (a *NotificationsApiService) PostNotificationRead(ctx _context.Context, not
 
 /*
  * Execute executes the request
- * @return InlineResponse200
+ * @return InlineResponse2002
  */
-func (a *NotificationsApiService) PostNotificationReadExecute(r ApiPostNotificationReadRequest) (InlineResponse200, *_nethttp.Response, error) {
+func (a *NotificationsApiService) PostNotificationReadExecute(r ApiPostNotificationReadRequest) (InlineResponse2002, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  InlineResponse200
+		localVarReturnValue  InlineResponse2002
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NotificationsApiService.PostNotificationRead")
