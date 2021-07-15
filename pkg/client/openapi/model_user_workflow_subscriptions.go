@@ -16,10 +16,10 @@ import (
 
 // UserWorkflowSubscriptions User subscription options for a workflow
 type UserWorkflowSubscriptions struct {
-	// Subscribe to workflow notifications
-	Subscribe *bool `json:"subscribe,omitempty"`
 	// Custom workflow subscriptions
 	Custom *[]string `json:"custom,omitempty"`
+	// Subscribe to workflow notifications
+	Subscribe *bool `json:"subscribe,omitempty"`
 }
 
 // NewUserWorkflowSubscriptions instantiates a new UserWorkflowSubscriptions object
@@ -37,38 +37,6 @@ func NewUserWorkflowSubscriptions() *UserWorkflowSubscriptions {
 func NewUserWorkflowSubscriptionsWithDefaults() *UserWorkflowSubscriptions {
 	this := UserWorkflowSubscriptions{}
 	return &this
-}
-
-// GetSubscribe returns the Subscribe field value if set, zero value otherwise.
-func (o *UserWorkflowSubscriptions) GetSubscribe() bool {
-	if o == nil || o.Subscribe == nil {
-		var ret bool
-		return ret
-	}
-	return *o.Subscribe
-}
-
-// GetSubscribeOk returns a tuple with the Subscribe field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *UserWorkflowSubscriptions) GetSubscribeOk() (*bool, bool) {
-	if o == nil || o.Subscribe == nil {
-		return nil, false
-	}
-	return o.Subscribe, true
-}
-
-// HasSubscribe returns a boolean if a field has been set.
-func (o *UserWorkflowSubscriptions) HasSubscribe() bool {
-	if o != nil && o.Subscribe != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetSubscribe gets a reference to the given bool and assigns it to the Subscribe field.
-func (o *UserWorkflowSubscriptions) SetSubscribe(v bool) {
-	o.Subscribe = &v
 }
 
 // GetCustom returns the Custom field value if set, zero value otherwise.
@@ -103,13 +71,45 @@ func (o *UserWorkflowSubscriptions) SetCustom(v []string) {
 	o.Custom = &v
 }
 
+// GetSubscribe returns the Subscribe field value if set, zero value otherwise.
+func (o *UserWorkflowSubscriptions) GetSubscribe() bool {
+	if o == nil || o.Subscribe == nil {
+		var ret bool
+		return ret
+	}
+	return *o.Subscribe
+}
+
+// GetSubscribeOk returns a tuple with the Subscribe field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *UserWorkflowSubscriptions) GetSubscribeOk() (*bool, bool) {
+	if o == nil || o.Subscribe == nil {
+		return nil, false
+	}
+	return o.Subscribe, true
+}
+
+// HasSubscribe returns a boolean if a field has been set.
+func (o *UserWorkflowSubscriptions) HasSubscribe() bool {
+	if o != nil && o.Subscribe != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetSubscribe gets a reference to the given bool and assigns it to the Subscribe field.
+func (o *UserWorkflowSubscriptions) SetSubscribe(v bool) {
+	o.Subscribe = &v
+}
+
 func (o UserWorkflowSubscriptions) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Subscribe != nil {
-		toSerialize["subscribe"] = o.Subscribe
-	}
 	if o.Custom != nil {
 		toSerialize["custom"] = o.Custom
+	}
+	if o.Subscribe != nil {
+		toSerialize["subscribe"] = o.Subscribe
 	}
 	return json.Marshal(toSerialize)
 }

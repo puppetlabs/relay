@@ -14,10 +14,10 @@ import (
 	"encoding/json"
 )
 
-// InlineResponse200 Success response
+// InlineResponse200 The response type for access to global entities
 type InlineResponse200 struct {
-	// Did this succeed?
-	Success *bool `json:"success,omitempty"`
+	// The global grants associated with this user
+	PermissionGrants *[]PermissionGrant `json:"permission_grants,omitempty"`
 }
 
 // NewInlineResponse200 instantiates a new InlineResponse200 object
@@ -37,42 +37,42 @@ func NewInlineResponse200WithDefaults() *InlineResponse200 {
 	return &this
 }
 
-// GetSuccess returns the Success field value if set, zero value otherwise.
-func (o *InlineResponse200) GetSuccess() bool {
-	if o == nil || o.Success == nil {
-		var ret bool
+// GetPermissionGrants returns the PermissionGrants field value if set, zero value otherwise.
+func (o *InlineResponse200) GetPermissionGrants() []PermissionGrant {
+	if o == nil || o.PermissionGrants == nil {
+		var ret []PermissionGrant
 		return ret
 	}
-	return *o.Success
+	return *o.PermissionGrants
 }
 
-// GetSuccessOk returns a tuple with the Success field value if set, nil otherwise
+// GetPermissionGrantsOk returns a tuple with the PermissionGrants field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *InlineResponse200) GetSuccessOk() (*bool, bool) {
-	if o == nil || o.Success == nil {
+func (o *InlineResponse200) GetPermissionGrantsOk() (*[]PermissionGrant, bool) {
+	if o == nil || o.PermissionGrants == nil {
 		return nil, false
 	}
-	return o.Success, true
+	return o.PermissionGrants, true
 }
 
-// HasSuccess returns a boolean if a field has been set.
-func (o *InlineResponse200) HasSuccess() bool {
-	if o != nil && o.Success != nil {
+// HasPermissionGrants returns a boolean if a field has been set.
+func (o *InlineResponse200) HasPermissionGrants() bool {
+	if o != nil && o.PermissionGrants != nil {
 		return true
 	}
 
 	return false
 }
 
-// SetSuccess gets a reference to the given bool and assigns it to the Success field.
-func (o *InlineResponse200) SetSuccess(v bool) {
-	o.Success = &v
+// SetPermissionGrants gets a reference to the given []PermissionGrant and assigns it to the PermissionGrants field.
+func (o *InlineResponse200) SetPermissionGrants(v []PermissionGrant) {
+	o.PermissionGrants = &v
 }
 
 func (o InlineResponse200) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Success != nil {
-		toSerialize["success"] = o.Success
+	if o.PermissionGrants != nil {
+		toSerialize["permission_grants"] = o.PermissionGrants
 	}
 	return json.Marshal(toSerialize)
 }

@@ -23,32 +23,32 @@ type Notification struct {
 	CreatedAt time.Time `json:"created_at"`
 	// Time of last update
 	UpdatedAt time.Time `json:"updated_at"`
-	// The type of event that created the event
-	Type string `json:"type"`
 	// The attributes of this notification
 	Attributes *[]string `json:"attributes,omitempty"`
-	// The state of this notification
-	State string `json:"state"`
+	// The type of event that created the event
+	Type string `json:"type"`
 	// The current user has marked this notification done
 	Done *bool `json:"done,omitempty"`
-	// Whether the current user has read this notification
-	Read bool `json:"read"`
 	// The fields to use for linking out from the notification
 	Fields *map[string]interface{} `json:"fields,omitempty"`
+	// Whether the current user has read this notification
+	Read bool `json:"read"`
+	// The state of this notification
+	State string `json:"state"`
 }
 
 // NewNotification instantiates a new Notification object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewNotification(id string, createdAt time.Time, updatedAt time.Time, type_ string, state string, read bool) *Notification {
+func NewNotification(id string, createdAt time.Time, updatedAt time.Time, type_ string, read bool, state string) *Notification {
 	this := Notification{}
 	this.Id = id
 	this.CreatedAt = createdAt
 	this.UpdatedAt = updatedAt
 	this.Type = type_
-	this.State = state
 	this.Read = read
+	this.State = state
 	return &this
 }
 
@@ -132,30 +132,6 @@ func (o *Notification) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt = v
 }
 
-// GetType returns the Type field value
-func (o *Notification) GetType() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Type
-}
-
-// GetTypeOk returns a tuple with the Type field value
-// and a boolean to check if the value has been set.
-func (o *Notification) GetTypeOk() (*string, bool) {
-	if o == nil  {
-		return nil, false
-	}
-	return &o.Type, true
-}
-
-// SetType sets field value
-func (o *Notification) SetType(v string) {
-	o.Type = v
-}
-
 // GetAttributes returns the Attributes field value if set, zero value otherwise.
 func (o *Notification) GetAttributes() []string {
 	if o == nil || o.Attributes == nil {
@@ -188,28 +164,28 @@ func (o *Notification) SetAttributes(v []string) {
 	o.Attributes = &v
 }
 
-// GetState returns the State field value
-func (o *Notification) GetState() string {
+// GetType returns the Type field value
+func (o *Notification) GetType() string {
 	if o == nil {
 		var ret string
 		return ret
 	}
 
-	return o.State
+	return o.Type
 }
 
-// GetStateOk returns a tuple with the State field value
+// GetTypeOk returns a tuple with the Type field value
 // and a boolean to check if the value has been set.
-func (o *Notification) GetStateOk() (*string, bool) {
+func (o *Notification) GetTypeOk() (*string, bool) {
 	if o == nil  {
 		return nil, false
 	}
-	return &o.State, true
+	return &o.Type, true
 }
 
-// SetState sets field value
-func (o *Notification) SetState(v string) {
-	o.State = v
+// SetType sets field value
+func (o *Notification) SetType(v string) {
+	o.Type = v
 }
 
 // GetDone returns the Done field value if set, zero value otherwise.
@@ -244,30 +220,6 @@ func (o *Notification) SetDone(v bool) {
 	o.Done = &v
 }
 
-// GetRead returns the Read field value
-func (o *Notification) GetRead() bool {
-	if o == nil {
-		var ret bool
-		return ret
-	}
-
-	return o.Read
-}
-
-// GetReadOk returns a tuple with the Read field value
-// and a boolean to check if the value has been set.
-func (o *Notification) GetReadOk() (*bool, bool) {
-	if o == nil  {
-		return nil, false
-	}
-	return &o.Read, true
-}
-
-// SetRead sets field value
-func (o *Notification) SetRead(v bool) {
-	o.Read = v
-}
-
 // GetFields returns the Fields field value if set, zero value otherwise.
 func (o *Notification) GetFields() map[string]interface{} {
 	if o == nil || o.Fields == nil {
@@ -300,6 +252,54 @@ func (o *Notification) SetFields(v map[string]interface{}) {
 	o.Fields = &v
 }
 
+// GetRead returns the Read field value
+func (o *Notification) GetRead() bool {
+	if o == nil {
+		var ret bool
+		return ret
+	}
+
+	return o.Read
+}
+
+// GetReadOk returns a tuple with the Read field value
+// and a boolean to check if the value has been set.
+func (o *Notification) GetReadOk() (*bool, bool) {
+	if o == nil  {
+		return nil, false
+	}
+	return &o.Read, true
+}
+
+// SetRead sets field value
+func (o *Notification) SetRead(v bool) {
+	o.Read = v
+}
+
+// GetState returns the State field value
+func (o *Notification) GetState() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.State
+}
+
+// GetStateOk returns a tuple with the State field value
+// and a boolean to check if the value has been set.
+func (o *Notification) GetStateOk() (*string, bool) {
+	if o == nil  {
+		return nil, false
+	}
+	return &o.State, true
+}
+
+// SetState sets field value
+func (o *Notification) SetState(v string) {
+	o.State = v
+}
+
 func (o Notification) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if true {
@@ -311,23 +311,23 @@ func (o Notification) MarshalJSON() ([]byte, error) {
 	if true {
 		toSerialize["updated_at"] = o.UpdatedAt
 	}
-	if true {
-		toSerialize["type"] = o.Type
-	}
 	if o.Attributes != nil {
 		toSerialize["attributes"] = o.Attributes
 	}
 	if true {
-		toSerialize["state"] = o.State
+		toSerialize["type"] = o.Type
 	}
 	if o.Done != nil {
 		toSerialize["done"] = o.Done
 	}
+	if o.Fields != nil {
+		toSerialize["fields"] = o.Fields
+	}
 	if true {
 		toSerialize["read"] = o.Read
 	}
-	if o.Fields != nil {
-		toSerialize["fields"] = o.Fields
+	if true {
+		toSerialize["state"] = o.State
 	}
 	return json.Marshal(toSerialize)
 }

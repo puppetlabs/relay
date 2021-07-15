@@ -16,10 +16,10 @@ import (
 
 // NotificationSummaryAllOf A summary of a notification
 type NotificationSummaryAllOf struct {
-	// The type of event that created the event
-	Type string `json:"type"`
 	// The attributes of this notification
 	Attributes *[]string `json:"attributes,omitempty"`
+	// The type of event that created the event
+	Type string `json:"type"`
 }
 
 // NewNotificationSummaryAllOf instantiates a new NotificationSummaryAllOf object
@@ -38,30 +38,6 @@ func NewNotificationSummaryAllOf(type_ string) *NotificationSummaryAllOf {
 func NewNotificationSummaryAllOfWithDefaults() *NotificationSummaryAllOf {
 	this := NotificationSummaryAllOf{}
 	return &this
-}
-
-// GetType returns the Type field value
-func (o *NotificationSummaryAllOf) GetType() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Type
-}
-
-// GetTypeOk returns a tuple with the Type field value
-// and a boolean to check if the value has been set.
-func (o *NotificationSummaryAllOf) GetTypeOk() (*string, bool) {
-	if o == nil  {
-		return nil, false
-	}
-	return &o.Type, true
-}
-
-// SetType sets field value
-func (o *NotificationSummaryAllOf) SetType(v string) {
-	o.Type = v
 }
 
 // GetAttributes returns the Attributes field value if set, zero value otherwise.
@@ -96,13 +72,37 @@ func (o *NotificationSummaryAllOf) SetAttributes(v []string) {
 	o.Attributes = &v
 }
 
+// GetType returns the Type field value
+func (o *NotificationSummaryAllOf) GetType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Type
+}
+
+// GetTypeOk returns a tuple with the Type field value
+// and a boolean to check if the value has been set.
+func (o *NotificationSummaryAllOf) GetTypeOk() (*string, bool) {
+	if o == nil  {
+		return nil, false
+	}
+	return &o.Type, true
+}
+
+// SetType sets field value
+func (o *NotificationSummaryAllOf) SetType(v string) {
+	o.Type = v
+}
+
 func (o NotificationSummaryAllOf) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if true {
-		toSerialize["type"] = o.Type
-	}
 	if o.Attributes != nil {
 		toSerialize["attributes"] = o.Attributes
+	}
+	if true {
+		toSerialize["type"] = o.Type
 	}
 	return json.Marshal(toSerialize)
 }

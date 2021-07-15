@@ -7,16 +7,18 @@ go.*
 api/
 docs/
 
-client.go
-
-api_access_control*.go
-api_auth*.go
-api_billing*.go
-api_connections*.go
-api_events*.go
-api_revisions*.go
-api_terms*.go
-api_workflow*.go
+api_access_control.go
+api_auth.go
+api_billing.go
+api_connections.go
+api_events.go
+api_revisions.go
+api_terms.go
+api_workflow_revisions.go
+api_workflow_runs.go
+api_workflow_secrets.go
+api_workflow_triggers.go
+api_workflows.go
 
 model_accepted_terms*.go
 model_account*.go
@@ -28,7 +30,17 @@ model_connection*.go
 model_container*.go
 model_event*.go
 model_expression*.go
-model_inline_response_200_*.go
+model_inline_response_200_1*.go
+model_inline_response_200_3*.go
+model_inline_response_200_4*.go
+model_inline_response_200_5*.go
+model_inline_response_200_6*.go
+model_inline_response_200_7*.go
+model_inline_response_200_8*.go
+model_inline_response_200_9*.go
+model_inline_response_200_10*.go
+model_inline_response_200_11*.go
+model_inline_response_200_12*.go
 model_invite*.go
 model_profile*.go
 model_push*.go

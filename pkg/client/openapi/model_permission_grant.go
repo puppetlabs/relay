@@ -16,9 +16,9 @@ import (
 
 // PermissionGrant A permission resolved in a given context, such as a user in an entity
 type PermissionGrant struct {
-	Permission *PermissionSummary `json:"permission,omitempty"`
 	// Whether this permission has been granted in the context or a sub-context
 	Granted *string `json:"granted,omitempty"`
+	Permission *PermissionSummary `json:"permission,omitempty"`
 }
 
 // NewPermissionGrant instantiates a new PermissionGrant object
@@ -36,38 +36,6 @@ func NewPermissionGrant() *PermissionGrant {
 func NewPermissionGrantWithDefaults() *PermissionGrant {
 	this := PermissionGrant{}
 	return &this
-}
-
-// GetPermission returns the Permission field value if set, zero value otherwise.
-func (o *PermissionGrant) GetPermission() PermissionSummary {
-	if o == nil || o.Permission == nil {
-		var ret PermissionSummary
-		return ret
-	}
-	return *o.Permission
-}
-
-// GetPermissionOk returns a tuple with the Permission field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *PermissionGrant) GetPermissionOk() (*PermissionSummary, bool) {
-	if o == nil || o.Permission == nil {
-		return nil, false
-	}
-	return o.Permission, true
-}
-
-// HasPermission returns a boolean if a field has been set.
-func (o *PermissionGrant) HasPermission() bool {
-	if o != nil && o.Permission != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetPermission gets a reference to the given PermissionSummary and assigns it to the Permission field.
-func (o *PermissionGrant) SetPermission(v PermissionSummary) {
-	o.Permission = &v
 }
 
 // GetGranted returns the Granted field value if set, zero value otherwise.
@@ -102,13 +70,45 @@ func (o *PermissionGrant) SetGranted(v string) {
 	o.Granted = &v
 }
 
+// GetPermission returns the Permission field value if set, zero value otherwise.
+func (o *PermissionGrant) GetPermission() PermissionSummary {
+	if o == nil || o.Permission == nil {
+		var ret PermissionSummary
+		return ret
+	}
+	return *o.Permission
+}
+
+// GetPermissionOk returns a tuple with the Permission field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *PermissionGrant) GetPermissionOk() (*PermissionSummary, bool) {
+	if o == nil || o.Permission == nil {
+		return nil, false
+	}
+	return o.Permission, true
+}
+
+// HasPermission returns a boolean if a field has been set.
+func (o *PermissionGrant) HasPermission() bool {
+	if o != nil && o.Permission != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetPermission gets a reference to the given PermissionSummary and assigns it to the Permission field.
+func (o *PermissionGrant) SetPermission(v PermissionSummary) {
+	o.Permission = &v
+}
+
 func (o PermissionGrant) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if o.Permission != nil {
-		toSerialize["permission"] = o.Permission
-	}
 	if o.Granted != nil {
 		toSerialize["granted"] = o.Granted
+	}
+	if o.Permission != nil {
+		toSerialize["permission"] = o.Permission
 	}
 	return json.Marshal(toSerialize)
 }
