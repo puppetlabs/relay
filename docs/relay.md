@@ -19,11 +19,21 @@ Use the 'workflow' subcommand to interact with workflows:
 
 ### Subcommand Usage
 
-**`relay auth login`** -- Log in to Relay
+**`relay auth login [flags]`** -- Log in to Relay
+```
+  -f, --file string   Read authentication credentials from file
+      --stdin         Read authentication credentials from stdin
+```
 
 **`relay auth logout`** -- Log out of Relay
 
 **`relay completion`** -- Generate shell completion scripts
+
+**`relay config auth clear`** -- Clear the stored authentication for the current context
+
+**`relay context set [context name]`** -- Set current context
+
+**`relay context view`** -- View current context
 
 **`relay dev cluster create [flags]`** -- Create the local cluster
 ```
@@ -87,6 +97,19 @@ you can query repeatedly.
 
 **`relay subscriptions unsubscribe [workflow name]`** -- Unsubscribe to workflow
 
+**`relay tokens create [token name] [flags]`** -- Create API token
+```
+  -f, --file string   Write the generated token to the supplied file
+  -u, --use           Configure the CLI to use the generated API token (default true)
+```
+
+**`relay tokens list [flags]`** -- List API tokens
+```
+  -a, --all   Show all account tokens
+```
+
+**`relay tokens revoke [token id]`** -- Revoke API token
+
 **`relay workflow add [workflow name] [flags]`** -- Add a Relay workflow from a local file
 ```
   -f, --file string   Path to Relay workflow file
@@ -96,7 +119,7 @@ you can query repeatedly.
 
 **`relay workflow download [workflow name] [flags]`** -- Download a workflow from the service
 ```
-  -f, --file string   Filename to write workflow, relative to current working dir
+  -f, --file string   Path to write workflow file
 ```
 
 **`relay workflow list`** -- Get a list of all your workflows
@@ -127,8 +150,10 @@ you can query repeatedly.
 
 ### Global flags
 ```
-  -d, --debug        print debugging information
-  -o, --out string   output type: (text|json) (default "text")
-  -y, --yes          skip confirmation prompts
+  -x, --context string   Override the current context
+  -d, --debug            Print debugging information
+  -h, --help             Show help for this command
+  -o, --out string       Output type: (text|json) (default "text")
+  -y, --yes              Skip confirmation prompts
 
 ```

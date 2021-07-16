@@ -20,8 +20,15 @@ type Client struct {
 
 func NewClient(config *config.Config) *Client {
 	cc := openapi.NewConfiguration()
-	cc.Host = config.ContextConfig.APIDomain.Host
-	cc.Scheme = config.ContextConfig.APIDomain.Scheme
+	if config.ContextConfig != nil {
+		context := config.CurrentContext
+		if contextConfig, ok := config.ContextConfig[context]; ok {
+			if contextConfig.Domains != nil {
+				cc.Host = contextConfig.Domains.APIDomain.Host
+				cc.Scheme = contextConfig.Domains.APIDomain.Scheme
+			}
+		}
+	}
 	cc.Debug = false
 
 	api := openapi.NewAPIClient(cc)

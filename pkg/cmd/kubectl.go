@@ -22,8 +22,14 @@ func newKubectlCommand() *cobra.Command {
 
 func doRunKubectl(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
+
 	cm := cluster.NewManager(ClusterConfig)
+
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	if err != nil {
+		return err
+	}
+
 	dm := dev.NewManager(cm, cl, DevConfig)
 
 	newcmd, err := dm.KubectlCommand()

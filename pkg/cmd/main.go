@@ -67,24 +67,27 @@ Use the 'workflow' subcommand to interact with workflows:
 		},
 	}
 
-	cmd.PersistentFlags().BoolVarP(&debug.Enabled, "debug", "d", false, "print debugging information")
-	cmd.PersistentFlags().BoolP("yes", "y", false, "skip confirmation prompts")
-	cmd.PersistentFlags().StringP("out", "o", "text", "output type: (text|json)")
+	cmd.PersistentFlags().StringP("context", "x", "", "Override the current context")
+	cmd.PersistentFlags().BoolVarP(&debug.Enabled, "debug", "d", false, "Print debugging information")
+	cmd.PersistentFlags().BoolP("help", "h", false, "Show help for this command")
+	cmd.PersistentFlags().BoolP("yes", "y", false, "Skip confirmation prompts")
+	cmd.PersistentFlags().StringP("out", "o", "text", "Output type: (text|json)")
 
 	// allow the user to override the default configuration location if they
 	// can find the flag. likely figured out from reading this comment, actually...
-	cmd.PersistentFlags().StringP("config", "c", "", "path to config file (default is $HOME.config/relay)")
+	cmd.PersistentFlags().StringP("config", "c", "", "Path to config file (default is $HOME.config/relay)")
 	cmd.PersistentFlags().MarkHidden("config")
-	cmd.PersistentFlags().StringP("context", "x", "", "current context")
-	cmd.PersistentFlags().MarkHidden("context")
 
 	cmd.AddCommand(newAuthCommand())
+	cmd.AddCommand(newConfigCommand())
+	cmd.AddCommand(newContextCommand())
 	cmd.AddCommand(newWorkflowCommand())
 	cmd.AddCommand(newDevCommand())
 	cmd.AddCommand(newDocCommand())
 	cmd.AddCommand(newCompletionCommand())
 	cmd.AddCommand(newNotificationsCommand())
 	cmd.AddCommand(newSubscriptionsCommand())
+	cmd.AddCommand(newTokensCommand())
 
 	return cmd
 }
