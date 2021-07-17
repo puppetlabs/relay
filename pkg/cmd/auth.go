@@ -180,7 +180,7 @@ func writeAuthTokenConfig(cmd *cobra.Command, token string, tokenType config.Aut
 				Config.CurrentContext: {
 					Auth: &config.AuthConfig{
 						Tokens: map[config.AuthTokenType]string{
-							tokenType: token,
+							tokenType: strings.TrimSpace(token),
 						},
 					},
 				},

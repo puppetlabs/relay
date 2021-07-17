@@ -31,6 +31,19 @@ func (att AuthTokenType) String() string {
 	return string(att)
 }
 
+func AuthTokenTypes() []AuthTokenType {
+	return []AuthTokenType{AuthTokenTypeAPI, AuthTokenTypeSession}
+}
+
+func AuthTokenTypesAsString() []string {
+	authTokenTypes := make([]string, len(AuthTokenTypes()))
+	for index, tokenType := range AuthTokenTypes() {
+		authTokenTypes[index] = tokenType.String()
+	}
+
+	return authTokenTypes
+}
+
 const (
 	RelayEnvironment = "relay"
 
@@ -210,7 +223,7 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 					Tokens: make(map[AuthTokenType]string),
 				}
 
-				for _, tokenType := range []AuthTokenType{AuthTokenTypeAPI, AuthTokenTypeSession} {
+				for _, tokenType := range AuthTokenTypes() {
 					token := authSection.GetString(fmt.Sprintf("tokens.%s", tokenType))
 					config.ContextConfig[context].Auth.Tokens[tokenType] = token
 				}

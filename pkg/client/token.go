@@ -13,7 +13,7 @@ func (c *Client) getToken() (*model.Token, error) {
 
 			if contextConfig, ok := c.config.ContextConfig[context]; ok {
 				if contextConfig.Auth != nil && contextConfig.Auth.Tokens != nil {
-					for _, tokenType := range []config.AuthTokenType{config.AuthTokenTypeAPI, config.AuthTokenTypeSession} {
+					for _, tokenType := range config.AuthTokenTypes() {
 						if value, ok := contextConfig.Auth.Tokens[tokenType]; ok && value != "" {
 							token := model.Token(value)
 							c.loadedToken = &token
@@ -28,7 +28,7 @@ func (c *Client) getToken() (*model.Token, error) {
 	return c.loadedToken, nil
 }
 
-// ClearToken clears the token from the loadedToken cache on client object.
+// clearToken clears the token from the loadedToken cache on client object.
 func (c *Client) clearToken() error {
 	c.loadedToken = nil
 

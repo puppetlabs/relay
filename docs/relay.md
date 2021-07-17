@@ -29,7 +29,10 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay completion`** -- Generate shell completion scripts
 
-**`relay config auth clear`** -- Clear the stored authentication for the current context
+**`relay config auth clear [flags]`** -- Clear stored authentication data for the current context
+```
+  -t, --type string   Authentication type (api|session)
+```
 
 **`relay context set [context name]`** -- Set current context
 

@@ -2,12 +2,11 @@ package cmd
 
 import (
 	"errors"
-	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/puppetlabs/relay/pkg/client/openapi"
 	"github.com/puppetlabs/relay/pkg/config"
-	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/spf13/cobra"
 )
 
@@ -64,6 +63,21 @@ func newListTokens() *cobra.Command {
 }
 
 func doCreateToken(cmd *cobra.Command, args []string) error {
+	file, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return err
+	}
+
+	var f *os.File
+	if file != "" {
+		f, err = os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
+	}
+
 	Dialog.Progress("Creating token...")
 
 	req := Client.Api.TokensApi.CreateToken(cmd.Context())
@@ -77,6 +91,8 @@ func doCreateToken(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		switch resp.StatusCode {
 		case http.StatusConflict:
+			// FIXME This is a bit of an assumption, but it is worth adding for overall usability.
+			// A few things need to change to ensure an accurate error message is displayed.
 			return errors.New("A token by that name already exists")
 		default:
 			return err
@@ -85,16 +101,17 @@ func doCreateToken(cmd *cobra.Command, args []string) error {
 
 	if token, ok := t.GetTokenOk(); ok {
 		secret := token.UserTokenWithSecret.GetSecret()
-		filepath, err := cmd.Flags().GetString("file")
 		if err != nil {
 			return err
 		}
 
-		if filepath != "" {
-			if err := ioutil.WriteFile(filepath, []byte(secret), 0644); err != nil {
-				debug.Logf("failed to write to file %s: %s", filepath, err.Error())
+		if file != "" {
+			if _, err := f.Write([]byte(secret)); err != nil {
 				return err
 			}
+
+			Dialog.Infof("Your token was written to %s\n"+
+				"Use this file to authenticate to the Relay CLI by running: relay auth login --file=%s\n", file, file)
 		}
 
 		use, err := cmd.Flags().GetBool("use")
@@ -104,6 +121,13 @@ func doCreateToken(cmd *cobra.Command, args []string) error {
 
 		if use {
 			writeAuthTokenConfig(cmd, *token.UserTokenWithSecret.Secret, config.AuthTokenTypeAPI)
+
+			Dialog.WriteString("The generated token has been added to the cached credentials\n" +
+				"To clear your cached credentials, use: relay config auth clear\n")
+		}
+
+		if !use && file == "" {
+			Dialog.WriteString(secret)
 		}
 	}
 

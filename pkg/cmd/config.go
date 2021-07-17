@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/spf13/cobra"
 )
@@ -32,26 +35,38 @@ func newConfigAuthCommand() *cobra.Command {
 func newConfigAuthClearCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clear",
-		Short: "Clear the stored authentication for the current context",
+		Short: "Clear stored authentication data for the current context",
 		Args:  cobra.ExactArgs(0),
 		RunE:  doConfigAuthClear,
 	}
+
+	cmd.Flags().StringP("type", "t", "",
+		fmt.Sprintf("Authentication type (%s)", strings.Join(config.AuthTokenTypesAsString(), "|")))
 
 	return cmd
 }
 
 func doConfigAuthClear(cmd *cobra.Command, args []string) error {
+	authTokenType, err := cmd.Flags().GetString("type")
+	if err != nil {
+		return err
+	}
+
+	context := Config.CurrentContext
 	cfg := &config.Config{
 		ContextConfig: map[string]*config.ContextConfig{
-			Config.CurrentContext: {
+			context: {
 				Auth: &config.AuthConfig{
-					Tokens: map[config.AuthTokenType]string{
-						config.AuthTokenTypeAPI:     "",
-						config.AuthTokenTypeSession: "",
-					},
+					Tokens: map[config.AuthTokenType]string{},
 				},
 			},
 		},
+	}
+
+	for _, tokenType := range config.AuthTokenTypes() {
+		if authTokenType == "" || authTokenType == tokenType.String() {
+			cfg.ContextConfig[context].Auth.Tokens[tokenType] = ""
+		}
 	}
 
 	config.WriteConfig(cfg, cmd.Flags())
