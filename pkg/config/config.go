@@ -20,24 +20,54 @@ const (
 	OutputTypeJSON OutputType = "json"
 )
 
+type AuthTokenType string
+
 const (
+	AuthTokenTypeAPI     AuthTokenType = "api"
+	AuthTokenTypeSession AuthTokenType = "session"
+)
+
+func (att AuthTokenType) String() string {
+	return string(att)
+}
+
+func AuthTokenTypes() []AuthTokenType {
+	return []AuthTokenType{AuthTokenTypeAPI, AuthTokenTypeSession}
+}
+
+func AuthTokenTypesAsString() []string {
+	authTokenTypes := make([]string, len(AuthTokenTypes()))
+	for index, tokenType := range AuthTokenTypes() {
+		authTokenTypes[index] = tokenType.String()
+	}
+
+	return authTokenTypes
+}
+
+const (
+	RelayEnvironment = "relay"
+
 	defaultConfigName     = "config"
 	defaultConfigType     = "yaml"
 	defaultCurrentContext = "relaysh"
 )
 
-var defaultContexts = map[string]APIContext{
+var defaultContexts = map[string]*ContextConfig{
 	"relaysh": {
-		Name:      "relaysh",
-		APIDomain: &url.URL{Scheme: "https", Host: "api.relay.sh"},
-		UIDomain:  &url.URL{Scheme: "https", Host: "app.relay.sh"},
-		WebDomain: &url.URL{Scheme: "https", Host: "relay.sh"},
+		Domains: &APIContext{
+			Name:      "relaysh",
+			APIDomain: &url.URL{Scheme: "https", Host: "api.relay.sh"},
+			UIDomain:  &url.URL{Scheme: "https", Host: "app.relay.sh"},
+			WebDomain: &url.URL{Scheme: "https", Host: "relay.sh"},
+		},
 	},
 	"dev": {
-		Name:      "dev",
-		APIDomain: &url.URL{Scheme: "http", Host: "relay-api.local:8080"},
-		UIDomain:  &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
-		WebDomain: &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
+		Domains: &APIContext{
+			Name:      "dev",
+			APIDomain: &url.URL{Scheme: "http", Host: "relay-api.local:8080"},
+			UIDomain:  &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
+			WebDomain: &url.URL{Scheme: "http", Host: "relay-ui.local:8080"},
+		},
 	},
 }
 
@@ -55,6 +85,15 @@ type LogServiceConfig struct {
 	Table                 string
 }
 
+type AuthConfig struct {
+	Tokens map[AuthTokenType]string
+}
+
+type ContextConfig struct {
+	Auth    *AuthConfig
+	Domains *APIContext
+}
+
 type Config struct {
 	Debug          bool
 	Yes            bool
@@ -63,7 +102,7 @@ type Config struct {
 	TokenPath      string
 	CurrentContext string
 
-	ContextConfig *APIContext
+	ContextConfig map[string]*ContextConfig
 
 	LogServiceConfig *LogServiceConfig
 }
@@ -75,14 +114,9 @@ func GetDefaultConfig() *Config {
 		Yes:            false,
 		Out:            OutputTypeText,
 		CacheDir:       userCacheDir(),
-		TokenPath:      filepath.Join(userCacheDir(), "auth-token"),
 		CurrentContext: defaultCurrentContext,
 
-		ContextConfig: &APIContext{
-			APIDomain: defaultContexts[defaultCurrentContext].APIDomain,
-			UIDomain:  defaultContexts[defaultCurrentContext].UIDomain,
-			WebDomain: defaultContexts[defaultCurrentContext].WebDomain,
-		},
+		ContextConfig: defaultContexts,
 	}
 }
 
@@ -123,7 +157,7 @@ func NewLogServiceConfig(v *viper.Viper) *LogServiceConfig {
 func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	v := viper.New()
 
-	v.SetEnvPrefix("relay")
+	v.SetEnvPrefix(RelayEnvironment)
 	v.AutomaticEnv()
 
 	v.SetDefault("debug", false)
@@ -137,16 +171,15 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 
 	v.SetDefault("cache_dir", userCacheDir())
 	v.SetDefault("data_dir", userDataDir())
-	v.SetDefault("token_path", filepath.Join(userCacheDir(), "auth-token"))
 
-	v.SetDefault("current_context", defaultCurrentContext)
-	v.BindPFlag("current_context", flags.Lookup("context"))
+	v.SetDefault("context", defaultCurrentContext)
+	v.BindPFlag("context", flags.Lookup("context"))
 
 	if err := readInConfigFile(v, flags); err != nil {
 		return nil, err
 	}
 
-	context := v.GetString("current_context")
+	context := v.GetString("context")
 
 	output, err := readOutput(v)
 	if err != nil {
@@ -154,11 +187,11 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	}
 
 	config := &Config{
-		Debug:          v.GetBool("debug"),
-		Yes:            v.GetBool("yes"),
-		Out:            output,
-		CacheDir:       v.GetString("cache_dir"),
-		TokenPath:      v.GetString("token_path"),
+		Debug:    v.GetBool("debug"),
+		Yes:      v.GetBool("yes"),
+		Out:      output,
+		CacheDir: v.GetString("cache_dir"),
+
 		CurrentContext: context,
 	}
 
@@ -173,44 +206,96 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 
 		contextSection := v.Sub(fmt.Sprintf("contexts.%s", context))
 		if contextSection != nil {
-			contextConfig, err := NewAPIContext(contextSection)
+			domainConfig, err := NewAPIContext(contextSection)
 			if err != nil {
 				return nil, err
 			}
 
-			config.ContextConfig = contextConfig
+			config.ContextConfig = map[string]*ContextConfig{
+				context: {
+					Domains: domainConfig,
+				},
+			}
+
+			authSection := contextSection.Sub("auth")
+			if authSection != nil {
+				config.ContextConfig[context].Auth = &AuthConfig{
+					Tokens: make(map[AuthTokenType]string),
+				}
+
+				for _, tokenType := range AuthTokenTypes() {
+					token := authSection.GetString(fmt.Sprintf("tokens.%s", tokenType))
+					config.ContextConfig[context].Auth.Tokens[tokenType] = token
+				}
+			}
 		}
 	}
 
 	// Deprecated. Backwards compatibility only.
 	if config.ContextConfig == nil {
-		v.SetDefault("api_domain", defaultContexts[context].APIDomain)
-		v.SetDefault("ui_domain", defaultContexts[context].UIDomain)
-		v.SetDefault("web_domain", defaultContexts[context].WebDomain)
+		if _, ok := defaultContexts[context]; ok {
+			v.SetDefault("api_domain", defaultContexts[context].Domains.APIDomain)
+			v.SetDefault("ui_domain", defaultContexts[context].Domains.UIDomain)
+			v.SetDefault("web_domain", defaultContexts[context].Domains.WebDomain)
 
-		apiDomain, err := readAPIDomain(v)
-		if err != nil {
-			return nil, err
-		}
+			apiDomain, err := readAPIDomain(v)
+			if err != nil {
+				return nil, err
+			}
 
-		uiDomain, err := readUIDomain(v)
-		if err != nil {
-			return nil, err
-		}
+			uiDomain, err := readUIDomain(v)
+			if err != nil {
+				return nil, err
+			}
 
-		webDomain, err := readWebDomain(v)
-		if err != nil {
-			return nil, err
-		}
+			webDomain, err := readWebDomain(v)
+			if err != nil {
+				return nil, err
+			}
 
-		config.ContextConfig = &APIContext{
-			APIDomain: apiDomain,
-			UIDomain:  uiDomain,
-			WebDomain: webDomain,
+			config.ContextConfig = map[string]*ContextConfig{
+				context: {
+					Domains: &APIContext{
+						APIDomain: apiDomain,
+						UIDomain:  uiDomain,
+						WebDomain: webDomain,
+					},
+				},
+			}
 		}
 	}
 
 	return config, nil
+}
+
+func WriteConfig(cfg *Config, flags *pflag.FlagSet) error {
+	v := viper.New()
+
+	v.SetEnvPrefix(RelayEnvironment)
+	v.AutomaticEnv()
+
+	readInConfigFile(v, flags)
+
+	if cfg.CurrentContext != "" {
+		v.Set("context", cfg.CurrentContext)
+	}
+
+	if cfg.ContextConfig != nil {
+		for context, config := range cfg.ContextConfig {
+			if config.Auth != nil && config.Auth.Tokens != nil {
+				tokens := config.Auth.Tokens
+				for name, value := range tokens {
+					v.Set(fmt.Sprintf("contexts.%s.auth.tokens.%s", context, name), value)
+				}
+			}
+		}
+	}
+
+	if err := v.WriteConfig(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // readInConfigFile reads config file location from viper flags, then
@@ -256,29 +341,29 @@ func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 // userConfigDir gets default user config dir
 func userConfigDir() string {
 	if os.Getenv("XDG_CONFIG_HOME") != "" {
-		return filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "relay")
+		return filepath.Join(os.Getenv("XDG_CONFIG_HOME"), RelayEnvironment)
 	}
 
-	return filepath.Join(os.Getenv("HOME"), ".config", "relay")
+	return filepath.Join(os.Getenv("HOME"), ".config", RelayEnvironment)
 }
 
 // userCacheDir gets default user cache dir, used as directory for storing tokens
 func userCacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
-		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), "relay")
+		return filepath.Join(os.Getenv("XDG_CACHE_HOME"), RelayEnvironment)
 	}
 
-	return filepath.Join(os.Getenv("HOME"), ".cache", "relay")
+	return filepath.Join(os.Getenv("HOME"), ".cache", RelayEnvironment)
 }
 
 // userDataDir gets default user data dir. The data dir is used to store long term
 // data generated by the cli.
 func userDataDir() string {
 	if os.Getenv("XDG_DATA_HOME") != "" {
-		return filepath.Join(os.Getenv("XDG_DATA_HOME"), "relay")
+		return filepath.Join(os.Getenv("XDG_DATA_HOME"), RelayEnvironment)
 	}
 
-	return filepath.Join(os.Getenv("HOME"), ".local", "share", "relay")
+	return filepath.Join(os.Getenv("HOME"), ".local", "share", RelayEnvironment)
 }
 
 // readOutput reads and validates output config value

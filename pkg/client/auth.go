@@ -17,6 +17,7 @@ type createTokenResponse struct {
 }
 
 type UserDeviceValues struct {
+	Token                   *model.Token
 	UserCode                string
 	VerificationURI         string
 	VerificationURIComplete string
@@ -32,11 +33,8 @@ func (c *Client) CreateToken() (*UserDeviceValues, errors.Error) {
 		return nil, err
 	}
 
-	if err := c.storeToken(response.Token); err != nil {
-		return nil, errors.NewClientInternalError().WithCause(err)
-	}
-
 	return &UserDeviceValues{
+		Token:                   response.Token,
 		UserCode:                response.UserCode,
 		VerificationURI:         response.VerificationURI,
 		VerificationURIComplete: response.VerificationURIComplete,
@@ -50,7 +48,7 @@ func (c *Client) InvalidateToken() errors.Error {
 
 	dr := &deleteResponse{}
 
-	// Dont propagate error: if existing token is invalid endpoint will 401. Not sure this is
+	// Don't propagate error: if existing token is invalid endpoint will 401. Not sure this is
 	// good behavior but it's true nonetheless
 	c.Request(
 		WithMethod(http.MethodDelete),

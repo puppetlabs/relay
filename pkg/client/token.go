@@ -1,70 +1,35 @@
 package client
 
 import (
-	"bytes"
-	"os"
-	"path/filepath"
-
+	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/model"
 )
 
 // getToken reads token from client cache or from path specified on config
 func (c *Client) getToken() (*model.Token, error) {
 	if c.loadedToken == nil {
-		f, err := os.Open(c.config.TokenPath)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return nil, nil
+		if c.config.ContextConfig != nil {
+			context := c.config.CurrentContext
+
+			if contextConfig, ok := c.config.ContextConfig[context]; ok {
+				if contextConfig.Auth != nil && contextConfig.Auth.Tokens != nil {
+					for _, tokenType := range config.AuthTokenTypes() {
+						if value, ok := contextConfig.Auth.Tokens[tokenType]; ok && value != "" {
+							token := model.Token(value)
+							c.loadedToken = &token
+							return c.loadedToken, nil
+						}
+					}
+				}
 			}
-
-			return nil, err
 		}
-
-		defer f.Close()
-
-		buf := &bytes.Buffer{}
-		if _, err := buf.ReadFrom(f); err != nil {
-			return nil, err
-		}
-
-		token := model.Token(buf.String())
-
-		c.loadedToken = &token
-
-		return &token, nil
 	}
 
 	return c.loadedToken, nil
 }
 
-// storeToken Saves token to the token storage location specified by config,
-// creating directories as needed
-func (c *Client) storeToken(token *model.Token) error {
-	if err := os.MkdirAll(filepath.Dir(c.config.TokenPath), 0750); err != nil {
-		return err
-	}
-
-	f, err := os.OpenFile(c.config.TokenPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	if _, err := f.Write([]byte(token.String())); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// clearToken removes token from local storage and from loadedToken cache on client object.
-// It does not error if the token does not exist.
+// clearToken clears the token from the loadedToken cache on client object.
 func (c *Client) clearToken() error {
-	if err := os.Remove(c.config.TokenPath); err != nil && !os.IsNotExist(err) {
-		return err
-	}
-
 	c.loadedToken = nil
 
 	return nil

@@ -135,8 +135,13 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 		setter(opts)
 	}
 
+	contextConfig, ok := c.config.ContextConfig[c.config.CurrentContext]
+	if !ok {
+		return errors.NewClientInternalError()
+	}
+
 	rel := &url.URL{Path: opts.path}
-	u := c.config.ContextConfig.APIDomain.ResolveReference(rel)
+	u := contextConfig.Domains.APIDomain.ResolveReference(rel)
 
 	encoding, ok := mapEncodingTypeToEncoding[opts.BodyEncodingType]
 

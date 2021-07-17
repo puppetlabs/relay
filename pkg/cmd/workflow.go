@@ -319,7 +319,10 @@ View more information or update workflow settings at: %v`,
 		return err
 	}
 
-	filepath, nil := cmd.Flags().GetString("file")
+	filepath, ferr := cmd.Flags().GetString("file")
+	if ferr != nil {
+		return ferr
+	}
 
 	if filepath == "" {
 		Dialog.WriteString(body)
@@ -341,7 +344,7 @@ func newDownloadWorkflowCommand() *cobra.Command {
 		RunE:  doDownloadWorkflow,
 	}
 
-	cmd.Flags().StringP("file", "f", "", "Filename to write workflow, relative to current working dir")
+	cmd.Flags().StringP("file", "f", "", "Path to write workflow file")
 
 	return cmd
 }

@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/cli/browser"
 	"github.com/eiannone/keyboard"
+	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/errors"
+	"github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 )
 
@@ -26,13 +29,14 @@ func newAuthCommand() *cobra.Command {
 	return cmd
 }
 
-func doLogin(cmd *cobra.Command, args []string) error {
-	Dialog.Progress("Getting authorization...")
-
+func negotiateSession(cmd *cobra.Command) error {
 	deviceValues, cterr := Client.CreateToken()
 	if cterr != nil {
 		return cterr
 	}
+
+	writeAuthTokenConfig(cmd, deviceValues.Token.String(), config.AuthTokenTypeSession)
+
 	Dialog.Info("Stored authorization token.")
 
 	Dialog.Info(fmt.Sprintf(
@@ -69,6 +73,64 @@ Press [ENTER] to open %s in a browser or any other key to cancel...`,
 		return errors.NewAuthFailedLoginError().WithCause(fmt.Errorf("error opening the web browser: %w", err))
 	}
 
+	return nil
+}
+
+func readAuthFromStdin(cmd *cobra.Command) error {
+	gotStdin, err := util.PassedStdin()
+	if err != nil {
+		return err
+	}
+
+	if gotStdin {
+		token, err := util.ReadStdin(readLimit)
+		if err != nil {
+			return err
+		}
+
+		writeAuthTokenConfig(cmd, string(token), config.AuthTokenTypeAPI)
+	}
+
+	return nil
+}
+func doLogin(cmd *cobra.Command, args []string) error {
+	Dialog.Progress("Getting authorization...")
+
+	stdin, err := cmd.Flags().GetBool("stdin")
+	if err != nil {
+		return err
+	}
+
+	if stdin {
+		err = readAuthFromStdin(cmd)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	file, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return nil
+	}
+
+	if file != "" {
+		token, err := ioutil.ReadFile(file)
+		if err != nil {
+			return nil
+		}
+
+		writeAuthTokenConfig(cmd, string(token), config.AuthTokenTypeAPI)
+
+		return nil
+	}
+
+	err = negotiateSession(cmd)
+	if err != nil {
+		return err
+	}
+
 	Dialog.Info("Done!")
 	return nil
 }
@@ -80,6 +142,9 @@ func newLoginCommand() *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		RunE:  doLogin,
 	}
+
+	cmd.Flags().StringP("file", "f", "", "Read authentication credentials from file")
+	cmd.Flags().Bool("stdin", false, "Read authentication credentials from stdin")
 
 	return cmd
 }
@@ -106,4 +171,22 @@ func newLogoutCommand() *cobra.Command {
 	}
 
 	return cmd
+}
+
+func writeAuthTokenConfig(cmd *cobra.Command, token string, tokenType config.AuthTokenType) {
+	if len(token) > 0 {
+		cfg := &config.Config{
+			ContextConfig: map[string]*config.ContextConfig{
+				Config.CurrentContext: {
+					Auth: &config.AuthConfig{
+						Tokens: map[config.AuthTokenType]string{
+							tokenType: strings.TrimSpace(token),
+						},
+					},
+				},
+			},
+		}
+
+		config.WriteConfig(cfg, cmd.Flags())
+	}
 }
