@@ -1,3 +1,11 @@
+# [4.4.0](https://github.com/puppetlabs/relay/compare/v4.3.6...v4.4.0)
+
+### Added
+
+- Added notification support
+- Added token support
+- Improved context switching
+
 # [4.3.6](https://github.com/puppetlabs/relay/compare/v4.3.5...v4.3.6)
 
 ### Changed
