@@ -33,7 +33,7 @@ mv ./relay-v4*-linux-arm64 /usr/local/bin/relay
 Once it's installed, you'll need to authenticate with the service, then you'll be able to work with the default set of workflows that are enabled on your account:
 
 ```bash
-relay login
+relay auth login
 relay workflow list
 ```
 
@@ -64,10 +64,7 @@ Relay uses [viper](https://github.com/spf13/viper) for customizable config. The 
 
 - `debug`: Run Relay in debug mode. Overridden by global `--debug` flag.
 - `out=(text|json)`: Output mode. Overridden by global `--out` flag.
-- `api_domain`: Relay API domain to connect to for all API operations.
-- `ui_domain`: Relay UI domain, mainly used in generated links.
-- `web_domain`: Relay web domain, mainly used in generated links.
-- `cache_dir`: Cache directory.
+- `yes`: Skip confirmation prompts. Overridden by global `--yes` flag.
 
 ## Getting help
 

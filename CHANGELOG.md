@@ -1,3 +1,11 @@
+# [4.4.1](https://github.com/puppetlabs/relay/compare/v4.4.0...v4.4.1)
+
+### Changed
+- Automatically create config file if it does not exist
+- Improved default context handling
+- Removed deprecated configuration options
+
+
 # [4.4.0](https://github.com/puppetlabs/relay/compare/v4.3.6...v4.4.0)
 
 ### Added
