@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/spf13/pflag"
@@ -310,10 +312,6 @@ func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 	v.SetConfigType(defaultConfigType)
 
 	if cp != "" {
-		// SetConfigFile will check of path is not empty. If it is set, then it
-		// will force viper to attempt loading the configuration from that file only.
-		// If the file doesn't exist, then we want to bail and inform the user that something
-		// went wrong as an explicit file path for configuration seems important.
 		v.SetConfigFile(cp)
 	} else {
 		v.AddConfigPath(userConfigDir())
@@ -321,13 +319,14 @@ func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found; This is fine if they didn't specify a custom path
-			// but we want to alert them if the path they specified doesn't exist
+			p := cp
+			if p == "" {
+				p = path.Join(userConfigDir(),
+					strings.Join([]string{defaultConfigName, defaultConfigType}, "."))
+			}
 
-			if cp == "" {
-				return nil
-			} else {
-				return errors.NewConfigFileNotFound(cp).WithCause(err)
+			if err := v.WriteConfigAs(p); err != nil {
+				return err
 			}
 		} else {
 			// Config file was found but another error was produced
