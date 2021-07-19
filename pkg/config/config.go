@@ -80,6 +80,18 @@ type APIContext struct {
 	WebDomain *url.URL
 }
 
+func (ac *APIContext) Merge(target *APIContext) *APIContext {
+	if target == nil {
+		return ac
+	}
+
+	return &APIContext{
+		APIDomain: coalesceURL(ac.APIDomain, target.APIDomain),
+		UIDomain:  coalesceURL(ac.UIDomain, target.UIDomain),
+		WebDomain: coalesceURL(ac.WebDomain, target.WebDomain),
+	}
+}
+
 type LogServiceConfig struct {
 	CredentialsSecretName string
 	Project               string
@@ -195,6 +207,11 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 		CacheDir: v.GetString("cache_dir"),
 
 		CurrentContext: context,
+		ContextConfig:  defaultContexts,
+	}
+
+	if config.ContextConfig[context] == nil {
+		config.ContextConfig[context] = &ContextConfig{}
 	}
 
 	// FIXME This will likely change to read in the entire context section
@@ -208,16 +225,17 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 
 		contextSection := v.Sub(fmt.Sprintf("contexts.%s", context))
 		if contextSection != nil {
+			if config.ContextConfig[context].Domains == nil {
+				config.ContextConfig[context].Domains = &APIContext{}
+			}
+
 			domainConfig, err := NewAPIContext(contextSection)
 			if err != nil {
 				return nil, err
 			}
 
-			config.ContextConfig = map[string]*ContextConfig{
-				context: {
-					Domains: domainConfig,
-				},
-			}
+			config.ContextConfig[context].Domains =
+				config.ContextConfig[context].Domains.Merge(domainConfig)
 
 			authSection := contextSection.Sub("auth")
 			if authSection != nil {
@@ -229,40 +247,6 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 					token := authSection.GetString(fmt.Sprintf("tokens.%s", tokenType))
 					config.ContextConfig[context].Auth.Tokens[tokenType] = token
 				}
-			}
-		}
-	}
-
-	// Deprecated. Backwards compatibility only.
-	if config.ContextConfig == nil {
-		if _, ok := defaultContexts[context]; ok {
-			v.SetDefault("api_domain", defaultContexts[context].Domains.APIDomain)
-			v.SetDefault("ui_domain", defaultContexts[context].Domains.UIDomain)
-			v.SetDefault("web_domain", defaultContexts[context].Domains.WebDomain)
-
-			apiDomain, err := readAPIDomain(v)
-			if err != nil {
-				return nil, err
-			}
-
-			uiDomain, err := readUIDomain(v)
-			if err != nil {
-				return nil, err
-			}
-
-			webDomain, err := readWebDomain(v)
-			if err != nil {
-				return nil, err
-			}
-
-			config.ContextConfig = map[string]*ContextConfig{
-				context: {
-					Domains: &APIContext{
-						APIDomain: apiDomain,
-						UIDomain:  uiDomain,
-						WebDomain: webDomain,
-					},
-				},
 			}
 		}
 	}
@@ -411,4 +395,12 @@ func readWebDomain(v *viper.Viper) (*url.URL, error) {
 	}
 
 	return url, nil
+}
+
+func coalesceURL(src *url.URL, dst *url.URL) *url.URL {
+	if dst != nil && dst.String() != "" {
+		return dst
+	}
+
+	return src
 }
