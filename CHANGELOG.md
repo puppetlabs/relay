@@ -1,3 +1,8 @@
+# [4.4.2](https://github.com/puppetlabs/relay/compare/v4.4.1...v4.4.2)
+
+### Changed
+- Automatically create full config path
+
 # [4.4.1](https://github.com/puppetlabs/relay/compare/v4.4.0...v4.4.1)
 
 ### Changed
