@@ -309,6 +309,10 @@ func readInConfigFile(v *viper.Viper, flags *pflag.FlagSet) error {
 					strings.Join([]string{defaultConfigName, defaultConfigType}, "."))
 			}
 
+			if err := os.MkdirAll(path.Dir(p), 0750); err != nil {
+				return err
+			}
+
 			if err := v.WriteConfigAs(p); err != nil {
 				return err
 			}
