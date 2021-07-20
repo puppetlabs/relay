@@ -1,25 +1,27 @@
-version: v12
-description: This workflow issues a PR against puppetlabs/homebrew-puppet to update the version and sha when a new tag is cut on the puppetlabs/relay CLI.
+apiVersion: v1
+
+description: |
+  This workflow issues a PR against puppetlabs/homebrew-puppet to update
+  the version and sha when a new tag is cut on the puppetlabs/relay CLI.
+
 parameters:
   tag:
     description: version number of the new tagged binary
   sha:
     description: sha256 of the macos binary produced by the release build
+
 steps:
-  - name: clone-and-edit-pr
-    image: relaysh/core:latest
-    spec:
-      github_token: !Secret github_token
-      tag: !Parameter tag
-      sha: !Parameter sha
-      result: "will be overridden by 'ni set' from inside the step"
-    inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
-  - name: slack-notify
-    image: relaysh/slack-step-message-send:latest
-    spec:
-      apitoken:
-        $type: Secret 
-        name: slack-token
-      channel: "#prog-relay-testing"
-      message: 
-        !Output [clone-and-edit-pr, result]
+- name: clone-and-edit-pr
+  image: relaysh/core:latest
+  spec:
+    github_token: ${secrets.github-token}
+    tag: ${parameters.tag}
+    sha: ${parameters.sha}
+  inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
+- name: slack-notify
+  image: relaysh/slack-step-message-send:latest
+  spec:
+    connection: ${connections.slack.relay-slack-bot}
+    channel: "#team-relay-notice"
+    username: Relay.sh Notifications
+    message: ${outputs.clone-and-edit-pr.result}
