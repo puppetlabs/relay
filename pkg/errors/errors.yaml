@@ -127,6 +127,12 @@ sections:
       missing_name_error:
         title: Missing workflow name error
         description: Please provide a workflow name.
+      already_exists_error:
+        title: Workflow name already exists
+        description: A workflow with the name provided already exists. Please provide a new name.
+      does_not_exist_error:
+        title: Workflow name does not exist
+        description: A workflow with the name provided does not exist. Please choose an existing workflow.
   secret:
     title: Secret errors
     errors:

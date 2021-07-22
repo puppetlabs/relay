@@ -1267,6 +1267,102 @@ var WorkflowSection = &impl.ErrorSection{
 	Title: "Workflow errors",
 }
 
+// WorkflowAlreadyExistsErrorCode is the code for an instance of "already_exists_error".
+const WorkflowAlreadyExistsErrorCode = "rcli_workflow_already_exists_error"
+
+// IsWorkflowAlreadyExistsError tests whether a given error is an instance of "already_exists_error".
+func IsWorkflowAlreadyExistsError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowAlreadyExistsErrorCode)
+}
+
+// IsWorkflowAlreadyExistsError tests whether a given error is an instance of "already_exists_error".
+func (External) IsWorkflowAlreadyExistsError(err errawr.Error) bool {
+	return IsWorkflowAlreadyExistsError(err)
+}
+
+// WorkflowAlreadyExistsErrorBuilder is a builder for "already_exists_error" errors.
+type WorkflowAlreadyExistsErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "already_exists_error" from this builder.
+func (b *WorkflowAlreadyExistsErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "A workflow with the name provided already exists. Please provide a new name.",
+		Technical: "A workflow with the name provided already exists. Please provide a new name.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "already_exists_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Workflow name already exists",
+		Version:          1,
+	}
+}
+
+// NewWorkflowAlreadyExistsErrorBuilder creates a new error builder for the code "already_exists_error".
+func NewWorkflowAlreadyExistsErrorBuilder() *WorkflowAlreadyExistsErrorBuilder {
+	return &WorkflowAlreadyExistsErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowAlreadyExistsError creates a new error with the code "already_exists_error".
+func NewWorkflowAlreadyExistsError() Error {
+	return NewWorkflowAlreadyExistsErrorBuilder().Build()
+}
+
+// WorkflowDoesNotExistErrorCode is the code for an instance of "does_not_exist_error".
+const WorkflowDoesNotExistErrorCode = "rcli_workflow_does_not_exist_error"
+
+// IsWorkflowDoesNotExistError tests whether a given error is an instance of "does_not_exist_error".
+func IsWorkflowDoesNotExistError(err errawr.Error) bool {
+	return err != nil && err.Is(WorkflowDoesNotExistErrorCode)
+}
+
+// IsWorkflowDoesNotExistError tests whether a given error is an instance of "does_not_exist_error".
+func (External) IsWorkflowDoesNotExistError(err errawr.Error) bool {
+	return IsWorkflowDoesNotExistError(err)
+}
+
+// WorkflowDoesNotExistErrorBuilder is a builder for "does_not_exist_error" errors.
+type WorkflowDoesNotExistErrorBuilder struct {
+	arguments impl.ErrorArguments
+}
+
+// Build creates the error for the code "does_not_exist_error" from this builder.
+func (b *WorkflowDoesNotExistErrorBuilder) Build() Error {
+	description := &impl.ErrorDescription{
+		Friendly:  "A workflow with the name provided does not exist. Please choose an existing workflow.",
+		Technical: "A workflow with the name provided does not exist. Please choose an existing workflow.",
+	}
+
+	return &impl.Error{
+		ErrorArguments:   b.arguments,
+		ErrorCode:        "does_not_exist_error",
+		ErrorDescription: description,
+		ErrorDomain:      Domain,
+		ErrorMetadata:    &impl.ErrorMetadata{},
+		ErrorSection:     WorkflowSection,
+		ErrorSensitivity: errawr.ErrorSensitivityNone,
+		ErrorTitle:       "Workflow name does not exist",
+		Version:          1,
+	}
+}
+
+// NewWorkflowDoesNotExistErrorBuilder creates a new error builder for the code "does_not_exist_error".
+func NewWorkflowDoesNotExistErrorBuilder() *WorkflowDoesNotExistErrorBuilder {
+	return &WorkflowDoesNotExistErrorBuilder{arguments: impl.ErrorArguments{}}
+}
+
+// NewWorkflowDoesNotExistError creates a new error with the code "does_not_exist_error".
+func NewWorkflowDoesNotExistError() Error {
+	return NewWorkflowDoesNotExistErrorBuilder().Build()
+}
+
 // WorkflowMissingFileFlagErrorCode is the code for an instance of "missing_file_flag_error".
 const WorkflowMissingFileFlagErrorCode = "rcli_workflow_missing_file_flag_error"
 

@@ -22,8 +22,7 @@ func newWorkflowCommand() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	cmd.AddCommand(newAddWorkflowCommand())
-	cmd.AddCommand(newReplaceWorkflowCommand())
+	cmd.AddCommand(newSaveWorkflowCommand())
 	cmd.AddCommand(newValidateWorkflowFileCommand())
 	cmd.AddCommand(newDeleteWorkflowCommand())
 	cmd.AddCommand(newRunWorkflowCommand())
@@ -31,66 +30,128 @@ func newWorkflowCommand() *cobra.Command {
 	cmd.AddCommand(newDownloadWorkflowCommand())
 	cmd.AddCommand(newSecretCommand())
 
+	// Deprecated
+	cmd.AddCommand(newAddWorkflowCommand())
+	cmd.AddCommand(newReplaceWorkflowCommand())
+
 	return cmd
 }
 
-func doAddWorkflow(cmd *cobra.Command, args []string) error {
+func doSaveWorkflow(cmd *cobra.Command, args []string) error {
 	workflowName, err := getWorkflowName(args)
 	if err != nil {
 		return err
 	}
 
-	Dialog.Progress("Creating your workflow...")
-
-	workflow, cwerr := Client.CreateWorkflow(workflowName)
-	if cwerr != nil {
-		return cwerr
-	}
-
-	var fileInfo string
+	var info string
+	var filePath string
+	var revisionContent string
 	if cmd.Flags().Changed("file") {
-		filePath, revisionContent, err := readFile(cmd)
+		filePath, revisionContent, err = readFile(cmd)
 		if err != nil {
 			return err
 		}
+	}
 
-		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
+	Dialog.Progress("Saving workflow " + workflowName)
+
+	workflow, err := Client.GetWorkflow(workflowName)
+	if err != nil {
+		if !errors.IsClientResponseNotFound(err) {
+			return err
+		}
+
+		//TODO only check this flag if exists (only cmd save)
+		if cmd.Name() == "replace" {
+			return errors.NewWorkflowDoesNotExistError()
+		}
+		if f := cmd.Flags().Lookup("no-create"); f != nil {
+			if noCreate, err := cmd.Flags().GetBool("no-create"); err != nil {
+				return err
+			} else if noCreate {
+				return errors.NewWorkflowDoesNotExistError()
+			}
+		}
+		workflow, err = Client.CreateWorkflow(workflowName)
 		if err != nil {
-			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
-
-%s
-
-`,
-				filePath,
-				format.Error(err, cmd),
-			)
-
-			fileInfo = ", but the initial file content contained errors"
-		} else {
-			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-			wr.Output(Config)
-
-			fileInfo = fmt.Sprintf(" with file %s", filePath)
+			return err
+		}
+	} else {
+		if cmd.Name() == "add" {
+			return errors.NewWorkflowAlreadyExistsError()
+		}
+		if f := cmd.Flags().Lookup("no-overwrite"); f != nil {
+			if noOverwrite, err := cmd.Flags().GetBool("no-overwrite"); err != nil {
+				return err
+			} else if noOverwrite {
+				return errors.NewWorkflowAlreadyExistsError()
+			}
 		}
 	}
 
-	Dialog.Infof(`Successfully created workflow %v%s.
+	info = fmt.Sprintf("Successfully saved workflow %v.", workflow.Workflow.Name)
+
+	if cmd.Flags().Changed("file") {
+		info = fmt.Sprintf("Successfully saved workflow %v with file %s.", workflow.Workflow.Name, filePath)
+
+		latestRevision, err := Client.GetLatestRevision(workflow.Workflow.Name)
+		if err != nil && !errors.IsClientResponseNotFound(err) {
+			return err
+		}
+
+		if latestRevision != nil && latestRevision.Revision.Raw != revisionContent {
+			revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
+			if err != nil {
+				Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
+
+	%s
+
+	`,
+					filePath,
+					format.Error(err, cmd),
+				)
+
+				info = fmt.Sprintf("Attempted to save workflow %v, but the file content contained errors.", workflow.Workflow.Name)
+			} else {
+				wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+				wr.Output(Config)
+			}
+		}
+	}
+
+	Dialog.Infof(`%s
 
 View more information or update workflow settings at: %v`,
-		workflow.Workflow.Name,
-		fileInfo,
+		info,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
 
 	return nil
 }
 
-func newAddWorkflowCommand() *cobra.Command {
+func newSaveWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add [workflow name]",
-		Short: "Add a Relay workflow from a local file",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  doAddWorkflow,
+		Use:   "save [workflow name]",
+		Short: "Save a Relay workflow",
+		Args:  cobra.MaximumNArgs(3),
+		RunE:  doSaveWorkflow,
+	}
+
+	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
+	cmd.Flags().BoolP("no-overwrite", "O", false, "Abort instead of overwriting existing revision")
+	cmd.Flags().BoolP("no-create", "C", false, "Abort instead of creating a workflow that does not exist")
+
+	return cmd
+}
+
+func newAddWorkflowCommand() *cobra.Command {
+	// TODO make this imply --no-overwrite
+	cmd := &cobra.Command{
+		Use:        "add [workflow name]",
+		Short:      "Add a Relay workflow from a local file",
+		Args:       cobra.MaximumNArgs(1),
+		RunE:       doSaveWorkflow,
+		Deprecated: "Use `save` instead",
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
@@ -98,54 +159,14 @@ func newAddWorkflowCommand() *cobra.Command {
 	return cmd
 }
 
-func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
-	filepath, file, err := readFile(cmd)
-
-	if err != nil {
-		return err
-	}
-
-	workflowName, err := getWorkflowName(args)
-
-	if err != nil {
-		return err
-	}
-
-	Dialog.Info("Replacing workflow " + workflowName)
-
-	workflow, werr := Client.GetWorkflow(workflowName)
-
-	if werr != nil {
-		return werr
-	}
-
-	revision, rerr := Client.CreateRevision(workflowName, file)
-
-	if rerr != nil {
-		return rerr
-	}
-
-	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-
-	wr.Output(Config)
-
-	Dialog.Infof(`Successfully updated workflow %v with file %v
-
-Updated version is visible at: %v`,
-		workflowName,
-		filepath,
-		format.GuiLink(Config, "/workflows/%v", workflowName),
-	)
-
-	return nil
-}
-
 func newReplaceWorkflowCommand() *cobra.Command {
+	// TODO make this imply --no-replace
 	cmd := &cobra.Command{
-		Use:   "replace [workflow name]",
-		Short: "Replace an existing Relay workflow",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  doReplaceWorkflow,
+		Use:        "replace [workflow name]",
+		Short:      "Replace an existing Relay workflow",
+		Args:       cobra.MaximumNArgs(1),
+		RunE:       doSaveWorkflow,
+		Deprecated: "Use `save` instead",
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")

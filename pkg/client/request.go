@@ -240,12 +240,13 @@ func parseError(resp *http.Response) errors.Error {
 	}
 
 	// Attempt to parse relay api error envelope containing an errawr
+	var cause errors.Error
 	env := &errorEnvelope{}
 	if err := json.Unmarshal(bytes, env); err == nil {
-		return env.Error.AsError()
+		cause = env.Error.AsError()
+	} else {
+		cause = errors.NewClientBadRequestBody(string(bytes))
 	}
-
-	cause := errors.NewClientBadRequestBody(string(bytes))
 
 	// otherwise return generic errors based on response code
 	switch resp.StatusCode {
