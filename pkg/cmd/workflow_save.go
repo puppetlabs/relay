@@ -9,27 +9,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TODO the `replace` command doesn't bork if --file is not supplied. It should complain
-//  it would also be nice if it checked for the file before saving the workflow, but that is extra.
 func doSaveWorkflow(cmd *cobra.Command, args []string) error {
 	workflowName, err := getWorkflowName(args)
 	if err != nil {
 		return err
 	}
 
-	var info string
-
-	Dialog.Progress("Saving workflow " + workflowName)
+	if err := checkFile(cmd); err != nil {
+		return err
+	}
 
 	workflow, gerr := getOrCreateWorkflow(cmd, workflowName)
 	if gerr != nil {
 		return gerr
 	}
 
-	info = fmt.Sprintf("Successfully saved workflow %v.", workflow.Workflow.Name)
-
-	if cmd.Flags().Changed("file") {
-		info, err = updateWorkflowRevision(cmd, workflow)
+	info, err := updateWorkflowRevision(cmd, workflow)
+	if err != nil {
+		return err
 	}
 
 	Dialog.Infof(`%s
@@ -42,7 +39,17 @@ View more information or update workflow settings at: %v`,
 	return nil
 }
 
+func checkFile(cmd *cobra.Command) error {
+	_, _, err := readFile(cmd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getOrCreateWorkflow(cmd *cobra.Command, workflowName string) (*model.WorkflowEntity, error) {
+	Dialog.Progress("Checking for workflow " + workflowName)
+
 	workflow, err := Client.GetWorkflow(workflowName)
 	if err != nil {
 		if !errors.IsClientResponseNotFound(err) {
@@ -52,6 +59,7 @@ func getOrCreateWorkflow(cmd *cobra.Command, workflowName string) (*model.Workfl
 		if cmd.Name() == "replace" {
 			return nil, errors.NewWorkflowDoesNotExistError()
 		}
+
 		if f := cmd.Flags().Lookup("no-create"); f != nil {
 			if noCreate, err := cmd.Flags().GetBool("no-create"); err != nil {
 				return nil, err
@@ -59,6 +67,8 @@ func getOrCreateWorkflow(cmd *cobra.Command, workflowName string) (*model.Workfl
 				return nil, errors.NewWorkflowDoesNotExistError()
 			}
 		}
+
+		Dialog.Progress("Creating workflow " + workflowName)
 		workflow, err = Client.CreateWorkflow(workflowName)
 		if err != nil {
 			return nil, err
@@ -67,6 +77,7 @@ func getOrCreateWorkflow(cmd *cobra.Command, workflowName string) (*model.Workfl
 		if cmd.Name() == "add" {
 			return nil, errors.NewWorkflowAlreadyExistsError()
 		}
+
 		if f := cmd.Flags().Lookup("no-overwrite"); f != nil {
 			if noOverwrite, err := cmd.Flags().GetBool("no-overwrite"); err != nil {
 				return nil, err
@@ -92,7 +103,7 @@ func updateWorkflowRevision(cmd *cobra.Command, workflow *model.WorkflowEntity) 
 		return "", err
 	}
 
-	if latestRevision != nil && latestRevision.Revision.Raw != revisionContent {
+	if latestRevision == nil || latestRevision.Revision.Raw != revisionContent {
 		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
 		if err != nil {
 			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:

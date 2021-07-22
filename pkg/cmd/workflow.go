@@ -52,7 +52,6 @@ func newSaveWorkflowCommand() *cobra.Command {
 }
 
 func newAddWorkflowCommand() *cobra.Command {
-	// TODO make this imply --no-overwrite
 	cmd := &cobra.Command{
 		Use:        "add [workflow name]",
 		Short:      "Add a Relay workflow from a local file",
@@ -67,7 +66,6 @@ func newAddWorkflowCommand() *cobra.Command {
 }
 
 func newReplaceWorkflowCommand() *cobra.Command {
-	// TODO make this imply --no-replace
 	cmd := &cobra.Command{
 		Use:        "replace [workflow name]",
 		Short:      "Replace an existing Relay workflow",
