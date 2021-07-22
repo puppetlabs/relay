@@ -10,7 +10,6 @@ import (
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/format"
-	"github.com/puppetlabs/relay/pkg/model"
 	"github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -35,98 +34,6 @@ func newWorkflowCommand() *cobra.Command {
 	cmd.AddCommand(newReplaceWorkflowCommand())
 
 	return cmd
-}
-
-func doSaveWorkflow(cmd *cobra.Command, args []string) error {
-	workflowName, err := getWorkflowName(args)
-	if err != nil {
-		return err
-	}
-
-	var info string
-	var filePath string
-	var revisionContent string
-	if cmd.Flags().Changed("file") {
-		filePath, revisionContent, err = readFile(cmd)
-		if err != nil {
-			return err
-		}
-	}
-
-	Dialog.Progress("Saving workflow " + workflowName)
-
-	workflow, err := Client.GetWorkflow(workflowName)
-	if err != nil {
-		if !errors.IsClientResponseNotFound(err) {
-			return err
-		}
-
-		//TODO only check this flag if exists (only cmd save)
-		if cmd.Name() == "replace" {
-			return errors.NewWorkflowDoesNotExistError()
-		}
-		if f := cmd.Flags().Lookup("no-create"); f != nil {
-			if noCreate, err := cmd.Flags().GetBool("no-create"); err != nil {
-				return err
-			} else if noCreate {
-				return errors.NewWorkflowDoesNotExistError()
-			}
-		}
-		workflow, err = Client.CreateWorkflow(workflowName)
-		if err != nil {
-			return err
-		}
-	} else {
-		if cmd.Name() == "add" {
-			return errors.NewWorkflowAlreadyExistsError()
-		}
-		if f := cmd.Flags().Lookup("no-overwrite"); f != nil {
-			if noOverwrite, err := cmd.Flags().GetBool("no-overwrite"); err != nil {
-				return err
-			} else if noOverwrite {
-				return errors.NewWorkflowAlreadyExistsError()
-			}
-		}
-	}
-
-	info = fmt.Sprintf("Successfully saved workflow %v.", workflow.Workflow.Name)
-
-	if cmd.Flags().Changed("file") {
-		info = fmt.Sprintf("Successfully saved workflow %v with file %s.", workflow.Workflow.Name, filePath)
-
-		latestRevision, err := Client.GetLatestRevision(workflow.Workflow.Name)
-		if err != nil && !errors.IsClientResponseNotFound(err) {
-			return err
-		}
-
-		if latestRevision != nil && latestRevision.Revision.Raw != revisionContent {
-			revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
-			if err != nil {
-				Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
-
-	%s
-
-	`,
-					filePath,
-					format.Error(err, cmd),
-				)
-
-				info = fmt.Sprintf("Attempted to save workflow %v, but the file content contained errors.", workflow.Workflow.Name)
-			} else {
-				wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-				wr.Output(Config)
-			}
-		}
-	}
-
-	Dialog.Infof(`%s
-
-View more information or update workflow settings at: %v`,
-		info,
-		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
-	)
-
-	return nil
 }
 
 func newSaveWorkflowCommand() *cobra.Command {
