@@ -15,18 +15,18 @@ func doSaveWorkflow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := checkFile(cmd); err != nil {
-		return err
-	}
-
 	workflow, gerr := getOrCreateWorkflow(cmd, workflowName)
 	if gerr != nil {
 		return gerr
 	}
 
-	info, err := updateWorkflowRevision(cmd, workflow)
-	if err != nil {
-		return err
+	info := fmt.Sprintf("Successfully saved workflow %v.", workflow.Workflow.Name)
+
+	if cmd.Flags().Changed("file") {
+		info, err = updateWorkflowRevision(cmd, workflow)
+		if err != nil {
+			return err
+		}
 	}
 
 	Dialog.Infof(`%s
@@ -36,14 +36,6 @@ View more information or update workflow settings at: %v`,
 		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
 	)
 
-	return nil
-}
-
-func checkFile(cmd *cobra.Command) error {
-	_, _, err := readFile(cmd)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -98,28 +90,21 @@ func updateWorkflowRevision(cmd *cobra.Command, workflow *model.WorkflowEntity) 
 
 	info := fmt.Sprintf("Successfully saved workflow %v with file %s.", workflow.Workflow.Name, filePath)
 
-	latestRevision, err := Client.GetLatestRevision(workflow.Workflow.Name)
-	if err != nil && !errors.IsClientResponseNotFound(err) {
-		return "", err
-	}
+	revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
+	if err != nil {
+		Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
 
-	if latestRevision == nil || latestRevision.Revision.Raw != revisionContent {
-		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
-		if err != nil {
-			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
+%s
 
-	%s
+`,
+			filePath,
+			format.Error(err, cmd),
+		)
 
-	`,
-				filePath,
-				format.Error(err, cmd),
-			)
-
-			info = fmt.Sprintf("Attempted to save workflow %v, but the file content contained errors.", workflow.Workflow.Name)
-		} else {
-			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-			wr.Output(Config)
-		}
+		info = fmt.Sprintf("Attempted to save workflow %v, but the file content contained errors.", workflow.Workflow.Name)
+	} else {
+		wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
+		wr.Output(Config)
 	}
 
 	return info, nil
