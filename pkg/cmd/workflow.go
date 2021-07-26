@@ -10,7 +10,6 @@ import (
 	"github.com/puppetlabs/relay/pkg/debug"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/format"
-	"github.com/puppetlabs/relay/pkg/model"
 	"github.com/puppetlabs/relay/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -22,8 +21,7 @@ func newWorkflowCommand() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	cmd.AddCommand(newAddWorkflowCommand())
-	cmd.AddCommand(newReplaceWorkflowCommand())
+	cmd.AddCommand(newSaveWorkflowCommand())
 	cmd.AddCommand(newValidateWorkflowFileCommand())
 	cmd.AddCommand(newDeleteWorkflowCommand())
 	cmd.AddCommand(newRunWorkflowCommand())
@@ -31,66 +29,35 @@ func newWorkflowCommand() *cobra.Command {
 	cmd.AddCommand(newDownloadWorkflowCommand())
 	cmd.AddCommand(newSecretCommand())
 
+	// Deprecated
+	cmd.AddCommand(newAddWorkflowCommand())
+	cmd.AddCommand(newReplaceWorkflowCommand())
+
 	return cmd
 }
 
-func doAddWorkflow(cmd *cobra.Command, args []string) error {
-	workflowName, err := getWorkflowName(args)
-	if err != nil {
-		return err
+func newSaveWorkflowCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "save [workflow name]",
+		Short: "Save a Relay workflow",
+		Args:  cobra.MaximumNArgs(3),
+		RunE:  doSaveWorkflow,
 	}
 
-	Dialog.Progress("Creating your workflow...")
+	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
+	cmd.Flags().BoolP("no-overwrite", "O", false, "Abort instead of overwriting existing workflow")
+	cmd.Flags().BoolP("no-create", "C", false, "Abort instead of creating a workflow that does not exist")
 
-	workflow, cwerr := Client.CreateWorkflow(workflowName)
-	if cwerr != nil {
-		return cwerr
-	}
-
-	var fileInfo string
-	if cmd.Flags().Changed("file") {
-		filePath, revisionContent, err := readFile(cmd)
-		if err != nil {
-			return err
-		}
-
-		revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
-		if err != nil {
-			Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
-
-%s
-
-`,
-				filePath,
-				format.Error(err, cmd),
-			)
-
-			fileInfo = ", but the initial file content contained errors"
-		} else {
-			wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-			wr.Output(Config)
-
-			fileInfo = fmt.Sprintf(" with file %s", filePath)
-		}
-	}
-
-	Dialog.Infof(`Successfully created workflow %v%s.
-
-View more information or update workflow settings at: %v`,
-		workflow.Workflow.Name,
-		fileInfo,
-		format.GuiLink(Config, "/workflows/%v", workflow.Workflow.Name),
-	)
-
-	return nil
+	return cmd
 }
 
 func newAddWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add [workflow name]",
-		Short: "Add a Relay workflow from a local file",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  doAddWorkflow,
+		Use:        "add [workflow name]",
+		Short:      "Add a Relay workflow from a local file",
+		Args:       cobra.MaximumNArgs(1),
+		RunE:       doSaveWorkflow,
+		Deprecated: "Use `save` instead",
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
@@ -98,54 +65,13 @@ func newAddWorkflowCommand() *cobra.Command {
 	return cmd
 }
 
-func doReplaceWorkflow(cmd *cobra.Command, args []string) error {
-	filepath, file, err := readFile(cmd)
-
-	if err != nil {
-		return err
-	}
-
-	workflowName, err := getWorkflowName(args)
-
-	if err != nil {
-		return err
-	}
-
-	Dialog.Info("Replacing workflow " + workflowName)
-
-	workflow, werr := Client.GetWorkflow(workflowName)
-
-	if werr != nil {
-		return werr
-	}
-
-	revision, rerr := Client.CreateRevision(workflowName, file)
-
-	if rerr != nil {
-		return rerr
-	}
-
-	wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
-
-	wr.Output(Config)
-
-	Dialog.Infof(`Successfully updated workflow %v with file %v
-
-Updated version is visible at: %v`,
-		workflowName,
-		filepath,
-		format.GuiLink(Config, "/workflows/%v", workflowName),
-	)
-
-	return nil
-}
-
 func newReplaceWorkflowCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "replace [workflow name]",
-		Short: "Replace an existing Relay workflow",
-		Args:  cobra.MaximumNArgs(1),
-		RunE:  doReplaceWorkflow,
+		Use:        "replace [workflow name]",
+		Short:      "Replace an existing Relay workflow",
+		Args:       cobra.MaximumNArgs(1),
+		RunE:       doSaveWorkflow,
+		Deprecated: "Use `save` instead",
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")

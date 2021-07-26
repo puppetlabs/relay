@@ -113,11 +113,6 @@ you can query repeatedly.
 
 **`relay tokens revoke [token id]`** -- Revoke API token
 
-**`relay workflow add [workflow name] [flags]`** -- Add a Relay workflow from a local file
-```
-  -f, --file string   Path to Relay workflow file
-```
-
 **`relay workflow delete [workflow name]`** -- Delete a Relay workflow
 
 **`relay workflow download [workflow name] [flags]`** -- Download a workflow from the service
@@ -127,14 +122,16 @@ you can query repeatedly.
 
 **`relay workflow list`** -- Get a list of all your workflows
 
-**`relay workflow replace [workflow name] [flags]`** -- Replace an existing Relay workflow
-```
-  -f, --file string   Path to Relay workflow file
-```
-
 **`relay workflow run [workflow name] [flags]`** -- Invoke a Relay workflow
 ```
   -p, --parameter stringArray   Parameters to invoke this workflow run with
+```
+
+**`relay workflow save [workflow name] [flags]`** -- Save a Relay workflow
+```
+  -f, --file string    Path to Relay workflow file
+  -C, --no-create      Abort instead of creating a workflow that does not exist
+  -O, --no-overwrite   Abort instead of overwriting existing revision
 ```
 
 **`relay workflow secret delete [workflow name] [secret name]`** -- Delete a Relay workflow secret
