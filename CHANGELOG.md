@@ -1,3 +1,10 @@
+# [4.5.0](https://github.com/puppetlabs/relay/compare/v4.4.2...v4.5.0)
+
+### Added
+- New `relay workflow save` command that allows both workflow creation and
+  replacement. This is a better command to replace `relay workflow add` and
+  `relay workflow replace`.
+
 # [4.4.2](https://github.com/puppetlabs/relay/compare/v4.4.1...v4.4.2)
 
 ### Changed
