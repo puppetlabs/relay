@@ -776,7 +776,7 @@ func newVaultPolicyGenerator(rc *installerv1alpha1.RelayCore) *vaultPolicyGenera
 var (
 	vaultConfigureScript = `
 vault plugin register \
-	-sha256=de9f96853636419150461ec34c7af9e4cf6b981f2476e1eaa00d5a58b3ddad7e \
+	-sha256=c6960f79d41626eca23df2e11866b01e329f72b05447bb9fef2097e7bedd4864 \
 	-command=oauthapp \
 	secret oauthapp
 vault auth enable -path=kubernetes kubernetes
