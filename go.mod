@@ -26,17 +26,16 @@ require (
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
-	github.com/rancher/k3d/v4 v4.4.3
+	github.com/rancher/k3d/v4 v4.4.7
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.7.1
+	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/mod v0.4.0 // indirect
-	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.20.0
 	k8s.io/apiextensions-apiserver v0.20.0
 	k8s.io/apimachinery v0.20.1

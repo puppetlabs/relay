@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	k3sVersion          = "v1.20.6-k3s1"
+	k3sVersion          = "v1.20.9-k3s1"
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
 
@@ -92,10 +92,10 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 
 	registry := &Registry{
 		Mirrors: map[string]Mirror{
-			"docker.io": Mirror{
+			"docker.io": {
 				Endpoints: []string{ImagePassthroughCacheAddr},
 			},
-			fmt.Sprintf("%s:%d", opts.ImageRegistryName, opts.ImageRegistryPort): Mirror{
+			fmt.Sprintf("%s:%d", opts.ImageRegistryName, opts.ImageRegistryPort): {
 				Endpoints: []string{fmt.Sprintf("http://localhost:%d", opts.ImageRegistryPort)},
 			},
 		},
@@ -161,7 +161,7 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		lbHostPort = opts.LoadBalancerHostPort
 	}
 
-	lbPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", DefaultLoadBalancerHostPort))
+	lbPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", DefaultLoadBalancerNodePort))
 	if err != nil {
 		return fmt.Errorf("failed to create cluster: %w", err)
 	}
@@ -200,10 +200,6 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 // Start starts the cluster. Attempting to start a cluster that doesn't exist
 // results in an error.
 func (m *K3dClusterManager) Start(ctx context.Context) error {
-	clusterConfig := &types.Cluster{
-		Name: ClusterName,
-	}
-
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get cluster config: %w", err)
@@ -220,10 +216,6 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 // Stop stops the cluster. Attempting to stop a cluster that doesn't exist
 // results in an error.
 func (m *K3dClusterManager) Stop(ctx context.Context) error {
-	clusterConfig := &types.Cluster{
-		Name: ClusterName,
-	}
-
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return err
@@ -235,10 +227,6 @@ func (m *K3dClusterManager) Stop(ctx context.Context) error {
 // Delete deletes the cluster and all its resources (docker network and volumes included).
 // Attempting to delete a cluster that doesn't exist results in an error.
 func (m *K3dClusterManager) Delete(ctx context.Context) error {
-	clusterConfig := &types.Cluster{
-		Name: ClusterName,
-	}
-
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return err
@@ -348,6 +336,9 @@ func (m *K3dClusterManager) storeRegistryConfiguration(path string, registry *Re
 	defer f.Close()
 
 	data, err := yaml.Marshal(registry)
+	if err != nil {
+		return err
+	}
 
 	if _, err := f.Write(data); err != nil {
 		return err
