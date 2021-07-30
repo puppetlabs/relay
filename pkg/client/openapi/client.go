@@ -54,6 +54,8 @@ type APIClient struct {
 
 	BillingApi *BillingApiService
 
+	ConnectionProvidersApi *ConnectionProvidersApiService
+
 	ConnectionsApi *ConnectionsApiService
 
 	EventsApi *EventsApiService
@@ -98,6 +100,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.AccessControlApi = (*AccessControlApiService)(&c.common)
 	c.AuthApi = (*AuthApiService)(&c.common)
 	c.BillingApi = (*BillingApiService)(&c.common)
+	c.ConnectionProvidersApi = (*ConnectionProvidersApiService)(&c.common)
 	c.ConnectionsApi = (*ConnectionsApiService)(&c.common)
 	c.EventsApi = (*EventsApiService)(&c.common)
 	c.NotificationsApi = (*NotificationsApiService)(&c.common)

@@ -10,6 +10,7 @@ docs/
 api_access_control.go
 api_auth.go
 api_billing.go
+api_connection_providers.go
 api_connections.go
 api_events.go
 api_revisions.go
@@ -42,11 +43,13 @@ model_inline_response_200_10*.go
 model_inline_response_200_11*.go
 model_inline_response_200_12*.go
 model_invite*.go
+model_o_auth2*.go
 model_profile*.go
 model_push*.go
 model_role*.go
 model_schedule*.go
 model_schema*.go
+model_secret*.go
 model_session*.go
 model_terms*.go
 model_user_all*.go
