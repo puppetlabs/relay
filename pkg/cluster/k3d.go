@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/docker/go-connections/nat"
@@ -14,8 +13,8 @@ import (
 	"github.com/rancher/k3d/v4/pkg/runtimes"
 	"github.com/rancher/k3d/v4/pkg/tools"
 	"github.com/rancher/k3d/v4/pkg/types"
+	"github.com/rancher/k3d/v4/pkg/types/k3s"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -30,16 +29,6 @@ const (
 
 var agentArgs = []string{
 	"--node-label=nebula.puppet.com/scheduling.customer-ready=true",
-}
-
-// Mirror https://github.com/rancher/k3s/blob/master/pkg/agent/templates/registry.go
-type Mirror struct {
-	Endpoints []string `toml:"endpoint" yaml:"endpoint"`
-}
-
-// Registry https://github.com/rancher/k3s/blob/master/pkg/agent/templates/registry.go
-type Registry struct {
-	Mirrors map[string]Mirror `toml:"mirrors" yaml:"mirrors"`
 }
 
 type Client struct {
@@ -86,12 +75,8 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		volumes = append(volumes, "/dev/mapper:/dev/mapper:ro")
 	}
 
-	// TODO Temporary workaround to ensure image pulls and manifest lookups can function conjointly against the in-cluster registry
-	registryConfigPath := path.Join(m.cfg.WorkDir.Path, "registries.yaml")
-	volumes = append(volumes, registryConfigPath+":/etc/rancher/k3s/registries.yaml")
-
-	registry := &Registry{
-		Mirrors: map[string]Mirror{
+	registryConfig := &k3s.Registry{
+		Mirrors: map[string]k3s.Mirror{
 			"docker.io": {
 				Endpoints: []string{ImagePassthroughCacheAddr},
 			},
@@ -100,7 +85,6 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 			},
 		},
 	}
-	m.storeRegistryConfiguration(registryConfigPath, registry)
 
 	exposeAPI := &types.ExposureOpts{
 		Host: types.DefaultAPIHost,
@@ -188,6 +172,10 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 			Network: network,
 			KubeAPI: exposeAPI,
 		},
+	}
+
+	if registryConfig != nil {
+		clusterConfig.ClusterCreateOpts.Registries.Config = registryConfig
 	}
 
 	if err := k3dclient.ClusterRun(ctx, m.runtime, clusterConfig); err != nil {
@@ -325,26 +313,6 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 	}
 
 	return k3dclient.ClusterGet(ctx, m.runtime, clusterConfig)
-}
-
-func (m *K3dClusterManager) storeRegistryConfiguration(path string, registry *Registry) error {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0750)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	data, err := yaml.Marshal(registry)
-	if err != nil {
-		return err
-	}
-
-	if _, err := f.Write(data); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // NewK3dClusterManager returns a new K3dClusterManager.
