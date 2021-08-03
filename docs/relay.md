@@ -130,8 +130,8 @@ you can query repeatedly.
 **`relay workflow save [workflow name] [flags]`** -- Save a Relay workflow
 ```
   -f, --file string    Path to Relay workflow file
-  -C, --no-create      Abort instead of creating a workflow that does not exist
-  -O, --no-overwrite   Abort instead of overwriting existing revision
+  -C, --no-create      Do not create a workflow if it does not exist
+  -O, --no-overwrite   Do not overwrite an existing workflow
 ```
 
 **`relay workflow secret delete [workflow name] [secret name]`** -- Delete a Relay workflow secret

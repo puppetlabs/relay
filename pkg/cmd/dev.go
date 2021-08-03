@@ -113,17 +113,14 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 
 	dm := dev.NewManager(cm, cl, DevConfig)
 
-	Dialog.Info("Running workflow")
+	Dialog.Infof("Processing workflow file %s", fp)
 
 	ws, err := dm.RunWorkflow(ctx, file, parseParameters(params))
 	if err != nil {
 		return err
 	}
 
-	// FIXME Ideally this would have cognizance of the exact (generated) name of the workflow run and the namespace used
-	Dialog.Infof("Monitor step progress with: ")
-	Dialog.Infof("relay dev kubectl -n %s get workflowruns --watch", ws.WorkflowIdentifier.Name)
-	Dialog.Infof("relay dev kubectl -n %s get pods --watch", ws.WorkflowIdentifier.Name)
+	Dialog.Infof("Running workflow %s", ws.WorkflowIdentifier.Name)
 
 	return nil
 }
@@ -169,7 +166,7 @@ func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	Dialog.Info("Setting your secret...")
+	Dialog.Infof("Setting secret %s for workflow %s", sc.name, sc.workflowName)
 
 	return dm.SetWorkflowSecret(ctx, sc.workflowName, sc.name, sc.value)
 }

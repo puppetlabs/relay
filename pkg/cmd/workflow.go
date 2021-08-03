@@ -45,8 +45,8 @@ func newSaveWorkflowCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringP("file", "f", "", "Path to Relay workflow file")
-	cmd.Flags().BoolP("no-overwrite", "O", false, "Abort instead of overwriting existing workflow")
-	cmd.Flags().BoolP("no-create", "C", false, "Abort instead of creating a workflow that does not exist")
+	cmd.Flags().BoolP("no-overwrite", "O", false, "Do not overwrite an existing workflow")
+	cmd.Flags().BoolP("no-create", "C", false, "Do not create a workflow if it does not exist")
 
 	return cmd
 }

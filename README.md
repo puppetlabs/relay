@@ -39,25 +39,6 @@ relay workflow list
 
 For more about workflows, check out the [Using Workflows](https://relay.sh/docs/using-workflows/) documentation.
 
-## Build
-
-To build run
-
-```bash
-./scripts/generate
-./scripts/build
-```
-
-The resulting binaries will be in `./bin/relay-[version]-[architecture]`.
-
-## Development
-
-The CLI is built entirely using go. You can run locally with
-
-```
-go run ./cmd/relay
-```
-
 ### Config
 
 Relay uses [viper](https://github.com/spf13/viper) for customizable config. The following config values may be set in a yaml file at `$HOME/.config/relay/config.yaml` or as environment variables with corresponding names in all caps, prefixed with `RELAY_`:
