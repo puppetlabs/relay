@@ -1,3 +1,11 @@
+# [4.6.0](https://github.com/puppetlabs/relay/compare/v4.6.0...v4.5.0)
+
+### Changed
+- The Relay development cluster now uses k3d v4.4.7 and k3s v1.20.9-k3s1
+
+### Fixed
+- `relay auth login` now functions when using the Relay development environment
+
 # [4.5.0](https://github.com/puppetlabs/relay/compare/v4.4.2...v4.5.0)
 
 ### Added
