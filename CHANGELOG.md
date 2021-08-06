@@ -1,4 +1,10 @@
-# [4.6.0](https://github.com/puppetlabs/relay/compare/v4.6.0...v4.5.0)
+# [4.7.0](https://github.com/puppetlabs/relay/compare/v4.6.0...v4.7.0)
+
+### Changed
+- The arelay development cluster vault instance vault-plugin-secrets-oauthapp
+  plugin updated to v3.0.0-beta.3
+
+# [4.6.0](https://github.com/puppetlabs/relay/compare/v4.5.0...v4.6.0)
 
 ### Changed
 - The Relay development cluster now uses k3d v4.4.7 and k3s v1.20.9-k3s1
