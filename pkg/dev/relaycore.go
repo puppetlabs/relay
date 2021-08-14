@@ -193,7 +193,8 @@ func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim)
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	if m.logServiceOpts.Enabled {
 		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
-			Image: relayLogServiceImage,
+			Image:           relayLogServiceImage,
+			ImagePullPolicy: corev1.PullAlways,
 
 			CredentialsSecretName: m.logServiceOpts.CredentialsSecretName,
 			Project:               m.logServiceOpts.Project,
@@ -204,6 +205,7 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 
 	rc.Spec.Operator = &installerv1alpha1.OperatorConfig{
 		Image:             relayOperatorImage,
+		ImagePullPolicy:   corev1.PullAlways,
 		Standalone:        true,
 		LogStoragePVCName: &m.objects.pvc.Name,
 		AdmissionWebhookServer: &installerv1alpha1.AdmissionWebhookServerConfig{
@@ -214,9 +216,10 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	}
 
 	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
-		Image:         relayMetadataAPIImage,
-		VaultAuthRole: "tenant",
-		VaultAuthPath: "auth/jwt-tenants",
+		Image:           relayMetadataAPIImage,
+		ImagePullPolicy: corev1.PullAlways,
+		VaultAuthRole:   "tenant",
+		VaultAuthPath:   "auth/jwt-tenants",
 	}
 }
 
