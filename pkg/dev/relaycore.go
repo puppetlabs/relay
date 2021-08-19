@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
@@ -35,7 +34,7 @@ type relayCoreObjects struct {
 	operatorWebhookCert certmanagerv1beta1.Certificate
 	pvc                 corev1.PersistentVolumeClaim
 	relayCore           installerv1alpha1.RelayCore
-	rbacDefinition      rbacmanagerv1beta1.RBACDefinition
+	clusterRoleBinding  rbacv1.ClusterRoleBinding
 }
 
 func newRelayCoreObjects() *relayCoreObjects {
@@ -50,6 +49,9 @@ func newRelayCoreObjects() *relayCoreObjects {
 	operatorObjectMeta := objectMeta
 	operatorObjectMeta.Name = fmt.Sprintf("%s-operator", objectMeta.Name)
 
+	operatorAdminObjectMeta := objectMeta
+	operatorAdminObjectMeta.Name = fmt.Sprintf("%s-operator-admin", objectMeta.Name)
+
 	return &relayCoreObjects{
 		selfSignedIssuer:    certmanagerv1beta1.Issuer{ObjectMeta: selfSignedObjectMeta},
 		selfSignedCA:        certmanagerv1beta1.Certificate{ObjectMeta: selfSignedObjectMeta},
@@ -57,7 +59,7 @@ func newRelayCoreObjects() *relayCoreObjects {
 		operatorWebhookCert: certmanagerv1beta1.Certificate{ObjectMeta: operatorObjectMeta},
 		pvc:                 corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
 		relayCore:           installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
-		rbacDefinition:      rbacmanagerv1beta1.RBACDefinition{ObjectMeta: operatorObjectMeta},
+		clusterRoleBinding:  rbacv1.ClusterRoleBinding{ObjectMeta: operatorAdminObjectMeta},
 	}
 }
 
@@ -131,8 +133,8 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.rbacDefinition, func() error {
-		m.rbacDefinition(&m.objects.rbacDefinition)
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.clusterRoleBinding, func() error {
+		m.rbacDefinition(&m.objects.clusterRoleBinding)
 
 		return nil
 	}); err != nil {
@@ -223,34 +225,21 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	}
 }
 
-func (m *relayCoreManager) rbacDefinition(rd *rbacmanagerv1beta1.RBACDefinition) {
-	delegateName := fmt.Sprintf("%s-delegate", rd.Name)
-
-	rd.RBACBindings = []rbacmanagerv1beta1.RBACBinding{
+func (m *relayCoreManager) rbacDefinition(crb *rbacv1.ClusterRoleBinding) {
+	crb.RoleRef =
+		rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     "cluster-admin",
+		}
+	crb.Subjects = []rbacv1.Subject{
 		{
-			Name: delegateName,
-			Subjects: []rbacmanagerv1beta1.Subject{
-				{
-					Subject: rbacv1.Subject{
-						Kind:      "ServiceAccount",
-						Name:      m.objects.relayCore.Status.OperatorServiceAccount,
-						Namespace: m.objects.relayCore.Namespace,
-					},
-				},
-			},
-			ClusterRoleBindings: []rbacmanagerv1beta1.ClusterRoleBinding{},
-			RoleBindings: []rbacmanagerv1beta1.RoleBinding{
-				{
-					ClusterRole: delegateName,
-					NamespaceSelector: metav1.LabelSelector{
-						MatchLabels: map[string]string{
-							"controller.relay.sh/tenant-workload": "true",
-						},
-					},
-				},
-			},
+			Kind:      "ServiceAccount",
+			Name:      m.objects.relayCore.Status.OperatorServiceAccount,
+			Namespace: m.objects.relayCore.Namespace,
 		},
 	}
+
 }
 
 func (m *relayCoreManager) wait(ctx context.Context) error {

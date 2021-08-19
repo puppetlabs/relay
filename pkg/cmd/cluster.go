@@ -16,7 +16,6 @@ func newClusterCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(newCreateClusterCommand())
-	cmd.AddCommand(newInitClusterCommand())
 	cmd.AddCommand(newStartClusterCommand())
 	cmd.AddCommand(newStopClusterCommand())
 	cmd.AddCommand(newDeleteClusterCommand())
@@ -97,6 +96,7 @@ func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 			ImageRegistryPort: opts.ImageRegistryPort,
 		}
 
+		Dialog.Progress("Initializing cluster; this may take several minutes...")
 		if err := dm.Initialize(ctx, initOpts); err != nil {
 			return err
 		}
@@ -105,62 +105,6 @@ func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 	} else {
 		Dialog.Info("Cluster already exists")
 	}
-
-	return nil
-}
-
-func newInitClusterCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "initialize",
-		Aliases: []string{"init"},
-		Short:   "Initialize the local cluster",
-		RunE:    doInitCluster,
-	}
-
-	return cmd
-}
-
-func doInitCluster(cmd *cobra.Command, args []string) error {
-	ctx := cmd.Context()
-
-	opts := cluster.InitializeOptions{}
-
-	return initCluster(ctx, opts)
-}
-
-func initCluster(ctx context.Context, opts cluster.InitializeOptions) error {
-	cm := cluster.NewManager(ClusterConfig)
-
-	if exists, _ := cm.Exists(ctx); !exists {
-		Dialog.Info("Cluster does not exist")
-		return nil
-	}
-
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
-	if err != nil {
-		return err
-	}
-
-	dm := dev.NewManager(cm, cl, DevConfig)
-
-	logServiceOpts := dev.LogServiceOptions{}
-	if Config.LogServiceConfig != nil {
-		logServiceOpts = dev.LogServiceOptions{
-			Enabled:               true,
-			CredentialsSecretName: Config.LogServiceConfig.CredentialsSecretName,
-			Project:               Config.LogServiceConfig.Project,
-			Dataset:               Config.LogServiceConfig.Dataset,
-			Table:                 Config.LogServiceConfig.Table,
-		}
-	}
-
-	Dialog.Info("Initializing relay-core; this might take a couple minutes...")
-
-	if err := dm.InitializeRelayCore(ctx, logServiceOpts); err != nil {
-		return err
-	}
-
-	Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
 
 	return nil
 }
@@ -253,7 +197,7 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	Dialog.Progress("Deleting cluster; this may take a minute...")
+	Dialog.Progress("Deleting cluster; this may take several minutes...")
 
 	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
 	if err != nil {

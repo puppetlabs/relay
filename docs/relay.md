@@ -48,15 +48,11 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay dev cluster delete`** -- Delete the local cluster
 
-**`relay dev cluster initialize`** -- Initialize the local cluster
-
 **`relay dev cluster start`** -- Start the local cluster
 
 **`relay dev cluster stop`** -- Stop the local cluster
 
-**`relay dev image import <image:tag>`** -- Imports a container image into the cluster
-
-**`relay dev kubectl`** -- Run kubectl commands against the dev cluster
+**`relay dev initialize`** -- Initialize the Relay development environment
 
 **`relay dev metadata [flags]`** -- Run a mock metadata service
   

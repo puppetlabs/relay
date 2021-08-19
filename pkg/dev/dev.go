@@ -2,15 +2,12 @@ package dev
 
 import (
 	"context"
-	goflag "flag"
 	"fmt"
 	"io"
-	"os"
 	"path"
 	"path/filepath"
 	"time"
 
-	rbacmanagerv1beta1 "github.com/fairwindsops/rbac-manager/pkg/apis/rbacmanager/v1beta1"
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
@@ -20,11 +17,8 @@ import (
 	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	"github.com/puppetlabs/relay/pkg/model"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -34,8 +28,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/storage/names"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
-	utilflag "k8s.io/component-base/cli/flag"
-	kctlcmd "k8s.io/kubernetes/pkg/kubectl/cmd"
 	cachingv1alpha1 "knative.dev/caching/pkg/apis/caching/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -50,7 +42,6 @@ var (
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
 		certmanagerv1beta1.AddToScheme,
-		rbacmanagerv1beta1.AddToScheme,
 		helmchartv1.AddToScheme,
 		cachingv1alpha1.AddToScheme,
 		installerv1alpha1.AddToScheme,
@@ -65,7 +56,6 @@ const (
 
 type Config struct {
 	WorkDir *workdir.WorkDir
-	Dialog  dialog.Dialog
 }
 
 type Manager struct {
@@ -85,19 +75,6 @@ type LogServiceOptions struct {
 	Project               string
 	Dataset               string
 	Table                 string
-}
-
-func (m *Manager) KubectlCommand() (*cobra.Command, error) {
-	if err := os.Setenv("KUBECONFIG", filepath.Join(m.cfg.WorkDir.Path, "kubeconfig")); err != nil {
-		return nil, err
-	}
-
-	pflag.CommandLine.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
-	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
-
-	kubectl := kctlcmd.NewDefaultKubectlCommand()
-
-	return kubectl, nil
 }
 
 func (m *Manager) WriteKubeconfig(ctx context.Context) error {
@@ -227,24 +204,19 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	// (probably in the API server).
 	<-time.After(time.Second * 5)
 
-	log := m.cfg.Dialog
-
 	nm := newNamespaceManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 	rm := newRegistryManager(m.cl)
 
-	log.Info("initializing namespaces")
 	if err := nm.reconcile(ctx); err != nil {
 		return err
 	}
 
-	log.Info("initializing admin account")
 	if err := am.reconcile(ctx); err != nil {
 		return err
 	}
 
-	log.Info("initializing image registry")
 	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
@@ -266,7 +238,6 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 		return err
 	}
 
-	log.Info("initializing vault")
 	if err := vm.reconcile(ctx); err != nil {
 		return err
 	}
@@ -356,20 +327,16 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 }
 
 func (m *Manager) processManifests(ctx context.Context, path string, patchers []objectPatcherFunc, initNamespaces []string) error {
-	log := m.cfg.Dialog
-
 	objects, err := m.parseAndLoadManifests(manifests.MustAssetListDir(path)...)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("applying %s", path)
 	if err := m.applyAllWithPatchers(ctx, patchers, objects); err != nil {
 		return err
 	}
 
 	for _, ns := range initNamespaces {
-		log.Infof("waiting for services in: %s", ns)
 		if err := m.waitForServices(ctx, ns); err != nil {
 			return err
 		}
@@ -397,13 +364,10 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 }
 
 func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {
-	log := m.cfg.Dialog
 	objects := []runtime.Object{}
 
 	for _, f := range files {
 		manifest := manifests.MustAsset(f)
-
-		log.Infof("parsing manifest %s", f)
 
 		manifestObjects, err := parseManifest(manifest)
 		if err != nil {
@@ -498,17 +462,6 @@ func (m *Manager) applyAllWithPatchers(ctx context.Context, patchers []objectPat
 	}
 
 	return nil
-}
-
-func (m *Manager) kubectlExec(args ...string) error {
-	kubectl, err := m.KubectlCommand()
-	if err != nil {
-		return err
-	}
-
-	kubectl.SetArgs(args)
-
-	return kubectl.Execute()
 }
 
 func NewManager(cm cluster.Manager, cl *cluster.Client, cfg Config) *Manager {

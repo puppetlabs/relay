@@ -7,14 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/docker/go-connections/nat"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	k3dclient "github.com/rancher/k3d/v4/pkg/client"
 	"github.com/rancher/k3d/v4/pkg/config/v1alpha2"
 	"github.com/rancher/k3d/v4/pkg/runtimes"
-	"github.com/rancher/k3d/v4/pkg/tools"
 	"github.com/rancher/k3d/v4/pkg/types"
 	"github.com/rancher/k3d/v4/pkg/types/k3s"
-	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -223,23 +220,6 @@ func (m *K3dClusterManager) Delete(ctx context.Context) error {
 	return k3dclient.ClusterDelete(ctx, m.runtime, clusterConfig, types.ClusterDeleteOpts{})
 }
 
-// ImportImages import's a given image or images from the local container
-// runtime into every node in the cluster. It's useful for making sure custom
-// built images on the local host machine take priority over remote images in a
-// registry.
-func (m *K3dClusterManager) ImportImages(ctx context.Context, images ...string) error {
-	clusterConfig, err := m.get(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to lookup cluster: %w", err)
-	}
-
-	if err := tools.ImageImportIntoClusterMulti(ctx, m.runtime, images, clusterConfig, types.ImageImportOpts{KeepTar: true}); err != nil {
-		return fmt.Errorf("failed to import image: %w", err)
-	}
-
-	return nil
-}
-
 // GetKubeconfig returns a k8s client-go config for the cluster's context. This can be
 // be used to generate the yaml that is often seen on disk and used with kubectl. Attempting
 // to get a kubeconfig for a cluster that doesn't exist results in an error.
@@ -317,27 +297,8 @@ func (m *K3dClusterManager) get(ctx context.Context) (*types.Cluster, error) {
 
 // NewK3dClusterManager returns a new K3dClusterManager.
 func NewK3dClusterManager(cfg Config) *K3dClusterManager {
-	log.SetFormatter(&logrusToDialogFormatter{
-		dialog: cfg.Dialog,
-	})
-
 	return &K3dClusterManager{
 		runtime: runtimes.SelectedRuntime,
 		cfg:     cfg,
 	}
-}
-
-type logrusToDialogFormatter struct {
-	dialog dialog.Dialog
-}
-
-func (f *logrusToDialogFormatter) Format(e *log.Entry) ([]byte, error) {
-	switch e.Level {
-	case log.DebugLevel, log.InfoLevel, log.WarnLevel:
-		f.dialog.Info(e.Message)
-	case log.ErrorLevel:
-		f.dialog.Error(e.Message)
-	}
-
-	return nil, nil
 }
