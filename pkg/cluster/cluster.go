@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/puppetlabs/leg/workdir"
-	"github.com/puppetlabs/relay/pkg/dialog"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -28,7 +27,6 @@ type ClientOptions struct {
 
 type Config struct {
 	WorkDir *workdir.WorkDir
-	dialog.Dialog
 }
 
 // CreateOptions are the configurable options for cluster creation
@@ -60,7 +58,6 @@ type Manager interface {
 	Start(ctx context.Context) error
 	Stop(ctx context.Context) error
 	Delete(ctx context.Context) error
-	ImportImages(ctx context.Context, images ...string) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
 	WriteKubeconfig(ctx context.Context, path string) error
 	GetClient(ctx context.Context, opts ClientOptions) (*Client, error)

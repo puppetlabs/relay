@@ -8,10 +8,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/inconshreveable/log15"
 	"github.com/puppetlabs/errawr-go/v2/pkg/errawr"
 	"github.com/puppetlabs/leg/httputil/serving"
-	"github.com/puppetlabs/leg/logging"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/opt"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/sample"
 	"github.com/puppetlabs/relay-core/pkg/metadataapi/server"
@@ -54,11 +52,6 @@ func (m *MetadataAPIManager) initializeMetadataServer(ctx context.Context, addr 
 	cfg := opt.NewConfig()
 	cfg.ListenPort = 0
 	cfg.SampleConfigFiles = []string{mockOptions.Input}
-	log := m.cfg.Dialog
-
-	if cfg.Debug {
-		logging.SetLevel(log15.LvlDebug)
-	}
 
 	if sc, err := cfg.SampleConfig(); err != nil {
 		return nil, "", err
@@ -99,8 +92,6 @@ func (m *MetadataAPIManager) initializeMetadataServer(ctx context.Context, addr 
 		return nil, "", fmt.Errorf("failed to find run ID %s with a step named %s in %s", mockOptions.RunID, mockOptions.StepName, mockOptions.Input)
 	}
 
-	log.Infof("startup finished, listening for metadata connections")
-	log.Infof("----------------------------------------------------")
 	return s, token, nil
 }
 

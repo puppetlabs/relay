@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/puppetlabs/leg/workdir"
@@ -30,12 +31,10 @@ func newDevCommand() *cobra.Command {
 
 			DevConfig = dev.Config{
 				WorkDir: datadir,
-				Dialog:  Dialog,
 			}
 
 			ClusterConfig = cluster.Config{
 				WorkDir: datadir,
-				Dialog:  Dialog,
 			}
 
 			return nil
@@ -45,8 +44,7 @@ func newDevCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(newClusterCommand())
-	cmd.AddCommand(newImageCommand())
-	cmd.AddCommand(newKubectlCommand())
+	cmd.AddCommand(newInitializeCommand())
 	cmd.AddCommand(newMetadataCommand())
 
 	// TODO temporary workflow commands until `relay workflow` is integrated
@@ -54,6 +52,62 @@ func newDevCommand() *cobra.Command {
 	cmd.AddCommand(newDevWorkflowCommand())
 
 	return cmd
+}
+
+func newInitializeCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "initialize",
+		Aliases: []string{"init"},
+		Short:   "Initialize the Relay development environment",
+		RunE:    doInitDevelopmentEnvironment,
+	}
+
+	return cmd
+}
+
+func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
+	ctx := cmd.Context()
+
+	opts := cluster.InitializeOptions{}
+
+	return initDevelopmentEnvironment(ctx, opts)
+}
+
+func initDevelopmentEnvironment(ctx context.Context, opts cluster.InitializeOptions) error {
+	cm := cluster.NewManager(ClusterConfig)
+
+	if exists, _ := cm.Exists(ctx); !exists {
+		Dialog.Info("Cluster does not exist")
+		return nil
+	}
+
+	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	if err != nil {
+		return err
+	}
+
+	dm := dev.NewManager(cm, cl, DevConfig)
+
+	logServiceOpts := dev.LogServiceOptions{}
+	if Config.LogServiceConfig != nil {
+		logServiceOpts = dev.LogServiceOptions{
+			Enabled:               true,
+			CredentialsSecretName: Config.LogServiceConfig.CredentialsSecretName,
+			Project:               Config.LogServiceConfig.Project,
+			Dataset:               Config.LogServiceConfig.Dataset,
+			Table:                 Config.LogServiceConfig.Table,
+		}
+	}
+
+	Dialog.Info("Initializing relay-core; this may take several minutes...")
+
+	if err := dm.InitializeRelayCore(ctx, logServiceOpts); err != nil {
+		return err
+	}
+
+	Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
+
+	return nil
 }
 
 // TODO the commands below are essentially duplicates of the primary workflow

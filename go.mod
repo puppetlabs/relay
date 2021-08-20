@@ -6,13 +6,11 @@ require (
 	github.com/cli/browser v1.0.0
 	github.com/docker/go-connections v0.4.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
-	github.com/fairwindsops/rbac-manager v0.9.4
 	github.com/fatih/color v1.10.0
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
-	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -21,14 +19,12 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
-	github.com/puppetlabs/leg/logging v0.1.0
 	github.com/puppetlabs/leg/timeutil v0.4.0
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v4 v4.4.7
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
-	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
@@ -40,9 +36,7 @@ require (
 	k8s.io/apimachinery v0.20.1
 	k8s.io/apiserver v0.18.5
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/component-base v0.18.5
 	k8s.io/klog/v2 v2.1.0 // indirect
-	k8s.io/kubernetes v1.17.2
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920 // indirect
 	knative.dev/caching v0.0.0-20200630172829-a78409990d76
 	sigs.k8s.io/controller-runtime v0.5.11
