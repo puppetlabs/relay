@@ -1,3 +1,12 @@
+# [4.8.0](https://github.com/puppetlabs/relay/compare/v4.7.0...v4.8.0)
+
+### Changed
+- `relay dev cluster initialize` command moved to `relay dev initialize`
+
+### Removed
+- `relay dev image import` command
+- `relay dev kubectl` command
+
 # [4.7.0](https://github.com/puppetlabs/relay/compare/v4.6.0...v4.7.0)
 
 ### Changed
