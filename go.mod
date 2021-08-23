@@ -6,7 +6,7 @@ require (
 	github.com/cli/browser v1.0.0
 	github.com/docker/go-connections v0.4.0
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
-	github.com/fatih/color v1.10.0
+	github.com/fatih/color v1.12.0
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
@@ -14,23 +14,22 @@ require (
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
 	github.com/puppetlabs/leg/timeutil v0.4.0
 	github.com/puppetlabs/leg/workdir v0.1.0
+	github.com/puppetlabs/relay-client-go/client v0.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20201215210214-d09fa69c63be
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v4 v4.4.7
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	k8s.io/api v0.20.0
 	k8s.io/apiextensions-apiserver v0.20.0
 	k8s.io/apimachinery v0.20.1
