@@ -276,8 +276,8 @@ func newDownloadWorkflowCommand() *cobra.Command {
 }
 
 func doListWorkflows(cmd *cobra.Command, args []string) error {
-	resp, err := Client.ListWorkflows()
-
+	req := Client.Api.ViewsApi.GetWorkflowsView(cmd.Context())
+	wv, _, err := Client.Api.ViewsApi.GetWorkflowsViewExecute(req)
 	if err != nil {
 		debug.Logf("failed to list workflows: %s", err.Error())
 		return err
@@ -287,8 +287,13 @@ func doListWorkflows(cmd *cobra.Command, args []string) error {
 
 	t.Headers([]string{"Name", "Last Run Number"})
 
-	for _, workflow := range resp.Workflows {
-		t.AppendRow([]string{workflow.Name, fmt.Sprintf("%d", workflow.MostRecentRun.RunNumber)})
+	for _, workflow := range *wv.Workflows {
+		run := ""
+		if workflow.MostRecentRun != nil {
+			run = fmt.Sprintf("%d", workflow.MostRecentRun.RunNumber)
+		}
+
+		t.AppendRow([]string{workflow.Name, run})
 	}
 
 	t.Flush()
@@ -301,14 +306,15 @@ func doListWorkflowsCompletion(cmd *cobra.Command, args []string, toComplete str
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	resp, err := Client.ListWorkflows()
+	req := Client.Api.ViewsApi.GetWorkflowsView(cmd.Context())
+	wv, _, err := Client.Api.ViewsApi.GetWorkflowsViewExecute(req)
 	if err != nil {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
 	results := []string{}
 
-	for _, workflow := range resp.Workflows {
+	for _, workflow := range *wv.Workflows {
 		if strings.HasPrefix(workflow.Name, toComplete) {
 			results = append(results, workflow.Name)
 		}
