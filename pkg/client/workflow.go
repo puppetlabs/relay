@@ -120,20 +120,6 @@ func (c *Client) CreateWorkflow(name string) (*model.WorkflowEntity, errors.Erro
 	return response, nil
 }
 
-type ListWorkflowsResponse struct {
-	Workflows []model.Workflow `json:"workflows"`
-}
-
-func (c *Client) ListWorkflows() (*ListWorkflowsResponse, errors.Error) {
-	resp := &ListWorkflowsResponse{}
-
-	if err := c.Request(WithPath("/api/workflows/"), WithResponseInto(&resp)); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
 func (c *Client) GetWorkflow(name string) (*model.WorkflowEntity, errors.Error) {
 	response := &model.WorkflowEntity{}
 
