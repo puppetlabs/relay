@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/puppetlabs/relay/pkg/client/openapi"
+	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
 	"github.com/spf13/cobra"
 )
 

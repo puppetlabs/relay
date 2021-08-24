@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/puppetlabs/relay/pkg/client/openapi"
+	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/spf13/cobra"
 )

@@ -1,4 +1,0 @@
-package openapi
-
-// ConnectionProvidersApiService ConnectionProvidersApi service
-type ConnectionProvidersApiService service

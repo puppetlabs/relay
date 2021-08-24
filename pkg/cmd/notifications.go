@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/puppetlabs/relay/pkg/client/openapi"
+	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
 	"github.com/puppetlabs/relay/pkg/errors"
 	"github.com/puppetlabs/relay/pkg/format"
 	"github.com/spf13/cobra"

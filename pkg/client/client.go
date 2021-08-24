@@ -3,7 +3,7 @@ package client
 import (
 	"net/http"
 
-	"github.com/puppetlabs/relay/pkg/client/openapi"
+	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/model"
 )
