@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	vaultImage                 = "vault:1.5.0"
+	vaultImage                 = "vault:1.8.2"
 	vaultAddr                  = "http://vault:8200"
 	vaultInitResultStorageName = "vault-init-result-storage"
 	vaultInitResultDataFile    = "init-data.json"
