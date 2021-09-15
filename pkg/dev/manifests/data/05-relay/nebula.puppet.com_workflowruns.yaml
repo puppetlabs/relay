@@ -153,6 +153,12 @@ spec:
                       type: string
                     name:
                       type: string
+                    outputs:
+                      additionalProperties:
+                        description: Unstructured is arbitrary JSON data, which may
+                          also include base64-encoded binary data.
+                        x-kubernetes-preserve-unknown-fields: true
+                      type: object
                     startTime:
                       format: date-time
                       type: string
@@ -181,6 +187,12 @@ spec:
                       type: string
                     name:
                       type: string
+                    outputs:
+                      additionalProperties:
+                        description: Unstructured is arbitrary JSON data, which may
+                          also include base64-encoded binary data.
+                        x-kubernetes-preserve-unknown-fields: true
+                      type: object
                     startTime:
                       format: date-time
                       type: string
