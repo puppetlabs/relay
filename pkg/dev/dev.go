@@ -10,14 +10,16 @@ import (
 
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
+	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/leg/workdir"
+	v1 "github.com/puppetlabs/relay-client-go/models/pkg/workflow/types/v1"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
+	nebulav1 "github.com/puppetlabs/relay-core/pkg/apis/nebula.puppet.com/v1"
+	relayv1beta1 "github.com/puppetlabs/relay-core/pkg/apis/relay.sh/v1beta1"
+	"github.com/puppetlabs/relay-core/pkg/obj"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
-	v1 "github.com/puppetlabs/relay-core/pkg/workflow/types/v1"
 	"github.com/puppetlabs/relay/pkg/cluster"
-	"github.com/puppetlabs/relay/pkg/dev/manifests"
-	"github.com/puppetlabs/relay/pkg/model"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -52,6 +54,9 @@ var (
 const (
 	defaultWorkflowName      = "relay-workflow"
 	jwtSigningKeysSecretName = "relay-core-v1-operator-signing-keys"
+
+	VaultEngineMountCustomers = "customers"
+	VaultEngineMountWorkflows = "workflows"
 )
 
 type Config struct {
@@ -116,10 +121,7 @@ func (m *Manager) Delete(ctx context.Context) error {
 	return nil
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[string]string) (*model.WorkflowSummary, error) {
-	vm := newVaultManager(m.cl, m.cfg)
-	am := newAdminManager(m.cl, vm)
-
+func (m *Manager) LoadWorkflow(ctx context.Context, r io.ReadCloser) (*v1.WorkflowData, error) {
 	decoder := v1.NewDocumentStreamingDecoder(r, &v1.YAMLDecoder{})
 
 	wd, err := decoder.DecodeStream(ctx)
@@ -127,19 +129,54 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[s
 		return nil, err
 	}
 
+	return wd, nil
+}
+
+func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData) (*relayv1beta1.Workflow, error) {
+	vm := newVaultManager(m.cl, m.cfg)
+	am := newAdminManager(m.cl, vm)
+
 	name := wd.Name
 	if name == "" {
 		name = defaultWorkflowName
 	}
 
-	runID := names.SimpleNameGenerator.GenerateName(name + "-")
+	if err := am.addConnectionForWorkflow(ctx, name); err != nil {
+		return nil, err
+	}
+
+	mapper := v1.NewDefaultWorkflowMapper(
+		v1.WithDomainIDOption(name),
+		v1.WithNamespaceOption(name),
+		v1.WithWorkflowNameOption(name),
+		v1.WithVaultEngineMountOption(VaultEngineMountCustomers),
+	)
+
+	mapping, err := mapper.Map(wd)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := am.addConnectionForWorkflow(ctx, name); err != nil {
+	if err := m.cl.APIClient.Create(ctx, mapping.Namespace); err != nil {
+		if !apierrors.IsAlreadyExists(err) {
+			return nil, err
+		}
+	}
+
+	wf := obj.NewWorkflowFromObject(mapping.Workflow)
+	if _, err := wf.Load(ctx, m.cl.APIClient); err != nil {
 		return nil, err
 	}
+
+	if err := wf.Persist(ctx, m.cl.APIClient); err != nil {
+		return nil, err
+	}
+
+	return mapping.Workflow, nil
+}
+
+func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, wd *v1.WorkflowData, params map[string]string) (*nebulav1.WorkflowRun, error) {
+	runName := names.SimpleNameGenerator.GenerateName(wf.GetName() + "-")
 
 	runParams := v1.WorkflowRunParameters{}
 
@@ -150,43 +187,40 @@ func (m *Manager) RunWorkflow(ctx context.Context, r io.ReadCloser, params map[s
 	}
 
 	mapper := v1.NewDefaultRunEngineMapper(
-		v1.WithDomainIDRunOption(name),
-		v1.WithNamespaceRunOption(name),
-		v1.WithWorkflowNameRunOption(name),
-		v1.WithWorkflowRunNameRunOption(runID),
-		v1.WithVaultEngineMountRunOption("customers"),
+		v1.WithDomainIDRunOption(wf.GetNamespace()),
+		v1.WithNamespaceRunOption(wf.GetNamespace()),
+		v1.WithWorkflowNameRunOption(wf.GetName()),
+		v1.WithWorkflowRunNameRunOption(runName),
+		v1.WithVaultEngineMountRunOption(VaultEngineMountCustomers),
 		v1.WithRunParametersRunOption(runParams),
 	)
 
-	manifest, err := mapper.ToRuntimeObjectsManifest(wd)
+	mapping, err := mapper.ToRuntimeObjectsManifest(wd)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := m.cl.APIClient.Create(ctx, manifest.Namespace); err != nil {
+	mapping.WorkflowRun.Spec.WorkflowRef = corev1.LocalObjectReference{
+		Name: wf.GetName(),
+	}
+
+	if err := m.cl.APIClient.Create(ctx, mapping.Namespace); err != nil {
 		if !apierrors.IsAlreadyExists(err) {
 			return nil, err
 		}
 	}
 
-	if err := m.cl.APIClient.Create(ctx, manifest.WorkflowRun); err != nil {
+	if err := m.cl.APIClient.Create(ctx, mapping.WorkflowRun); err != nil {
 		return nil, err
 	}
 
-	ws := &model.WorkflowSummary{
-		WorkflowIdentifier: &model.WorkflowIdentifier{
-			Name: name,
-		},
-		Description: wd.Description,
-	}
-
-	return ws, nil
+	return mapping.WorkflowRun, err
 }
 
 func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value string) error {
 	vm := newVaultManager(m.cl, m.cfg)
 	secret := map[string]string{
-		path.Join("customers", "workflows", workflow, key): value,
+		path.Join(VaultEngineMountCustomers, VaultEngineMountWorkflows, workflow, key): value,
 	}
 
 	return vm.writeSecrets(ctx, secret)
@@ -221,11 +255,7 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 		return err
 	}
 
-	patchers := []objectPatcherFunc{
-		nm.objectNamespacePatcher(systemNamespace),
-		missingProtocolPatcher,
-		registryLoadBalancerPortPatcher(opts.ImageRegistryPort),
-	}
+	mm := NewManifestManager(m.cl)
 
 	// Apply manifests in ordered phases. Note that some managers
 	// have weird dependencies on running services. For instance, you cannot
@@ -234,8 +264,17 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	// namespaces to be ready before moving to the next phase of applying manifests.
 	// TODO: dynamically generate the list as we process the manifests
 
-	if err := m.processManifests(ctx, "/01-init", patchers, []string{"cert-manager", "relay-system"}); err != nil {
+	if err := mm.ProcessManifests(ctx, "/01-init",
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace),
+		manifest.FixupPatcher,
+		registryLoadBalancerPortPatcher(opts.ImageRegistryPort)); err != nil {
 		return err
+	}
+
+	for _, ns := range []string{certManagerNamespace, systemNamespace} {
+		if err := m.waitForServices(ctx, ns); err != nil {
+			return err
+		}
 	}
 
 	if err := vm.reconcile(ctx); err != nil {
@@ -257,9 +296,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	// (probably in the API server).
 	<-time.After(time.Second * 5)
 
-	// log := m.cfg.Dialog
-
-	nm := newNamespaceManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	rim := newRelayInstallerManager(m.cl)
 	rcm := newRelayCoreManager(m.cl, lsOpts)
@@ -271,25 +307,21 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	// namespaces to be ready before moving to the next phase of applying manifests.
 	// TODO: dynamically generate the list as we process the manifests
 
-	patchers := []objectPatcherFunc{
-		nm.objectNamespacePatcher(tektonPipelinesNamespace),
-		missingProtocolPatcher,
-	}
+	mm := NewManifestManager(m.cl)
 
-	if err := m.processManifests(ctx, "/03-tekton", patchers, nil); err != nil {
+	if err := mm.ProcessManifests(ctx, "/03-tekton",
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace),
+		manifest.FixupPatcher); err != nil {
 		return err
 	}
 
-	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher(knativeServingNamespace),
-		missingProtocolPatcher,
-	}
-
-	if err := m.processManifests(ctx, "/04-knative", patchers, nil); err != nil {
+	if err := mm.ProcessManifests(ctx, "/04-knative",
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, knativeServingNamespace),
+		manifest.FixupPatcher); err != nil {
 		return err
 	}
 
-	if err := m.processManifests(ctx, "/05-relay", nil, nil); err != nil {
+	if err := mm.ProcessManifests(ctx, "/05-relay"); err != nil {
 		return err
 	}
 
@@ -305,41 +337,11 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 		return err
 	}
 
-	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher(ambassadorNamespace),
-		missingProtocolPatcher,
-		ambassadorPatcher,
-	}
-
-	if err := m.processManifests(ctx, "/06-ambassador", patchers, nil); err != nil {
+	if err := mm.ProcessManifests(ctx, "/06-ambassador",
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, ambassadorNamespace),
+		manifest.FixupPatcher,
+		ambassadorPatcher()); err != nil {
 		return err
-	}
-
-	patchers = []objectPatcherFunc{
-		nm.objectNamespacePatcher("default"),
-	}
-
-	if err := m.processManifests(ctx, "/07-hostpath", patchers, nil); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Manager) processManifests(ctx context.Context, path string, patchers []objectPatcherFunc, initNamespaces []string) error {
-	objects, err := m.parseAndLoadManifests(manifests.MustAssetListDir(path)...)
-	if err != nil {
-		return err
-	}
-
-	if err := m.applyAllWithPatchers(ctx, patchers, objects); err != nil {
-		return err
-	}
-
-	for _, ns := range initNamespaces {
-		if err := m.waitForServices(ctx, ns); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -361,23 +363,6 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 	}
 
 	return m.waitForServices(ctx, systemNamespace)
-}
-
-func (m *Manager) parseAndLoadManifests(files ...string) ([]runtime.Object, error) {
-	objects := []runtime.Object{}
-
-	for _, f := range files {
-		manifest := manifests.MustAsset(f)
-
-		manifestObjects, err := parseManifest(manifest)
-		if err != nil {
-			return nil, err
-		}
-
-		objects = append(objects, manifestObjects...)
-	}
-
-	return objects, nil
 }
 
 func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
@@ -437,28 +422,6 @@ func (m *Manager) waitForCertificates(ctx context.Context, namespace string) err
 	})
 	if err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *Manager) apply(ctx context.Context, obj runtime.Object) error {
-	if err := m.cl.APIClient.Patch(ctx, obj, client.Apply, client.ForceOwnership, client.FieldOwner("relay-e2e")); err != nil {
-		return fmt.Errorf("failed to apply object '%s': %w", obj.GetObjectKind().GroupVersionKind().String(), err)
-	}
-
-	return nil
-}
-
-func (m *Manager) applyAllWithPatchers(ctx context.Context, patchers []objectPatcherFunc, objs []runtime.Object) error {
-	for _, obj := range objs {
-		for _, patcher := range patchers {
-			patcher(obj)
-		}
-
-		if err := m.apply(ctx, obj); err != nil {
-			return err
-		}
 	}
 
 	return nil

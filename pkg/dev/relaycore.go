@@ -120,10 +120,7 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	rcKey, err := client.ObjectKeyFromObject(&m.objects.relayCore)
-	if err != nil {
-		return err
-	}
+	rcKey := client.ObjectKeyFromObject(&m.objects.relayCore)
 
 	if err := cl.Get(ctx, rcKey, &m.objects.relayCore); err != nil {
 		return err
@@ -244,10 +241,7 @@ func (m *relayCoreManager) rbacDefinition(crb *rbacv1.ClusterRoleBinding) {
 
 func (m *relayCoreManager) wait(ctx context.Context) error {
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		key, err := client.ObjectKeyFromObject(&m.objects.relayCore)
-		if err != nil {
-			return retry.Done(err)
-		}
+		key := client.ObjectKeyFromObject(&m.objects.relayCore)
 
 		if err := m.cl.APIClient.Get(ctx, key, &m.objects.relayCore); err != nil {
 			return retry.Repeat(err)

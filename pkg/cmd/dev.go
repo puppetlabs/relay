@@ -169,12 +169,20 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 
 	Dialog.Infof("Processing workflow file %s", fp)
 
-	ws, err := dm.RunWorkflow(ctx, file, parseParameters(params))
+	wd, err := dm.LoadWorkflow(ctx, file)
 	if err != nil {
 		return err
 	}
 
-	Dialog.Infof("Running workflow %s", ws.WorkflowIdentifier.Name)
+	wf, err := dm.CreateWorkflow(ctx, wd)
+	if err != nil {
+		return err
+	}
+
+	_, err = dm.RunWorkflow(ctx, wf, wd, parseParameters(params))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
