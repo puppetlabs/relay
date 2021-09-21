@@ -266,7 +266,6 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 
 	if err := mm.ProcessManifests(ctx, "/01-init",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace),
-		manifest.FixupPatcher,
 		registryLoadBalancerPortPatcher(opts.ImageRegistryPort)); err != nil {
 		return err
 	}
@@ -310,14 +309,12 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	mm := NewManifestManager(m.cl)
 
 	if err := mm.ProcessManifests(ctx, "/03-tekton",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace),
-		manifest.FixupPatcher); err != nil {
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace)); err != nil {
 		return err
 	}
 
 	if err := mm.ProcessManifests(ctx, "/04-knative",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, knativeServingNamespace),
-		manifest.FixupPatcher); err != nil {
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, knativeServingNamespace)); err != nil {
 		return err
 	}
 
@@ -339,7 +336,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 
 	if err := mm.ProcessManifests(ctx, "/06-ambassador",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, ambassadorNamespace),
-		manifest.FixupPatcher,
 		ambassadorPatcher()); err != nil {
 		return err
 	}
