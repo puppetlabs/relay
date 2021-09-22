@@ -150,7 +150,7 @@ func (m *relayInstallerManager) clusterRole(cr *rbacv1.ClusterRole) {
 		},
 		{
 			APIGroups: []string{"relay.sh"},
-			Resources: []string{"tenants", "tenants/status", "webhooktriggers", "webhooktriggers/status"},
+			Resources: []string{"tenants", "tenants/status", "webhooktriggers", "webhooktriggers/status", "workflows", "workflows/status"},
 			Verbs:     []string{"get", "list", "patch", "update", "watch"},
 		},
 	}
