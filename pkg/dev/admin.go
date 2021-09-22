@@ -102,10 +102,7 @@ func (m *adminManager) clusterRoleBinding(clusterRoleBinding *rbacv1.ClusterRole
 }
 
 func (m *adminManager) addConnectionForWorkflow(ctx context.Context, name string) error {
-	secretKey, err := client.ObjectKeyFromObject(&m.objects.secret)
-	if err != nil {
-		return err
-	}
+	secretKey := client.ObjectKeyFromObject(&m.objects.secret)
 
 	if err := m.cl.APIClient.Get(ctx, secretKey, &m.objects.secret); err != nil {
 		return err

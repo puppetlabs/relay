@@ -78,6 +78,9 @@ Use the 'workflow' subcommand to interact with workflows:
 	cmd.PersistentFlags().StringP("config", "c", "", "Path to config file (default is $HOME.config/relay)")
 	cmd.PersistentFlags().MarkHidden("config")
 
+	// Hide unwanted imported flags
+	cmd.LocalFlags().MarkHidden("azure-container-registry-config")
+
 	cmd.AddCommand(newAuthCommand())
 	cmd.AddCommand(newConfigCommand())
 	cmd.AddCommand(newContextCommand())

@@ -5,10 +5,7 @@ import (
 
 	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -18,6 +15,7 @@ const (
 	tenantNamespace          = "relay-tenants"
 	registryNamespace        = "docker-registry"
 	ambassadorNamespace      = "ambassador-webhook"
+	certManagerNamespace     = "cert-manager"
 	knativeServingNamespace  = "knative-serving"
 	tektonPipelinesNamespace = "tekton-pipelines"
 )
@@ -102,45 +100,6 @@ func (m *namespaceManager) ambassadorNamespace(ns *corev1.Namespace) {
 func (m *namespaceManager) knativeServingNamespace(ns *corev1.Namespace) {
 	ns.Labels = map[string]string{
 		"nebula.puppet.com/network-policy.webhook-gateway": "true",
-	}
-}
-
-func (m *namespaceManager) objectNamespacePatcher(name string) objectPatcherFunc {
-	return func(obj runtime.Object) {
-		var gvk schema.GroupVersionKind
-
-		gvks, _, err := DefaultScheme.ObjectKinds(obj)
-		if err != nil {
-			return
-		}
-
-		if len(gvks) > 1 {
-			return
-		}
-
-		gvk = gvks[0]
-
-		mapping, err := m.cl.Mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-		if err != nil {
-			return
-		}
-
-		a, err := meta.Accessor(obj)
-		if err != nil {
-			return
-		}
-
-		if mapping.Scope.Name() != meta.RESTScopeNameNamespace {
-			return
-		}
-
-		if a.GetNamespace() == "" {
-			if name == "" {
-				a.SetNamespace("default")
-			} else {
-				a.SetNamespace(name)
-			}
-		}
 	}
 }
 

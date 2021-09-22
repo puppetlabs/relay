@@ -100,16 +100,13 @@ func (m *vaultManager) reconcile(ctx context.Context) error {
 func (m *vaultManager) reconcileInit(ctx context.Context) error {
 	cl := m.cl.APIClient
 
-	saKey, err := client.ObjectKeyFromObject(&m.objects.serviceAccount)
-	if err != nil {
-		return err
-	}
+	saKey := client.ObjectKeyFromObject(&m.objects.serviceAccount)
 
 	if err := cl.Get(ctx, saKey, &m.objects.serviceAccount); err != nil {
 		return err
 	}
 
-	err = m.getJob(ctx, &m.objects.initJob)
+	err := m.getJob(ctx, &m.objects.initJob)
 	if err != nil && k8serrors.IsNotFound(err) {
 		m.initPVC(&m.objects.initPVC)
 		if err := cl.Create(ctx, &m.objects.initPVC); err != nil {
@@ -286,10 +283,7 @@ func (m *vaultManager) credentialsEnvs(container *corev1.Container) {
 func (m *vaultManager) decodeCredentialsFromInitResult(ctx context.Context) (*vaultKeys, error) {
 	var keys vaultKeys
 
-	pvcKey, err := client.ObjectKeyFromObject(&m.objects.initPVC)
-	if err != nil {
-		return nil, err
-	}
+	pvcKey := client.ObjectKeyFromObject(&m.objects.initPVC)
 
 	pvc := corev1.PersistentVolumeClaim{}
 
@@ -551,10 +545,7 @@ func (m *vaultManager) writeSecrets(ctx context.Context, vals map[string]string)
 func (m *vaultManager) getJob(ctx context.Context, job *batchv1.Job) error {
 	cl := m.cl.APIClient
 
-	key, err := client.ObjectKeyFromObject(job)
-	if err != nil {
-		return err
-	}
+	key := client.ObjectKeyFromObject(job)
 
 	return cl.Get(ctx, key, job)
 }
