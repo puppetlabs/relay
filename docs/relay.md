@@ -146,11 +146,10 @@ you can query repeatedly.
 
 ### Global flags
 ```
-      --azure-container-registry-config string   Path to the file containing Azure container registry configuration information.
-  -x, --context string                           Override the current context
-  -d, --debug                                    Print debugging information
-  -h, --help                                     Show help for this command
-  -o, --out string                               Output type: (text|json) (default "text")
-  -y, --yes                                      Skip confirmation prompts
+  -x, --context string   Override the current context
+  -d, --debug            Print debugging information
+  -h, --help             Show help for this command
+  -o, --out string       Output type: (text|json) (default "text")
+  -y, --yes              Skip confirmation prompts
 
 ```
