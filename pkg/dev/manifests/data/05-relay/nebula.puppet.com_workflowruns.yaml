@@ -59,61 +59,6 @@ spec:
                       TODO: Add other useful fields. apiVersion, kind, uid?'
                     type: string
                 type: object
-              workflow:
-                properties:
-                  name:
-                    type: string
-                  parameters:
-                    additionalProperties:
-                      description: Unstructured is arbitrary JSON data, which may
-                        also include base64-encoded binary data.
-                      x-kubernetes-preserve-unknown-fields: true
-                    type: object
-                  steps:
-                    items:
-                      properties:
-                        args:
-                          items:
-                            type: string
-                          type: array
-                        command:
-                          type: string
-                        depends_on:
-                          items:
-                            type: string
-                          type: array
-                        env:
-                          additionalProperties:
-                            description: Unstructured is arbitrary JSON data, which
-                              may also include base64-encoded binary data.
-                            x-kubernetes-preserve-unknown-fields: true
-                          type: object
-                        image:
-                          type: string
-                        input:
-                          items:
-                            type: string
-                          type: array
-                        name:
-                          type: string
-                        spec:
-                          additionalProperties:
-                            description: Unstructured is arbitrary JSON data, which
-                              may also include base64-encoded binary data.
-                            x-kubernetes-preserve-unknown-fields: true
-                          type: object
-                        when:
-                          description: Unstructured is arbitrary JSON data, which
-                            may also include base64-encoded binary data.
-                          x-kubernetes-preserve-unknown-fields: true
-                      required:
-                      - name
-                      type: object
-                    type: array
-                required:
-                - name
-                - steps
-                type: object
               workflowRef:
                 description: LocalObjectReference contains enough information to let
                   you locate the referenced object inside the same namespace.
@@ -125,7 +70,7 @@ spec:
                 type: object
             required:
             - name
-            - workflow
+            - workflowRef
             type: object
           state:
             properties:
