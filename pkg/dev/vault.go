@@ -654,6 +654,14 @@ func (g *vaultPolicyGenerator) operatorFile() []byte {
 				Name:         path.Join(g.rc.Spec.Vault.TenantPath, "metadata", "connections", "*"),
 				Capabilities: []string{"list", "delete"},
 			},
+			{
+				Name:         path.Join("customers-oauth", "auth-code-url"),
+				Capabilities: []string{"update"},
+			},
+			{
+				Name:         path.Join("customers-oauth/creds/*"),
+				Capabilities: []string{"read", "create", "update", "delete"},
+			},
 		},
 	}
 
