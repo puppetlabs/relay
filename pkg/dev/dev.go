@@ -163,10 +163,17 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData) (*rel
 		}
 	}
 
-	wf := obj.NewWorkflowFromObject(mapping.Workflow)
+	key := client.ObjectKey{
+		Name:      mapping.Workflow.GetName(),
+		Namespace: mapping.Workflow.GetNamespace(),
+	}
+
+	wf := obj.NewWorkflow(key)
 	if _, err := wf.Load(ctx, m.cl.APIClient); err != nil {
 		return nil, err
 	}
+
+	wf.Object.Spec = mapping.Workflow.Spec
 
 	if err := wf.Persist(ctx, m.cl.APIClient); err != nil {
 		return nil, err
