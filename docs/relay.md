@@ -109,6 +109,8 @@ you can query repeatedly.
 
 **`relay tokens revoke [token id]`** -- Revoke API token
 
+**`relay version`** -- Print version
+
 **`relay workflow delete [workflow name]`** -- Delete a Relay workflow
 
 **`relay workflow download [workflow name] [flags]`** -- Download a workflow from the service
