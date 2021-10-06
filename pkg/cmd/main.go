@@ -91,6 +91,7 @@ Use the 'workflow' subcommand to interact with workflows:
 	cmd.AddCommand(newNotificationsCommand())
 	cmd.AddCommand(newSubscriptionsCommand())
 	cmd.AddCommand(newTokensCommand())
+	cmd.AddCommand(newVersionCommand())
 
 	return cmd
 }
