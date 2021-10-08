@@ -26,9 +26,11 @@ LDFLAGS="${LDFLAGS:-}"
 
 eval "$( relay::cli::cli_vars )"
 
+VERSION_STR="${CLI_VERSION} (`date -u -R`)"
+
 $MKDIR_P "${BIN_DIR}"
 
 set -x
-$GO build -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "-X github.com/puppetlabs/relay/pkg/version.Version=${CLI_VERSION} ${LDFLAGS[*]}" "./cmd/${CLI_NAME}"
+$GO build -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "-X \"github.com/puppetlabs/relay/pkg/version.Version=${VERSION_STR}\" ${LDFLAGS[*]}" "./cmd/${CLI_NAME}"
 
 relay::cli::sha256sum < "${BIN_DIR}/${CLI_FILE_BIN}" > "${BIN_DIR}/${CLI_FILE_BIN}.sha256"
