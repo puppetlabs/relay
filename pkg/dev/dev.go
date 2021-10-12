@@ -132,7 +132,46 @@ func (m *Manager) LoadWorkflow(ctx context.Context, r io.ReadCloser) (*v1.Workfl
 	return wd, nil
 }
 
-func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData) (*relayv1beta1.Workflow, error) {
+func (m *Manager) CreateTenant(ctx context.Context, name string) (*relayv1beta1.Tenant, error) {
+	mapper := v1.NewDefaultTenantEngineMapper(
+		v1.WithNameTenantOption(name),
+		v1.WithIDTenantOption(name),
+		v1.WithWorkflowNameTenantOption(name),
+		v1.WithWorkflowIDTenantOption(name),
+		v1.WithNamespaceTenantOption(name),
+	)
+
+	mapping, err := mapper.ToRuntimeObjectsManifest()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := m.cl.APIClient.Create(ctx, mapping.Namespace); err != nil {
+		if !apierrors.IsAlreadyExists(err) {
+			return nil, err
+		}
+	}
+
+	key := client.ObjectKey{
+		Name:      mapping.Tenant.GetName(),
+		Namespace: mapping.Tenant.GetNamespace(),
+	}
+
+	t := obj.NewTenant(key)
+	if _, err := t.Load(ctx, m.cl.APIClient); err != nil {
+		return nil, err
+	}
+
+	t.Object.Spec = mapping.Tenant.Spec
+
+	if err := t.Persist(ctx, m.cl.APIClient); err != nil {
+		return nil, err
+	}
+
+	return mapping.Tenant, nil
+}
+
+func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData, t *relayv1beta1.Tenant) (*relayv1beta1.Workflow, error) {
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
 
@@ -150,17 +189,12 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData) (*rel
 		v1.WithNamespaceOption(name),
 		v1.WithWorkflowNameOption(name),
 		v1.WithVaultEngineMountOption(VaultEngineMountCustomers),
+		v1.WithTenantOption(t),
 	)
 
 	mapping, err := mapper.Map(wd)
 	if err != nil {
 		return nil, err
-	}
-
-	if err := m.cl.APIClient.Create(ctx, mapping.Namespace); err != nil {
-		if !apierrors.IsAlreadyExists(err) {
-			return nil, err
-		}
 	}
 
 	key := client.ObjectKey{
@@ -182,7 +216,7 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData) (*rel
 	return mapping.Workflow, nil
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, wd *v1.WorkflowData, params map[string]string) (*nebulav1.WorkflowRun, error) {
+func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, params map[string]string) (*nebulav1.WorkflowRun, error) {
 	runName := names.SimpleNameGenerator.GenerateName(wf.GetName() + "-")
 
 	runParams := v1.WorkflowRunParameters{}
@@ -200,15 +234,12 @@ func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, wd
 		v1.WithWorkflowRunNameRunOption(runName),
 		v1.WithVaultEngineMountRunOption(VaultEngineMountCustomers),
 		v1.WithRunParametersRunOption(runParams),
+		v1.WithWorkflowRunOption(wf),
 	)
 
-	mapping, err := mapper.ToRuntimeObjectsManifest(wd)
+	mapping, err := mapper.ToRuntimeObjectsManifest()
 	if err != nil {
 		return nil, err
-	}
-
-	mapping.WorkflowRun.Spec.WorkflowRef = corev1.LocalObjectReference{
-		Name: wf.GetName(),
 	}
 
 	if err := m.cl.APIClient.Create(ctx, mapping.Namespace); err != nil {

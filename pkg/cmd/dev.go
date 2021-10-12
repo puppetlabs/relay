@@ -174,12 +174,17 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	wf, err := dm.CreateWorkflow(ctx, wd)
+	t, err := dm.CreateTenant(ctx, wd.Name)
 	if err != nil {
 		return err
 	}
 
-	_, err = dm.RunWorkflow(ctx, wf, wd, parseParameters(params))
+	wf, err := dm.CreateWorkflow(ctx, wd, t)
+	if err != nil {
+		return err
+	}
+
+	_, err = dm.RunWorkflow(ctx, wf, parseParameters(params))
 	if err != nil {
 		return err
 	}
