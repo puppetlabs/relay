@@ -20,8 +20,8 @@ require (
 	github.com/puppetlabs/leg/timeutil v0.4.0
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-client-go/client v0.4.2
-	github.com/puppetlabs/relay-client-go/models v1.0.2
-	github.com/puppetlabs/relay-core v0.0.0-20210917210151-ed474cd528ac
+	github.com/puppetlabs/relay-client-go/models v1.0.3
+	github.com/puppetlabs/relay-core v0.0.0-20211004213917-1ee44eda050c
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v4 v4.4.7
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546
