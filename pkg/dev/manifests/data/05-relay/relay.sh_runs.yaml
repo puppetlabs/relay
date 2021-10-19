@@ -1,0 +1,241 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.4.1
+  creationTimestamp: null
+  name: runs.relay.sh
+spec:
+  group: relay.sh
+  names:
+    kind: Run
+    listKind: RunList
+    plural: runs
+    singular: run
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: Run is a request to invoke a workflow.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              parameters:
+                additionalProperties:
+                  description: Unstructured is arbitrary JSON data, which may also
+                    include base64-encoded binary data.
+                  x-kubernetes-preserve-unknown-fields: true
+                description: Parameters assigns values to parameters defined in the
+                  workflow.
+                type: object
+              state:
+                description: State allows applying desired state changes.
+                properties:
+                  steps:
+                    additionalProperties:
+                      additionalProperties:
+                        description: Unstructured is arbitrary JSON data, which may
+                          also include base64-encoded binary data.
+                        x-kubernetes-preserve-unknown-fields: true
+                      type: object
+                    description: Step allows applying desired step state changes.
+                    type: object
+                  workflow:
+                    additionalProperties:
+                      description: Unstructured is arbitrary JSON data, which may
+                        also include base64-encoded binary data.
+                      x-kubernetes-preserve-unknown-fields: true
+                    description: Workflow allows applying desired workflow state changes.
+                    type: object
+                type: object
+              workflowRef:
+                description: WorkflowRef selects a defined workflow to use for this
+                  run.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+            required:
+            - workflowRef
+            type: object
+          status:
+            properties:
+              completionTime:
+                description: CompletionTime is the time this run ended, whether successful
+                  or not.
+                format: date-time
+                type: string
+              conditions:
+                description: Conditions are the possible observable conditions for
+                  this run.
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      description: Message is a human-readable description of the
+                        given status.
+                      type: string
+                    reason:
+                      description: Reason identifies the cause of the given status
+                        using an API-locked camel-case identifier.
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      description: Type is the identifier for this condition.
+                      enum:
+                      - Cancelled
+                      - Completed
+                      - Succeeded
+                      - TimedOut
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              observedGeneration:
+                description: ObservedGeneration is the generation of the resource
+                  specification that this status matches.
+                format: int64
+                type: integer
+              startTime:
+                description: StartTime is the this run began executing.
+                format: date-time
+                type: string
+              steps:
+                description: Steps provides information about the status of each step
+                  that makes up this workflow run.
+                items:
+                  properties:
+                    completionTime:
+                      description: CompletionTime is the time this step ended, whether
+                        successful or not.
+                      format: date-time
+                      type: string
+                    conditions:
+                      description: Conditions are the possible observable conditions
+                        for this step.
+                      items:
+                        properties:
+                          lastTransitionTime:
+                            format: date-time
+                            type: string
+                          message:
+                            description: Message is a human-readable description of
+                              the given status.
+                            type: string
+                          reason:
+                            description: Reason identifies the cause of the given
+                              status using an API-locked camel-case identifier.
+                            type: string
+                          status:
+                            type: string
+                          type:
+                            description: Type is the identifier for this condition.
+                            enum:
+                            - Completed
+                            - Skipped
+                            - Succeeded
+                            type: string
+                        required:
+                        - lastTransitionTime
+                        - status
+                        - type
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - type
+                      x-kubernetes-list-type: map
+                    initTime:
+                      description: InitializationTime is the time taken to initialize
+                        the step.
+                      format: date-time
+                      type: string
+                    logs:
+                      description: Associated logs for this step.
+                      items:
+                        properties:
+                          context:
+                            description: Context of the associated log.
+                            type: string
+                          name:
+                            description: Name of the associated log.
+                            type: string
+                        type: object
+                      type: array
+                    name:
+                      description: Name is the name of this step.
+                      type: string
+                    outputs:
+                      description: Outputs are each of the outputs provided by this
+                        step, if available.
+                      items:
+                        properties:
+                          name:
+                            description: Name is the name of this output.
+                            type: string
+                          sensitive:
+                            description: Sensitive is whether this output contains
+                              sensitive or privileged data. If this output is sensitive,
+                              the value will not be set.
+                            type: boolean
+                          value:
+                            description: Value is the value provided by the step for
+                              the output.
+                            x-kubernetes-preserve-unknown-fields: true
+                        required:
+                        - name
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
+                    startTime:
+                      description: StartTime is the time this step began executing.
+                      format: date-time
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - name
+                x-kubernetes-list-type: map
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
