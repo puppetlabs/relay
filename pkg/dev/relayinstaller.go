@@ -139,18 +139,13 @@ func (m *relayInstallerManager) clusterRole(cr *rbacv1.ClusterRole) {
 			Verbs:     []string{"get", "patch", "update"},
 		},
 		{
-			APIGroups: []string{"nebula.puppet.com"},
-			Resources: []string{"workflowruns", "workflowruns/status"},
-			Verbs:     []string{"get", "list", "patch", "update", "watch"},
-		},
-		{
 			APIGroups: []string{"pvpool.puppet.com"},
 			Resources: []string{"checkouts", "checkouts/status"},
 			Verbs:     []string{"get", "list", "watch"},
 		},
 		{
 			APIGroups: []string{"relay.sh"},
-			Resources: []string{"tenants", "tenants/status", "webhooktriggers", "webhooktriggers/status", "workflows", "workflows/status"},
+			Resources: []string{"runs", "runs/status", "tenants", "tenants/status", "webhooktriggers", "webhooktriggers/status", "workflows", "workflows/status"},
 			Verbs:     []string{"get", "list", "patch", "update", "watch"},
 		},
 	}

@@ -15,7 +15,6 @@ import (
 	"github.com/puppetlabs/leg/workdir"
 	v1 "github.com/puppetlabs/relay-client-go/models/pkg/workflow/types/v1"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
-	nebulav1 "github.com/puppetlabs/relay-core/pkg/apis/nebula.puppet.com/v1"
 	relayv1beta1 "github.com/puppetlabs/relay-core/pkg/apis/relay.sh/v1beta1"
 	"github.com/puppetlabs/relay-core/pkg/obj"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
@@ -216,7 +215,7 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData, t *re
 	return mapping.Workflow, nil
 }
 
-func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, params map[string]string) (*nebulav1.WorkflowRun, error) {
+func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, params map[string]string) (*relayv1beta1.Run, error) {
 	runName := names.SimpleNameGenerator.GenerateName(wf.GetName() + "-")
 
 	runParams := v1.WorkflowRunParameters{}
