@@ -6,12 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/docker/go-connections/nat"
-	k3dclient "github.com/rancher/k3d/v4/pkg/client"
-	"github.com/rancher/k3d/v4/pkg/config/v1alpha2"
-	"github.com/rancher/k3d/v4/pkg/runtimes"
-	"github.com/rancher/k3d/v4/pkg/types"
-	"github.com/rancher/k3d/v4/pkg/types/k3s"
+	k3dclient "github.com/rancher/k3d/v5/pkg/client"
+	"github.com/rancher/k3d/v5/pkg/config"
+	"github.com/rancher/k3d/v5/pkg/config/v1alpha3"
+	"github.com/rancher/k3d/v5/pkg/runtimes"
+	"github.com/rancher/k3d/v5/pkg/types"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -20,7 +19,7 @@ import (
 )
 
 const (
-	k3sVersion          = "v1.20.9-k3s1"
+	k3sVersion          = "v1.21.6-k3s1"
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
 )
 
@@ -62,124 +61,50 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 	localStorage := fmt.Sprintf("%s:%s",
 		hostStoragePath,
 		k3sLocalStoragePath)
-	volumes := []string{
-		localStorage,
+
+	volumes := []v1alpha3.VolumeWithNodeFilters{
+		{
+			Volume: localStorage,
+		},
 	}
 
 	// If /dev/mapper exists, we'll automatically map it into the cluster
 	// controller.
 	if _, err := os.Stat("/dev/mapper"); !os.IsNotExist(err) {
-		volumes = append(volumes, "/dev/mapper:/dev/mapper:ro")
+		volumes = append(volumes, v1alpha3.VolumeWithNodeFilters{
+			Volume: "/dev/mapper:/dev/mapper:ro",
+		})
 	}
 
-	registryConfig := &k3s.Registry{
-		Mirrors: map[string]k3s.Mirror{
-			"docker.io": {
-				Endpoints: []string{ImagePassthroughCacheAddr},
+	cfg := v1alpha3.SimpleConfig{
+		Name:    ClusterName,
+		Network: NetworkName,
+		Image:   k3sImage,
+		Servers: 1,
+		Agents:  opts.WorkerCount,
+		ExposeAPI: v1alpha3.SimpleExposureOpts{
+			Host:     types.DefaultAPIHost,
+			HostIP:   types.DefaultAPIHost,
+			HostPort: types.DefaultAPIPort,
+		},
+		Options: v1alpha3.SimpleConfigOptions{
+			K3dOptions: v1alpha3.SimpleConfigOptionsK3d{
+				Wait: true,
 			},
-			fmt.Sprintf("%s:%d", opts.ImageRegistryName, opts.ImageRegistryPort): {
-				Endpoints: []string{fmt.Sprintf("http://localhost:%d", opts.ImageRegistryPort)},
+			KubeconfigOptions: v1alpha3.SimpleConfigOptionsKubeconfig{
+				UpdateDefaultKubeconfig: true,
+				SwitchCurrentContext:    true,
 			},
 		},
-	}
-
-	exposeAPI := &types.ExposureOpts{
-		Host: types.DefaultAPIHost,
-		PortMapping: nat.PortMapping{
-			Port: types.DefaultAPIPort,
-			Binding: nat.PortBinding{
-				HostIP:   types.DefaultAPIHost,
-				HostPort: types.DefaultAPIPort,
+		Ports: []v1alpha3.PortWithNodeFilters{
+			{
+				Port: fmt.Sprintf("%d:%d", DefaultLoadBalancerHostPort, DefaultLoadBalancerNodePort),
 			},
-		},
-	}
-
-	imageRegistryPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", opts.ImageRegistryPort))
-	if err != nil {
-		return fmt.Errorf("failed to create cluster: %w", err)
-	}
-	registryPortMapping := nat.PortMap{}
-	registryPortMapping[imageRegistryPort] = []nat.PortBinding{{
-		HostIP:   types.DefaultAPIHost,
-		HostPort: imageRegistryPort.Port(),
-	}}
-
-	serverNode := &types.Node{
-		Role:  types.ServerRole,
-		Image: k3sImage,
-		ServerOpts: types.ServerOpts{
-			KubeAPI: exposeAPI,
 		},
 		Volumes: volumes,
-		Ports:   registryPortMapping,
 	}
 
-	if opts.WorkerCount <= 0 {
-		serverNode.Args = agentArgs
-	}
-
-	nodes := []*types.Node{
-		serverNode,
-	}
-
-	for i := 0; i < opts.WorkerCount; i++ {
-		node := &types.Node{
-			Role:    types.AgentRole,
-			Image:   k3sImage,
-			Args:    agentArgs,
-			Volumes: volumes,
-		}
-
-		nodes = append(nodes, node)
-	}
-
-	network := types.ClusterNetwork{
-		Name: NetworkName,
-	}
-
-	lbHostPort := DefaultLoadBalancerHostPort
-	if opts.LoadBalancerHostPort != 0 {
-		lbHostPort = opts.LoadBalancerHostPort
-	}
-
-	lbPort, err := nat.NewPort("tcp", fmt.Sprintf("%d", DefaultLoadBalancerNodePort))
-	if err != nil {
-		return fmt.Errorf("failed to create cluster: %w", err)
-	}
-	lbPortMapping := nat.PortMap{}
-	lbPortMapping[lbPort] = []nat.PortBinding{{
-		HostIP:   types.DefaultAPIHost,
-		HostPort: fmt.Sprintf("%d", lbHostPort),
-	}}
-
-	clusterConfig := &v1alpha2.ClusterConfig{
-		ClusterCreateOpts: types.ClusterCreateOpts{
-			PrepDisableHostIPInjection: true,
-			WaitForServer:              true,
-			// HACK this is to workaround a k3d bug
-			GlobalLabels: make(map[string]string),
-		},
-		Cluster: types.Cluster{
-			Name: ClusterName,
-			ServerLoadBalancer: &types.Node{
-				Role:  types.LoadBalancerRole,
-				Ports: lbPortMapping,
-			},
-			Nodes:   nodes,
-			Network: network,
-			KubeAPI: exposeAPI,
-		},
-	}
-
-	if registryConfig != nil {
-		clusterConfig.ClusterCreateOpts.Registries.Config = registryConfig
-	}
-
-	if err := k3dclient.ClusterRun(ctx, m.runtime, clusterConfig); err != nil {
-		return fmt.Errorf("failed to create cluster: %w", err)
-	}
-
-	return nil
+	return m.clusterCreate(ctx, cfg)
 }
 
 // Start starts the cluster. Attempting to start a cluster that doesn't exist
@@ -301,4 +226,51 @@ func NewK3dClusterManager(cfg Config) *K3dClusterManager {
 		runtime: runtimes.SelectedRuntime,
 		cfg:     cfg,
 	}
+}
+
+// Functionality based on the official k3d cluster create command
+// https://github.com/rancher/k3d/blob/main/cmd/cluster/clusterCreate.go
+func (m *K3dClusterManager) clusterCreate(ctx context.Context, cfg v1alpha3.SimpleConfig) error {
+	clusterConfig, err := config.TransformSimpleToClusterConfig(ctx, runtimes.SelectedRuntime, cfg)
+	if err != nil {
+		return err
+	}
+
+	clusterConfig, err = config.ProcessClusterConfig(*clusterConfig)
+	if err != nil {
+		return err
+	}
+
+	if err := config.ValidateClusterConfig(ctx, runtimes.SelectedRuntime, *clusterConfig); err != nil {
+		return err
+	}
+
+	if _, err := k3dclient.ClusterGet(ctx, runtimes.SelectedRuntime, &clusterConfig.Cluster); err != nil {
+		return err
+	}
+
+	if clusterConfig.KubeconfigOpts.UpdateDefaultKubeconfig {
+		clusterConfig.ClusterCreateOpts.WaitForServer = true
+	}
+
+	if err := k3dclient.ClusterRun(ctx, m.runtime, clusterConfig); err != nil {
+		return err
+	}
+
+	if !clusterConfig.KubeconfigOpts.UpdateDefaultKubeconfig && clusterConfig.KubeconfigOpts.SwitchCurrentContext {
+		clusterConfig.KubeconfigOpts.SwitchCurrentContext = false
+	}
+
+	if clusterConfig.KubeconfigOpts.UpdateDefaultKubeconfig {
+		if _, err := k3dclient.KubeconfigGetWrite(ctx, runtimes.SelectedRuntime, &clusterConfig.Cluster, "",
+			&k3dclient.WriteKubeConfigOptions{
+				UpdateExisting:       true,
+				OverwriteExisting:    false,
+				UpdateCurrentContext: cfg.Options.KubeconfigOptions.SwitchCurrentContext,
+			}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
