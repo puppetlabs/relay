@@ -170,6 +170,39 @@ spec:
                       x-kubernetes-list-map-keys:
                       - type
                       x-kubernetes-list-type: map
+                    decorators:
+                      items:
+                        description: Decorator describes a result for a concluded
+                          step. These can be added to steps to represent hints to
+                          UI's (web, cli, etc.) about data generated as a result of
+                          a step's run.
+                        properties:
+                          link:
+                            description: Link is a link-type decorator.
+                            properties:
+                              description:
+                                description: Description describes what the URI points
+                                  to.
+                                type: string
+                              uri:
+                                description: URI must follow the syntax outlined in
+                                  https://datatracker.ietf.org/doc/html/rfc3986 and
+                                  must be parsable by Go's url.Parse function.
+                                type: string
+                            required:
+                            - description
+                            - uri
+                            type: object
+                          name:
+                            description: Name is a way to identify the decorator
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
                     initTime:
                       description: InitializationTime is the time taken to initialize
                         the step.
