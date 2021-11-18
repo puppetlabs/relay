@@ -305,6 +305,44 @@ spec:
                     - url
                     type: object
                 type: object
+              workflowExecutionSink:
+                description: WorkflowExecutionSink represents the destrination for
+                  workflow run requests. If not specified, the metadata-api workflow
+                  run endpoint will reject a request to run a workflow.
+                properties:
+                  api:
+                    description: API is a workflow run sink for the propretiary Relay
+                      API.
+                    properties:
+                      token:
+                        description: Token is the API token to use.
+                        type: string
+                      tokenFrom:
+                        description: TokenFrom allows the API token to be provided
+                          by another resource.
+                        properties:
+                          secretKeyRef:
+                            description: SecretKeyRef selects an API token by looking
+                              up the value in a secret.
+                            properties:
+                              key:
+                                description: Key is the key from the secret to use.
+                                type: string
+                              name:
+                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                  TODO: Add other useful fields. apiVersion, kind,
+                                  uid?'
+                                type: string
+                            required:
+                            - key
+                            type: object
+                        type: object
+                      url:
+                        type: string
+                    required:
+                    - url
+                    type: object
+                type: object
             type: object
           status:
             properties:
