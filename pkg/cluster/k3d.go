@@ -245,10 +245,6 @@ func (m *K3dClusterManager) clusterCreate(ctx context.Context, cfg v1alpha3.Simp
 		return err
 	}
 
-	if _, err := k3dclient.ClusterGet(ctx, runtimes.SelectedRuntime, &clusterConfig.Cluster); err != nil {
-		return err
-	}
-
 	if clusterConfig.KubeconfigOpts.UpdateDefaultKubeconfig {
 		clusterConfig.ClusterCreateOpts.WaitForServer = true
 	}
