@@ -75,17 +75,15 @@ func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 	cm := cluster.NewManager(ClusterConfig)
 
 	if exists, _ := cm.Exists(ctx); !exists {
-		Dialog.Info("Creating a new dev cluster")
+		Dialog.Info("Creating a new cluster")
 		if err := cm.Create(ctx, opts); err != nil {
 			return err
 		}
 
-		cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+		dm, err := dev.NewManager(ctx, cm, DevConfig)
 		if err != nil {
 			return err
 		}
-
-		dm := dev.NewManager(cm, cl, DevConfig)
 
 		Dialog.Info("Writing kubeconfig")
 		if err := dm.WriteKubeconfig(ctx); err != nil {
@@ -101,7 +99,7 @@ func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 			return err
 		}
 
-		Dialog.Info("Relay dev cluster is ready to use")
+		Dialog.Info("Cluster is ready to use")
 	} else {
 		Dialog.Info("Cluster already exists")
 	}
@@ -137,15 +135,10 @@ func startCluster(ctx context.Context) error {
 		return err
 	}
 
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm, err := dev.NewManager(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
-
-	// dev manager depends on a kubernetes client, which we can't get if a
-	// cluster doesn't exist, so we can't create one at the top of this
-	// function.
-	dm := dev.NewManager(cm, cl, DevConfig)
 
 	if err := dm.StartRelayCore(ctx); err != nil {
 		return err
@@ -199,12 +192,10 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 
 	Dialog.Progress("Deleting cluster; this may take several minutes...")
 
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm, err := dev.NewManager(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
-
-	dm := dev.NewManager(cm, cl, DevConfig)
 
 	return dm.Delete(ctx)
 }

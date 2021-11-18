@@ -25,12 +25,16 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/storage/names"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	cachingv1alpha1 "knative.dev/caching/pkg/apis/caching/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
 var (
@@ -58,13 +62,22 @@ const (
 	VaultEngineMountWorkflows = "workflows"
 )
 
+type Client struct {
+	APIClient client.Client
+	Mapper    meta.RESTMapper
+}
+
+type ClientOptions struct {
+	Scheme *runtime.Scheme
+}
+
 type Config struct {
 	WorkDir *workdir.WorkDir
 }
 
 type Manager struct {
 	cm  cluster.Manager
-	cl  *cluster.Client
+	cl  *Client
 	cfg Config
 }
 
@@ -460,10 +473,47 @@ func (m *Manager) waitForCertificates(ctx context.Context, namespace string) err
 	return nil
 }
 
-func NewManager(cm cluster.Manager, cl *cluster.Client, cfg Config) *Manager {
+func NewManager(ctx context.Context, cm cluster.Manager, cfg Config) (*Manager, error) {
+	apiConfig, err := cm.GetKubeconfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cl, err := NewClient(ctx, ClientOptions{Scheme: DefaultScheme}, apiConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Manager{
 		cm:  cm,
 		cl:  cl,
 		cfg: cfg,
+	}, nil
+}
+
+func NewClient(ctx context.Context, opts ClientOptions, apiConfig *clientcmdapi.Config) (*Client, error) {
+	overrides := &clientcmd.ConfigOverrides{}
+	clientConfig := clientcmd.NewDefaultClientConfig(*apiConfig, overrides)
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
 	}
+
+	c, err := client.New(restConfig, client.Options{
+		Scheme: opts.Scheme,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	mapper, err := apiutil.NewDynamicRESTMapper(restConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		APIClient: c,
+		Mapper:    mapper,
+	}, nil
 }

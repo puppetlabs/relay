@@ -3,7 +3,6 @@ package dev
 import (
 	"context"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -39,7 +38,7 @@ func newNamespaceObjects() *namespaceObjects {
 }
 
 type namespaceManager struct {
-	cl      *cluster.Client
+	cl      *Client
 	objects *namespaceObjects
 }
 
@@ -113,7 +112,7 @@ func (m *namespaceManager) delete(ctx context.Context, ns string) error {
 	return m.cl.APIClient.Delete(ctx, namespace, client.PropagationPolicy(metav1.DeletePropagationBackground))
 }
 
-func newNamespaceManager(cl *cluster.Client) *namespaceManager {
+func newNamespaceManager(cl *Client) *namespaceManager {
 	return &namespaceManager{
 		cl:      cl,
 		objects: newNamespaceObjects(),

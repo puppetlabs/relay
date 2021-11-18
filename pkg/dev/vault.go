@@ -75,7 +75,7 @@ type vaultKeys struct {
 }
 
 type vaultManager struct {
-	cl      *cluster.Client
+	cl      *Client
 	objects *vaultManagerObjects
 
 	cfg Config
@@ -594,7 +594,7 @@ func (m *vaultManager) cleanupJobs(ctx context.Context, jobs []*batchv1.Job) err
 	return nil
 }
 
-func newVaultManager(cl *cluster.Client, cfg Config) *vaultManager {
+func newVaultManager(cl *Client, cfg Config) *vaultManager {
 	return &vaultManager{
 		cl:      cl,
 		objects: newVaultManagerObjects(),

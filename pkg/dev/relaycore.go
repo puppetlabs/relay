@@ -9,7 +9,6 @@ import (
 	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
-	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -64,7 +63,7 @@ func newRelayCoreObjects() *relayCoreObjects {
 }
 
 type relayCoreManager struct {
-	cl             *cluster.Client
+	cl             *Client
 	objects        *relayCoreObjects
 	logServiceOpts LogServiceOptions
 }
@@ -260,7 +259,7 @@ func (m *relayCoreManager) wait(ctx context.Context) error {
 	return nil
 }
 
-func newRelayCoreManager(cl *cluster.Client, logServiceOpts LogServiceOptions) *relayCoreManager {
+func newRelayCoreManager(cl *Client, logServiceOpts LogServiceOptions) *relayCoreManager {
 	return &relayCoreManager{
 		cl:             cl,
 		objects:        newRelayCoreObjects(),
