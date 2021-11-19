@@ -4,13 +4,12 @@ import (
 	"context"
 
 	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
-	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/dev/manifests"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type ManifestManager struct {
-	cl *cluster.Client
+	cl *Client
 }
 
 func (m *ManifestManager) ProcessManifests(ctx context.Context, path string, patchers ...manifest.PatcherFunc) error {
@@ -34,7 +33,7 @@ func (m *ManifestManager) ProcessManifests(ctx context.Context, path string, pat
 	return nil
 }
 
-func NewManifestManager(cl *cluster.Client) *ManifestManager {
+func NewManifestManager(cl *Client) *ManifestManager {
 	return &ManifestManager{
 		cl: cl,
 	}

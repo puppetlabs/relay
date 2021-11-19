@@ -60,7 +60,6 @@ type Manager interface {
 	Delete(ctx context.Context) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
 	WriteKubeconfig(ctx context.Context, path string) error
-	GetClient(ctx context.Context, opts ClientOptions) (*Client, error)
 }
 
 // NewManager returns a new selected Manager. Since k3d is

@@ -3,7 +3,6 @@ package dev
 import (
 	"context"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -37,7 +36,7 @@ func newRelayInstallerObjects() *relayInstallerObjects {
 }
 
 type relayInstallerManager struct {
-	cl      *cluster.Client
+	cl      *Client
 	objects *relayInstallerObjects
 }
 
@@ -197,7 +196,7 @@ func (m *relayInstallerManager) labels() map[string]string {
 	}
 }
 
-func newRelayInstallerManager(cl *cluster.Client) *relayInstallerManager {
+func newRelayInstallerManager(cl *Client) *relayInstallerManager {
 	return &relayInstallerManager{
 		cl:      cl,
 		objects: newRelayInstallerObjects(),

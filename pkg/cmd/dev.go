@@ -76,17 +76,10 @@ func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
 func initDevelopmentEnvironment(ctx context.Context, opts cluster.InitializeOptions) error {
 	cm := cluster.NewManager(ClusterConfig)
 
-	if exists, _ := cm.Exists(ctx); !exists {
-		Dialog.Info("Cluster does not exist")
-		return nil
-	}
-
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm, err := dev.NewManager(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
-
-	dm := dev.NewManager(cm, cl, DevConfig)
 
 	logServiceOpts := dev.LogServiceOptions{}
 	if Config.LogServiceConfig != nil {
@@ -160,12 +153,10 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	cm := cluster.NewManager(ClusterConfig)
 
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm, err := dev.NewManager(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
-
-	dm := dev.NewManager(cm, cl, DevConfig)
 
 	Dialog.Infof("Processing workflow file %s", fp)
 
@@ -221,12 +212,10 @@ func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 
 	cm := cluster.NewManager(ClusterConfig)
 
-	cl, err := cm.GetClient(ctx, cluster.ClientOptions{Scheme: dev.DefaultScheme})
+	dm, err := dev.NewManager(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
-
-	dm := dev.NewManager(cm, cl, DevConfig)
 
 	sc, err := getSecretValues(cmd, args)
 	if err != nil {

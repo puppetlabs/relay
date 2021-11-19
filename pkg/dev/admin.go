@@ -4,7 +4,6 @@ import (
 	"context"
 	"path"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,7 +42,7 @@ func newAdminObjects() *adminObjects {
 }
 
 type adminManager struct {
-	cl      *cluster.Client
+	cl      *Client
 	objects *adminObjects
 	vm      *vaultManager
 }
@@ -124,7 +123,7 @@ func (m *adminManager) addConnectionForWorkflow(ctx context.Context, name string
 	return m.vm.writeSecrets(ctx, connectionSecrets)
 }
 
-func newAdminManager(cl *cluster.Client, vm *vaultManager) *adminManager {
+func newAdminManager(cl *Client, vm *vaultManager) *adminManager {
 	return &adminManager{
 		cl:      cl,
 		objects: newAdminObjects(),

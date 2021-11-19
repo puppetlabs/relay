@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/puppetlabs/relay/pkg/cluster"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -45,7 +44,7 @@ func newRegistryObjects() *registryObjects {
 }
 
 type registryManager struct {
-	cl         *cluster.Client
+	cl         *Client
 	objects    *registryObjects
 	serverPort int32
 	cachePort  int32
@@ -203,7 +202,7 @@ func (m *registryManager) labels() map[string]string {
 	}
 }
 
-func newRegistryManager(cl *cluster.Client) *registryManager {
+func newRegistryManager(cl *Client) *registryManager {
 	return &registryManager{
 		cl:         cl,
 		objects:    newRegistryObjects(),
