@@ -1,3 +1,10 @@
+# [5.0.0](https://github.com/puppetlabs/relay/compare/v4.8.0...v5.0.0)
+
+### Changed
+- Updated to use the new Workflow and Run CRDs
+- Update to the latest k3d version for the development environment
+- Upgrade to vault v1.8.2
+
 # [4.8.0](https://github.com/puppetlabs/relay/compare/v4.7.0...v4.8.0)
 
 ### Changed
@@ -10,7 +17,7 @@
 # [4.7.0](https://github.com/puppetlabs/relay/compare/v4.6.0...v4.7.0)
 
 ### Changed
-- The arelay development cluster vault instance vault-plugin-secrets-oauthapp
+- The Relay development cluster vault instance vault-plugin-secrets-oauthapp
   plugin updated to v3.0.0-beta.3
 
 # [4.6.0](https://github.com/puppetlabs/relay/compare/v4.5.0...v4.6.0)
