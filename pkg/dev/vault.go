@@ -5,73 +5,53 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hclwrite"
+	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/hashicorp/vault/sdk/helper/consts"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
-	"github.com/puppetlabs/relay/pkg/cluster"
-	appsv1 "k8s.io/api/apps/v1"
+	"github.com/puppetlabs/relay/pkg/kubernetes"
+	"github.com/puppetlabs/relay/pkg/vault"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	vaultImage                 = "vault:1.8.2"
-	vaultAddr                  = "http://vault:8200"
-	vaultInitResultStorageName = "vault-init-result-storage"
-	vaultInitResultDataFile    = "init-data.json"
-	vaultInitResultMountPath   = "/vault-init"
-	vaultInitVolumeSize        = "1Mi"
+	vaultIdentifier = "vault"
+	vaultImage      = "vault:1.8.2"
+	vaultAddr       = "http://vault:8200"
+
+	vaultInitImage = "relaysh/relay-vault-init"
 )
 
 var vaultWriteValuesJobTTL = int32(120)
 
 type vaultManagerObjects struct {
-	initPVC           corev1.PersistentVolumeClaim
-	initJob           batchv1.Job
-	configureJob      batchv1.Job
-	unsealJob         batchv1.Job
-	credentialsSecret corev1.Secret
-	serviceAccount    corev1.ServiceAccount
+	credentialsSecret  corev1.Secret
+	serviceAccount     corev1.ServiceAccount
+	clusterRoleBinding rbacv1.ClusterRoleBinding
 }
 
 func newVaultManagerObjects() *vaultManagerObjects {
 	objectMeta := metav1.ObjectMeta{
-		Name:      "vault",
+		Name:      vaultIdentifier,
 		Namespace: systemNamespace,
 	}
 
 	return &vaultManagerObjects{
-		initPVC: corev1.PersistentVolumeClaim{ObjectMeta: objectMeta},
-		initJob: batchv1.Job{ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-init", objectMeta.Name),
-			Namespace: objectMeta.Namespace,
-		}},
-		configureJob: batchv1.Job{ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-configure-init", objectMeta.Name),
-			Namespace: objectMeta.Namespace,
-		}},
-		unsealJob: batchv1.Job{ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-unseal-init", objectMeta.Name),
-			Namespace: objectMeta.Namespace,
-		}},
-		credentialsSecret: corev1.Secret{ObjectMeta: objectMeta},
-		serviceAccount:    corev1.ServiceAccount{ObjectMeta: objectMeta},
+		credentialsSecret:  corev1.Secret{ObjectMeta: objectMeta},
+		serviceAccount:     corev1.ServiceAccount{ObjectMeta: objectMeta},
+		clusterRoleBinding: rbacv1.ClusterRoleBinding{ObjectMeta: objectMeta},
 	}
-}
-
-type vaultKeys struct {
-	UnsealKeys []string `json:"unseal_keys_b64"`
-	RootToken  string   `json:"root_token"`
 }
 
 type vaultManager struct {
@@ -83,14 +63,6 @@ type vaultManager struct {
 
 func (m *vaultManager) reconcile(ctx context.Context) error {
 	if err := m.reconcileInit(ctx); err != nil {
-		return err
-	}
-
-	if err := m.reconcileUnseal(ctx); err != nil {
-		return err
-	}
-
-	if err := m.reconcileConfiguration(ctx); err != nil {
 		return err
 	}
 
@@ -106,125 +78,78 @@ func (m *vaultManager) reconcileInit(ctx context.Context) error {
 		return err
 	}
 
-	err := m.getJob(ctx, &m.objects.initJob)
+	m.rbacDefinition(&m.objects.clusterRoleBinding)
+	if err := cl.Create(ctx, &m.objects.clusterRoleBinding); err != nil && !k8serrors.IsAlreadyExists(err) {
+		return err
+	}
+
+	initJob := &batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-init", vaultIdentifier),
+			Namespace: systemNamespace,
+		},
+	}
+	err := m.getJob(ctx, initJob)
 	if err != nil && k8serrors.IsNotFound(err) {
-		m.initPVC(&m.objects.initPVC)
-		if err := cl.Create(ctx, &m.objects.initPVC); err != nil {
-			return err
-		}
+		initJob := m.initJob()
 
-		m.initJob(&m.objects.initJob)
-		if err := cl.Create(ctx, &m.objects.initJob); err != nil {
-			return err
-		}
-
-		if err := m.waitForJobCompletion(ctx, &m.objects.initJob); err != nil {
-			return err
-		}
-
-		credentials, err := m.decodeCredentialsFromInitResult(ctx)
-		if err != nil {
-			return err
-		}
-
-		m.credentialsSecret(*credentials, &m.objects.credentialsSecret)
-
-		if err := cl.Create(ctx, &m.objects.credentialsSecret); err != nil {
+		if err := cl.Create(ctx, initJob); err != nil {
 			return err
 		}
 	} else if err != nil {
 		return err
 	}
 
-	return nil
-}
+	if err := m.waitForJobCompletion(ctx, initJob); err != nil {
+		return err
+	}
 
-func (m *vaultManager) reconcileConfiguration(ctx context.Context) error {
-	err := m.getJob(ctx, &m.objects.configureJob)
-	if err != nil && k8serrors.IsNotFound(err) {
-		m.configureJob(&m.objects.configureJob)
-		if err := m.cl.APIClient.Create(ctx, &m.objects.configureJob); err != nil {
-			return err
-		}
-
-		if err := m.waitForJobCompletion(ctx, &m.objects.configureJob); err != nil {
-			return err
-		}
+	if err := m.cleanupJobs(ctx, []*batchv1.Job{initJob}); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (m *vaultManager) reconcileUnseal(ctx context.Context) error {
-	err := m.getJob(ctx, &m.objects.unsealJob)
-	if err != nil && k8serrors.IsNotFound(err) {
-		ss := appsv1.StatefulSet{}
-		ssKey := client.ObjectKey{Name: "vault", Namespace: systemNamespace}
-
-		if err := m.cl.APIClient.Get(ctx, ssKey, &ss); err != nil {
-			return err
+func (m *vaultManager) rbacDefinition(crb *rbacv1.ClusterRoleBinding) {
+	crb.RoleRef =
+		rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     "cluster-admin",
 		}
-
-		if ss.Status.ReadyReplicas != *ss.Spec.Replicas {
-			m.unsealJob(&m.objects.unsealJob)
-			if err := m.cl.APIClient.Create(ctx, &m.objects.unsealJob); err != nil {
-				return err
-			}
-
-			if err := m.waitForJobCompletion(ctx, &m.objects.unsealJob); err != nil {
-				return err
-			}
-
-			if err := m.cleanupJobs(ctx, []*batchv1.Job{&m.objects.unsealJob}); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (m *vaultManager) initPVC(pvc *corev1.PersistentVolumeClaim) {
-	pvc.Spec = corev1.PersistentVolumeClaimSpec{
-		AccessModes: []corev1.PersistentVolumeAccessMode{
-			corev1.ReadWriteOnce,
+	crb.Subjects = []rbacv1.Subject{
+		{
+			Kind:      "ServiceAccount",
+			Name:      "default",
+			Namespace: systemNamespace,
 		},
-		Resources: corev1.ResourceRequirements{
-			Requests: corev1.ResourceList{
-				corev1.ResourceStorage: resource.MustParse(vaultInitVolumeSize),
+	}
+}
+
+func (m *vaultManager) initJob() *batchv1.Job {
+	return &batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-init", vaultIdentifier),
+			Namespace: systemNamespace,
+		},
+		Spec: batchv1.JobSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "vault-action",
+							Image: vaultInitImage,
+							Env: []corev1.EnvVar{
+								{Name: "VAULT_ADDR", Value: vaultAddr},
+							},
+						},
+					},
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
 			},
 		},
 	}
-}
-
-func (m *vaultManager) initJob(job *batchv1.Job) {
-	m.baseJob(job)
-
-	container := corev1.Container{}
-	m.baseJobContainer(&container)
-
-	initResultDataPath := filepath.Join(vaultInitResultMountPath, vaultInitResultDataFile)
-	cmd := fmt.Sprintf("vault operator init -format=json -key-shares=1 -key-threshold=1 > %s", initResultDataPath)
-	cmds := []string{"/bin/sh", "-c", cmd}
-
-	container.Command = cmds
-
-	initVolume := corev1.Volume{
-		Name: vaultInitResultStorageName,
-		VolumeSource: corev1.VolumeSource{
-			PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-				ClaimName: m.objects.initPVC.Name,
-			},
-		},
-	}
-
-	job.Spec.Template.Spec.Volumes = []corev1.Volume{initVolume}
-
-	container.VolumeMounts = []corev1.VolumeMount{
-		{Name: initVolume.Name, MountPath: vaultInitResultMountPath},
-	}
-
-	job.Spec.Template.Spec.Containers = []corev1.Container{container}
 }
 
 func (m *vaultManager) baseJob(job *batchv1.Job) {
@@ -243,12 +168,6 @@ func (m *vaultManager) baseJobContainer(container *corev1.Container) {
 	container.Env = []corev1.EnvVar{
 		{Name: "VAULT_ADDR", Value: vaultAddr},
 	}
-}
-
-func (m *vaultManager) credentialsSecret(keys vaultKeys, sec *corev1.Secret) {
-	sec.StringData = make(map[string]string)
-	sec.StringData["root-token"] = keys.RootToken
-	sec.StringData["unseal-key"] = keys.UnsealKeys[0]
 }
 
 func (m *vaultManager) credentialsEnvs(container *corev1.Container) {
@@ -278,82 +197,6 @@ func (m *vaultManager) credentialsEnvs(container *corev1.Container) {
 	}
 
 	container.Env = append(container.Env, envs...)
-}
-
-func (m *vaultManager) decodeCredentialsFromInitResult(ctx context.Context) (*vaultKeys, error) {
-	var keys vaultKeys
-
-	pvcKey := client.ObjectKeyFromObject(&m.objects.initPVC)
-
-	pvc := corev1.PersistentVolumeClaim{}
-
-	if err := m.cl.APIClient.Get(ctx, pvcKey, &pvc); err != nil {
-		return nil, err
-	}
-
-	pvcDirName := fmt.Sprintf("%s_%s_%s", pvc.Spec.VolumeName, pvc.Namespace, pvc.Name)
-
-	hostStorage := filepath.Join(m.cfg.WorkDir.Path, cluster.HostStorageName)
-	localInitDataPath := filepath.Join(hostStorage, pvcDirName, vaultInitResultDataFile)
-
-	bytes, err := ioutil.ReadFile(localInitDataPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(bytes, &keys); err != nil {
-		return nil, err
-	}
-
-	return &keys, nil
-}
-
-func (m *vaultManager) configureJob(job *batchv1.Job) {
-	m.baseJob(job)
-
-	container := corev1.Container{}
-
-	m.baseJobContainer(&container)
-	m.credentialsEnvs(&container)
-
-	container.Command = []string{"/bin/sh", "-c", vaultConfigureScript}
-
-	secretEnv := corev1.EnvVar{
-		ValueFrom: &corev1.EnvVarSource{
-			SecretKeyRef: &corev1.SecretKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: m.objects.serviceAccount.Secrets[0].Name,
-				},
-			},
-		},
-	}
-
-	certEnv := secretEnv.DeepCopy()
-	certEnv.Name = "VAULT_CA_CERT"
-	certEnv.ValueFrom.SecretKeyRef.Key = "ca.crt"
-
-	jwtTokenEnv := secretEnv.DeepCopy()
-	jwtTokenEnv.Name = "VAULT_JWT_TOKEN"
-	jwtTokenEnv.ValueFrom.SecretKeyRef.Key = "token"
-
-	container.Env = append(container.Env, *certEnv, *jwtTokenEnv)
-
-	job.Spec.Template.Spec.Containers = []corev1.Container{container}
-}
-
-func (m *vaultManager) unsealJob(job *batchv1.Job) {
-	m.baseJob(job)
-
-	container := corev1.Container{}
-
-	m.baseJobContainer(&container)
-	m.credentialsEnvs(&container)
-
-	cmd := "vault operator unseal ${VAULT_UNSEAL_KEY}"
-	container.Command = []string{"/bin/sh", "-c", cmd}
-
-	job.Spec.Template.Spec.Containers = []corev1.Container{container}
-	job.Spec.TTLSecondsAfterFinished = &vaultWriteValuesJobTTL
 }
 
 func (m *vaultManager) relayCoreAccessJob(rc *installerv1alpha1.RelayCore, job *batchv1.Job, configMap *corev1.ConfigMap) error {
@@ -773,18 +616,6 @@ func newVaultPolicyGenerator(rc *installerv1alpha1.RelayCore) *vaultPolicyGenera
 }
 
 var (
-	vaultConfigureScript = `
-vault plugin register \
-	-sha256=2455ad9450e415efb42fd28c1436f4bf7e377524be5e534e55e6658b8ef56bd2 \
-	-command=vault-plugin-secrets-oauthapp-v3.0.0-beta.3-linux-amd64 \
-	secret oauthapp
-vault auth enable -path=kubernetes kubernetes
-vault write auth/kubernetes/config \
-    kubernetes_host="https://kubernetes.default.svc" \
-    kubernetes_ca_cert="${VAULT_CA_CERT}" \
-    token_reviewer_jwt="${VAULT_JWT_TOKEN}"
-`
-
 	vaultAccessScript = `
 apk add --no-cache jq gettext
 vault auth enable -path=jwt-tenants jwt
@@ -817,3 +648,40 @@ vault write auth/kubernetes/role/${LOG_SERVICE_POLICY} \
 vault write ${JWT_AUTH_PATH}/role/${JWT_AUTH_ROLE} - < /vault-policy-config/metadata-api-tenant-config.json
 `
 )
+
+type vaultInitializer struct {
+	client *vault.VaultSystemClient
+}
+
+func (vi *vaultInitializer) Initialize(ctx context.Context) error {
+	plugins := []*vaultapi.RegisterPluginInput{
+		{
+			Name:    "oauthapp",
+			Type:    consts.PluginTypeSecrets,
+			SHA256:  "2455ad9450e415efb42fd28c1436f4bf7e377524be5e534e55e6658b8ef56bd2",
+			Command: "vault-plugin-secrets-oauthapp-v3.0.0-beta.3-linux-amd64",
+		},
+	}
+
+	key := types.NamespacedName{
+		Name:      vaultIdentifier,
+		Namespace: systemNamespace,
+	}
+
+	if err := vi.client.InitializeVault(ctx, key, plugins); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewVaultInitializer(vaultClient *vaultapi.Client) (*vaultInitializer, error) {
+	kubeClient, err := kubernetes.NewKubeClient(DefaultScheme)
+	if err != nil {
+		return nil, err
+	}
+
+	return &vaultInitializer{
+		client: vault.NewVaultClient(vaultClient, kubeClient),
+	}, nil
+}

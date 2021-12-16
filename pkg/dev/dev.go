@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"io"
 	"path"
-	"path/filepath"
 	"time"
 
 	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
-	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/leg/workdir"
@@ -81,9 +79,7 @@ type Manager struct {
 	cfg Config
 }
 
-type InitializeOptions struct {
-	ImageRegistryPort int
-}
+type InitializeOptions struct{}
 
 // FIXME Consider a better mechanism for specific service options
 type LogServiceOptions struct {
@@ -94,10 +90,7 @@ type LogServiceOptions struct {
 	Table                 string
 }
 
-func (m *Manager) WriteKubeconfig(ctx context.Context) error {
-	return m.cm.WriteKubeconfig(ctx, filepath.Join(m.cfg.WorkDir.Path, "kubeconfig"))
-}
-
+// FIXME Refactor the manager/cluster deletion logic
 func (m *Manager) Delete(ctx context.Context) error {
 	// TODO fix hack: deletes the PVCs because dirs inside are often created as root
 	// and we don't want relay running like that on the host to rm the data dir.
@@ -122,8 +115,10 @@ func (m *Manager) Delete(ctx context.Context) error {
 		return err
 	}
 
-	if err := m.cm.Delete(ctx); err != nil {
-		return err
+	if m.cm != nil {
+		if err := m.cm.Delete(ctx); err != nil {
+			return err
+		}
 	}
 
 	if err := m.cfg.WorkDir.Cleanup(); err != nil {
@@ -291,17 +286,12 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	nm := newNamespaceManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
-	rm := newRegistryManager(m.cl)
 
 	if err := nm.reconcile(ctx); err != nil {
 		return err
 	}
 
 	if err := am.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -315,8 +305,7 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	// TODO: dynamically generate the list as we process the manifests
 
 	if err := mm.ProcessManifests(ctx, "/01-init",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace),
-		registryLoadBalancerPortPatcher(opts.ImageRegistryPort)); err != nil {
+		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace)); err != nil {
 		return err
 	}
 
@@ -398,13 +387,8 @@ func (m *Manager) StartRelayCore(ctx context.Context) error {
 	<-time.After(time.Second * 5)
 
 	vm := newVaultManager(m.cl, m.cfg)
-	rm := newRegistryManager(m.cl)
 
 	if err := vm.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := rm.reconcile(ctx); err != nil {
 		return err
 	}
 
@@ -443,37 +427,30 @@ func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
 	return nil
 }
 
-func (m *Manager) waitForCertificates(ctx context.Context, namespace string) error {
-	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		certs := &certmanagerv1beta1.CertificateList{}
-		if err := m.cl.APIClient.List(ctx, certs, client.InNamespace(namespace)); err != nil {
-			return retry.Repeat(err)
-		}
+func NewManagerFromExternalCluster(ctx context.Context) (*Manager, error) {
+	kcfg := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		clientcmd.NewDefaultClientConfigLoadingRules(),
+		&clientcmd.ConfigOverrides{},
+	)
 
-		if len(certs.Items) == 0 {
-			return retry.Repeat(fmt.Errorf("waiting for certificates"))
-		}
-
-		for _, cert := range certs.Items {
-			for _, cond := range cert.Status.Conditions {
-				if cond.Type == certmanagerv1beta1.CertificateConditionReady {
-					if cond.Status != certmanagermetav1.ConditionTrue {
-						return retry.Repeat(fmt.Errorf("waiting for certificates to be ready"))
-					}
-				}
-			}
-		}
-
-		return retry.Done(nil)
-	})
+	apiConfig, err := kcfg.RawConfig()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	cl, err := NewClient(ctx, ClientOptions{Scheme: DefaultScheme}, &apiConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Manager{
+		cm:  nil,
+		cl:  cl,
+		cfg: Config{},
+	}, nil
 }
 
-func NewManager(ctx context.Context, cm cluster.Manager, cfg Config) (*Manager, error) {
+func NewManagerFromLocalCluster(ctx context.Context, cm cluster.Manager, cfg Config) (*Manager, error) {
 	apiConfig, err := cm.GetKubeconfig(ctx)
 	if err != nil {
 		return nil, err
