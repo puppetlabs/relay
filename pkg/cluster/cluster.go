@@ -34,16 +34,6 @@ type CreateOptions struct {
 	// LoadBalancerHostPort is the port on the host to bind to when mapping
 	// between the host machine and the service load balancer node.
 	LoadBalancerHostPort int
-	// ImageRegistryName is the base name used to reference local images.
-	ImageRegistryName string
-	// ImageRegistryPort is the port to use on both the host AND the nodes for
-	// the container image registry service. This isn't required, to be the
-	// same, but to avoid confusion when tagging images on the host and
-	// actually using them inside the cluster, we use the same port for both.
-	// This allows someone to tag and push an image with
-	// `localhost:5000/my-image:latest` and use the same repo/image/tag
-	// combination from k8s resources.
-	ImageRegistryPort int
 	// Number of worker nodes on the cluster
 	WorkerCount int
 }
@@ -59,7 +49,7 @@ type Manager interface {
 	Stop(ctx context.Context) error
 	Delete(ctx context.Context) error
 	GetKubeconfig(ctx context.Context) (*clientcmdapi.Config, error)
-	WriteKubeconfig(ctx context.Context, path string) error
+	WriteKubeconfig(ctx context.Context) error
 }
 
 // NewManager returns a new selected Manager. Since k3d is

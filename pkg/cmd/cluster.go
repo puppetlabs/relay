@@ -31,8 +31,6 @@ func newCreateClusterCommand() *cobra.Command {
 	}
 
 	cmd.Flags().IntP("load-balancer-port", "", cluster.DefaultLoadBalancerHostPort, "The port to map from the host to the service load balancer")
-	cmd.Flags().StringP("image-registry-name", "", cluster.DefaultRegistryName, "The name to use on the host and on the cluster nodes for the container image registry")
-	cmd.Flags().IntP("image-registry-port", "", cluster.DefaultRegistryPort, "The port to use on the host and on the cluster nodes for the container image registry")
 	cmd.Flags().IntP("worker-count", "", cluster.DefaultWorkerCount, "The number of worker nodes to create on the cluster")
 
 	return cmd
@@ -46,16 +44,6 @@ func doCreateCluster(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	registryName, err := cmd.Flags().GetString("image-registry-name")
-	if err != nil {
-		return err
-	}
-
-	registryPort, err := cmd.Flags().GetInt("image-registry-port")
-	if err != nil {
-		return err
-	}
-
 	workerCount, err := cmd.Flags().GetInt("worker-count")
 	if err != nil {
 		return err
@@ -63,8 +51,6 @@ func doCreateCluster(cmd *cobra.Command, args []string) error {
 
 	opts := cluster.CreateOptions{
 		LoadBalancerHostPort: lbHostPort,
-		ImageRegistryName:    registryName,
-		ImageRegistryPort:    registryPort,
 		WorkerCount:          workerCount,
 	}
 
@@ -80,22 +66,8 @@ func createCluster(ctx context.Context, opts cluster.CreateOptions) error {
 			return err
 		}
 
-		dm, err := dev.NewManager(ctx, cm, DevConfig)
-		if err != nil {
-			return err
-		}
-
 		Dialog.Info("Writing kubeconfig")
-		if err := dm.WriteKubeconfig(ctx); err != nil {
-			return err
-		}
-
-		initOpts := dev.InitializeOptions{
-			ImageRegistryPort: opts.ImageRegistryPort,
-		}
-
-		Dialog.Progress("Initializing cluster; this may take several minutes...")
-		if err := dm.Initialize(ctx, initOpts); err != nil {
+		if err := cm.WriteKubeconfig(ctx); err != nil {
 			return err
 		}
 
@@ -135,7 +107,7 @@ func startCluster(ctx context.Context) error {
 		return err
 	}
 
-	dm, err := dev.NewManager(ctx, cm, DevConfig)
+	dm, err := dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}
@@ -192,7 +164,7 @@ func doDeleteCluster(cmd *cobra.Command, args []string) error {
 
 	Dialog.Progress("Deleting cluster; this may take several minutes...")
 
-	dm, err := dev.NewManager(ctx, cm, DevConfig)
+	dm, err := dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
 	if err != nil {
 		return err
 	}

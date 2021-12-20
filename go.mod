@@ -7,7 +7,10 @@ require (
 	github.com/eiannone/keyboard v0.0.0-20200508000154-caf4b762e807
 	github.com/fatih/color v1.13.0
 	github.com/go-swagger/go-swagger v0.23.0
+	github.com/google/wire v0.5.0
 	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
+	github.com/hashicorp/vault/api v1.2.0
+	github.com/hashicorp/vault/sdk v0.2.2-0.20210825150427-9b1f4d486f5d
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v0.16.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -28,7 +31,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	k8s.io/api v0.22.2
 	k8s.io/apiextensions-apiserver v0.22.2
 	k8s.io/apimachinery v0.22.2

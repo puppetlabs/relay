@@ -12,7 +12,6 @@ import (
 const (
 	systemNamespace          = "relay-system"
 	tenantNamespace          = "relay-tenants"
-	registryNamespace        = "docker-registry"
 	ambassadorNamespace      = "ambassador-webhook"
 	certManagerNamespace     = "cert-manager"
 	knativeServingNamespace  = "knative-serving"
@@ -22,7 +21,6 @@ const (
 type namespaceObjects struct {
 	systemNamespace         corev1.Namespace
 	tenantNamespace         corev1.Namespace
-	registryNamespace       corev1.Namespace
 	ambassadorNamespace     corev1.Namespace
 	knativeServingNamespace corev1.Namespace
 }
@@ -31,7 +29,6 @@ func newNamespaceObjects() *namespaceObjects {
 	return &namespaceObjects{
 		systemNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
 		tenantNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tenantNamespace}},
-		registryNamespace:       corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: registryNamespace}},
 		ambassadorNamespace:     corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: ambassadorNamespace}},
 		knativeServingNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: knativeServingNamespace}},
 	}
@@ -54,12 +51,6 @@ func (m *namespaceManager) reconcile(ctx context.Context) error {
 	}
 
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.tenantNamespace, func() error {
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.registryNamespace, func() error {
 		return nil
 	}); err != nil {
 		return err

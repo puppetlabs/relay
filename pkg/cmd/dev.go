@@ -68,16 +68,19 @@ func newInitializeCommand() *cobra.Command {
 func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
-	opts := cluster.InitializeOptions{}
+	opts := dev.InitializeOptions{}
 
 	return initDevelopmentEnvironment(ctx, opts)
 }
 
-func initDevelopmentEnvironment(ctx context.Context, opts cluster.InitializeOptions) error {
-	cm := cluster.NewManager(ClusterConfig)
-
-	dm, err := dev.NewManager(ctx, cm, DevConfig)
+func initDevelopmentEnvironment(ctx context.Context, opts dev.InitializeOptions) error {
+	dm, err := NewManager(ctx, DevConfig)
 	if err != nil {
+		return err
+	}
+
+	Dialog.Progress("Initializing cluster; this may take several minutes...")
+	if err := dm.Initialize(ctx, opts); err != nil {
 		return err
 	}
 
@@ -151,9 +154,7 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := cmd.Context()
-	cm := cluster.NewManager(ClusterConfig)
-
-	dm, err := dev.NewManager(ctx, cm, DevConfig)
+	dm, err := NewManager(ctx, DevConfig)
 	if err != nil {
 		return err
 	}
@@ -210,9 +211,7 @@ func newDevWorkflowSecretSetCommand() *cobra.Command {
 func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
-	cm := cluster.NewManager(ClusterConfig)
-
-	dm, err := dev.NewManager(ctx, cm, DevConfig)
+	dm, err := NewManager(ctx, DevConfig)
 	if err != nil {
 		return err
 	}
@@ -225,4 +224,17 @@ func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 	Dialog.Infof("Setting secret %s for workflow %s", sc.name, sc.workflowName)
 
 	return dm.SetWorkflowSecret(ctx, sc.workflowName, sc.name, sc.value)
+}
+
+func NewManager(ctx context.Context, devConfig dev.Config) (*dev.Manager, error) {
+	cm := cluster.NewManager(
+		cluster.Config{
+			WorkDir: devConfig.WorkDir,
+		})
+
+	if ok, _ := cm.Exists(ctx); ok {
+		return dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
+	}
+
+	return dev.NewManagerFromExternalCluster(ctx)
 }

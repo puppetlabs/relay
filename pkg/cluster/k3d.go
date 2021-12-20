@@ -17,6 +17,8 @@ import (
 const (
 	k3sVersion          = "v1.21.6-k3s1"
 	k3sLocalStoragePath = "/var/lib/rancher/k3s/storage"
+
+	localKubeconfig = "kubeconfig"
 )
 
 var agentArgs = []string{
@@ -89,7 +91,7 @@ func (m *K3dClusterManager) Create(ctx context.Context, opts CreateOptions) erro
 		},
 		Ports: []v1alpha3.PortWithNodeFilters{
 			{
-				Port: fmt.Sprintf("%d:%d", DefaultLoadBalancerHostPort, DefaultLoadBalancerNodePort),
+				Port: fmt.Sprintf("%d:%d", opts.LoadBalancerHostPort, DefaultLoadBalancerNodePort),
 			},
 		},
 		Volumes: volumes,
@@ -106,7 +108,17 @@ func (m *K3dClusterManager) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to get cluster config: %w", err)
 	}
 
-	opts := types.ClusterStartOpts{WaitForServer: true}
+	envInfo, err := k3dclient.GatherEnvironmentInfo(ctx, m.runtime, clusterConfig)
+	if err != nil {
+		return err
+	}
+
+	opts := types.ClusterStartOpts{
+		Intent:          types.IntentClusterStart,
+		EnvironmentInfo: envInfo,
+		WaitForServer:   true,
+	}
+
 	if err := k3dclient.ClusterStart(ctx, m.runtime, clusterConfig, opts); err != nil {
 		return fmt.Errorf("failed to start cluster: %w", err)
 	}
@@ -148,9 +160,9 @@ func (m *K3dClusterManager) GetKubeconfig(ctx context.Context) (*clientcmdapi.Co
 	return k3dclient.KubeconfigGet(ctx, m.runtime, clusterConfig)
 }
 
-// WriteKubeconfig takes a path and writes the cluster's kubeconfig file to it. Attempting
+// WriteKubeconfig writes the cluster's kubeconfig file. Attempting
 // to write a kubeconfig for a cluster that doesn't exist results in an error.
-func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) error {
+func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context) error {
 	clusterConfig, err := m.get(ctx)
 	if err != nil {
 		return err
@@ -167,6 +179,7 @@ func (m *K3dClusterManager) WriteKubeconfig(ctx context.Context, path string) er
 		return err
 	}
 
+	path := filepath.Join(m.cfg.WorkDir.Path, localKubeconfig)
 	return k3dclient.KubeconfigWriteToPath(ctx, apiConfig, path)
 }
 
@@ -189,7 +202,7 @@ func NewK3dClusterManager(cfg Config) *K3dClusterManager {
 // Functionality based on the official k3d cluster create command
 // https://github.com/rancher/k3d/blob/main/cmd/cluster/clusterCreate.go
 func (m *K3dClusterManager) clusterCreate(ctx context.Context, cfg v1alpha3.SimpleConfig) error {
-	clusterConfig, err := config.TransformSimpleToClusterConfig(ctx, runtimes.SelectedRuntime, cfg)
+	clusterConfig, err := config.TransformSimpleToClusterConfig(ctx, m.runtime, cfg)
 	if err != nil {
 		return err
 	}
@@ -199,7 +212,7 @@ func (m *K3dClusterManager) clusterCreate(ctx context.Context, cfg v1alpha3.Simp
 		return err
 	}
 
-	if err := config.ValidateClusterConfig(ctx, runtimes.SelectedRuntime, *clusterConfig); err != nil {
+	if err := config.ValidateClusterConfig(ctx, m.runtime, *clusterConfig); err != nil {
 		return err
 	}
 
@@ -216,7 +229,7 @@ func (m *K3dClusterManager) clusterCreate(ctx context.Context, cfg v1alpha3.Simp
 	}
 
 	if clusterConfig.KubeconfigOpts.UpdateDefaultKubeconfig {
-		if _, err := k3dclient.KubeconfigGetWrite(ctx, runtimes.SelectedRuntime, &clusterConfig.Cluster, "",
+		if _, err := k3dclient.KubeconfigGetWrite(ctx, m.runtime, &clusterConfig.Cluster, "",
 			&k3dclient.WriteKubeConfigOptions{
 				UpdateExisting:       true,
 				OverwriteExisting:    false,
