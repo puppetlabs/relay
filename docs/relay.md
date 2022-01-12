@@ -50,7 +50,10 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay dev cluster stop`** -- Stop the local cluster
 
-**`relay dev initialize`** -- Initialize the Relay development environment
+**`relay dev initialize [flags]`** -- Initialize the Relay development environment
+```
+      --install-helm-controller   Optional installation of Helm Controller
+```
 
 **`relay dev metadata [flags]`** -- Run a mock metadata service
   
