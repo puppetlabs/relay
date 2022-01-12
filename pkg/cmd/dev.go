@@ -10,6 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	InstallHelmControllerFlag = "install-helm-controller"
+)
+
 var DevConfig = dev.Config{}
 var ClusterConfig = cluster.Config{}
 
@@ -62,13 +66,22 @@ func newInitializeCommand() *cobra.Command {
 		RunE:    doInitDevelopmentEnvironment,
 	}
 
+	cmd.Flags().BoolP(InstallHelmControllerFlag, "", false, "Optional installation of Helm Controller")
+
 	return cmd
 }
 
 func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
-	opts := dev.InitializeOptions{}
+	installHelmController, err := cmd.Flags().GetBool(InstallHelmControllerFlag)
+	if err != nil {
+		return err
+	}
+
+	opts := dev.InitializeOptions{
+		InstallHelmController: installHelmController,
+	}
 
 	return initDevelopmentEnvironment(ctx, opts)
 }

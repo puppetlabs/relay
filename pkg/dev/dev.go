@@ -80,7 +80,9 @@ type Manager struct {
 	cfg Config
 }
 
-type InitializeOptions struct{}
+type InitializeOptions struct {
+	InstallHelmController bool
+}
 
 // FIXME Consider a better mechanism for specific service options
 type LogServiceOptions struct {
@@ -304,6 +306,12 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	// is Ready. This means we will just wait for all services across all created
 	// namespaces to be ready before moving to the next phase of applying manifests.
 	// TODO: dynamically generate the list as we process the manifests
+
+	if opts.InstallHelmController {
+		if err := mm.ProcessManifests(ctx, "/helm-controller"); err != nil {
+			return err
+		}
+	}
 
 	if err := mm.ProcessManifests(ctx, "/01-init",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace)); err != nil {
