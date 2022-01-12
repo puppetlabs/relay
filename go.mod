@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/vault/api v1.2.0
 	github.com/hashicorp/vault/sdk v0.2.2-0.20210825150427-9b1f4d486f5d
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/jetstack/cert-manager v0.16.0
+	github.com/jetstack/cert-manager v1.3.3
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
