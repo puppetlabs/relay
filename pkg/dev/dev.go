@@ -7,7 +7,7 @@ import (
 	"path"
 	"time"
 
-	certmanagerv1beta1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1beta1"
+	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/leg/workdir"
@@ -28,6 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/storage/names"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	cachingv1alpha1 "knative.dev/caching/pkg/apis/caching/v1alpha1"
@@ -44,7 +45,7 @@ var (
 		apiextensionsv1.AddToScheme,
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
-		certmanagerv1beta1.AddToScheme,
+		certmanagerv1.AddToScheme,
 		helmchartv1.AddToScheme,
 		cachingv1alpha1.AddToScheme,
 		installerv1alpha1.AddToScheme,
