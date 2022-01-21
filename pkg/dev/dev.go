@@ -54,6 +54,15 @@ var (
 )
 
 const (
+	RelayInstallerImage                            = "relaysh/relay-install-operator:latest"
+	RelayLogServiceImage                           = "relaysh/relay-pls:latest"
+	RelayMetadataAPIImage                          = "relaysh/relay-metadata-api:latest"
+	RelayOperatorImage                             = "relaysh/relay-operator:latest"
+	RelayOperatorVaultInitImage                    = "relaysh/relay-operator-vault-init:latest"
+	RelayOperatorWebhookCertificateControllerImage = "relaysh/relay-operator-webhook-certificate-controller:latest"
+)
+
+const (
 	defaultWorkflowName      = "relay-workflow"
 	jwtSigningKeysSecretName = "relay-core-v1-operator-signing-keys"
 
@@ -84,9 +93,19 @@ type InitializeOptions struct {
 	InstallHelmController bool
 }
 
+type InstallerOptions struct {
+	InstallerImage                            string
+	LogServiceImage                           string
+	MetadataAPIImage                          string
+	OperatorImage                             string
+	OperatorVaultInitImage                    string
+	OperatorWebhookCertificateControllerImage string
+}
+
 // FIXME Consider a better mechanism for specific service options
 type LogServiceOptions struct {
 	Enabled               bool
+	CredentialsKey        string
 	CredentialsSecretName string
 	Project               string
 	Dataset               string
@@ -324,14 +343,10 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 		}
 	}
 
-	if err := vm.reconcile(ctx); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOptions) error {
+func (m *Manager) InitializeRelayCore(ctx context.Context, installerOpts InstallerOptions, logServiceOpts LogServiceOptions) error {
 	// I introduced some race condition where the cluster hasn't fully setup
 	// the object APIs or something, so when we try to create objects here, it
 	// will blow up saying the API for that object type doesn't exist. If we
@@ -343,9 +358,8 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	// (probably in the API server).
 	<-time.After(time.Second * 5)
 
-	vm := newVaultManager(m.cl, m.cfg)
-	rim := newRelayInstallerManager(m.cl)
-	rcm := newRelayCoreManager(m.cl, lsOpts)
+	rim := newRelayInstallerManager(m.cl, installerOpts)
+	rcm := newRelayCoreManager(m.cl, installerOpts, logServiceOpts)
 
 	// Apply manifests in ordered phases. Note that some managers
 	// have weird dependencies on running services. For instance, you cannot
@@ -378,10 +392,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 		return err
 	}
 
-	if err := vm.addRelayCoreAccess(ctx, &rcm.objects.relayCore); err != nil {
-		return err
-	}
-
 	if err := mm.ProcessManifests(ctx, "/06-ambassador",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, ambassadorNamespace),
 		ambassadorPatcher()); err != nil {
@@ -389,19 +399,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, lsOpts LogServiceOpti
 	}
 
 	return nil
-}
-
-func (m *Manager) StartRelayCore(ctx context.Context) error {
-	// same issue where as above in the initialization.
-	<-time.After(time.Second * 5)
-
-	vm := newVaultManager(m.cl, m.cfg)
-
-	if err := vm.reconcile(ctx); err != nil {
-		return err
-	}
-
-	return m.waitForServices(ctx, systemNamespace)
 }
 
 func (m *Manager) waitForServices(ctx context.Context, namespace string) error {

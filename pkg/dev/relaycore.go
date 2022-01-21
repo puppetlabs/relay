@@ -18,11 +18,7 @@ import (
 )
 
 const (
-	relayCoreName         = "relay-core-v1"
-	relayLogServiceImage  = "relaysh/relay-pls:latest"
-	relayOperatorImage    = "relaysh/relay-operator:latest"
-	relayMetadataAPIImage = "relaysh/relay-metadata-api:latest"
-
+	relayCoreName                  = "relay-core-v1"
 	relayOperatorStorageVolumeSize = "1Gi"
 )
 
@@ -33,6 +29,7 @@ type relayCoreObjects struct {
 	operatorWebhookCert certmanagerv1.Certificate
 	pvc                 corev1.PersistentVolumeClaim
 	relayCore           installerv1alpha1.RelayCore
+	serviceAccount      corev1.ServiceAccount
 	clusterRoleBinding  rbacv1.ClusterRoleBinding
 }
 
@@ -58,6 +55,7 @@ func newRelayCoreObjects() *relayCoreObjects {
 		operatorWebhookCert: certmanagerv1.Certificate{ObjectMeta: operatorObjectMeta},
 		pvc:                 corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
 		relayCore:           installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
+		serviceAccount:      corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
 		clusterRoleBinding:  rbacv1.ClusterRoleBinding{ObjectMeta: operatorAdminObjectMeta},
 	}
 }
@@ -65,6 +63,7 @@ func newRelayCoreObjects() *relayCoreObjects {
 type relayCoreManager struct {
 	cl             *Client
 	objects        *relayCoreObjects
+	installerOpts  InstallerOptions
 	logServiceOpts LogServiceOptions
 }
 
@@ -116,16 +115,6 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 
 		return nil
 	}); err != nil {
-		return err
-	}
-
-	rcKey := client.ObjectKeyFromObject(&m.objects.relayCore)
-
-	if err := cl.Get(ctx, rcKey, &m.objects.relayCore); err != nil {
-		return err
-	}
-
-	if err := m.wait(ctx); err != nil {
 		return err
 	}
 
@@ -190,34 +179,56 @@ func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim)
 
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	if m.logServiceOpts.Enabled {
-		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
-			Image:           relayLogServiceImage,
+		rc.Spec.LogService = installerv1alpha1.LogServiceConfig{
+			Image:           m.installerOpts.LogServiceImage,
 			ImagePullPolicy: corev1.PullAlways,
-
-			CredentialsSecretName: m.logServiceOpts.CredentialsSecretName,
-			Project:               m.logServiceOpts.Project,
-			Dataset:               m.logServiceOpts.Dataset,
-			Table:                 m.logServiceOpts.Table,
+			CredentialsSecretKeyRef: corev1.SecretKeySelector{
+				Key: m.logServiceOpts.CredentialsKey,
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: m.logServiceOpts.CredentialsSecretName,
+				},
+			},
+			Project: m.logServiceOpts.Project,
+			Dataset: m.logServiceOpts.Dataset,
+			Table:   m.logServiceOpts.Table,
 		}
 	}
 
 	rc.Spec.Operator = &installerv1alpha1.OperatorConfig{
-		Image:             relayOperatorImage,
+		Image:             m.installerOpts.OperatorImage,
 		ImagePullPolicy:   corev1.PullAlways,
 		Standalone:        true,
 		LogStoragePVCName: &m.objects.pvc.Name,
 		AdmissionWebhookServer: &installerv1alpha1.AdmissionWebhookServerConfig{
-			TLSSecretName:      m.objects.operatorWebhookCert.Spec.SecretName,
-			CABundleSecretName: &m.objects.selfSignedCA.Spec.SecretName,
+			CertificateControllerImage:           m.installerOpts.OperatorWebhookCertificateControllerImage,
+			CertificateControllerImagePullPolicy: corev1.PullAlways,
+			Domain:                               "admission.controller.relay.sh",
+			NamespaceSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"controller.relay.sh/tenant-workload": "true",
+				},
+			},
 		},
-		GenerateJWTSigningKey: true,
 	}
 
 	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
-		Image:           relayMetadataAPIImage,
+		Image:           m.installerOpts.MetadataAPIImage,
 		ImagePullPolicy: corev1.PullAlways,
 		VaultAuthRole:   "tenant",
 		VaultAuthPath:   "auth/jwt-tenants",
+	}
+
+	rc.Spec.Vault = &installerv1alpha1.VaultConfig{
+		VaultInitializationImage:           m.installerOpts.OperatorVaultInitImage,
+		VaultInitializationImagePullPolicy: corev1.PullAlways,
+
+		// FIXME Change this to be more flexible/specific
+		AuthDelegatorServiceAccountName: vaultIdentifier,
+
+		LogServicePath: "pls",
+		TenantPath:     "customers",
+		TransitKey:     "metadata-api",
+		TransitPath:    "transit-tenants",
 	}
 }
 
@@ -231,8 +242,8 @@ func (m *relayCoreManager) rbacDefinition(crb *rbacv1.ClusterRoleBinding) {
 	crb.Subjects = []rbacv1.Subject{
 		{
 			Kind:      "ServiceAccount",
-			Name:      m.objects.relayCore.Status.OperatorServiceAccount,
-			Namespace: m.objects.relayCore.Namespace,
+			Name:      m.objects.serviceAccount.Name,
+			Namespace: m.objects.serviceAccount.Namespace,
 		},
 	}
 
@@ -259,10 +270,11 @@ func (m *relayCoreManager) wait(ctx context.Context) error {
 	return nil
 }
 
-func newRelayCoreManager(cl *Client, logServiceOpts LogServiceOptions) *relayCoreManager {
+func newRelayCoreManager(cl *Client, installerOpts InstallerOptions, logServiceOpts LogServiceOptions) *relayCoreManager {
 	return &relayCoreManager{
 		cl:             cl,
 		objects:        newRelayCoreObjects(),
+		installerOpts:  installerOpts,
 		logServiceOpts: logServiceOpts,
 	}
 }

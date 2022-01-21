@@ -6,6 +6,7 @@ import (
 
 	"github.com/puppetlabs/leg/workdir"
 	"github.com/puppetlabs/relay/pkg/cluster"
+	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
 )
@@ -97,20 +98,21 @@ func initDevelopmentEnvironment(ctx context.Context, opts dev.InitializeOptions)
 		return err
 	}
 
-	logServiceOpts := dev.LogServiceOptions{}
-	if Config.LogServiceConfig != nil {
-		logServiceOpts = dev.LogServiceOptions{
-			Enabled:               true,
-			CredentialsSecretName: Config.LogServiceConfig.CredentialsSecretName,
-			Project:               Config.LogServiceConfig.Project,
-			Dataset:               Config.LogServiceConfig.Dataset,
-			Table:                 Config.LogServiceConfig.Table,
-		}
-	}
+	installerOpts := mapInstallerOptionsFromConfig(Config.InstallerConfig,
+		dev.InstallerOptions{
+			InstallerImage:         dev.RelayInstallerImage,
+			LogServiceImage:        dev.RelayLogServiceImage,
+			MetadataAPIImage:       dev.RelayMetadataAPIImage,
+			OperatorImage:          dev.RelayOperatorImage,
+			OperatorVaultInitImage: dev.RelayOperatorVaultInitImage,
+			OperatorWebhookCertificateControllerImage: dev.RelayOperatorWebhookCertificateControllerImage,
+		})
+
+	logServiceOpts := mapLogServiceOptionsFromConfig(Config.LogServiceConfig)
 
 	Dialog.Info("Initializing relay-core; this may take several minutes...")
 
-	if err := dm.InitializeRelayCore(ctx, logServiceOpts); err != nil {
+	if err := dm.InitializeRelayCore(ctx, installerOpts, logServiceOpts); err != nil {
 		return err
 	}
 
@@ -250,4 +252,42 @@ func NewManager(ctx context.Context, devConfig dev.Config) (*dev.Manager, error)
 	}
 
 	return dev.NewManagerFromExternalCluster(ctx)
+}
+
+func mapInstallerOptionsFromConfig(installerConfig *config.InstallerConfig, defaultInstallerOpts dev.InstallerOptions) dev.InstallerOptions {
+	installerOpts := defaultInstallerOpts
+	if Config.InstallerConfig != nil {
+		installerOpts.InstallerImage = coalesce(installerConfig.InstallerImage, defaultInstallerOpts.InstallerImage)
+		installerOpts.LogServiceImage = coalesce(installerConfig.LogServiceImage, defaultInstallerOpts.LogServiceImage)
+		installerOpts.MetadataAPIImage = coalesce(installerConfig.MetadataAPIImage, defaultInstallerOpts.MetadataAPIImage)
+		installerOpts.OperatorImage = coalesce(installerConfig.OperatorImage, defaultInstallerOpts.OperatorImage)
+		installerOpts.OperatorVaultInitImage = coalesce(installerConfig.OperatorVaultInitImage, defaultInstallerOpts.OperatorVaultInitImage)
+		installerOpts.OperatorWebhookCertificateControllerImage = coalesce(installerConfig.OperatorWebhookCertificateControllerImage, defaultInstallerOpts.OperatorWebhookCertificateControllerImage)
+	}
+
+	return installerOpts
+}
+
+func mapLogServiceOptionsFromConfig(logServiceConfig *config.LogServiceConfig) dev.LogServiceOptions {
+	logServiceOpts := dev.LogServiceOptions{}
+	if logServiceConfig != nil {
+		logServiceOpts = dev.LogServiceOptions{
+			Enabled:               true,
+			CredentialsKey:        logServiceConfig.CredentialsKey,
+			CredentialsSecretName: logServiceConfig.CredentialsSecretName,
+			Project:               logServiceConfig.Project,
+			Dataset:               logServiceConfig.Dataset,
+			Table:                 logServiceConfig.Table,
+		}
+	}
+
+	return logServiceOpts
+}
+
+func coalesce(target string, other string) string {
+	if target != "" {
+		return target
+	}
+
+	return other
 }

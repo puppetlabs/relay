@@ -10,10 +10,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
-const (
-	relayInstallerImage = "relaysh/relay-install-operator:latest"
-)
-
 type relayInstallerObjects struct {
 	serviceAccount     corev1.ServiceAccount
 	clusterRole        rbacv1.ClusterRole
@@ -36,8 +32,9 @@ func newRelayInstallerObjects() *relayInstallerObjects {
 }
 
 type relayInstallerManager struct {
-	cl      *Client
-	objects *relayInstallerObjects
+	cl            *Client
+	objects       *relayInstallerObjects
+	installerOpts InstallerOptions
 }
 
 func (m *relayInstallerManager) reconcile(ctx context.Context) error {
@@ -133,6 +130,11 @@ func (m *relayInstallerManager) clusterRole(cr *rbacv1.ClusterRole) {
 			Verbs:     []string{"get", "list", "watch"},
 		},
 		{
+			APIGroups: []string{"batch"},
+			Resources: []string{"jobs"},
+			Verbs:     []string{"create", "get", "list", "patch", "update", "watch"},
+		},
+		{
 			APIGroups: []string{"install.relay.sh"},
 			Resources: []string{"relaycores/status"},
 			Verbs:     []string{"get", "patch", "update"},
@@ -182,8 +184,8 @@ func (m *relayInstallerManager) deployment(deployment *appsv1.Deployment) {
 
 	container := corev1.Container{
 		Name:            "controller",
-		Image:           relayInstallerImage,
-		ImagePullPolicy: corev1.PullIfNotPresent,
+		Image:           m.installerOpts.InstallerImage,
+		ImagePullPolicy: corev1.PullAlways,
 	}
 
 	template.Spec.Containers = []corev1.Container{container}
@@ -196,9 +198,10 @@ func (m *relayInstallerManager) labels() map[string]string {
 	}
 }
 
-func newRelayInstallerManager(cl *Client) *relayInstallerManager {
+func newRelayInstallerManager(cl *Client, installerOpts InstallerOptions) *relayInstallerManager {
 	return &relayInstallerManager{
-		cl:      cl,
-		objects: newRelayInstallerObjects(),
+		cl:            cl,
+		objects:       newRelayInstallerObjects(),
+		installerOpts: installerOpts,
 	}
 }

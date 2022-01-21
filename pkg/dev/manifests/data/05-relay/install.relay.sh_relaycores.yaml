@@ -44,7 +44,26 @@ spec:
                 description: Environment is the environment this instance is running
                   in.
                 type: string
+              jwtSigningKeys:
+                description: JWTSigningKeys is the secret and keys that hold a JWT
+                  signing key pair for the workflow run key signing operations with
+                  vault. This secret must have 2 fields for a public and private key
+                  pair. If this field is not set, then signings key will be generated
+                  when the relay core resources are being persisted.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                  privateKeyRef:
+                    type: string
+                  publicKeyRef:
+                    type: string
+                type: object
               logService:
+                default:
+                  image: relaysh/relay-pls:latest
+                  imagePullPolicy: IfNotPresent
                 description: LogService is the configuration for the log service.
                 properties:
                   affinity:
@@ -665,14 +684,31 @@ spec:
                             type: array
                         type: object
                     type: object
-                  credentialsSecretName:
-                    description: CredentialsSecretName is the name of the secret containing
-                      the credentials for the log service.
-                    type: string
+                  credentialsSecretKeyRef:
+                    description: CredentialsSecretKeyRef is the secret and key to
+                      use for the log service cloud credentials
+                    properties:
+                      key:
+                        description: The key of the secret to select from.  Must be
+                          a valid secret key.
+                        type: string
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                      optional:
+                        description: Specify whether the Secret or its key must be
+                          defined
+                        type: boolean
+                    required:
+                    - key
+                    type: object
                   dataset:
                     description: Dataset is the BigQuery dataset to use for logging.
                     type: string
                   env:
+                    description: Env is the slice of environment variables to use
+                      when launching the log service.
                     items:
                       description: EnvVar represents an environment variable present
                         in a Container.
@@ -782,32 +818,45 @@ spec:
                     type: array
                   image:
                     default: relaysh/relay-pls:latest
+                    description: Image is the container image to use for the log service.
                     type: string
                   imagePullPolicy:
                     default: IfNotPresent
-                    description: PullPolicy describes a policy for if/when to pull
-                      a container image
+                    description: ImagePullPolicy instructs the cluster when it should
+                      attempt to pull the container image.
                     type: string
                   nodeSelector:
                     additionalProperties:
                       type: string
+                    description: NodeSelector instructs the cluster how to choose
+                      a node to run the log service pods.
                     type: object
                   project:
                     description: Project is the BigQuery project to use for logging.
                     type: string
                   replicas:
                     default: 1
+                    description: Replicas is the number of pods to run for this server.
                     format: int32
                     type: integer
+                  serviceAccountName:
+                    description: ServiceAccountName is the service account to use
+                      to run this service's pods. This is the service account that
+                      is also handed to Vault for Kubernetes Auth.
+                    type: string
                   table:
                     description: Project is the BigQuery table to use for logging.
                     type: string
                   vaultAgentRole:
+                    default: log-service
                     description: VaultAgentRole is the role to use when configuring
                       the vault agent.
                     type: string
                 type: object
               metadataAPI:
+                default:
+                  image: relaysh/relay-metadata-api:latest
+                  imagePullPolicy: IfNotPresent
                 description: MetadataAPI is the configuration for the step metadata-api
                   server.
                 properties:
@@ -1557,6 +1606,11 @@ spec:
                     default: 1
                     format: int32
                     type: integer
+                  serviceAccountName:
+                    description: ServiceAccountName is the service account to use
+                      to run this service's pods. This is the service account that
+                      is also handed to Vault for Kubernetes Auth.
+                    type: string
                   stepMetadataURL:
                     default: https://relay.sh/step-metadata.json
                     description: StepMetadataURL is the URL to use to fetch step metadata
@@ -1573,6 +1627,7 @@ spec:
                       used by workflows and the operator. This defaults to: http(s)://<RelayCore.Name>-metadata-api.<RelayCore.Namespace>.svc.cluster.local'
                     type: string
                   vaultAgentRole:
+                    default: metadata-api
                     description: VaultAgentRole is the role to use when configuring
                       the vault agent.
                     type: string
@@ -1587,21 +1642,72 @@ spec:
                 description: Operator is the configuration for the workflow run operator.
                 properties:
                   admissionWebhookServer:
+                    default:
+                      certificateControllerImagePullPolicy: IfNotPresent
                     description: AdmissionWebhookServer is the configuration for the
-                      admissionregistration webhook server.  If this field is set,
-                      then the admission webhook server is enabled and MutatingWebhooks
-                      are created.
+                      admissionregistration webhook server.
                     properties:
-                      caBundleSecretName:
-                        description: CABundleSecretName is the name of the secret
-                          that holds the ca certificate bundle for the admission webhook
-                          config.  The secret object MUST have a field called "ca.crt".
+                      certificateControllerImage:
+                        default: relaysh/relay-operator-webhook-certificate-controller:latest
+                        description: CertificateControllerImage is the image to use
+                          for the certificate controller that managers the TLS certificates
+                          for the operator's webhook server
                         type: string
-                      tlsSecretName:
-                        description: TLSSecretName is the name of the secret that
-                          holds the tls cert files for webhooks. The secret object
-                          MUST have two data fields called "tls.key" and "tls.crt".
+                      certificateControllerImagePullPolicy:
+                        default: IfNotPresent
+                        description: PullPolicy describes a policy for if/when to
+                          pull a container image
                         type: string
+                      domain:
+                        description: 'Domain is the domain to use as a suffix for
+                          the webhook subdomain. Example: admission.controller.example.com'
+                        type: string
+                      namespaceSelector:
+                        description: NamespaceSelector is the map of labels to use
+                          in the NamespaceSelector section of the MutatingWebhooks.
+                        properties:
+                          matchExpressions:
+                            description: matchExpressions is a list of label selector
+                              requirements. The requirements are ANDed.
+                            items:
+                              description: A label selector requirement is a selector
+                                that contains values, a key, and an operator that
+                                relates the key and values.
+                              properties:
+                                key:
+                                  description: key is the label key that the selector
+                                    applies to.
+                                  type: string
+                                operator:
+                                  description: operator represents a key's relationship
+                                    to a set of values. Valid operators are In, NotIn,
+                                    Exists and DoesNotExist.
+                                  type: string
+                                values:
+                                  description: values is an array of string values.
+                                    If the operator is In or NotIn, the values array
+                                    must be non-empty. If the operator is Exists or
+                                    DoesNotExist, the values array must be empty.
+                                    This array is replaced during a strategic merge
+                                    patch.
+                                  items:
+                                    type: string
+                                  type: array
+                              required:
+                              - key
+                              - operator
+                              type: object
+                            type: array
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: matchLabels is a map of {key,value} pairs.
+                              A single {key,value} in the matchLabels map is equivalent
+                              to an element of matchExpressions, whose key field is
+                              "key", the operator is "In", and the values array contains
+                              only "value". The requirements are ANDed.
+                            type: object
+                        type: object
                     type: object
                   affinity:
                     description: Affinity is an optional set of affinity constraints
@@ -2329,13 +2435,6 @@ spec:
                       - name
                       type: object
                     type: array
-                  generateJWTSigningKey:
-                    default: false
-                    description: GenerateJWTSigningKey will generate a JWT signing
-                      key and store it in a Secret for use by the operator pods. If
-                      this field is set to true, then the below JWTSigningKeySecretName
-                      is ignored.
-                    type: boolean
                   image:
                     default: relaysh/relay-operator:latest
                     type: string
@@ -2343,12 +2442,6 @@ spec:
                     default: IfNotPresent
                     description: PullPolicy describes a policy for if/when to pull
                       a container image
-                    type: string
-                  jwtSigningKeySecretName:
-                    description: JWTSigningKeySecretName is the name of the secret
-                      object that holds a JWT signing key.  The secret object MUST
-                      have a data field called "key.pem".  This field is ignored if
-                      GenerateJWTSigningKey is true.
                     type: string
                   logStoragePVCName:
                     description: "LogStoragePVCName is the name of a PVC to store
@@ -2366,6 +2459,11 @@ spec:
                     additionalProperties:
                       type: string
                     type: object
+                  serviceAccountName:
+                    description: ServiceAccountName is the service account to use
+                      to run this service's pods. This is the service account that
+                      is also handed to Vault for Kubernetes Auth.
+                    type: string
                   standalone:
                     default: false
                     type: boolean
@@ -2380,23 +2478,18 @@ spec:
                       runtimes?'
                     type: string
                   toolInjection:
-                    default:
-                      image: relaysh/relay-runtime-tools:latest
                     description: ToolInjection is the configuration for the entrypointer
                       and tool injection runtime tooling.
                     properties:
-                      image:
-                        default: relaysh/relay-runtime-tools:latest
-                        type: string
-                      imagePullPolicy:
-                        default: IfNotPresent
-                        description: PullPolicy describes a policy for if/when to
-                          pull a container image
+                      triggerPoolName:
+                        description: TriggerPoolName is the name of the tool injection
+                          pool for triggers.
                         type: string
                     required:
-                    - image
+                    - triggerPoolName
                     type: object
                   vaultAgentRole:
+                    default: operator
                     description: VaultAgentRole is the role to use when configuring
                       the vault agent.
                     type: string
@@ -2428,6 +2521,96 @@ spec:
                 description: Vault is the configuration for accessing vault from the
                   operator and metadata-api.
                 properties:
+                  auth:
+                    description: Auth provides credentials for vault server authentication.
+                    properties:
+                      token:
+                        description: Token is the token to use for vault server authentication
+                          when configuring engine mounts and policies for relay-core
+                          components.
+                        properties:
+                          token:
+                            description: Value provides vault server authentication
+                              data.
+                            type: string
+                          tokenFrom:
+                            description: ValueFrom allows vault server auth data to
+                              be provided by another source such as a Secret.
+                            properties:
+                              secretKeyRef:
+                                description: SecretKeyRef selects an API token by
+                                  looking up the value in a secret.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.  Must
+                                      be a valid secret key.
+                                    type: string
+                                  name:
+                                    description: 'Name of the referent. More info:
+                                      https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                      TODO: Add other useful fields. apiVersion, kind,
+                                      uid?'
+                                    type: string
+                                  optional:
+                                    description: Specify whether the Secret or its
+                                      key must be defined
+                                    type: boolean
+                                required:
+                                - key
+                                type: object
+                            type: object
+                        type: object
+                      unsealKey:
+                        description: UnsealKey enables a Job to unseal a vault server.
+                          This Job only supports a singular unseal key, so servers
+                          that require multiple keys will not be unsealed.
+                        properties:
+                          token:
+                            description: Value provides vault server authentication
+                              data.
+                            type: string
+                          tokenFrom:
+                            description: ValueFrom allows vault server auth data to
+                              be provided by another source such as a Secret.
+                            properties:
+                              secretKeyRef:
+                                description: SecretKeyRef selects an API token by
+                                  looking up the value in a secret.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.  Must
+                                      be a valid secret key.
+                                    type: string
+                                  name:
+                                    description: 'Name of the referent. More info:
+                                      https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                      TODO: Add other useful fields. apiVersion, kind,
+                                      uid?'
+                                    type: string
+                                  optional:
+                                    description: Specify whether the Secret or its
+                                      key must be defined
+                                    type: boolean
+                                required:
+                                - key
+                                type: object
+                            type: object
+                        type: object
+                    type: object
+                  authDelegatorServiceAccountName:
+                    description: AuthDelegatorServiceAccount is the name of the service
+                      account that should be used to give vault token review access
+                      for the kubernetes auth method.
+                    type: string
+                  configMapRef:
+                    description: ConfigMapRef is the reference to the config map that
+                      contains the scripts and policies to configure vault with.
+                    properties:
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                    type: object
                   logServicePath:
                     default: pls
                     type: string
@@ -2505,6 +2688,14 @@ spec:
                     type: string
                   transitPath:
                     default: transit-tenants
+                    type: string
+                  vaultInitializationImage:
+                    default: relaysh/relay-operator-vault-init:latest
+                    type: string
+                  vaultInitializationImagePullPolicy:
+                    default: IfNotPresent
+                    description: PullPolicy describes a policy for if/when to pull
+                      a container image
                     type: string
                 type: object
             type: object
