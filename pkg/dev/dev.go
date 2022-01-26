@@ -54,7 +54,7 @@ var (
 )
 
 const (
-	RelayInstallerImage                            = "relaysh/relay-install-operator:latest"
+	RelayInstallerImage                            = "relaysh/relay-installer:latest"
 	RelayLogServiceImage                           = "relaysh/relay-pls:latest"
 	RelayMetadataAPIImage                          = "relaysh/relay-metadata-api:latest"
 	RelayOperatorImage                             = "relaysh/relay-operator:latest"
