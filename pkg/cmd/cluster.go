@@ -107,12 +107,8 @@ func startCluster(ctx context.Context) error {
 		return err
 	}
 
-	dm, err := dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
+	_, err := dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
 	if err != nil {
-		return err
-	}
-
-	if err := dm.StartRelayCore(ctx); err != nil {
 		return err
 	}
 

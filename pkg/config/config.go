@@ -92,7 +92,17 @@ func (ac *APIContext) Merge(target *APIContext) *APIContext {
 	}
 }
 
+type InstallerConfig struct {
+	InstallerImage                            string
+	LogServiceImage                           string
+	MetadataAPIImage                          string
+	OperatorImage                             string
+	OperatorVaultInitImage                    string
+	OperatorWebhookCertificateControllerImage string
+}
+
 type LogServiceConfig struct {
+	CredentialsKey        string
 	CredentialsSecretName string
 	Project               string
 	Dataset               string
@@ -118,6 +128,7 @@ type Config struct {
 
 	ContextConfig map[string]*ContextConfig
 
+	InstallerConfig  *InstallerConfig
 	LogServiceConfig *LogServiceConfig
 }
 
@@ -157,8 +168,20 @@ func NewAPIContext(v *viper.Viper) (*APIContext, error) {
 	}, nil
 }
 
+func NewInstallerConfig(v *viper.Viper) *InstallerConfig {
+	return &InstallerConfig{
+		InstallerImage:         v.GetString("installerImage"),
+		LogServiceImage:        v.GetString("logServiceImage"),
+		MetadataAPIImage:       v.GetString("metadataAPIImage"),
+		OperatorImage:          v.GetString("operatorImage"),
+		OperatorVaultInitImage: v.GetString("operatorVaultInitImage"),
+		OperatorWebhookCertificateControllerImage: v.GetString("operatorWebhookCertificateControllerImage"),
+	}
+}
+
 func NewLogServiceConfig(v *viper.Viper) *LogServiceConfig {
 	return &LogServiceConfig{
+		CredentialsKey:        v.GetString("credentialsKey"),
 		CredentialsSecretName: v.GetString("credentialsSecretName"),
 		Project:               v.GetString("project"),
 		Dataset:               v.GetString("dataset"),
@@ -218,9 +241,14 @@ func FromFlags(flags *pflag.FlagSet) (*Config, error) {
 	// to enable switching context on demand without necessarily reloading
 	// the configuration
 	if context != "" {
-		logServiceSection := v.Sub(fmt.Sprintf("config.%s.logService", context))
-		if logServiceSection != nil {
-			config.LogServiceConfig = NewLogServiceConfig(logServiceSection)
+		installerConfigSection := v.Sub(fmt.Sprintf("config.%s.installer", context))
+		if installerConfigSection != nil {
+			config.InstallerConfig = NewInstallerConfig(installerConfigSection)
+		}
+
+		logServiceConfigSection := v.Sub(fmt.Sprintf("config.%s.logService", context))
+		if logServiceConfigSection != nil {
+			config.LogServiceConfig = NewLogServiceConfig(logServiceConfigSection)
 		}
 
 		contextSection := v.Sub(fmt.Sprintf("contexts.%s", context))

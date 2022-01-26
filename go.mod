@@ -8,9 +8,6 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/google/wire v0.5.0
-	github.com/hashicorp/hcl2 v0.0.0-20191002203319-fb75b3253c80
-	github.com/hashicorp/vault/api v1.2.0
-	github.com/hashicorp/vault/sdk v0.2.2-0.20210825150427-9b1f4d486f5d
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/jetstack/cert-manager v1.3.3
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -18,12 +15,12 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
-	github.com/puppetlabs/leg/k8sutil v0.6.1
+	github.com/puppetlabs/leg/k8sutil v0.6.4
 	github.com/puppetlabs/leg/timeutil v0.4.2
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-client-go/client v0.4.5
 	github.com/puppetlabs/relay-client-go/models v1.0.7
-	github.com/puppetlabs/relay-core v0.0.0-20211101184602-cf3519db2e61
+	github.com/puppetlabs/relay-core v0.0.0-20220126182442-87b4675b8fdf
 	github.com/rancher/helm-controller v0.6.3
 	github.com/rancher/k3d/v5 v5.1.0
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546
@@ -32,9 +29,9 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
-	k8s.io/api v0.22.2
+	k8s.io/api v0.23.0
 	k8s.io/apiextensions-apiserver v0.22.2
-	k8s.io/apimachinery v0.22.2
+	k8s.io/apimachinery v0.23.0
 	k8s.io/apiserver v0.20.6
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	knative.dev/caching v0.0.0-20210215030244-1212288570f0
