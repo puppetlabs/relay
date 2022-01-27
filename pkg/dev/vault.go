@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/puppetlabs/leg/timeutil/pkg/backoff"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -126,6 +128,10 @@ func (m *vaultManager) writeSecrets(ctx context.Context, vals map[string]string)
 		return err
 	}
 
+	if err := m.waitForJobCompletion(ctx, &job); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -161,7 +167,15 @@ func (m *vaultManager) waitForJobCompletion(ctx context.Context, job *batchv1.Jo
 		}
 
 		return retry.Repeat(nil)
-	})
+	},
+		retry.WithBackoffFactory(
+			backoff.Build(
+				backoff.Exponential(100*time.Millisecond, 2.0),
+				backoff.MaxBound(1*time.Minute),
+				backoff.MaxRetries(20),
+			),
+		),
+	)
 	if err != nil {
 		return err
 	}
