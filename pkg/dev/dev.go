@@ -7,7 +7,6 @@ import (
 	"path"
 	"time"
 
-	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
 	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/leg/workdir"
@@ -45,7 +44,6 @@ var (
 		apiextensionsv1.AddToScheme,
 		apiextensionsv1beta1.AddToScheme,
 		dependency.AddToScheme,
-		certmanagerv1.AddToScheme,
 		helmchartv1.AddToScheme,
 		cachingv1alpha1.AddToScheme,
 		installerv1alpha1.AddToScheme,
@@ -293,7 +291,7 @@ func (m *Manager) SetWorkflowSecret(ctx context.Context, workflow, key, value st
 	return vm.writeSecrets(ctx, secret)
 }
 
-func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error {
+func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOptions, installerOpts InstallerOptions, logServiceOpts LogServiceOptions) error {
 	// I introduced some race condition where the cluster hasn't fully setup
 	// the object APIs or something, so when we try to create objects here, it
 	// will blow up saying the API for that object type doesn't exist. If we
@@ -308,6 +306,8 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 	nm := newNamespaceManager(m.cl)
 	vm := newVaultManager(m.cl, m.cfg)
 	am := newAdminManager(m.cl, vm)
+	rim := newRelayInstallerManager(m.cl, installerOpts)
+	rcm := newRelayCoreManager(m.cl, installerOpts, logServiceOpts)
 
 	if err := nm.reconcile(ctx); err != nil {
 		return err
@@ -317,16 +317,11 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 		return err
 	}
 
-	mm := NewManifestManager(m.cl)
-
-	// Apply manifests in ordered phases. Note that some managers
-	// have weird dependencies on running services. For instance, you cannot
-	// create or apply a ClusterIssuer unless the cert-manager webhook service
-	// is Ready. This means we will just wait for all services across all created
-	// namespaces to be ready before moving to the next phase of applying manifests.
 	// TODO: dynamically generate the list as we process the manifests
 
-	if opts.InstallHelmController {
+	mm := NewManifestManager(m.cl)
+
+	if initOpts.InstallHelmController {
 		if err := mm.ProcessManifests(ctx, "/helm-controller"); err != nil {
 			return err
 		}
@@ -336,39 +331,6 @@ func (m *Manager) Initialize(ctx context.Context, opts InitializeOptions) error 
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace)); err != nil {
 		return err
 	}
-
-	for _, ns := range []string{certManagerNamespace, systemNamespace} {
-		if err := m.waitForServices(ctx, ns); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Manager) InitializeRelayCore(ctx context.Context, installerOpts InstallerOptions, logServiceOpts LogServiceOptions) error {
-	// I introduced some race condition where the cluster hasn't fully setup
-	// the object APIs or something, so when we try to create objects here, it
-	// will blow up saying the API for that object type doesn't exist. If we
-	// sleep for just a second, then we give it enough time to fully warm up or
-	// something. I dunno...
-	//
-	// There's an option in k3d's cluster create that I set to wait for the
-	// server, but I think there's something deeper happening inside kubernetes
-	// (probably in the API server).
-	<-time.After(time.Second * 5)
-
-	rim := newRelayInstallerManager(m.cl, installerOpts)
-	rcm := newRelayCoreManager(m.cl, installerOpts, logServiceOpts)
-
-	// Apply manifests in ordered phases. Note that some managers
-	// have weird dependencies on running services. For instance, you cannot
-	// create or apply a ClusterIssuer unless the cert-manager webhook service
-	// is Ready. This means we will just wait for all services across all created
-	// namespaces to be ready before moving to the next phase of applying manifests.
-	// TODO: dynamically generate the list as we process the manifests
-
-	mm := NewManifestManager(m.cl)
 
 	if err := mm.ProcessManifests(ctx, "/03-tekton",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace)); err != nil {

@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	certmanagerv1 "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1"
-	certmanagermetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -23,14 +21,10 @@ const (
 )
 
 type relayCoreObjects struct {
-	selfSignedIssuer    certmanagerv1.Issuer
-	selfSignedCA        certmanagerv1.Certificate
-	issuer              certmanagerv1.Issuer
-	operatorWebhookCert certmanagerv1.Certificate
-	pvc                 corev1.PersistentVolumeClaim
-	relayCore           installerv1alpha1.RelayCore
-	serviceAccount      corev1.ServiceAccount
-	clusterRoleBinding  rbacv1.ClusterRoleBinding
+	pvc                corev1.PersistentVolumeClaim
+	relayCore          installerv1alpha1.RelayCore
+	serviceAccount     corev1.ServiceAccount
+	clusterRoleBinding rbacv1.ClusterRoleBinding
 }
 
 func newRelayCoreObjects() *relayCoreObjects {
@@ -39,9 +33,6 @@ func newRelayCoreObjects() *relayCoreObjects {
 		Namespace: systemNamespace,
 	}
 
-	selfSignedObjectMeta := objectMeta
-	selfSignedObjectMeta.Name = fmt.Sprintf("%s-self-signed", objectMeta.Name)
-
 	operatorObjectMeta := objectMeta
 	operatorObjectMeta.Name = fmt.Sprintf("%s-operator", objectMeta.Name)
 
@@ -49,14 +40,10 @@ func newRelayCoreObjects() *relayCoreObjects {
 	operatorAdminObjectMeta.Name = fmt.Sprintf("%s-operator-admin", objectMeta.Name)
 
 	return &relayCoreObjects{
-		selfSignedIssuer:    certmanagerv1.Issuer{ObjectMeta: selfSignedObjectMeta},
-		selfSignedCA:        certmanagerv1.Certificate{ObjectMeta: selfSignedObjectMeta},
-		issuer:              certmanagerv1.Issuer{ObjectMeta: objectMeta},
-		operatorWebhookCert: certmanagerv1.Certificate{ObjectMeta: operatorObjectMeta},
-		pvc:                 corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
-		relayCore:           installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
-		serviceAccount:      corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
-		clusterRoleBinding:  rbacv1.ClusterRoleBinding{ObjectMeta: operatorAdminObjectMeta},
+		pvc:                corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
+		relayCore:          installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
+		serviceAccount:     corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
+		clusterRoleBinding: rbacv1.ClusterRoleBinding{ObjectMeta: operatorAdminObjectMeta},
 	}
 }
 
@@ -69,38 +56,6 @@ type relayCoreManager struct {
 
 func (m *relayCoreManager) reconcile(ctx context.Context) error {
 	cl := m.cl.APIClient
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.selfSignedIssuer, func() error {
-		m.selfSignedIssuer(&m.objects.selfSignedIssuer)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.selfSignedCA, func() error {
-		m.selfSignedCA(&m.objects.selfSignedCA)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.issuer, func() error {
-		m.issuer(&m.objects.issuer)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.operatorWebhookCert, func() error {
-		m.operatorWebhookCert(&m.objects.operatorWebhookCert)
-
-		return nil
-	}); err != nil {
-		return err
-	}
 
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.pvc, func() error {
 		m.operatorStoragePVC(&m.objects.pvc)
@@ -127,44 +82,6 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (m *relayCoreManager) selfSignedIssuer(issuer *certmanagerv1.Issuer) {
-	issuer.Spec.SelfSigned = &certmanagerv1.SelfSignedIssuer{}
-}
-
-func (m *relayCoreManager) selfSignedCA(cert *certmanagerv1.Certificate) {
-	cert.Spec.SecretName = fmt.Sprintf("%s-ca-tls", cert.Name)
-	cert.Spec.CommonName = fmt.Sprintf("%s.svc.cluster.local", cert.Namespace)
-	cert.Spec.DNSNames = append(cert.Spec.DNSNames,
-		fmt.Sprintf("%s.svc", cert.Namespace),
-		fmt.Sprintf("%s.local", cert.Namespace),
-	)
-	cert.Spec.IsCA = true
-	cert.Spec.IssuerRef = certmanagermetav1.ObjectReference{
-		Name: m.objects.selfSignedIssuer.Name,
-	}
-}
-
-func (m *relayCoreManager) issuer(issuer *certmanagerv1.Issuer) {
-	issuer.Spec.CA = &certmanagerv1.CAIssuer{
-		SecretName: m.objects.selfSignedCA.Spec.SecretName,
-	}
-}
-
-func (m *relayCoreManager) operatorWebhookCert(cert *certmanagerv1.Certificate) {
-	operatorServiceName := fmt.Sprintf("%s-operator", m.objects.relayCore.Name)
-
-	cert.Spec.SecretName = fmt.Sprintf("%s-tls", cert.Name)
-	cert.Spec.CommonName = fmt.Sprintf("%s.%s.svc", operatorServiceName, cert.Namespace)
-	cert.Spec.DNSNames = append(cert.Spec.DNSNames,
-		fmt.Sprintf("%s.%s.svc", operatorServiceName, cert.Namespace),
-		fmt.Sprintf("%s.%s.svc.cluster.local", operatorServiceName, cert.Namespace),
-		operatorServiceName,
-	)
-	cert.Spec.IssuerRef = certmanagermetav1.ObjectReference{
-		Name: m.objects.issuer.Name,
-	}
 }
 
 func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim) {

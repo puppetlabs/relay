@@ -87,14 +87,9 @@ func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
 	return initDevelopmentEnvironment(ctx, opts)
 }
 
-func initDevelopmentEnvironment(ctx context.Context, opts dev.InitializeOptions) error {
+func initDevelopmentEnvironment(ctx context.Context, initOpts dev.InitializeOptions) error {
 	dm, err := NewManager(ctx, DevConfig)
 	if err != nil {
-		return err
-	}
-
-	Dialog.Progress("Initializing cluster; this may take several minutes...")
-	if err := dm.Initialize(ctx, opts); err != nil {
 		return err
 	}
 
@@ -112,7 +107,7 @@ func initDevelopmentEnvironment(ctx context.Context, opts dev.InitializeOptions)
 
 	Dialog.Info("Initializing relay-core; this may take several minutes...")
 
-	if err := dm.InitializeRelayCore(ctx, installerOpts, logServiceOpts); err != nil {
+	if err := dm.InitializeRelayCore(ctx, initOpts, installerOpts, logServiceOpts); err != nil {
 		return err
 	}
 

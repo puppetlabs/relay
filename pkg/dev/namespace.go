@@ -13,7 +13,6 @@ const (
 	systemNamespace          = "relay-system"
 	tenantNamespace          = "relay-tenants"
 	ambassadorNamespace      = "ambassador-webhook"
-	certManagerNamespace     = "cert-manager"
 	knativeServingNamespace  = "knative-serving"
 	tektonPipelinesNamespace = "tekton-pipelines"
 )
