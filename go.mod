@@ -9,7 +9,6 @@ require (
 	github.com/go-swagger/go-swagger v0.23.0
 	github.com/google/wire v0.5.0
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
-	github.com/jetstack/cert-manager v1.3.3
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/puppetlabs/errawr-gen v1.0.1
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
