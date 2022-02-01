@@ -287,11 +287,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOp
 		}
 	}
 
-	if err := mm.ProcessManifests(ctx, "/01-init",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace)); err != nil {
-		return err
-	}
-
 	if err := mm.ProcessManifests(ctx, "/03-tekton",
 		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace)); err != nil {
 		return err

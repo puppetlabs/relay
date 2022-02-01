@@ -2698,6 +2698,23 @@ spec:
                       a container image
                     type: string
                 type: object
+              vaultDeployment:
+                default:
+                  image: vault:latest
+                  imagePullPolicy: IfNotPresent
+                description: VaultDeployment is the configuration for deploying vault.
+                properties:
+                  configuration:
+                    type: string
+                  image:
+                    default: vault:latest
+                    type: string
+                  imagePullPolicy:
+                    default: IfNotPresent
+                    description: PullPolicy describes a policy for if/when to pull
+                      a container image
+                    type: string
+                type: object
             type: object
           status:
             description: RelayCoreStatus defines the observed state of RelayCore

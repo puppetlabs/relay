@@ -21,12 +21,12 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
-	github.com/puppetlabs/leg/k8sutil v0.6.4
+	github.com/puppetlabs/leg/k8sutil v0.6.5-0.20220127194917-2f7302680c6d
 	github.com/puppetlabs/leg/timeutil v0.4.2
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-client-go/client v0.4.5
 	github.com/puppetlabs/relay-client-go/models v1.0.7
-	github.com/puppetlabs/relay-core v0.0.0-20220126182442-87b4675b8fdf
+	github.com/puppetlabs/relay-core v0.0.0-20220128165758-e94eb8e7a5b4
 	github.com/rancher/helm-controller v0.6.3
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546
 	github.com/sirupsen/logrus v1.8.1 // indirect

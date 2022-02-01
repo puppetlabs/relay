@@ -135,6 +135,25 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		VaultAuthPath:   "auth/jwt-tenants",
 	}
 
+	rc.Spec.VaultDeployment = &installerv1alpha1.VaultDeployment{
+		Image:           "gcr.io/nebula-tasks/nebula-vault:1.7.3-oauthapp-3.0.0-beta.3-2.2.0-1.10.0",
+		ImagePullPolicy: corev1.PullAlways,
+		Configuration: `
+  disable_mlock = true
+  ui = true
+  plugin_directory = "/nebula/vault/plugins"
+  log_level = "Debug"
+  listener "tcp" {
+    tls_disable = 1
+	address = "0.0.0.0:8200"
+    // address = "[::]:8200"
+    // cluster_address = "[::]:8201"
+  }
+  storage "file" {
+    path = "/vault/data"
+  }`,
+	}
+
 	rc.Spec.Vault = &installerv1alpha1.VaultConfig{
 		VaultInitializationImage:           m.installerOpts.OperatorVaultInitImage,
 		VaultInitializationImagePullPolicy: corev1.PullAlways,
