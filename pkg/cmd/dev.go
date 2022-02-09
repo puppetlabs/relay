@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/puppetlabs/leg/workdir"
-	"github.com/puppetlabs/relay/pkg/cluster"
 	"github.com/puppetlabs/relay/pkg/config"
 	"github.com/puppetlabs/relay/pkg/dev"
 	"github.com/spf13/cobra"
@@ -16,7 +15,6 @@ const (
 )
 
 var DevConfig = dev.Config{}
-var ClusterConfig = cluster.Config{}
 
 func newDevCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -37,18 +35,12 @@ func newDevCommand() *cobra.Command {
 			DevConfig = dev.Config{
 				WorkDir: datadir,
 			}
-
-			ClusterConfig = cluster.Config{
-				WorkDir: datadir,
-			}
-
 			return nil
 		},
 		Short: "Manage the local development environment",
 		Args:  cobra.MinimumNArgs(1),
 	}
 
-	cmd.AddCommand(newClusterCommand())
 	cmd.AddCommand(newInitializeCommand())
 	cmd.AddCommand(newMetadataCommand())
 
@@ -88,7 +80,7 @@ func doInitDevelopmentEnvironment(cmd *cobra.Command, args []string) error {
 }
 
 func initDevelopmentEnvironment(ctx context.Context, initOpts dev.InitializeOptions) error {
-	dm, err := NewManager(ctx, DevConfig)
+	dm, err := dev.NewManager(ctx)
 	if err != nil {
 		return err
 	}
@@ -164,7 +156,7 @@ func doDevWorkflowRun(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := cmd.Context()
-	dm, err := NewManager(ctx, DevConfig)
+	dm, err := dev.NewManager(ctx)
 	if err != nil {
 		return err
 	}
@@ -221,7 +213,7 @@ func newDevWorkflowSecretSetCommand() *cobra.Command {
 func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
-	dm, err := NewManager(ctx, DevConfig)
+	dm, err := dev.NewManager(ctx)
 	if err != nil {
 		return err
 	}
@@ -234,19 +226,6 @@ func doDevWorkflowSecretSet(cmd *cobra.Command, args []string) error {
 	Dialog.Infof("Setting secret %s for workflow %s", sc.name, sc.workflowName)
 
 	return dm.SetWorkflowSecret(ctx, sc.workflowName, sc.name, sc.value)
-}
-
-func NewManager(ctx context.Context, devConfig dev.Config) (*dev.Manager, error) {
-	cm := cluster.NewManager(
-		cluster.Config{
-			WorkDir: devConfig.WorkDir,
-		})
-
-	if ok, _ := cm.Exists(ctx); ok {
-		return dev.NewManagerFromLocalCluster(ctx, cm, DevConfig)
-	}
-
-	return dev.NewManagerFromExternalCluster(ctx)
 }
 
 func mapInstallerOptionsFromConfig(installerConfig *config.InstallerConfig, defaultInstallerOpts dev.InstallerOptions) dev.InstallerOptions {
