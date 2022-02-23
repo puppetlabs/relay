@@ -15,7 +15,6 @@ import (
 	relayv1beta1 "github.com/puppetlabs/relay-core/pkg/apis/relay.sh/v1beta1"
 	"github.com/puppetlabs/relay-core/pkg/obj"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
-	"github.com/puppetlabs/relay/pkg/cluster"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -82,7 +81,6 @@ type Config struct {
 }
 
 type Manager struct {
-	cm  cluster.Manager
 	cl  *Client
 	cfg Config
 }
@@ -108,44 +106,6 @@ type LogServiceOptions struct {
 	Project               string
 	Dataset               string
 	Table                 string
-}
-
-// FIXME Refactor the manager/cluster deletion logic
-func (m *Manager) Delete(ctx context.Context) error {
-	// TODO fix hack: deletes the PVCs because dirs inside are often created as root
-	// and we don't want relay running like that on the host to rm the data dir.
-	nm := newNamespaceManager(m.cl)
-	if err := nm.delete(ctx, systemNamespace); err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-
-	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		pvcs := &corev1.PersistentVolumeClaimList{}
-		if err := m.cl.APIClient.List(ctx, pvcs, client.InNamespace(systemNamespace)); err != nil {
-			return retry.Repeat(err)
-		}
-
-		if len(pvcs.Items) != 0 {
-			return retry.Repeat(fmt.Errorf("waiting for pvcs to be deleted"))
-		}
-
-		return retry.Done(nil)
-	})
-	if err != nil {
-		return err
-	}
-
-	if m.cm != nil {
-		if err := m.cm.Delete(ctx); err != nil {
-			return err
-		}
-	}
-
-	if err := m.cfg.WorkDir.Cleanup(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (m *Manager) LoadWorkflow(ctx context.Context, r io.ReadCloser) (*v1.WorkflowData, error) {
@@ -395,7 +355,7 @@ func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
 	return nil
 }
 
-func NewManagerFromExternalCluster(ctx context.Context) (*Manager, error) {
+func NewManager(ctx context.Context) (*Manager, error) {
 	kcfg := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
@@ -412,27 +372,8 @@ func NewManagerFromExternalCluster(ctx context.Context) (*Manager, error) {
 	}
 
 	return &Manager{
-		cm:  nil,
 		cl:  cl,
 		cfg: Config{},
-	}, nil
-}
-
-func NewManagerFromLocalCluster(ctx context.Context, cm cluster.Manager, cfg Config) (*Manager, error) {
-	apiConfig, err := cm.GetKubeconfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	cl, err := NewClient(ctx, ClientOptions{Scheme: DefaultScheme}, apiConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Manager{
-		cm:  cm,
-		cl:  cl,
-		cfg: cfg,
 	}, nil
 }
 

@@ -38,18 +38,6 @@ Use the 'workflow' subcommand to interact with workflows:
 
 **`relay context view`** -- View current context
 
-**`relay dev cluster create [flags]`** -- Create the local cluster
-```
-      --load-balancer-port int   The port to map from the host to the service load balancer (default 8080)
-      --worker-count int         The number of worker nodes to create on the cluster
-```
-
-**`relay dev cluster delete`** -- Delete the local cluster
-
-**`relay dev cluster start`** -- Start the local cluster
-
-**`relay dev cluster stop`** -- Stop the local cluster
-
 **`relay dev initialize [flags]`** -- Initialize the Relay development environment
 ```
       --install-helm-controller   Optional installation of Helm Controller
