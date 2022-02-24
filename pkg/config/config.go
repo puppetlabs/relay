@@ -99,6 +99,8 @@ type InstallerConfig struct {
 	OperatorImage                             string
 	OperatorVaultInitImage                    string
 	OperatorWebhookCertificateControllerImage string
+	VaultServerImage                          string
+	VaultSidecarImage                         string
 }
 
 type LogServiceConfig struct {
@@ -176,6 +178,8 @@ func NewInstallerConfig(v *viper.Viper) *InstallerConfig {
 		OperatorImage:          v.GetString("operatorImage"),
 		OperatorVaultInitImage: v.GetString("operatorVaultInitImage"),
 		OperatorWebhookCertificateControllerImage: v.GetString("operatorWebhookCertificateControllerImage"),
+		VaultServerImage:  v.GetString("vaultServerImage"),
+		VaultSidecarImage: v.GetString("vaultSidecarImage"),
 	}
 }
 

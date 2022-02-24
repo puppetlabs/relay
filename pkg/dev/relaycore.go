@@ -2,17 +2,40 @@ package dev
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	RelayInstallerImage                            = "relaysh/relay-installer:latest"
+	RelayLogServiceImage                           = "relaysh/relay-pls:latest"
+	RelayMetadataAPIImage                          = "relaysh/relay-metadata-api:latest"
+	RelayOperatorImage                             = "relaysh/relay-operator:latest"
+	RelayOperatorVaultInitImage                    = "relaysh/relay-operator-vault-init:latest"
+	RelayOperatorWebhookCertificateControllerImage = "relaysh/relay-operator-webhook-certificate-controller:latest"
+)
+
+const (
+	DefaultVaultConfiguration = `
+disable_mlock = true
+ui = true
+log_level = "Debug"
+listener "tcp" {
+	tls_disable = 1
+	address = "0.0.0.0:8200"
+}
+plugin_directory = "/relay/vault/plugins"
+storage "file" {
+	path = "/vault/data"
+}`
+	DefaultVaultConfigurationFile = "vault.hcl"
+	DefaultVaultServerImage       = "relaysh/relay-vault:latest"
+	DefaultVaultSidecarImage      = "vault:latest"
 )
 
 const (
@@ -21,10 +44,10 @@ const (
 )
 
 type relayCoreObjects struct {
-	pvc                corev1.PersistentVolumeClaim
-	relayCore          installerv1alpha1.RelayCore
-	serviceAccount     corev1.ServiceAccount
-	clusterRoleBinding rbacv1.ClusterRoleBinding
+	configMap      corev1.ConfigMap
+	pvc            corev1.PersistentVolumeClaim
+	relayCore      installerv1alpha1.RelayCore
+	serviceAccount corev1.ServiceAccount
 }
 
 func newRelayCoreObjects() *relayCoreObjects {
@@ -36,14 +59,11 @@ func newRelayCoreObjects() *relayCoreObjects {
 	operatorObjectMeta := objectMeta
 	operatorObjectMeta.Name = fmt.Sprintf("%s-operator", objectMeta.Name)
 
-	operatorAdminObjectMeta := objectMeta
-	operatorAdminObjectMeta.Name = fmt.Sprintf("%s-operator-admin", objectMeta.Name)
-
 	return &relayCoreObjects{
-		pvc:                corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
-		relayCore:          installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
-		serviceAccount:     corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
-		clusterRoleBinding: rbacv1.ClusterRoleBinding{ObjectMeta: operatorAdminObjectMeta},
+		configMap:      corev1.ConfigMap{ObjectMeta: operatorObjectMeta},
+		pvc:            corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
+		relayCore:      installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
+		serviceAccount: corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
 	}
 }
 
@@ -56,6 +76,14 @@ type relayCoreManager struct {
 
 func (m *relayCoreManager) reconcile(ctx context.Context) error {
 	cl := m.cl.APIClient
+
+	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.configMap, func() error {
+		m.operatorConfigMap(&m.objects.configMap)
+
+		return nil
+	}); err != nil {
+		return err
+	}
 
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.pvc, func() error {
 		m.operatorStoragePVC(&m.objects.pvc)
@@ -73,15 +101,13 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.clusterRoleBinding, func() error {
-		m.rbacDefinition(&m.objects.clusterRoleBinding)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
 	return nil
+}
+
+func (m *relayCoreManager) operatorConfigMap(configMap *corev1.ConfigMap) {
+	configMap.Data = map[string]string{
+		DefaultVaultConfigurationFile: DefaultVaultConfiguration,
+	}
 }
 
 func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim) {
@@ -96,7 +122,7 @@ func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim)
 
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	if m.logServiceOpts.Enabled {
-		rc.Spec.LogService = installerv1alpha1.LogServiceConfig{
+		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
 			Image:           m.installerOpts.LogServiceImage,
 			ImagePullPolicy: corev1.PullAlways,
 			CredentialsSecretKeyRef: corev1.SecretKeySelector{
@@ -111,7 +137,7 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		}
 	}
 
-	rc.Spec.Operator = &installerv1alpha1.OperatorConfig{
+	rc.Spec.Operator = installerv1alpha1.OperatorConfig{
 		Image:             m.installerOpts.OperatorImage,
 		ImagePullPolicy:   corev1.PullAlways,
 		Standalone:        true,
@@ -128,82 +154,53 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		},
 	}
 
-	rc.Spec.MetadataAPI = &installerv1alpha1.MetadataAPIConfig{
+	rc.Spec.MetadataAPI = installerv1alpha1.MetadataAPIConfig{
 		Image:           m.installerOpts.MetadataAPIImage,
 		ImagePullPolicy: corev1.PullAlways,
-		VaultAuthRole:   "tenant",
-		VaultAuthPath:   "auth/jwt-tenants",
 	}
 
-	rc.Spec.VaultDeployment = &installerv1alpha1.VaultDeployment{
-		Image:           "gcr.io/nebula-tasks/nebula-vault:1.7.3-oauthapp-3.0.0-beta.3-2.2.0-1.10.0",
-		ImagePullPolicy: corev1.PullAlways,
-		Configuration: `
-  disable_mlock = true
-  ui = true
-  plugin_directory = "/nebula/vault/plugins"
-  log_level = "Debug"
-  listener "tcp" {
-    tls_disable = 1
-	address = "0.0.0.0:8200"
-    // address = "[::]:8200"
-    // cluster_address = "[::]:8201"
-  }
-  storage "file" {
-    path = "/vault/data"
-  }`,
-	}
+	rc.Spec.Vault = installerv1alpha1.VaultConfig{
+		Engine: installerv1alpha1.VaultEngineConfig{
+			VaultInitializationImage:           m.installerOpts.OperatorVaultInitImage,
+			VaultInitializationImagePullPolicy: corev1.PullAlways,
 
-	rc.Spec.Vault = &installerv1alpha1.VaultConfig{
-		VaultInitializationImage:           m.installerOpts.OperatorVaultInitImage,
-		VaultInitializationImagePullPolicy: corev1.PullAlways,
-
-		// FIXME Change this to be more flexible/specific
-		AuthDelegatorServiceAccountName: vaultIdentifier,
-
-		LogServicePath: "pls",
-		TenantPath:     "customers",
-		TransitKey:     "metadata-api",
-		TransitPath:    "transit-tenants",
-	}
-}
-
-func (m *relayCoreManager) rbacDefinition(crb *rbacv1.ClusterRoleBinding) {
-	crb.RoleRef =
-		rbacv1.RoleRef{
-			APIGroup: "rbac.authorization.k8s.io",
-			Kind:     "ClusterRole",
-			Name:     "cluster-admin",
-		}
-	crb.Subjects = []rbacv1.Subject{
-		{
-			Kind:      "ServiceAccount",
-			Name:      m.objects.serviceAccount.Name,
-			Namespace: m.objects.serviceAccount.Namespace,
+			// FIXME Change this to be more flexible/specific
+			AuthDelegatorServiceAccountName: vaultIdentifier,
+		},
+		Server: installerv1alpha1.VaultServerConfig{
+			BuiltIn: &installerv1alpha1.VaultServerBuiltInConfig{
+				Image:           m.installerOpts.VaultServerImage,
+				ImagePullPolicy: corev1.PullAlways,
+				Resources: corev1.ResourceRequirements{
+					Limits: map[corev1.ResourceName]resource.Quantity{
+						corev1.ResourceCPU:    resource.MustParse("50m"),
+						corev1.ResourceMemory: resource.MustParse("64Mi"),
+					},
+					Requests: map[corev1.ResourceName]resource.Quantity{
+						corev1.ResourceCPU:    resource.MustParse("25m"),
+						corev1.ResourceMemory: resource.MustParse("64Mi"),
+					},
+				},
+				ConfigMapRef: corev1.LocalObjectReference{
+					Name: m.objects.configMap.Name,
+				},
+			},
+		},
+		Sidecar: installerv1alpha1.VaultSidecarConfig{
+			Image:           m.installerOpts.VaultSidecarImage,
+			ImagePullPolicy: corev1.PullAlways,
+			Resources: corev1.ResourceRequirements{
+				Limits: map[corev1.ResourceName]resource.Quantity{
+					corev1.ResourceCPU:    resource.MustParse("50m"),
+					corev1.ResourceMemory: resource.MustParse("64Mi"),
+				},
+				Requests: map[corev1.ResourceName]resource.Quantity{
+					corev1.ResourceCPU:    resource.MustParse("25m"),
+					corev1.ResourceMemory: resource.MustParse("64Mi"),
+				},
+			},
 		},
 	}
-
-}
-
-func (m *relayCoreManager) wait(ctx context.Context) error {
-	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		key := client.ObjectKeyFromObject(&m.objects.relayCore)
-
-		if err := m.cl.APIClient.Get(ctx, key, &m.objects.relayCore); err != nil {
-			return retry.Repeat(err)
-		}
-
-		if m.objects.relayCore.Status.Status != installerv1alpha1.StatusCreated {
-			return retry.Repeat(errors.New("waiting for relaycore to be created"))
-		}
-
-		return retry.Done(nil)
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func newRelayCoreManager(cl *Client, installerOpts InstallerOptions, logServiceOpts LogServiceOptions) *relayCoreManager {

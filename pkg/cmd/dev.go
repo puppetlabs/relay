@@ -93,6 +93,9 @@ func initDevelopmentEnvironment(ctx context.Context, initOpts dev.InitializeOpti
 			OperatorImage:          dev.RelayOperatorImage,
 			OperatorVaultInitImage: dev.RelayOperatorVaultInitImage,
 			OperatorWebhookCertificateControllerImage: dev.RelayOperatorWebhookCertificateControllerImage,
+
+			VaultServerImage:  dev.DefaultVaultServerImage,
+			VaultSidecarImage: dev.DefaultVaultSidecarImage,
 		})
 
 	logServiceOpts := mapLogServiceOptionsFromConfig(Config.LogServiceConfig)
@@ -102,8 +105,6 @@ func initDevelopmentEnvironment(ctx context.Context, initOpts dev.InitializeOpti
 	if err := dm.InitializeRelayCore(ctx, initOpts, installerOpts, logServiceOpts); err != nil {
 		return err
 	}
-
-	Dialog.Infof("Cluster connection can be used with: !Connection {type: kubernetes, name: %s}", dev.RelayClusterConnectionName)
 
 	return nil
 }
@@ -237,6 +238,8 @@ func mapInstallerOptionsFromConfig(installerConfig *config.InstallerConfig, defa
 		installerOpts.OperatorImage = coalesce(installerConfig.OperatorImage, defaultInstallerOpts.OperatorImage)
 		installerOpts.OperatorVaultInitImage = coalesce(installerConfig.OperatorVaultInitImage, defaultInstallerOpts.OperatorVaultInitImage)
 		installerOpts.OperatorWebhookCertificateControllerImage = coalesce(installerConfig.OperatorWebhookCertificateControllerImage, defaultInstallerOpts.OperatorWebhookCertificateControllerImage)
+		installerOpts.VaultServerImage = coalesce(installerConfig.VaultServerImage, defaultInstallerOpts.VaultServerImage)
+		installerOpts.VaultSidecarImage = coalesce(installerConfig.VaultSidecarImage, defaultInstallerOpts.VaultSidecarImage)
 	}
 
 	return installerOpts

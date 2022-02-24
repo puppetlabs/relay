@@ -12,4 +12,4 @@ metadata:
   name: config-network
   namespace: knative-serving
 data:
-  ingress.class: ambassador.ingress.networking.knative.dev
+  ingress.class: kourier.ingress.networking.knative.dev

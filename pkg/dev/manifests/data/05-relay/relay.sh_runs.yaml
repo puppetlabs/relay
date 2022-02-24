@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
   name: runs.relay.sh
 spec:
@@ -218,6 +217,99 @@ spec:
                           name:
                             description: Name of the associated log.
                             type: string
+                        type: object
+                      type: array
+                    messages:
+                      description: Messages provide additional human-oriented context
+                        information about a step's execution.
+                      items:
+                        properties:
+                          details:
+                            description: Details is the text content of the message
+                              to show to an interested user.
+                            maxLength: 1024
+                            type: string
+                          observationTime:
+                            description: "ObservationTime is the time that the causal
+                              event for the message occurred. \n This may be different
+                              from the time the message was actually added to the
+                              Run object."
+                            format: date-time
+                            type: string
+                          severity:
+                            description: Severity indicates the importance of this
+                              message.
+                            enum:
+                            - Trace
+                            - Informational
+                            - Warning
+                            - Error
+                            type: string
+                          short:
+                            description: "Short is an abbreviated description of the
+                              message (if available) that could be shown as a title
+                              or in space-constrained user interfaces. \n If not specified,
+                              the first few characters of the details will be used
+                              instead."
+                            maxLength: 24
+                            type: string
+                          source:
+                            description: Source is the origin of the message.
+                            properties:
+                              log:
+                                description: Log is a source used by the logging APIs
+                                  exposed to step authors.
+                                type: object
+                              specValidation:
+                                description: SpecValidation is a source used by the
+                                  runtime validation of the spec.
+                                properties:
+                                  expression:
+                                    description: Expression is the actual data of
+                                      the expression that failed to validate, copied
+                                      verbatim from the workflow definition and relative
+                                      to the path field, if it is available.
+                                    x-kubernetes-preserve-unknown-fields: true
+                                  path:
+                                    description: "Path is the location within the
+                                      spec to the expression that originated the message,
+                                      expressed as a JSON Pointer (RFC 6901). \n If
+                                      not specified, or empty, the path refers to
+                                      the entire spec."
+                                    type: string
+                                  schema:
+                                    description: Schema is the JSON Schema that caused
+                                      the validation error relative to the path field.
+                                    x-kubernetes-preserve-unknown-fields: true
+                                required:
+                                - path
+                                type: object
+                              whenEvaluation:
+                                description: WhenEvaluation is a source used by runtime
+                                  processing of when conditions.
+                                properties:
+                                  expression:
+                                    description: Expression is the actual data of
+                                      the expression that failed to evaluate, copied
+                                      verbatim from the workflow definition and relative
+                                      to the path field, if it is available.
+                                    x-kubernetes-preserve-unknown-fields: true
+                                  path:
+                                    description: "Path is the location within the
+                                      when condition to the expression that originated
+                                      the message, expressed as a JSON Pointer (RFC
+                                      6901). \n If not specified, or empty, the path
+                                      refers to the entire when condition."
+                                    type: string
+                                required:
+                                - path
+                                type: object
+                            type: object
+                        required:
+                        - details
+                        - observationTime
+                        - severity
+                        - source
                         type: object
                       type: array
                     name:
