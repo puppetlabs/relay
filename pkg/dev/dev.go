@@ -2,13 +2,10 @@ package dev
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"path"
 	"time"
 
-	"github.com/puppetlabs/leg/k8sutil/pkg/manifest"
-	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/leg/workdir"
 	v1 "github.com/puppetlabs/relay-client-go/models/pkg/workflow/types/v1"
 	installerv1alpha1 "github.com/puppetlabs/relay-core/pkg/apis/install.relay.sh/v1alpha1"
@@ -16,7 +13,6 @@ import (
 	"github.com/puppetlabs/relay-core/pkg/obj"
 	"github.com/puppetlabs/relay-core/pkg/operator/dependency"
 	helmchartv1 "github.com/rancher/helm-controller/pkg/apis/helm.cattle.io/v1"
-	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
@@ -48,15 +44,6 @@ var (
 		installerv1alpha1.AddToScheme,
 	)
 	_ = schemeBuilder.AddToScheme(DefaultScheme)
-)
-
-const (
-	RelayInstallerImage                            = "relaysh/relay-installer:latest"
-	RelayLogServiceImage                           = "relaysh/relay-pls:latest"
-	RelayMetadataAPIImage                          = "relaysh/relay-metadata-api:latest"
-	RelayOperatorImage                             = "relaysh/relay-operator:latest"
-	RelayOperatorVaultInitImage                    = "relaysh/relay-operator-vault-init:latest"
-	RelayOperatorWebhookCertificateControllerImage = "relaysh/relay-operator-webhook-certificate-controller:latest"
 )
 
 const (
@@ -96,6 +83,8 @@ type InstallerOptions struct {
 	OperatorImage                             string
 	OperatorVaultInitImage                    string
 	OperatorWebhookCertificateControllerImage string
+	VaultServerImage                          string
+	VaultSidecarImage                         string
 }
 
 // FIXME Consider a better mechanism for specific service options
@@ -167,6 +156,10 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData, t *re
 		name = defaultWorkflowName
 	}
 
+	// FIXME Refactor the connection handling (ideally not directly linked to the create workflow functionality)
+	if err := am.reconcile(ctx); err != nil {
+		return nil, err
+	}
 	if err := am.addConnectionForWorkflow(ctx, name); err != nil {
 		return nil, err
 	}
@@ -264,8 +257,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOp
 	<-time.After(time.Second * 5)
 
 	nm := newNamespaceManager(m.cl)
-	vm := newVaultManager(m.cl, m.cfg)
-	am := newAdminManager(m.cl, vm)
 	rim := newRelayInstallerManager(m.cl, installerOpts)
 	rcm := newRelayCoreManager(m.cl, installerOpts, logServiceOpts)
 
@@ -273,37 +264,25 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOp
 		return err
 	}
 
-	if err := am.reconcile(ctx); err != nil {
-		return err
-	}
-
 	// TODO: dynamically generate the list as we process the manifests
 
 	mm := NewManifestManager(m.cl)
 
+	manifests := []string{
+		"/03-tekton",
+		"/04-knative",
+		"/05-relay",
+		"/06-kourier",
+	}
+
 	if initOpts.InstallHelmController {
-		if err := mm.ProcessManifests(ctx, "/helm-controller"); err != nil {
+		manifests = append(manifests, "helm-controller")
+	}
+
+	for _, manifest := range manifests {
+		if err := mm.ProcessManifests(ctx, manifest); err != nil {
 			return err
 		}
-	}
-
-	if err := mm.ProcessManifests(ctx, "/01-init",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, systemNamespace)); err != nil {
-		return err
-	}
-
-	if err := mm.ProcessManifests(ctx, "/03-tekton",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, tektonPipelinesNamespace)); err != nil {
-		return err
-	}
-
-	if err := mm.ProcessManifests(ctx, "/04-knative",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, knativeServingNamespace)); err != nil {
-		return err
-	}
-
-	if err := mm.ProcessManifests(ctx, "/05-relay"); err != nil {
-		return err
 	}
 
 	if err := rim.reconcile(ctx); err != nil {
@@ -311,44 +290,6 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOp
 	}
 
 	if err := rcm.reconcile(ctx); err != nil {
-		return err
-	}
-
-	if err := mm.ProcessManifests(ctx, "/06-ambassador",
-		manifest.DefaultNamespacePatcher(m.cl.Mapper, ambassadorNamespace),
-		ambassadorPatcher()); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Manager) waitForServices(ctx context.Context, namespace string) error {
-	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
-		eps := &corev1.EndpointsList{}
-		if err := m.cl.APIClient.List(ctx, eps, client.InNamespace(namespace)); err != nil {
-			return retry.Repeat(err)
-		}
-
-		if len(eps.Items) == 0 {
-			return retry.Repeat(fmt.Errorf("waiting for endpoints"))
-		}
-
-		for _, ep := range eps.Items {
-			if len(ep.Subsets) == 0 {
-				return retry.Repeat(fmt.Errorf("waiting for subsets"))
-			}
-
-			for _, subset := range ep.Subsets {
-				if len(subset.Addresses) == 0 {
-					return retry.Repeat(fmt.Errorf("waiting for pod assignment"))
-				}
-			}
-		}
-
-		return retry.Done(nil)
-	})
-	if err != nil {
 		return err
 	}
 
