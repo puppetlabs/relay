@@ -269,10 +269,10 @@ func (m *Manager) InitializeRelayCore(ctx context.Context, initOpts InitializeOp
 	mm := NewManifestManager(m.cl)
 
 	manifests := []string{
-		"/03-tekton",
-		"/04-knative",
-		"/05-relay",
-		"/06-kourier",
+		"/tekton",
+		"/knative",
+		"/relay",
+		"/kourier",
 	}
 
 	if initOpts.InstallHelmController {
