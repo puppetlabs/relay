@@ -2,8 +2,10 @@ package dev
 
 import (
 	"context"
+	"errors"
 	"path"
 
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,15 +50,13 @@ type adminManager struct {
 }
 
 func (m *adminManager) reconcile(ctx context.Context) error {
-	client := m.cl.APIClient
-
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.serviceAccount, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, m.cl.APIClient, &m.objects.serviceAccount, func() error {
 		return nil
 	}); err != nil {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.secret, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, m.cl.APIClient, &m.objects.secret, func() error {
 		m.secret(&m.objects.secret)
 
 		return nil
@@ -64,7 +64,7 @@ func (m *adminManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, client, &m.objects.clusterRoleBinding, func() error {
+	if _, err := ctrl.CreateOrUpdate(ctx, m.cl.APIClient, &m.objects.clusterRoleBinding, func() error {
 		m.clusterRoleBinding(&m.objects.clusterRoleBinding)
 
 		return nil
@@ -94,8 +94,8 @@ func (m *adminManager) clusterRoleBinding(clusterRoleBinding *rbacv1.ClusterRole
 	clusterRoleBinding.Subjects = []rbacv1.Subject{
 		{
 			Kind:      "ServiceAccount",
-			Name:      relayAdminServiceAccountName,
-			Namespace: systemNamespace,
+			Name:      m.objects.serviceAccount.Name,
+			Namespace: m.objects.serviceAccount.Namespace,
 		},
 	}
 }
@@ -103,7 +103,18 @@ func (m *adminManager) clusterRoleBinding(clusterRoleBinding *rbacv1.ClusterRole
 func (m *adminManager) addConnectionForWorkflow(ctx context.Context, name string) error {
 	secretKey := client.ObjectKeyFromObject(&m.objects.secret)
 
-	if err := m.cl.APIClient.Get(ctx, secretKey, &m.objects.secret); err != nil {
+	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
+		if err := m.cl.APIClient.Get(ctx, secretKey, &m.objects.secret); err != nil {
+			return retry.Repeat(err)
+		}
+
+		if len(m.objects.secret.Data) == 0 {
+			return retry.Repeat(errors.New("secret data is empty"))
+		}
+
+		return retry.Done(nil)
+	})
+	if err != nil {
 		return err
 	}
 
