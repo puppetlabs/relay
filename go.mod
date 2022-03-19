@@ -20,15 +20,15 @@ require (
 	github.com/puppetlabs/errawr-go/v2 v2.2.0
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/httputil v0.1.4
-	github.com/puppetlabs/leg/k8sutil v0.6.5
+	github.com/puppetlabs/leg/k8sutil v0.6.6
 	github.com/puppetlabs/leg/timeutil v0.4.2
 	github.com/puppetlabs/leg/workdir v0.1.0
 	github.com/puppetlabs/relay-client-go/client v0.4.5
 	github.com/puppetlabs/relay-client-go/models v1.0.7
-	github.com/puppetlabs/relay-core v0.0.0-20220223150104-17a990cfe72d
+	github.com/puppetlabs/relay-core v0.0.0-20220318183251-53b2ceb0981b
 	github.com/rancher/helm-controller v0.6.3
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
@@ -78,7 +78,7 @@ require (
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32 // indirect
 	github.com/go-kit/log v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
-	github.com/go-logr/logr v1.2.2 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-openapi/analysis v0.19.10 // indirect
 	github.com/go-openapi/errors v0.19.4 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
@@ -157,7 +157,7 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/prometheus/statsd_exporter v0.21.0 // indirect
 	github.com/puppetlabs/leg/datastructure v0.1.0 // indirect
-	github.com/puppetlabs/leg/errmap v0.1.0 // indirect
+	github.com/puppetlabs/leg/errmap v0.1.1 // indirect
 	github.com/puppetlabs/leg/graph v0.1.1 // indirect
 	github.com/puppetlabs/leg/gvalutil v0.2.0 // indirect
 	github.com/puppetlabs/leg/hashutil v0.1.0 // indirect
@@ -169,7 +169,6 @@ require (
 	github.com/puppetlabs/leg/request v0.1.0 // indirect
 	github.com/puppetlabs/leg/storage v0.1.1 // indirect
 	github.com/puppetlabs/leg/stringutil v0.1.0 // indirect
-	github.com/puppetlabs/pvpool v0.3.0 // indirect
 	github.com/puppetlabs/relay-pls v0.0.0-20201125074651-13575df50b51 // indirect
 	github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
@@ -192,15 +191,15 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/exp v0.0.0-20201221025956-e89b829e73ea // indirect
-	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220224120231-95c6836cb0e7 // indirect
+	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
-	golang.org/x/tools v0.1.9 // indirect
+	golang.org/x/tools v0.1.10 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/api v0.67.0 // indirect
@@ -214,7 +213,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	k8s.io/component-base v0.23.0 // indirect
-	k8s.io/klog/v2 v2.40.1 // indirect
+	k8s.io/klog/v2 v2.60.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	knative.dev/networking v0.0.0-20220120043934-ec785540a732 // indirect
