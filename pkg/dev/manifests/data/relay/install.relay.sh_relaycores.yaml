@@ -3221,12 +3221,11 @@ spec:
                     description: ToolInjection is the configuration for the entrypointer
                       and tool injection runtime tooling.
                     properties:
-                      triggerPoolName:
-                        description: TriggerPoolName is the name of the tool injection
-                          pool for triggers.
+                      image:
+                        default: relaysh/relay-runtime-tools:latest
+                        description: Image is the image to use for the relay tool
+                          injection.
                         type: string
-                    required:
-                    - triggerPoolName
                     type: object
                   vaultAgentRole:
                     default: operator

@@ -125,15 +125,18 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
 			Image:           m.installerOpts.LogServiceImage,
 			ImagePullPolicy: corev1.PullAlways,
-			CredentialsSecretKeyRef: corev1.SecretKeySelector{
+		}
+
+		if m.logServiceOpts.CredentialsSecretName != "" && m.logServiceOpts.CredentialsKey != "" {
+			rc.Spec.LogService.CredentialsSecretKeyRef = &corev1.SecretKeySelector{
 				Key: m.logServiceOpts.CredentialsKey,
 				LocalObjectReference: corev1.LocalObjectReference{
 					Name: m.logServiceOpts.CredentialsSecretName,
 				},
-			},
-			Project: m.logServiceOpts.Project,
-			Dataset: m.logServiceOpts.Dataset,
-			Table:   m.logServiceOpts.Table,
+			}
+			rc.Spec.LogService.Project = m.logServiceOpts.Project
+			rc.Spec.LogService.Dataset = m.logServiceOpts.Dataset
+			rc.Spec.LogService.Table = m.logServiceOpts.Table
 		}
 	}
 
