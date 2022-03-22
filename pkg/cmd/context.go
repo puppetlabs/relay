@@ -55,8 +55,12 @@ func doViewContext(cmd *cobra.Command, args []string) error {
 	Dialog.Infof("Context: %s", context)
 
 	if contextConfig, ok := Config.ContextConfig[context]; ok {
-		Dialog.Infof("API Domain: %s", contextConfig.Domains.APIDomain)
-		Dialog.Infof("UI Domain: %s", contextConfig.Domains.UIDomain)
+		if contextConfig.Domains != nil {
+			Dialog.Infof("API Domain: %s", contextConfig.Domains.APIDomain)
+			Dialog.Infof("UI Domain: %s", contextConfig.Domains.UIDomain)
+		} else {
+			Dialog.Info("No domains found for current context")
+		}
 	} else {
 		Dialog.Info("No context configuration found")
 	}
