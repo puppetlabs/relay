@@ -140,6 +140,11 @@ func (c *Client) Request(setters ...RequestOptionSetter) errors.Error {
 		return errors.NewClientInternalError()
 	}
 
+	if contextConfig.Domains == nil || contextConfig.Domains.APIDomain == nil {
+		return errors.NewClientInternalError().
+			WithCause(errors.NewConfigInvalidAPIDomain(""))
+	}
+
 	rel := &url.URL{Path: opts.path}
 	u := contextConfig.Domains.APIDomain.ResolveReference(rel)
 
