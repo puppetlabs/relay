@@ -34,6 +34,12 @@ Use the 'workflow' subcommand to interact with workflows:
   -t, --type string   Authentication type (api|session)
 ```
 
+**`relay config global debug (true|false)`** -- Set global debug flag
+
+**`relay config global out (text|json)`** -- Set global out flag
+
+**`relay config global yes (true|false)`** -- Set global yes flag
+
 **`relay context set [context name]`** -- Set current context
 
 **`relay context view`** -- View current context

@@ -22,6 +22,10 @@ const (
 	OutputTypeJSON OutputType = "json"
 )
 
+func (ot OutputType) String() string {
+	return string(ot)
+}
+
 type AuthTokenType string
 
 const (
@@ -308,6 +312,25 @@ func WriteConfig(cfg *Config, flags *pflag.FlagSet) error {
 			}
 		}
 	}
+
+	if err := v.WriteConfig(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func WriteGlobalConfig(cfg *Config, flags *pflag.FlagSet) error {
+	v := viper.New()
+
+	v.SetEnvPrefix(RelayEnvironment)
+	v.AutomaticEnv()
+
+	readInConfigFile(v, flags)
+
+	v.Set("debug", cfg.Debug)
+	v.Set("out", cfg.Out)
+	v.Set("yes", cfg.Yes)
 
 	if err := v.WriteConfig(); err != nil {
 		return err
