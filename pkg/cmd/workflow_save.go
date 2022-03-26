@@ -92,16 +92,7 @@ func updateWorkflowRevision(cmd *cobra.Command, workflow *model.WorkflowEntity) 
 
 	revision, err := Client.CreateRevision(workflow.Workflow.Name, revisionContent)
 	if err != nil {
-		Dialog.Warnf(`When uploading the file %s, we encountered the following errors:
-
-%s
-
-`,
-			filePath,
-			format.Error(err, cmd),
-		)
-
-		info = fmt.Sprintf("Attempted to save workflow %v, but the file content contained errors.", workflow.Workflow.Name)
+		return "", err
 	} else {
 		wr := model.NewWorkflowRevision(workflow.Workflow, revision.Revision)
 		wr.Output(Config)
