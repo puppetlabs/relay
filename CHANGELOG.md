@@ -1,3 +1,19 @@
+# [5.1.0](https://github.com/puppetlabs/relay/compare/v5.0.0...v5.1.0)
+
+### Added
+- Added commands to configure global flags
+
+### Changed
+- Updated the `relay dev` commands to use the latest Relay Installer
+- Support any cluster in the development environment
+
+### Fixed
+- Return error when saving workflow revisions instead of warning output
+- Added error handling for undefined domains when switching contexts
+
+### Removed
+- Removed k3d internal cluster commands
+
 # [5.0.0](https://github.com/puppetlabs/relay/compare/v4.8.0...v5.0.0)
 
 ### Changed
