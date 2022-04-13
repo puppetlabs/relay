@@ -39,13 +39,11 @@ storage "file" {
 )
 
 const (
-	relayCoreName                  = "relay-core-v1"
-	relayOperatorStorageVolumeSize = "1Gi"
+	relayCoreName = "relay-core-v1"
 )
 
 type relayCoreObjects struct {
 	configMap      corev1.ConfigMap
-	pvc            corev1.PersistentVolumeClaim
 	relayCore      installerv1alpha1.RelayCore
 	serviceAccount corev1.ServiceAccount
 }
@@ -61,7 +59,6 @@ func newRelayCoreObjects() *relayCoreObjects {
 
 	return &relayCoreObjects{
 		configMap:      corev1.ConfigMap{ObjectMeta: operatorObjectMeta},
-		pvc:            corev1.PersistentVolumeClaim{ObjectMeta: operatorObjectMeta},
 		relayCore:      installerv1alpha1.RelayCore{ObjectMeta: objectMeta},
 		serviceAccount: corev1.ServiceAccount{ObjectMeta: operatorObjectMeta},
 	}
@@ -85,14 +82,6 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.pvc, func() error {
-		m.operatorStoragePVC(&m.objects.pvc)
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.relayCore, func() error {
 		m.relayCore(&m.objects.relayCore)
 
@@ -107,16 +96,6 @@ func (m *relayCoreManager) reconcile(ctx context.Context) error {
 func (m *relayCoreManager) operatorConfigMap(configMap *corev1.ConfigMap) {
 	configMap.Data = map[string]string{
 		DefaultVaultConfigurationFile: DefaultVaultConfiguration,
-	}
-}
-
-func (m *relayCoreManager) operatorStoragePVC(pvc *corev1.PersistentVolumeClaim) {
-	pvc.Spec.AccessModes = []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce}
-
-	pvc.Spec.Resources = corev1.ResourceRequirements{
-		Requests: map[corev1.ResourceName]resource.Quantity{
-			corev1.ResourceStorage: resource.MustParse(relayOperatorStorageVolumeSize),
-		},
 	}
 }
 
@@ -141,10 +120,9 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 	}
 
 	rc.Spec.Operator = installerv1alpha1.OperatorConfig{
-		Image:             m.installerOpts.OperatorImage,
-		ImagePullPolicy:   corev1.PullAlways,
-		Standalone:        true,
-		LogStoragePVCName: &m.objects.pvc.Name,
+		Image:           m.installerOpts.OperatorImage,
+		ImagePullPolicy: corev1.PullAlways,
+		Standalone:      true,
 		AdmissionWebhookServer: &installerv1alpha1.AdmissionWebhookServerConfig{
 			CertificateControllerImage:           m.installerOpts.OperatorWebhookCertificateControllerImage,
 			CertificateControllerImagePullPolicy: corev1.PullAlways,
