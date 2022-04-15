@@ -119,9 +119,11 @@ func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
 		}
 	}
 
+	tn := tenantNamespace
 	rc.Spec.Operator = installerv1alpha1.OperatorConfig{
 		Image:           m.installerOpts.OperatorImage,
 		ImagePullPolicy: corev1.PullAlways,
+		TenantNamespace: &tn,
 		Standalone:      true,
 		AdmissionWebhookServer: &installerv1alpha1.AdmissionWebhookServerConfig{
 			CertificateControllerImage:           m.installerOpts.OperatorWebhookCertificateControllerImage,
