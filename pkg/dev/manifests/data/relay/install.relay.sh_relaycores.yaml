@@ -2078,7 +2078,7 @@ spec:
                       type: object
                     type: array
                   image:
-                    default: relaysh/relay-metadata-api:latest
+                    default: us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-metadata-api:latest
                     type: string
                   imagePullPolicy:
                     default: IfNotPresent
@@ -2139,7 +2139,7 @@ spec:
                       admissionregistration webhook server.
                     properties:
                       certificateControllerImage:
-                        default: relaysh/relay-operator-webhook-certificate-controller:latest
+                        default: us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator-webhook-certificate-controller:latest
                         description: CertificateControllerImage is the image to use
                           for the certificate controller that managers the TLS certificates
                           for the operator's webhook server
@@ -3176,18 +3176,12 @@ spec:
                       type: object
                     type: array
                   image:
-                    default: relaysh/relay-operator:latest
+                    default: us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator:latest
                     type: string
                   imagePullPolicy:
                     default: IfNotPresent
                     description: PullPolicy describes a policy for if/when to pull
                       a container image
-                    type: string
-                  logStoragePVCName:
-                    description: "LogStoragePVCName is the name of a PVC to store
-                      logs in. This field is here to support the development environment
-                      and may be removed at a later date when the PLS implementation
-                      is rolled in. \n DEPRECATED"
                     type: string
                   metricsEnabled:
                     default: false
@@ -3210,6 +3204,10 @@ spec:
                   storageAddr:
                     description: StorageAddr is the storage address URI for log storage.
                     type: string
+                  tenantNamespace:
+                    description: TenantNamespace is the Kubernetes namespace the operator
+                      should look for tenant workloads on.
+                    type: string
                   tenantSandboxingRuntimeClassName:
                     description: 'TenantSandboxingRuntimeClassName sets the class
                       to use for sandboxing application kernels on tenant pods. If
@@ -3222,7 +3220,7 @@ spec:
                       and tool injection runtime tooling.
                     properties:
                       image:
-                        default: relaysh/relay-runtime-tools:latest
+                        default: us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-runtime-tools:latest
                         description: Image is the image to use for the relay tool
                           injection.
                         type: string
@@ -3345,7 +3343,7 @@ spec:
                         default: transit-tenants
                         type: string
                       vaultInitializationImage:
-                        default: relaysh/relay-operator-vault-init:latest
+                        default: us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator-vault-init:latest
                         type: string
                       vaultInitializationImagePullPolicy:
                         default: IfNotPresent
