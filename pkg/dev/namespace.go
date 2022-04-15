@@ -20,7 +20,6 @@ const (
 
 type namespaceObjects struct {
 	systemNamespace         corev1.Namespace
-	tenantNamespace         corev1.Namespace
 	knativeServingNamespace corev1.Namespace
 	kourierSystemNamespace  corev1.Namespace
 }
@@ -28,7 +27,6 @@ type namespaceObjects struct {
 func newNamespaceObjects() *namespaceObjects {
 	return &namespaceObjects{
 		systemNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: systemNamespace}},
-		tenantNamespace:         corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: tenantNamespace}},
 		knativeServingNamespace: corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: knativeServingNamespace}},
 		kourierSystemNamespace:  corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: kourierSystemNamespace}},
 	}
@@ -45,12 +43,6 @@ func (m *namespaceManager) reconcile(ctx context.Context) error {
 	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.systemNamespace, func() error {
 		m.systemNamespace(&m.objects.systemNamespace)
 
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if _, err := ctrl.CreateOrUpdate(ctx, cl, &m.objects.tenantNamespace, func() error {
 		return nil
 	}); err != nil {
 		return err
