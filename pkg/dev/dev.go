@@ -114,7 +114,7 @@ func (m *Manager) CreateTenant(ctx context.Context, name string) (*relayv1beta1.
 		v1.WithIDTenantOption(name),
 		v1.WithWorkflowNameTenantOption(name),
 		v1.WithWorkflowIDTenantOption(name),
-		v1.WithNamespaceTenantOption(name),
+		v1.WithNamespaceTenantOption(tenantNamespace),
 	)
 
 	mapping, err := mapper.ToRuntimeObjectsManifest()
@@ -166,7 +166,7 @@ func (m *Manager) CreateWorkflow(ctx context.Context, wd *v1.WorkflowData, t *re
 
 	mapper := v1.NewDefaultWorkflowMapper(
 		v1.WithDomainIDOption(name),
-		v1.WithNamespaceOption(name),
+		v1.WithNamespaceOption(tenantNamespace),
 		v1.WithWorkflowNameOption(name),
 		v1.WithVaultEngineMountOption(VaultEngineMountCustomers),
 		v1.WithTenantOption(t),
@@ -208,7 +208,7 @@ func (m *Manager) RunWorkflow(ctx context.Context, wf *relayv1beta1.Workflow, pa
 	}
 
 	mapper := v1.NewDefaultRunEngineMapper(
-		v1.WithDomainIDRunOption(wf.GetNamespace()),
+		v1.WithDomainIDRunOption(wf.GetName()),
 		v1.WithNamespaceRunOption(wf.GetNamespace()),
 		v1.WithWorkflowNameRunOption(wf.GetName()),
 		v1.WithWorkflowRunNameRunOption(runName),
