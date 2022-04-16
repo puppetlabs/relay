@@ -89,7 +89,6 @@ type InstallerOptions struct {
 
 // FIXME Consider a better mechanism for specific service options
 type LogServiceOptions struct {
-	Enabled               bool
 	CredentialsKey        string
 	CredentialsSecretName string
 	Project               string
