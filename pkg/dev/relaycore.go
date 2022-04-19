@@ -100,23 +100,21 @@ func (m *relayCoreManager) operatorConfigMap(configMap *corev1.ConfigMap) {
 }
 
 func (m *relayCoreManager) relayCore(rc *installerv1alpha1.RelayCore) {
-	if m.logServiceOpts.Enabled {
-		rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
-			Image:           m.installerOpts.LogServiceImage,
-			ImagePullPolicy: corev1.PullAlways,
-		}
+	rc.Spec.LogService = &installerv1alpha1.LogServiceConfig{
+		Image:           m.installerOpts.LogServiceImage,
+		ImagePullPolicy: corev1.PullAlways,
+	}
 
-		if m.logServiceOpts.CredentialsSecretName != "" && m.logServiceOpts.CredentialsKey != "" {
-			rc.Spec.LogService.CredentialsSecretKeyRef = &corev1.SecretKeySelector{
-				Key: m.logServiceOpts.CredentialsKey,
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: m.logServiceOpts.CredentialsSecretName,
-				},
-			}
-			rc.Spec.LogService.Project = m.logServiceOpts.Project
-			rc.Spec.LogService.Dataset = m.logServiceOpts.Dataset
-			rc.Spec.LogService.Table = m.logServiceOpts.Table
+	if m.logServiceOpts.CredentialsSecretName != "" && m.logServiceOpts.CredentialsKey != "" {
+		rc.Spec.LogService.CredentialsSecretKeyRef = &corev1.SecretKeySelector{
+			Key: m.logServiceOpts.CredentialsKey,
+			LocalObjectReference: corev1.LocalObjectReference{
+				Name: m.logServiceOpts.CredentialsSecretName,
+			},
 		}
+		rc.Spec.LogService.Project = m.logServiceOpts.Project
+		rc.Spec.LogService.Dataset = m.logServiceOpts.Dataset
+		rc.Spec.LogService.Table = m.logServiceOpts.Table
 	}
 
 	tn := tenantNamespace

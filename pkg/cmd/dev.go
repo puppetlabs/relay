@@ -249,7 +249,6 @@ func mapLogServiceOptionsFromConfig(logServiceConfig *config.LogServiceConfig) d
 	logServiceOpts := dev.LogServiceOptions{}
 	if logServiceConfig != nil {
 		logServiceOpts = dev.LogServiceOptions{
-			Enabled:               true,
 			CredentialsKey:        logServiceConfig.CredentialsKey,
 			CredentialsSecretName: logServiceConfig.CredentialsSecretName,
 			Project:               logServiceConfig.Project,
