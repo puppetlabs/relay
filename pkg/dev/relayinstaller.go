@@ -19,8 +19,8 @@ type relayInstallerObjects struct {
 
 func newRelayInstallerObjects() *relayInstallerObjects {
 	objectMeta := metav1.ObjectMeta{
-		Name:      "relay-install-operator",
-		Namespace: systemNamespace,
+		Name:      "relay-installer",
+		Namespace: "relay-installer",
 	}
 
 	return &relayInstallerObjects{
@@ -203,7 +203,7 @@ func (m *relayInstallerManager) deployment(deployment *appsv1.Deployment) {
 
 func (m *relayInstallerManager) labels() map[string]string {
 	return map[string]string{
-		"app.kubernetes.io/name":      "relay-install-operator",
+		"app.kubernetes.io/name":      "relay-installer",
 		"app.kubernetes.io/component": "controller",
 	}
 }
