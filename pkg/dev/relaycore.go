@@ -12,12 +12,13 @@ import (
 )
 
 const (
-	RelayInstallerImage                            = "relaysh/relay-installer:latest"
-	RelayLogServiceImage                           = "relaysh/relay-pls:latest"
-	RelayMetadataAPIImage                          = "relaysh/relay-metadata-api:latest"
-	RelayOperatorImage                             = "relaysh/relay-operator:latest"
-	RelayOperatorVaultInitImage                    = "relaysh/relay-operator-vault-init:latest"
-	RelayOperatorWebhookCertificateControllerImage = "relaysh/relay-operator-webhook-certificate-controller:latest"
+	RelayInstallerImage                            = "us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-installer"
+	RelayMetadataAPIImage                          = "us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-metadata-api"
+	RelayOperatorImage                             = "us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator"
+	RelayOperatorVaultInitImage                    = "us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator-vault-init"
+	RelayOperatorWebhookCertificateControllerImage = "us-docker.pkg.dev/puppet-relay-contrib-oss/relay-core/relay-operator-webhook-certificate-controller"
+
+	RelayLogServiceImage = "relaysh/relay-pls:latest"
 )
 
 const (
