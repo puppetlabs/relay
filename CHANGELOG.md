@@ -1,3 +1,14 @@
+# [5.2.0](https://github.com/puppetlabs/relay/compare/v5.1.0...v5.2.0)
+
+### Changed
+- Refactored the tenant namespace for dev workflows
+- Enabled the log service by default
+- Switched to newer OSS image repositories
+- Refactored installer naming for consistency
+
+### Removed
+- Removed the legacy PVC from the installer
+
 # [5.1.0](https://github.com/puppetlabs/relay/compare/v5.0.0...v5.1.0)
 
 ### Added
