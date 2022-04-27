@@ -2011,8 +2011,8 @@ github.com/puppetlabs/relay-client-go/client v0.4.5/go.mod h1:96UPPGfyCXTLt6zalS
 github.com/puppetlabs/relay-client-go/models v1.0.7 h1:RhIurCzOCEOyBLKUjxV7AoBHlLuULFGXmzctyH9MO9I=
 github.com/puppetlabs/relay-client-go/models v1.0.7/go.mod h1:aQJfo2Wo8aPFXWNjVGAy9dq6Xz5EcgET2tR7GPOijYA=
 github.com/puppetlabs/relay-core v0.0.0-20211101184602-cf3519db2e61/go.mod h1:tOTpLLbsrnOPQ8sn7i1Zq6etYky6GZoB6zzNGlUQ64w=
-github.com/puppetlabs/relay-core v0.0.0-20220415223448-6c6d3bec719c h1:EBzm4SJzcrwPY1+HL1fpqoIK5BHaSJQDHe5ySiz/qUE=
-github.com/puppetlabs/relay-core v0.0.0-20220415223448-6c6d3bec719c/go.mod h1:MLj8qxHQ68gCUMJkz0mRnCRee1yu/aoRgh/rBCqiruQ=
+github.com/puppetlabs/relay-core v0.0.0-20220427044955-8331790d54ab h1:TVUiUIYoORH8OQSFbdnOkyI1QUSINY+fE1zd3F3coIs=
+github.com/puppetlabs/relay-core v0.0.0-20220427044955-8331790d54ab/go.mod h1:MLj8qxHQ68gCUMJkz0mRnCRee1yu/aoRgh/rBCqiruQ=
 github.com/puppetlabs/relay-pls v0.0.0-20201125074651-13575df50b51 h1:NwccjCOhZOi0l4w68vPJOV99ctreO/YlrY+RNiz7Llc=
 github.com/puppetlabs/relay-pls v0.0.0-20201125074651-13575df50b51/go.mod h1:xtYyc7gvvVZtfAn5kM89ihJj6v5zdBjNjMfp+a6z+8o=
 github.com/qri-io/starlib v0.4.2-0.20200213133954-ff2e8cd5ef8d/go.mod h1:7DPO4domFU579Ga6E61sB9VFNaniPVwJP5C4bBCu3wA=
