@@ -43,22 +43,6 @@ spec:
                 description: Environment is the environment this instance is running
                   in.
                 type: string
-              jwtSigningKeys:
-                description: JWTSigningKeys is the secret and keys that hold a JWT
-                  signing key pair for the workflow run key signing operations with
-                  vault. This secret must have 2 fields for a public and private key
-                  pair. If this field is not set, then signings key will be generated
-                  automatically.
-                properties:
-                  name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                      TODO: Add other useful fields. apiVersion, kind, uid?'
-                    type: string
-                  privateKeyRef:
-                    type: string
-                  publicKeyRef:
-                    type: string
-                type: object
               logService:
                 description: LogService is the configuration for the log service.
                 properties:
@@ -2133,8 +2117,6 @@ spec:
                 description: Operator is the configuration for the workflow run operator.
                 properties:
                   admissionWebhookServer:
-                    default:
-                      certificateControllerImagePullPolicy: IfNotPresent
                     description: AdmissionWebhookServer is the configuration for the
                       admissionregistration webhook server.
                     properties:
@@ -3253,17 +3235,16 @@ spec:
                           when configuring engine mounts and policies for relay-core
                           components.
                         properties:
-                          token:
-                            description: Value provides vault server authentication
-                              data.
+                          value:
+                            description: Value allows data to be provided directly.
                             type: string
-                          tokenFrom:
-                            description: ValueFrom allows vault server auth data to
-                              be provided by another source such as a Secret.
+                          valueFrom:
+                            description: ValueFrom allows data to be provided by another
+                              source such as a Secret.
                             properties:
                               secretKeyRef:
-                                description: SecretKeyRef selects an API token by
-                                  looking up the value in a secret.
+                                description: SecretKeyRef selects data by looking
+                                  up the value in a secret.
                                 properties:
                                   key:
                                     description: The key of the secret to select from.  Must
@@ -3289,17 +3270,16 @@ spec:
                           This Job only supports a singular unseal key, so servers
                           that require multiple keys will not be unsealed.
                         properties:
-                          token:
-                            description: Value provides vault server authentication
-                              data.
+                          value:
+                            description: Value allows data to be provided directly.
                             type: string
-                          tokenFrom:
-                            description: ValueFrom allows vault server auth data to
-                              be provided by another source such as a Secret.
+                          valueFrom:
+                            description: ValueFrom allows data to be provided by another
+                              source such as a Secret.
                             properties:
                               secretKeyRef:
-                                description: SecretKeyRef selects an API token by
-                                  looking up the value in a secret.
+                                description: SecretKeyRef selects data by looking
+                                  up the value in a secret.
                                 properties:
                                   key:
                                     description: The key of the secret to select from.  Must
@@ -3350,6 +3330,50 @@ spec:
                         description: PullPolicy describes a policy for if/when to
                           pull a container image
                         type: string
+                    type: object
+                  jwtSigningKeys:
+                    description: JWTSigningKeys provides the JWT signing keys used
+                      for operations with vault. If this field is not set, signing
+                      keys will be generated automatically.
+                    properties:
+                      privateKeyRef:
+                        description: PrivateKeyRef is a reference to a secret containing
+                          the private key.
+                        properties:
+                          key:
+                            description: The key of the secret to select from.  Must
+                              be a valid secret key.
+                            type: string
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                          optional:
+                            description: Specify whether the Secret or its key must
+                              be defined
+                            type: boolean
+                        required:
+                        - key
+                        type: object
+                      publicKeyRef:
+                        description: PublicKeyRef is a reference to a secret containing
+                          the public key.
+                        properties:
+                          key:
+                            description: The key of the secret to select from.  Must
+                              be a valid secret key.
+                            type: string
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                          optional:
+                            description: Specify whether the Secret or its key must
+                              be defined
+                            type: boolean
+                        required:
+                        - key
+                        type: object
                     type: object
                   server:
                     description: Server provides the configuration for the vault server.
