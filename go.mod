@@ -1,6 +1,6 @@
 module github.com/puppetlabs/relay
 
-go 1.17
+go 1.18
 
 require (
 	github.com/cli/browser v1.0.0
@@ -23,8 +23,8 @@ require (
 	github.com/puppetlabs/leg/k8sutil v0.6.7
 	github.com/puppetlabs/leg/timeutil v0.4.2
 	github.com/puppetlabs/leg/workdir v0.1.0
-	github.com/puppetlabs/relay-client-go/client v0.4.5
-	github.com/puppetlabs/relay-client-go/models v1.0.7
+	github.com/puppetlabs/relay-client-go/client v0.5.0
+	github.com/puppetlabs/relay-client-go/models v1.1.0
 	github.com/puppetlabs/relay-core v0.0.0-20220427044955-8331790d54ab
 	github.com/rancher/helm-controller v0.6.3
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546

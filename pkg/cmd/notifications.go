@@ -65,7 +65,7 @@ func doListUserNotifications(cmd *cobra.Command, args []string) error {
 		return errors.NewClientInternalError().WithCause(err)
 	}
 
-	if n.Notifications == nil || len(*n.Notifications) == 0 {
+	if len(n.Notifications) == 0 {
 		return nil
 	}
 
@@ -73,7 +73,7 @@ func doListUserNotifications(cmd *cobra.Command, args []string) error {
 
 	t.Headers([]string{"Status", "Type", "Name", "Run Number", "Link"})
 
-	for _, un := range *n.Notifications {
+	for _, un := range n.Notifications {
 		wfn := un.GetFields()["workflow_name"].(string)
 		rn := int64(un.GetFields()["run_number"].(float64))
 		read := un.Read
@@ -114,7 +114,7 @@ func doClearAllReadUserNotifications(cmd *cobra.Command, args []string) error {
 	}
 
 	nids := make([]string, 0)
-	for _, un := range *n.Notifications {
+	for _, un := range n.Notifications {
 		if un.Read {
 			nids = append(nids, un.GetId())
 		}
@@ -123,7 +123,7 @@ func doClearAllReadUserNotifications(cmd *cobra.Command, args []string) error {
 	if len(nids) > 0 {
 		req := Client.Api.NotificationsApi.PostAllNotificationDone(cmd.Context())
 		_, _, err := Client.Api.NotificationsApi.PostAllNotificationDoneExecute(
-			req.NotificationIdentifiers(openapi.NotificationIdentifiers{Ids: &nids}),
+			req.NotificationIdentifiers(openapi.NotificationIdentifiers{Ids: nids}),
 		)
 		if err != nil {
 			return err
