@@ -165,7 +165,7 @@ func doListTokens(cmd *cobra.Command, args []string) error {
 
 		t.Headers([]string{"User", "Id", "Name", "Type"})
 
-		for _, token := range *tokens {
+		for _, token := range tokens {
 			t.AppendRow([]string{token.UserToken.GetUser().Name, token.UserToken.GetId(), token.UserToken.GetName(), token.UserToken.GetType()})
 		}
 

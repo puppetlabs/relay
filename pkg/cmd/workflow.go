@@ -287,7 +287,7 @@ func doListWorkflows(cmd *cobra.Command, args []string) error {
 
 	t.Headers([]string{"Name", "Last Run Number"})
 
-	for _, workflow := range *wv.Workflows {
+	for _, workflow := range wv.Workflows {
 		run := ""
 		if workflow.MostRecentRun != nil {
 			run = fmt.Sprintf("%d", workflow.MostRecentRun.RunNumber)
@@ -314,7 +314,7 @@ func doListWorkflowsCompletion(cmd *cobra.Command, args []string, toComplete str
 
 	results := []string{}
 
-	for _, workflow := range *wv.Workflows {
+	for _, workflow := range wv.Workflows {
 		if strings.HasPrefix(workflow.Name, toComplete) {
 			results = append(results, workflow.Name)
 		}

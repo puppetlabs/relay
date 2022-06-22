@@ -2006,10 +2006,10 @@ github.com/puppetlabs/leg/workdir v0.1.0 h1:ErFrZiEK7eYufupQ34ytM4AFIVxZryuOktMG
 github.com/puppetlabs/leg/workdir v0.1.0/go.mod h1:wqtQ5F1GvWJ2OH0OaDYkZnF4Iq+yV9uojU6kBub6jcA=
 github.com/puppetlabs/pvpool v0.3.0/go.mod h1:yxvaQJGhcIuzUrpmWnVKG+86JRDK1JR0RepBbImMM+Q=
 github.com/puppetlabs/relay-client-go/client v0.4.4/go.mod h1:96UPPGfyCXTLt6zalSlcWDA+7TPIpi0ClPdlKuhVzRo=
-github.com/puppetlabs/relay-client-go/client v0.4.5 h1:d0QnT0SDMwmBNS63Kp0PIHXM4a6SIhXeZumwW6DMtsg=
-github.com/puppetlabs/relay-client-go/client v0.4.5/go.mod h1:96UPPGfyCXTLt6zalSlcWDA+7TPIpi0ClPdlKuhVzRo=
-github.com/puppetlabs/relay-client-go/models v1.0.7 h1:RhIurCzOCEOyBLKUjxV7AoBHlLuULFGXmzctyH9MO9I=
-github.com/puppetlabs/relay-client-go/models v1.0.7/go.mod h1:aQJfo2Wo8aPFXWNjVGAy9dq6Xz5EcgET2tR7GPOijYA=
+github.com/puppetlabs/relay-client-go/client v0.5.0 h1:PFvz76FVUO3v+iiyMCemJ0tK30h3cIuofw2fVgBhrzU=
+github.com/puppetlabs/relay-client-go/client v0.5.0/go.mod h1:la2OtCRI7YyEuCBghWV1ijrrTmW7tgrpPIMQcqOdE4A=
+github.com/puppetlabs/relay-client-go/models v1.1.0 h1:QzTBZ4ZPLXXGnMi6TancYjqa5w1imMb4NiwQuHtjSUQ=
+github.com/puppetlabs/relay-client-go/models v1.1.0/go.mod h1:aQJfo2Wo8aPFXWNjVGAy9dq6Xz5EcgET2tR7GPOijYA=
 github.com/puppetlabs/relay-core v0.0.0-20211101184602-cf3519db2e61/go.mod h1:tOTpLLbsrnOPQ8sn7i1Zq6etYky6GZoB6zzNGlUQ64w=
 github.com/puppetlabs/relay-core v0.0.0-20220427044955-8331790d54ab h1:TVUiUIYoORH8OQSFbdnOkyI1QUSINY+fE1zd3F3coIs=
 github.com/puppetlabs/relay-core v0.0.0-20220427044955-8331790d54ab/go.mod h1:MLj8qxHQ68gCUMJkz0mRnCRee1yu/aoRgh/rBCqiruQ=

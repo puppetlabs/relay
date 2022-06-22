@@ -61,7 +61,7 @@ func doListUserWorkflowSubscriptions(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for _, wf := range *uws.Workflows {
+	for _, wf := range uws.Workflows {
 		if wf.Subscriptions != nil &&
 			*wf.Subscriptions.Subscribe {
 			Dialog.Infof(wf.Name)
