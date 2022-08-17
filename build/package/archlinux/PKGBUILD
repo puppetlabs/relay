@@ -1,4 +1,3 @@
-# Maintainer: Kyle Terry <kyle.terry@puppet.com>
 pkgname=puppet-relay
 pkgver=4.1.0
 pkgrel=1

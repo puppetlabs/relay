@@ -17,7 +17,7 @@ steps:
     github_token: ${secrets.github-token}
     tag: ${parameters.tag}
     sha: ${parameters.sha}
-  inputFile: https://raw.githubusercontent.com/puppetlabs/relay/master/build/package/brew/update_formula.sh
+  inputFile: https://raw.githubusercontent.com/puppetlabs/relay/main/build/package/brew/update_formula.sh
 - name: slack-notify
   image: relaysh/slack-step-message-send:latest
   spec:
