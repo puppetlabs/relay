@@ -7,16 +7,6 @@ SHA=$(<"bin/relay-${TAG}-darwin-amd64.sha256")
 
 chmod +x $CLI
 
-mkdir -p ~/.config/relay
-
-cat << EOF > ~/.config/relay/config.yaml
-contexts:
-  staging:
-    apiDomain: https://api.stage.relay-infra.net
-    uiDomain: https://ui.stage.relay-infra.net
-EOF
-
-${CLI} context set staging
 echo -n "${RELAY_OPERATIONS_API_TOKEN}" | ${CLI} auth login --stdin
 
 ${CLI} workflow run --parameter tag=${TAG} --parameter sha=${SHA} relay-cli-update-brew

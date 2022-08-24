@@ -18,10 +18,3 @@ steps:
     tag: ${parameters.tag}
     sha: ${parameters.sha}
   inputFile: https://raw.githubusercontent.com/puppetlabs/relay/main/build/package/brew/update_formula.sh
-- name: slack-notify
-  image: relaysh/slack-step-message-send:latest
-  spec:
-    connection: ${connections.slack.relay-slack-bot}
-    channel: "#team-relay-notice"
-    username: Relay.sh Notifications
-    message: ${outputs.clone-and-edit-pr.result}
